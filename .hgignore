@@ -1,0 +1,2 @@
+syntax: regexp
+^war/WEB-INF/classes/

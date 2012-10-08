@@ -1,0 +1,10 @@
+<form method="post" action="/p/save">
+<div>ID: ${id?html}</div>
+<input type="hidden" name="id" value="${id?html}"></input>
+<div>Full internal name: <input type="text" name="name" value="${name?html}"></input></div>
+<div>Title: <input type="text" name="title" value="${title?html}"></input></div>
+<div>Product home page: <input type="text" name="url" value="${url?html}"></input></div>
+<div>Description: <textarea rows="5" name="description">${description?html}</textarea></div>
+<div><input class="input" type="submit" value="Save"></input> </div>
+</form>
+

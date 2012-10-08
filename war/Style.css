@@ -1,0 +1,74 @@
+@import "Reset.css";
+
+body {
+    font-family: arial,sans-serif;
+    background-color: #e6e7e9;
+}
+
+h1 {
+    color: #666;
+    font-size: 20pt;
+}
+
+li {
+    display: list-item;
+}
+
+ul {
+    padding: 2em;
+    list-style: disc;
+    list-style-type: disc;
+}
+
+div.login-header {
+    background-color: #e6e7e9;
+    height: 2em;
+}
+
+div.menu {
+    background-color: #ffebb1;
+    height: 3em;
+}
+
+div.content {
+    background-color: #e3ce9a;
+    padding: 1em;
+}
+
+div.footer {
+    background-color: #696969;
+}
+
+.input {
+    -moz-box-shadow:inset 0px 1px 0px 0px #caefab;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #caefab;
+    box-shadow:inset 0px 1px 0px 0px #caefab;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #77d42a), color-stop(1, #5cb811) );
+    background:-moz-linear-gradient( center top, #77d42a 5%, #5cb811 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77d42a', endColorstr='#5cb811');
+    background-color:#77d42a;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    border-radius:6px;
+    border:1px solid #268a16;
+    display:inline-block;
+    color:#306108;
+    font-family:arial;
+    font-size:15px;
+    font-weight:bold;
+    padding:4px 20px;
+    text-decoration:none;
+    text-shadow:1px 1px 0px #aade7c;
+}
+
+.input:hover {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #5cb811), color-stop(1, #77d42a) );
+    background:-moz-linear-gradient( center top, #5cb811 5%, #77d42a 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cb811', endColorstr='#77d42a');
+    background-color:#5cb811;
+}
+
+.input:active {
+    position:relative;
+    top:1px;
+}

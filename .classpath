@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/objectify-3.1.jar" sourcepath="C:/Users/t/libs/objectify-3.1/src"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/freemarker-gae-2.3.19.jar" sourcepath="C:/Users/t/libs/freemarker-2.3.19/src"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
