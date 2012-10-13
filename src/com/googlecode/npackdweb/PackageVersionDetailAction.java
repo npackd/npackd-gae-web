@@ -10,24 +10,25 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
 /**
- * Delete a repository.
+ * A package version.
  */
-public class RepDeleteAction extends Action {
+public class PackageVersionDetailAction extends Action {
 	/**
 	 * -
 	 */
-	public RepDeleteAction() {
-		super("^/rep/delete$", ActionSecurityType.ADMINISTRATOR);
+	public PackageVersionDetailAction() {
+		super("^/pv/(\\d+)$", ActionSecurityType.LOGGED_IN);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		long id = Long.parseLong(req.getParameter("id"));
-		Objectify ofy = ObjectifyService.begin();
-		ofy.delete(new Key<Repository>(Repository.class, id));
+		long id = Long.parseLong(req.getRequestURI().substring(4));
 
-		resp.sendRedirect("/rep");
-		return null;
+		Objectify ofy = ObjectifyService.begin();
+		PackageVersion r = ofy.get(new Key<PackageVersion>(
+				PackageVersion.class, id));
+
+		return new PackageVersionPage(r);
 	}
 }

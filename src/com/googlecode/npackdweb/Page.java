@@ -3,16 +3,21 @@ package com.googlecode.npackdweb;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * An HTML page.
  */
 public abstract class Page {
 	/**
-	 * Creates HTML
+	 * Creates the content of a page
 	 * 
-	 * @return HTML
+	 * @param request
+	 *            HTTP request
+	 * @param resp
+	 *            HTTP response
+	 * @throws IOException
 	 */
-	public abstract String create(HttpServletRequest request)
-			throws IOException;
+	public abstract void create(HttpServletRequest request,
+			HttpServletResponse resp) throws IOException;
 }

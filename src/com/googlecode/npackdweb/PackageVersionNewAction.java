@@ -6,19 +6,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * /rep
+ * Create a new package version.
  */
-public class RepAction extends Action {
+public class PackageVersionNewAction extends Action {
 	/**
 	 * -
 	 */
-	public RepAction() {
-		super("^/rep$", ActionSecurityType.LOGGED_IN);
+	public PackageVersionNewAction() {
+		super("^/pv/new$", ActionSecurityType.ADMINISTRATOR);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		return new RepPage();
+		return new PackageVersionPage(null);
 	}
 }

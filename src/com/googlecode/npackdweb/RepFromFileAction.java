@@ -6,19 +6,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * /rep
+ * Form for a repository upload.
  */
-public class RepAction extends Action {
+public class RepFromFileAction extends Action {
 	/**
 	 * -
 	 */
-	public RepAction() {
-		super("^/rep$", ActionSecurityType.LOGGED_IN);
+	public RepFromFileAction() {
+		super("^/rep/from-file$", ActionSecurityType.ADMINISTRATOR);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		return new RepPage();
+		return new RepFromFilePage();
 	}
 }

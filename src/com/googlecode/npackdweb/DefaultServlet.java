@@ -1,7 +1,6 @@
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,6 +12,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+
+/**
+ * Default servlet for HTML pages.
+ */
 @SuppressWarnings("serial")
 public class DefaultServlet extends HttpServlet {
 	private List<Pattern> urlPatterns = new ArrayList<Pattern>();
@@ -38,13 +43,37 @@ public class DefaultServlet extends HttpServlet {
 		}
 
 		if (found != null) {
-			Page p = found.perform(req, resp);
-			if (p != null) {
-				String html = p.create(req);
-				resp.setContentType("text/html; charset=UTF-8");
-				Writer out = resp.getWriter();
-				out.write(html);
-				out.close();
+			UserService us = UserServiceFactory.getUserService();
+			boolean ok = true;
+			switch (found.getSecurityType()) {
+			case ANONYMOUS:
+				break;
+			case LOGGED_IN:
+				if (us.getCurrentUser() == null) {
+					ok = false;
+					resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
+				}
+				break;
+			case ADMINISTRATOR:
+				if (us.getCurrentUser() == null) {
+					ok = false;
+					resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
+				} else if (!us.isUserAdmin()) {
+					ok = false;
+					resp.setContentType("text/plain");
+					resp.getWriter().write("Not an admin");
+					resp.getWriter().close();
+				}
+				break;
+			default:
+				throw new InternalError("Unknown security type");
+			}
+
+			if (ok) {
+				Page p = found.perform(req, resp);
+				if (p != null) {
+					p.create(req, resp);
+				}
 			}
 		} else {
 			throw new IOException("Unknown command: " + pi);
@@ -57,35 +86,39 @@ public class DefaultServlet extends HttpServlet {
 		NWUtils.initObjectify();
 		NWUtils.initFreeMarker(getServletContext());
 
-		urlPatterns.add(Pattern.compile("^/rep/delete$"));
-		actions.add(new RepDeleteAction());
+		/* repository */
+		registerAction(new RepDeleteAction());
+		registerAction(new RepAddAction());
+		registerAction(new RepUploadAction());
+		registerAction(new RepFromFileAction());
+		registerAction(new RepDetailAction());
+		registerAction(new RepAction());
+		registerAction(new RepXMLAction());
 
-		urlPatterns.add(Pattern.compile("^/rep/add$"));
-		actions.add(new RepAddAction());
+		/* package */
+		registerAction(new PackagesAction());
+		registerAction(new PackageDetailAction());
+		registerAction(new PackageNewAction());
+		registerAction(new PackageSaveAction());
+		registerAction(new PackageDeleteAction());
 
-		urlPatterns.add(Pattern.compile("^/rep/(\\d+)$"));
-		actions.add(new RepDetailAction());
+		/* package version */
+		registerAction(new PackageVersionDetailAction());
+		registerAction(new PackageVersionNewAction());
+		registerAction(new PackageVersionSaveAction());
 
-		urlPatterns.add(Pattern.compile("^/rep$"));
-		actions.add(new RepAction());
+		registerAction(new HomeAction());
+	}
 
-		urlPatterns.add(Pattern.compile("^/p$"));
-		actions.add(new PackagesAction());
-
-		urlPatterns.add(Pattern.compile("^/p/(\\d+)$"));
-		actions.add(new PackageDetailAction());
-
-		urlPatterns.add(Pattern.compile("^/p/new$"));
-		actions.add(new PackageNewAction());
-
-		urlPatterns.add(Pattern.compile("^/p/save$"));
-		actions.add(new PackageSaveAction());
-
-		urlPatterns.add(Pattern.compile("^/p/delete$"));
-		actions.add(new PackageDeleteAction());
-
-		urlPatterns.add(Pattern.compile("^/$"));
-		actions.add(new HomeAction());
+	/**
+	 * Registers an action
+	 * 
+	 * @param action
+	 *            registered action
+	 */
+	private void registerAction(Action action) {
+		urlPatterns.add(Pattern.compile(action.getURLRegExp()));
+		actions.add(action);
 	}
 
 	@Override

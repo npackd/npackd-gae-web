@@ -24,7 +24,7 @@ public class RepPage extends FramePage {
 		StringBuilder sb = new StringBuilder();
 		for (Repository r : q) {
 			sb.append(NWUtils.tmpl("rep/RepositoryLink.html", "title", r.name,
-					"id", r.id.toString()));
+					"id", r.name));
 		}
 
 		return NWUtils.tmpl("rep/Content.html", NWUtils.newMap("repositories",

@@ -10,24 +10,25 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
 /**
- * Delete a repository.
+ * Creates XML for a whole repository definition.
  */
-public class RepDeleteAction extends Action {
+public class RepXMLAction extends Action {
 	/**
 	 * -
 	 */
-	public RepDeleteAction() {
-		super("^/rep/delete$", ActionSecurityType.ADMINISTRATOR);
+	public RepXMLAction() {
+		super("^/rep/(\\d+)/xml$", ActionSecurityType.LOGGED_IN);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		long id = Long.parseLong(req.getParameter("id"));
-		Objectify ofy = ObjectifyService.begin();
-		ofy.delete(new Key<Repository>(Repository.class, id));
+		long id = Long.parseLong(req.getRequestURI().substring(5,
+				req.getRequestURI().length() - 4));
 
-		resp.sendRedirect("/rep");
-		return null;
+		Objectify ofy = ObjectifyService.begin();
+		Repository r = ofy.get(new Key<Repository>(Repository.class, id));
+
+		return new RepXMLPage(r);
 	}
 }

@@ -5,16 +5,16 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Home page.
+ * Form for a repository upload.
  */
-public class HomePage extends FramePage {
+public class RepFromFilePage extends FramePage {
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
-		return NWUtils.tmpl("Home.html");
+		return NWUtils.tmpl(this, "RepFromFile.html");
 	}
 
 	@Override
 	public String getTitle() {
-		return "Npackd";
+		return "Upload repository";
 	}
 }

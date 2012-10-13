@@ -1,8 +1,11 @@
 package com.googlecode.npackdweb;
 
 import javax.persistence.Id;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import com.google.appengine.api.users.User;
+import org.w3c.dom.Document;
+
 import com.googlecode.objectify.annotation.Entity;
 
 /**
@@ -10,13 +13,23 @@ import com.googlecode.objectify.annotation.Entity;
  */
 @Entity
 public class Repository {
-	@Id
-	/** data store ID */
-	Long id;
-
 	/** name of the repository */
+	@Id
 	String name;
 
-	/** creator */
-	User user;
+	/**
+	 * @return XML for the whole repository definition
+	 */
+	public Document toXML() {
+		Document d;
+		try {
+			d = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+					.newDocument();
+		} catch (ParserConfigurationException e) {
+			throw (InternalError) new InternalError(e.getMessage())
+					.initCause(e);
+		}
+		d.appendChild(d.createElement("root"));
+		return d;
+	}
 }

@@ -21,7 +21,7 @@ public class RepDetailPage extends FramePage {
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
 		return NWUtils.tmpl("rep/Repository.html", NWUtils.newMap("title",
-				r.name, "id", r.id.toString()));
+				r.name, "id", r.name));
 	}
 
 	@Override

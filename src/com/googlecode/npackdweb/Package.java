@@ -2,8 +2,6 @@ package com.googlecode.npackdweb;
 
 import javax.persistence.Id;
 
-import com.google.appengine.api.users.User;
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Entity;
 
 /**
@@ -12,12 +10,29 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 public class Package {
 	@Id
-	Long id;
 	String name;
 	String title;
 	String url;
 	String description;
 	String icon;
-	User createdBy;
-	Key<Repository> repository;
+
+	public String getName() {
+		return name;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
 }

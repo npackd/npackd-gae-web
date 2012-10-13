@@ -12,12 +12,12 @@ import com.googlecode.objectify.ObjectifyService;
 /**
  * Save or create a package.
  */
-public class PackageSaveAction extends Action {
+public class PackageVersionSaveAction extends Action {
 	/**
 	 * -
 	 */
-	public PackageSaveAction() {
-		super("^/p/save$", ActionSecurityType.ADMINISTRATOR);
+	public PackageVersionSaveAction() {
+		super("^/pv/save$", ActionSecurityType.ADMINISTRATOR);
 	}
 
 	@Override
@@ -25,23 +25,18 @@ public class PackageSaveAction extends Action {
 			throws IOException {
 		String id = req.getParameter("id");
 		Objectify ofy = ObjectifyService.begin();
-		Package p;
+		PackageVersion p;
 		if (id == null || id.trim().length() == 0) {
-			p = new Package();
+			p = new PackageVersion();
 			p.name = req.getParameter("name");
-			p.description = req.getParameter("description");
-			p.icon = req.getParameter("icon");
-			p.title = req.getParameter("title");
-			p.url = req.getParameter("url");
-			p.icon = req.getParameter("icon");
 		} else {
 			long id_ = Long.parseLong(id);
-			p = ofy.get(new Key<Package>(Package.class, id_));
+			p = ofy.get(new Key<PackageVersion>(PackageVersion.class, id_));
 			if (p == null)
-				throw new IOException("Package does not exist");
+				throw new IOException("Package version does not exist");
 		}
 		ofy.put(p);
-		resp.sendRedirect("/p");
+		resp.sendRedirect("/pv");
 		return null;
 	}
 }

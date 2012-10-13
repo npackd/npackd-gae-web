@@ -11,6 +11,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.ObjectifyService;
@@ -88,7 +92,7 @@ public class NWUtils {
 	 * @throws IOException
 	 *             if the template cannot be read
 	 */
-	public static String tmpl(String templateName, Map<String, String> values)
+	public static String tmpl(String templateName, Map<String, Object> values)
 			throws IOException {
 		Template t = cfg.getTemplate(templateName);
 		StringWriter sw = new StringWriter();
@@ -132,10 +136,31 @@ public class NWUtils {
 	 */
 	public static String tmpl(String templateName, String... keysAndValues)
 			throws IOException {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		for (int i = 0; i < keysAndValues.length; i += 2) {
 			map.put(keysAndValues[i], keysAndValues[i + 1]);
 		}
+		return tmpl(templateName, map);
+	}
+
+	/**
+	 * Formats a template
+	 * 
+	 * @param templateName
+	 *            name of the template file
+	 * @param keysAndValues
+	 *            key1, value1, key2, value2, ...
+	 * @return formatted text
+	 * @throws IOException
+	 *             if the template cannot be read
+	 */
+	public static String tmpl(Page page, String templateName,
+			String... keysAndValues) throws IOException {
+		Map<String, Object> map = new HashMap<String, Object>();
+		for (int i = 0; i < keysAndValues.length; i += 2) {
+			map.put(keysAndValues[i], keysAndValues[i + 1]);
+		}
+		map.put("page", page);
 		return tmpl(templateName, map);
 	}
 
@@ -195,8 +220,8 @@ public class NWUtils {
 	 *            value
 	 * @return map with the specified value
 	 */
-	public static Map<String, String> newMap(String key, String value) {
-		Map<String, String> map = new HashMap<String, String>();
+	public static Map<String, Object> newMap(String key, String value) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(key, value);
 		return map;
 	}
@@ -214,9 +239,9 @@ public class NWUtils {
 	 *            second value
 	 * @return map with the specified values
 	 */
-	public static Map<String, String> newMap(String key, String value,
+	public static Map<String, Object> newMap(String key, String value,
 			String key2, String value2) {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(key, value);
 		map.put(key2, value2);
 		return map;
@@ -230,7 +255,43 @@ public class NWUtils {
 			ObjectifyService.register(Repository.class);
 			ObjectifyService.register(Package.class);
 			ObjectifyService.register(PackageVersion.class);
+			ObjectifyService.register(License.class);
 			objectifyInitialized = true;
 		}
+	}
+
+	/**
+	 * Returns the content of a sub-tag.
+	 * 
+	 * @param tag
+	 *            an XML tag
+	 * @param subtag
+	 *            name of the sub-tag
+	 * @param def
+	 *            this value is used if the sub-tag is missing
+	 * @return the content of the sub-tag
+	 */
+	public static String getSubTagContent(Element tag, String subtag, String def) {
+		NodeList nl = tag.getElementsByTagName(subtag);
+		String r = def;
+		if (nl.getLength() > 0) {
+			Element a = (Element) nl.item(0);
+			Node first = a.getFirstChild();
+			if (first != null)
+				r = first.getNodeValue();
+		}
+		return r;
+	}
+
+	/**
+	 * @param che
+	 *            a tag
+	 * @return text content of the tag
+	 */
+	public static String getTagContent_(Element che) {
+		if (che.getFirstChild() != null)
+			return che.getFirstChild().getNodeValue();
+		else
+			return "";
 	}
 }

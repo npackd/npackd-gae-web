@@ -1,1 +1,8 @@
-<ul>${packages}</ul>
+<div class="nw-packages">
+<#list page.packages as p>
+<div>
+<h3><a href="/p/${p.name?html}">${p.title?html}</a></h3>
+<div>Description: ${p.description?html}</div>
+</div>
+</#list>
+</div>

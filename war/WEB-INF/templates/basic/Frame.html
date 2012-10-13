@@ -4,12 +4,32 @@
 <LINK REL="stylesheet" TYPE="text/css" HREF="/Style.css" MEDIA="all" />
 </HEAD>
 <BODY>
-<div class="login-header"></div>
-<div class="menu"></div>
+<div class="login-header">${login}</div>
+
+<!-- http://www.red-team-design.com/css3-dropdown-menu -->
+<ul id="menu">
+        <li><a href="/">Home</a></li>
+        <!-- 
+        <li>
+                <a href="#">Categories</a>
+                <ul>
+                        <li><a href="#">CSS</a></li>
+                        <li><a href="#">Graphic design</a></li>
+                        <li><a href="#">Development tools</a></li>
+                        <li><a href="#">Web design</a></li>
+                </ul>
+        </li>
+         -->
+        <li><a href="/p">Packages</a></li>
+        <li><a href="http://code.google.com/p/windows-package-manager/downloads/list">Download client*</a></li>
+        <li><a href="/rep/from-file">Upload repository</a></li>
+</ul>
+
 <div class="content">
-<h1><img src="/Logo.png"/> ${title?html}</h1>
+<h1>${title?html}</h1>
 ${content}
 </div>
-<DIV CLASS="footer">${login}</DIV>
+<div class="nw-footer">Npackd itself and also all data about packages (but not the packages themself) is licensed under <a href="http://www.gnu.org/licenses/gpl.html">GPLv3</a></div>
+<div class="nw-footer">Windows is a registered trademark of Microsoft Corporation in the United States and other countries.</div>
 </BODY>
 </HTML>

@@ -12,9 +12,16 @@ import com.googlecode.objectify.ObjectifyService;
 /**
  * Deletes a package
  */
-public class PackageDeleteAction extends SecureAction {
+public class PackageDeleteAction extends Action {
+	/**
+	 * -
+	 */
+	public PackageDeleteAction() {
+		super("^/p/delete$", ActionSecurityType.ADMINISTRATOR);
+	}
+
 	@Override
-	public Page securePerform(HttpServletRequest req, HttpServletResponse resp)
+	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		long id = Long.parseLong(req.getParameter("id"));
 		Objectify ofy = ObjectifyService.begin();

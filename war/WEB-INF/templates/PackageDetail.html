@@ -1,0 +1,13 @@
+<h3><#if page.package.icon = ""><img src="/App.png"/></#if>
+<#if page.package.icon != ""><img src="${page.package.icon?html}" width="32" height="32"/></#if>
+${page.package.title?html}</h3>
+<div>Full internal name: ${page.package.name?html}</div>
+<div><a href="${page.package.url?html}">Project site</a></div>
+<div>Description: ${page.package.description?html}</div>
+
+<div>
+Versions:
+<#list page.versions as pv>
+${pv.version?html}<#if pv_has_next>,</#if> 
+</#list>
+</div>
