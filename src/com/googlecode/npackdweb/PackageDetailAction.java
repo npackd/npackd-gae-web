@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
@@ -17,7 +19,7 @@ public class PackageDetailAction extends Action {
 	 * -
 	 */
 	public PackageDetailAction() {
-		super("^/p/(.+)$", ActionSecurityType.LOGGED_IN);
+		super("^/p/(.+)$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override
@@ -28,6 +30,7 @@ public class PackageDetailAction extends Action {
 		Objectify ofy = ObjectifyService.begin();
 		Package r = ofy.get(new Key<Package>(Package.class, name));
 
-		return new PackageDetailPage(r);
+		UserService us = UserServiceFactory.getUserService();
+		return new PackageDetailPage(r, us.isUserLoggedIn() && us.isUserAdmin());
 	}
 }

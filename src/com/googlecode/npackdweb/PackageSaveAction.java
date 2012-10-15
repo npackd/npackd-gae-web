@@ -17,29 +17,29 @@ public class PackageSaveAction extends Action {
 	 * -
 	 */
 	public PackageSaveAction() {
-		super("^/p/save$", ActionSecurityType.ADMINISTRATOR);
+		super("^/package/save$", ActionSecurityType.ADMINISTRATOR);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		String id = req.getParameter("id");
+		String name = req.getParameter("name");
 		Objectify ofy = ObjectifyService.begin();
 		Package p;
-		if (id == null || id.trim().length() == 0) {
+		if (name == null || name.trim().length() == 0) {
 			p = new Package();
 			p.name = req.getParameter("name");
-			p.description = req.getParameter("description");
-			p.icon = req.getParameter("icon");
-			p.title = req.getParameter("title");
-			p.url = req.getParameter("url");
-			p.icon = req.getParameter("icon");
 		} else {
-			long id_ = Long.parseLong(id);
-			p = ofy.get(new Key<Package>(Package.class, id_));
+			p = ofy.get(new Key<Package>(Package.class, name));
 			if (p == null)
 				throw new IOException("Package does not exist");
 		}
+		p.description = req.getParameter("description");
+		p.icon = req.getParameter("icon");
+		p.title = req.getParameter("title");
+		p.url = req.getParameter("url");
+		p.license = req.getParameter("license");
+		p.comment = req.getParameter("comment");
 		ofy.put(p);
 		resp.sendRedirect("/p");
 		return null;

@@ -11,9 +11,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -293,5 +295,34 @@ public class NWUtils {
 			return che.getFirstChild().getNodeValue();
 		else
 			return "";
+	}
+
+	/**
+	 * Adds a sub-tag with the specified text.
+	 * 
+	 * @param parent
+	 *            parent tag
+	 * @param subtag
+	 *            sub-tag
+	 * @param content
+	 *            content of the sub-tag
+	 */
+	public static void e(Element parent, String subtag, String content) {
+		Document d = parent.getOwnerDocument();
+		Element ch = d.createElement(subtag);
+		Text t = d.createTextNode(content);
+		ch.appendChild(t);
+		parent.appendChild(ch);
+	}
+
+	/**
+	 * Adds text to the specified tag.
+	 * 
+	 * @param tag
+	 * @param txt
+	 */
+	public static void t(Element tag, String txt) {
+		Text t = tag.getOwnerDocument().createTextNode(txt);
+		tag.appendChild(t);
 	}
 }

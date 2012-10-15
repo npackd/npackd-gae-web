@@ -2,6 +2,19 @@
 <HEAD>
 <TITLE>${title?html}</TITLE>
 <LINK REL="stylesheet" TYPE="text/css" HREF="/Style.css" MEDIA="all" />
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-35579121-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </HEAD>
 <BODY>
 <div class="login-header">${login}</div>
@@ -21,6 +34,7 @@
         </li>
          -->
         <li><a href="/p">Packages</a></li>
+        <li><a href="/rep">Repositories</a></li>
         <li><a href="http://code.google.com/p/windows-package-manager/downloads/list">Download client*</a></li>
         <li><a href="/rep/from-file">Upload repository</a></li>
 </ul>
@@ -29,7 +43,9 @@
 <h1>${title?html}</h1>
 ${content}
 </div>
-<div class="nw-footer">Npackd itself and also all data about packages (but not the packages themself) is licensed under <a href="http://www.gnu.org/licenses/gpl.html">GPLv3</a></div>
-<div class="nw-footer">Windows is a registered trademark of Microsoft Corporation in the United States and other countries.</div>
+<div class="nw-footer">
+Npackd itself and also all data about packages (but not the packages themself) is licensed under <a href="http://www.gnu.org/licenses/gpl.html">GPLv3</a><br>
+Windows is a registered trademark of Microsoft Corporation in the United States and other countries.
+</div>
 </BODY>
 </HTML>

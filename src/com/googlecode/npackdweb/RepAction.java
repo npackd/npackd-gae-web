@@ -13,7 +13,7 @@ public class RepAction extends Action {
 	 * -
 	 */
 	public RepAction() {
-		super("^/rep$", ActionSecurityType.LOGGED_IN);
+		super("^/rep$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override

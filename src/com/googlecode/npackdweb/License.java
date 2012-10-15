@@ -13,4 +13,16 @@ public class License {
 	String name;
 	String title;
 	String url;
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public String getName() {
+		return name;
+	}
 }

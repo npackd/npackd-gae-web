@@ -1,49 +1,48 @@
 /* Main */
 #menu{
-        margin: 10pt;
-        padding: 10px 0 0 0;
-        list-style: none;  
-        background: #ebeff9;
-        background: -moz-linear-gradient(#fff, #ebeff9); 
-        background: -webkit-gradient(linear,left bottom,left top,color-stop(0, #ebeff9),color-stop(1, #fff));      
-        background: -webkit-linear-gradient(#fff, #ebeff9);        
-        background: -o-linear-gradient(#fff, #ebeff9);
-        background: -ms-linear-gradient(#fff, #ebeff9);
-        background: linear-gradient(#fff, #ebeff9);
-        -moz-border-radius: 10px;
-        border-radius: 10px;
-        -moz-box-shadow: 0 2px 1px #9c9c9c;
-        -webkit-box-shadow: 0 2px 1px #9c9c9c;
-        box-shadow: 0 2px 1px #9c9c9c;
+    margin: 0;
+    padding: 10px 0 0 0;
+    list-style: none;  
+    background: #ebeff9;
+    background: -moz-linear-gradient(#fff, #ebeff9); 
+    background: -webkit-gradient(linear,left bottom,left top,color-stop(0, #ebeff9),color-stop(1, #fff));      
+    background: -webkit-linear-gradient(#fff, #ebeff9);        
+    background: -o-linear-gradient(#fff, #ebeff9);
+    background: -ms-linear-gradient(#fff, #ebeff9);
+    background: linear-gradient(#fff, #ebeff9);
+    /*-moz-border-radius: 10px;
+    border-radius: 10px;*/
+    -moz-box-shadow: 0 2px 1px #9c9c9c;
+    -webkit-box-shadow: 0 2px 1px #9c9c9c;
+    box-shadow: 0 2px 1px #9c9c9c;
 }
 
 #menu li{
-        float: left;
-        padding: 0 0 10px 0;
-        position: relative;
+    float: left;
+    padding: 0 0 10px 0;
+    position: relative;
 }
 
 #menu a{
-        float: left;
-        height: 25px;
-        padding: 0 25px;
-        color: #999;
-        text-transform: uppercase;
-        font: bold 12px/25px Arial, Helvetica;
-        text-decoration: none;
-        text-shadow: 0 1px 0 #000;
+    float: left;
+    height: 25px;
+    padding: 0 25px;
+    color: #666;
+    font: 10pt 'Segoe UI', 'Trebuchet MS', Verdana, Helvetica, sans-serif;
+    text-decoration: none;
+    text-transform: uppercase;
 }
 
 #menu li:hover > a{
-        color: #000000;
+    color: #000000;
 }
 
 *html #menu li a:hover{ /* IE6 */
-        color: #fafafa;
+    color: #fafafa;
 }
 
 #menu li:hover > ul{
-        display: block;
+    display: block;
 }
 
 /* Sub-menu */
@@ -95,23 +94,23 @@
 }
 
 *html #menu ul a{ /* IE6 */   
-        height: 10px;
-        width: 150px;
+    height: 10px;
+    width: 150px;
 }
 
 *:first-child+html #menu ul a{ /* IE7 */    
-        height: 10px;
-        width: 150px;
+    height: 10px;
+    width: 150px;
 }
 
 #menu ul a:hover{
-        background: #0186ba;
-        background: -moz-linear-gradient(#04acec,  #0186ba);    
-        background: -webkit-gradient(linear, left top, left bottom, from(#04acec), to(#0186ba));
-        background: -webkit-linear-gradient(#04acec,  #0186ba);
-        background: -o-linear-gradient(#04acec,  #0186ba);
-        background: -ms-linear-gradient(#04acec,  #0186ba);
-        background: linear-gradient(#04acec,  #0186ba);
+    background: #0186ba;
+    background: -moz-linear-gradient(#04acec,  #0186ba);    
+    background: -webkit-gradient(linear, left top, left bottom, from(#04acec), to(#0186ba));
+    background: -webkit-linear-gradient(#04acec,  #0186ba);
+    background: -o-linear-gradient(#04acec,  #0186ba);
+    background: -ms-linear-gradient(#04acec,  #0186ba);
+    background: linear-gradient(#04acec,  #0186ba);
 }
 
 #menu ul li:first-child a{
@@ -144,12 +143,12 @@
 
 /* Clear floated elements */
 #menu:after{
-        visibility: hidden;
-        display: block;
-        font-size: 0;
-        content: " ";
-        clear: both;
-        height: 0;
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
 }
 
 * html #menu             { zoom: 1; } /* IE6 */

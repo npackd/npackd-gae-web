@@ -19,6 +19,6 @@ public class PackageNewAction extends Action {
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		return new PackageDetailPage(null);
+		return new PackageDetailPage(null, true);
 	}
 }

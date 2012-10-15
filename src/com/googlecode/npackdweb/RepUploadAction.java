@@ -150,6 +150,7 @@ public class RepUploadAction extends Action {
 				p.url = NWUtils.getSubTagContent(e, "url", "");
 				p.description = NWUtils.getSubTagContent(e, "description", "");
 				p.icon = NWUtils.getSubTagContent(e, "icon", "");
+				p.license = NWUtils.getSubTagContent(e, "license", "");
 				v.add(p);
 			}
 		}
