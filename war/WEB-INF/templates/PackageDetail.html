@@ -9,62 +9,87 @@ ${p.title?html}
 <#if page.editable>
 <form method="post" action="/package/save">
 <input type="hidden" name="name" value="${p.name?html}"></input>
+</#if>
+
 <table border="0">
 <tr>
 <td>ID:</td>
 <td>${p.name?html}</td>
 </tr>
+<#if page.editable>
 <tr>
 <td>Title:</td>
-<td><input type="text" name="title" value="${p.title?html}" size="80"></input></td>
+<td>
+<input type="text" name="title" value="${p.title?html}" size="80"></input>
+</td>
 </tr>
+</#if>
 <tr>
 <td>Product home page:</td>
-<td><input type="text" name="url" value="${p.url?html}" size="120"></input></td>
+<td>
+<#if page.editable>
+<input type="text" name="url" value="${p.url?html}" size="120"></input>
+</#if>
+<#if !page.editable>
+<a href="${p.url?html}">${p.url?html}</a>
+</#if>
+</td>
 </tr>
+<#if page.editable>
 <tr>
 <td>Icon:</td>
-<td><input type="text" name="icon" value="${p.icon?html}" size="120"></input></td>
+<td>
+<input type="text" name="icon" value="${p.icon?html}" size="120"></input>
+</td>
 </tr>
+</#if>
 <tr>
 <td>Description:</td>
-<td><textarea rows="5" name="description" cols="80">${p.description?html}</textarea></td>
+<td>
+<#if page.editable>
+<textarea rows="5" name="description" cols="80">${p.description?html}</textarea>
+</#if>
+<#if !page.editable>
+${p.description?html}
+</#if>
+</td>
 </tr>
 <tr>
 <td>License:</td>
-<td><select name="license">
+<td>
+<#if page.editable>
+<select name="license">
+<option value=""></option>
 <#list page.licenses as lic>
 <option value="${lic.name?html}"
 <#if lic.name == p.license>selected="selected"
 </#if>
 >${lic.title?html}</option>
 </#list>
-</select></td>
+</select>
+</#if>
+<#if !page.editable>
+<#if p.license = "">unknown</#if>
+<#if p.license != ""><a href="${page.license.url}">${page.license.title?html}</a></#if>
+</#if>
+</td>
 </tr>
+<#if page.editable>
 <tr>
 <td>Comment:</td>
 <td><textarea rows="5" name="comment" cols="80">${p.comment?html}</textarea></td>
 </tr>
-</table>
 </#if>
-
-<#if !page.editable>
-<div>Full internal name: ${p.name?html}</div>
-<div><a href="${p.url?html}">Project site</a></div>
-<div>Description: ${p.description?html}</div>
 <div>
-License:
-<#if p.license = "">unknown</#if>
-<#if p.license != ""><a href="${page.license.url}">${page.license.title?html}</a></#if>
-</div>
-</#if>
-
-<div>
-Versions:
+<tr>
+<td>Versions:</td>
+<td>
 <#list page.versions as pv>
-${pv.version?html}<#if pv_has_next>,</#if> 
+<a href="/p/${p.name?html}/${pv.version?html}">${pv.version?html}</a><#if pv_has_next>,</#if> 
 </#list>
-</div>
+</td>
+</tr>
+</table>
 
 <#if page.editable>
 <div><input class="input" type="submit" value="Save"></input></div>

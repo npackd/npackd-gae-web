@@ -1,6 +1,8 @@
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,17 +19,21 @@ public class PackageVersionDetailAction extends Action {
 	 * -
 	 */
 	public PackageVersionDetailAction() {
-		super("^/pv/(\\d+)$", ActionSecurityType.LOGGED_IN);
+		super("^/p/([^/]+)/([\\d.]+)$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		long id = Long.parseLong(req.getRequestURI().substring(4));
+		Pattern p = Pattern.compile(getURLRegExp());
+		Matcher m = p.matcher(req.getRequestURI());
+		m.matches();
+		String package_ = m.group(1);
+		String version = m.group(2);
 
 		Objectify ofy = ObjectifyService.begin();
 		PackageVersion r = ofy.get(new Key<PackageVersion>(
-				PackageVersion.class, id));
+				PackageVersion.class, package_ + "@" + version));
 
 		return new PackageVersionPage(r);
 	}

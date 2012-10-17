@@ -17,26 +17,29 @@ public class PackageVersionSaveAction extends Action {
 	 * -
 	 */
 	public PackageVersionSaveAction() {
-		super("^/pv/save$", ActionSecurityType.ADMINISTRATOR);
+		super("^/package-version/save$", ActionSecurityType.ADMINISTRATOR);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		String id = req.getParameter("id");
+		String name = req.getParameter("name");
 		Objectify ofy = ObjectifyService.begin();
 		PackageVersion p;
-		if (id == null || id.trim().length() == 0) {
+		if (name == null || name.trim().length() == 0) {
 			p = new PackageVersion();
-			p.name = req.getParameter("name");
+			p.name = name;
 		} else {
-			long id_ = Long.parseLong(id);
-			p = ofy.get(new Key<PackageVersion>(PackageVersion.class, id_));
+			p = ofy.get(new Key<PackageVersion>(PackageVersion.class, name));
 			if (p == null)
 				throw new IOException("Package version does not exist");
 		}
+		p.url = req.getParameter("url");
+		p.sha1 = req.getParameter("sha1");
+		p.detectMSI = req.getParameter("detectMSI");
+		p.oneFile = "one-file".equals(req.getParameter("type"));
 		ofy.put(p);
-		resp.sendRedirect("/pv");
+		resp.sendRedirect("/p/" + p.package_);
 		return null;
 	}
 }

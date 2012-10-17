@@ -1,7 +1,99 @@
-<form method="post" action="/pv/save">
-<div>ID: ${page.id!''?html}</div>
-<input type="hidden" name="id" value="${page.id!''?html}"></input>
-<div>Version: <input type="text" name="name" value="${page.name?html}"></input></div>
-<div><input class="input" type="submit" value="Save"></input> </div>
+<#assign p = page.package>
+<#assign pv = page.packageVersion>
+
+<h3>
+<#if p.icon = ""><img src="/App.png"/></#if>
+<#if p.icon != ""><img src="${p.icon?html}" style="max-width: 32px; max-height: 32px"/></#if>
+${p.title?html} ${pv.version?html}
+</h3>
+
+<#if page.editable>
+<form method="post" action="/package-version/save">
+<input type="hidden" name="name" value="${pv.name!''?html}"></input>
+</#if>
+
+<table>
+<tr>
+<td>Full internal name:</td><td>${p.name?html}</td>
+</tr>
+<tr>
+<td>Project site:</td>
+<td><a href="${p.url?html}">${p.url?html}</a></td>
+</tr>
+<tr>
+<td>Description:</td><td>${p.description?html}</td>
+</tr>
+<tr>
+<td>License:</td>
+<td>
+<#if p.license = "">unknown</#if>
+<#if p.license != ""><a href="${page.license.url}">${page.license.title?html}</a></#if>
+</td>
+</tr>
+<tr>
+<td>Version:</td><td>${pv.version?html}</td>
+</tr>
+<tr>
+<td>Download:</td>
+<td>
+<#if page.editable>
+<input type="text" name="url" value="${pv.url?html}" size="120"></input>
+</#if>
+<#if !page.editable>
+<div><a href="${pv.url?html}">${pv.url?html}</a></div>
+</#if>
+</td>
+</tr>
+<tr>
+<td>SHA1:</td>
+<td>
+<#if page.editable>
+<input type="text" name="sha1" value="${pv.sha1!''?html}" size="45"></input>
+</#if>
+<#if !page.editable>
+<div>${pv.sha1?html}</div>
+</#if>
+</td>
+</tr>
+<tr>
+<td>Detect MSI GUID:</td>
+<td>
+<#if page.editable>
+<input type="text" name="detectMSI" value="${pv.detectMSI?html}" size="43"></input>
+</#if>
+<#if !page.editable>
+<div>${pv.detectMSI?html}</div>
+</#if>
+</td>
+</tr>
+<tr>
+<td>Dependencies:</td>
+<td>
+<#list pv.dependencyPackages as d>
+<a href="/p/${d?html}">${d?html}</a> ${pv.dependencyVersionRanges[d_index]}<#if d_has_next>,</#if> 
+</#list>
+</td>
+</tr>
+<tr>
+<td>Type:</td>
+<td>
+<#if page.editable>
+<input type="radio" name="type" value="one-file"
+<#if pv.oneFile>checked="checked"</#if>>one file</input>
+<input type="radio" name="type" value="zip"
+<#if !pv.oneFile>checked="checked"</#if>>zip</input>
+</#if>
+<#if !page.editable>
+<#if pv.oneFile>one file</#if>
+<#if !pv.oneFile>zip</#if>
+</#if>
+</td>
+</tr>
+<#if page.editable>
+<tr>
+<td><input class="input" type="submit" value="Save"></input></td>
+</tr>
+</#if>
 </form>
 
+</table>

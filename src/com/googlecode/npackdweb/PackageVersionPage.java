@@ -4,15 +4,22 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.ObjectifyService;
+
 /**
  * Packages.
  */
 public class PackageVersionPage extends FramePage {
 	private PackageVersion pv;
+	private Package package_;
+	private License license;
 
 	/**
 	 * @param pv
-	 *            a package version or null
+	 *            a package version
 	 */
 	public PackageVersionPage(PackageVersion pv) {
 		this.pv = pv;
@@ -28,7 +35,43 @@ public class PackageVersionPage extends FramePage {
 		return "Package version";
 	}
 
-	public String getName() {
-		return pv == null ? "" : pv.name;
+	/**
+	 * @return associated package version
+	 */
+	public PackageVersion getPackageVersion() {
+		return pv;
+	}
+
+	/**
+	 * @return associated package
+	 */
+	public Package getPackage() {
+		if (this.package_ == null) {
+			Objectify objectify = ObjectifyService.begin();
+			this.package_ = objectify.get(Package.class, this.pv.package_);
+		}
+		return this.package_;
+	}
+
+	/**
+	 * @return true if the data should be editable
+	 */
+	public boolean getEditable() {
+		UserService us = UserServiceFactory.getUserService();
+		return us.isUserLoggedIn() && us.isUserAdmin();
+	}
+
+	/**
+	 * @return associated license or null
+	 */
+	public License getLicense() {
+		if (this.license == null) {
+			Package p = getPackage();
+			if (!p.license.isEmpty()) {
+				Objectify ofy = ObjectifyService.begin();
+				this.license = ofy.get(License.class, p.license);
+			}
+		}
+		return license;
 	}
 }

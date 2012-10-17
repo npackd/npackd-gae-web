@@ -44,4 +44,28 @@ public class PackageVersion {
 	public String getPackage() {
 		return package_;
 	}
+
+	public boolean getOneFile() {
+		return oneFile;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public String getSha1() {
+		return sha1;
+	}
+
+	public String getDetectMSI() {
+		return detectMSI;
+	}
+
+	public List<String> getDependencyPackages() {
+		return dependencyPackages;
+	}
+
+	public List<String> getDependencyVersionRanges() {
+		return dependencyVersionRanges;
+	}
 }

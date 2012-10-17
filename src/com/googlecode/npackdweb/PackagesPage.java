@@ -31,7 +31,7 @@ public class PackagesPage extends FramePage {
 		Objectify ofy = ObjectifyService.begin();
 		packages = new ArrayList<Package>();
 		for (Package p : ofy.query(Package.class).limit(PAGE_SIZE + 1).offset(
-				start).fetch())
+				start).order("title").fetch())
 			packages.add(p);
 
 		return NWUtils.tmpl(this, "Packages.html")

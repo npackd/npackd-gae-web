@@ -19,7 +19,7 @@ public class PackageDetailAction extends Action {
 	 * -
 	 */
 	public PackageDetailAction() {
-		super("^/p/(.+)$", ActionSecurityType.ANONYMOUS);
+		super("^/p/([^/]+)$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override
