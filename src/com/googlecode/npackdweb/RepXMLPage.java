@@ -19,6 +19,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,6 +32,21 @@ import com.googlecode.objectify.Query;
  */
 public class RepXMLPage extends Page {
 	private String tag;
+
+	private static final String GPL_LICENSE = "\n    This file is part of Npackd.\n"
+			+ "    \n"
+			+ "    Npackd is free software: you can redistribute it and/or modify\n"
+			+ "    it under the terms of the GNU General Public License as published by\n"
+			+ "    the Free Software Foundation, either version 3 of the License, or\n"
+			+ "    (at your option) any later version.\n"
+			+ "    \n"
+			+ "    Npackd is distributed in the hope that it will be useful,\n"
+			+ "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+			+ "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+			+ "    GNU General Public License for more details.\n"
+			+ "    \n"
+			+ "    You should have received a copy of the GNU General Public License\n"
+			+ "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
 	/**
 	 * @param tag
@@ -52,6 +68,8 @@ public class RepXMLPage extends Page {
 			t.setOutputProperty(OutputKeys.INDENT, "yes");
 			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
 					"4");
+			t.setOutputProperty("{http://xml.apache.org/xalan}line-separator",
+					"\r\n");
 			t.transform(new DOMSource(d.getDocumentElement()),
 					new StreamResult(resp.getOutputStream()));
 			resp.getOutputStream().close();
@@ -75,6 +93,10 @@ public class RepXMLPage extends Page {
 
 		Element root = d.createElement("root");
 		d.appendChild(root);
+		Comment comment = d.createComment(GPL_LICENSE);
+		// root.getParentNode().insertBefore(root, comment);
+		root.appendChild(comment);
+
 		NWUtils.e(root, "spec-version", "2");
 
 		// getting data
@@ -115,8 +137,16 @@ public class RepXMLPage extends Page {
 				lns.add(p.license);
 		}
 		Map<String, License> ls = ofy.get(License.class, lns);
+		List<License> licenses = new ArrayList<License>();
+		licenses.addAll(ls.values());
+		Collections.sort(licenses, new Comparator<License>() {
+			@Override
+			public int compare(License a, License b) {
+				return a.name.compareToIgnoreCase(b.name);
+			}
+		});
 
-		for (License l : ls.values()) {
+		for (License l : licenses) {
 			Element license = d.createElement("license");
 			license.setAttribute("name", l.name);
 			if (!l.title.isEmpty())
@@ -138,6 +168,8 @@ public class RepXMLPage extends Page {
 				NWUtils.e(package_, "description", p.description);
 			if (!p.icon.isEmpty())
 				NWUtils.e(package_, "icon", p.icon);
+			if (!p.license.isEmpty())
+				NWUtils.e(package_, "license", p.license);
 
 			root.appendChild(package_);
 		}

@@ -37,6 +37,10 @@ ul {
     text-align: right;
 }
 
+td {
+    padding: 2px;
+}
+
 div.content {
     padding: 1em;
 }
