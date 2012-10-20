@@ -11,13 +11,27 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 public class Package {
 	@Id
-	String name;
-	String title;
-	String url;
-	String description;
-	String icon;
-	String license;
-	String comment;
+	String name = "";
+	String title = "";
+	String url = "";
+	String description = "";
+	String icon = "";
+	String license = "";
+	String comment = "";
+
+	/**
+	 * For Objectify.
+	 */
+	public Package() {
+	}
+
+	/**
+	 * @param name
+	 *            full internal name of the package
+	 */
+	public Package(String name) {
+		this.name = name;
+	}
 
 	public String getName() {
 		return name;

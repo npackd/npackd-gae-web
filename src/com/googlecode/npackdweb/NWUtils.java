@@ -1,9 +1,13 @@
 package com.googlecode.npackdweb;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -324,5 +328,73 @@ public class NWUtils {
 	public static void t(Element tag, String txt) {
 		Text t = tag.getOwnerDocument().createTextNode(txt);
 		tag.appendChild(t);
+	}
+
+	/**
+	 * Joins the strings with the specified delimiter.
+	 * 
+	 * @param del
+	 *            delimiter
+	 * @param txts
+	 *            strings
+	 * @return joined text
+	 */
+	public static String join(String del, List<String> txts) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < txts.size(); i++) {
+			if (i != 0)
+				sb.append(del);
+			sb.append(txts.get(i));
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Splits the text on ","
+	 * 
+	 * @param txt
+	 *            a text
+	 * @return parts
+	 */
+	public static List<String> split(String txt) {
+		List<String> r = new ArrayList<String>();
+		while (true) {
+			txt = txt.trim();
+			int p = txt.indexOf(',');
+			if (p < 0) {
+				if (!txt.isEmpty())
+					r.add(txt);
+				break;
+			} else {
+				String before = txt.substring(0, p).trim();
+				txt = txt.substring(p + 1);
+				if (!before.isEmpty())
+					r.add(before);
+			}
+		}
+
+		return r;
+	}
+
+	/**
+	 * Splits lines.
+	 * 
+	 * @param txt
+	 *            a multiline text
+	 * @return text lines
+	 */
+	public static List<String> splitLines(String txt) {
+		BufferedReader br = new BufferedReader(new StringReader(txt));
+		List<String> r = new ArrayList<String>();
+		String line;
+		try {
+			while ((line = br.readLine()) != null) {
+				r.add(line);
+			}
+		} catch (IOException e) {
+			throw (InternalError) new InternalError(e.getMessage())
+					.initCause(e);
+		}
+		return r;
 	}
 }

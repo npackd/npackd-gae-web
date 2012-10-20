@@ -144,8 +144,7 @@ public class RepUploadAction extends Action {
 			if (ch.getNodeType() == Element.ELEMENT_NODE
 					&& ch.getNodeName().equals("package")) {
 				Element e = (Element) ch;
-				Package p = new Package();
-				p.name = e.getAttribute("name");
+				Package p = new Package(e.getAttribute("name"));
 				p.title = NWUtils.getSubTagContent(e, "title", "");
 				p.url = NWUtils.getSubTagContent(e, "url", "");
 				p.description = NWUtils.getSubTagContent(e, "description", "");

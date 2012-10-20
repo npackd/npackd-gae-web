@@ -27,12 +27,11 @@ public class PackageSaveAction extends Action {
 		Objectify ofy = ObjectifyService.begin();
 		Package p;
 		if (name == null || name.trim().length() == 0) {
-			p = new Package();
-			p.name = req.getParameter("name");
+			p = new Package(name);
 		} else {
-			p = ofy.get(new Key<Package>(Package.class, name));
+			p = ofy.find(new Key<Package>(Package.class, name));
 			if (p == null)
-				throw new IOException("Package does not exist");
+				p = new Package(name);
 		}
 		p.description = req.getParameter("description");
 		p.icon = req.getParameter("icon");

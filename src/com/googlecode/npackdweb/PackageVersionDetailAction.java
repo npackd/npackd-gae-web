@@ -32,8 +32,11 @@ public class PackageVersionDetailAction extends Action {
 		String version = m.group(2);
 
 		Objectify ofy = ObjectifyService.begin();
-		PackageVersion r = ofy.get(new Key<PackageVersion>(
+		PackageVersion r = ofy.find(new Key<PackageVersion>(
 				PackageVersion.class, package_ + "@" + version));
+		if (r == null) {
+			r = new PackageVersion(package_, version);
+		}
 
 		return new PackageVersionPage(r);
 	}

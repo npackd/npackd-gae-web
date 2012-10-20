@@ -14,10 +14,10 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 public class PackageVersion {
 	@Id
-	String name;
+	String name = "";
 	@AlsoLoad("package")
-	String package_;
-	String version;
+	String package_ = "";
+	String version = "";
 	boolean oneFile;
 	String url = "";
 	String sha1 = "";
@@ -32,6 +32,24 @@ public class PackageVersion {
 	List<String> detectFilePaths = new ArrayList<String>();
 	List<String> detectFileSHA1s = new ArrayList<String>();
 	List<String> tags = new ArrayList<String>();
+
+	/**
+	 * For Objectify.
+	 */
+	public PackageVersion() {
+	}
+
+	/**
+	 * @param package_
+	 *            full internal package name
+	 * @param version
+	 *            version number
+	 */
+	public PackageVersion(String package_, String version) {
+		this.name = package_ + "@" + version;
+		this.package_ = package_;
+		this.version = version;
+	}
 
 	public String getName() {
 		return name;

@@ -28,7 +28,10 @@ public class PackageDetailAction extends Action {
 		String name = req.getRequestURI().substring(3);
 
 		Objectify ofy = ObjectifyService.begin();
-		Package r = ofy.get(new Key<Package>(Package.class, name));
+		Package r = ofy.find(new Key<Package>(Package.class, name));
+		if (r == null) {
+			r = new Package(name);
+		}
 
 		UserService us = UserServiceFactory.getUserService();
 		return new PackageDetailPage(r, us.isUserLoggedIn() && us.isUserAdmin());
