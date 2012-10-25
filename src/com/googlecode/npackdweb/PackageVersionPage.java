@@ -172,6 +172,23 @@ public class PackageVersionPage extends FramePage {
 			w.end("tr");
 		}
 
+		if (editable) {
+			w.start("tr");
+			w.e("td", "Text files:");
+			w.start("td");
+			for (int i = 0; i < pv.filePaths.size(); i++) {
+				if (i != 0)
+					w.t(", ");
+				String c = pv.filePaths.get(i);
+				w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version
+						+ "/file?path=" + pv.filePaths.get(i), c == null ? "-"
+						: c);
+			}
+			w.end("textarea");
+			w.end("td");
+			w.end("tr");
+		}
+
 		w.end("table");
 
 		if (editable) {

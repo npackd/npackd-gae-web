@@ -8,12 +8,14 @@ body {
 h1 {
     color: #666;
     font-size: 20pt;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 h2 {
     font-size: 14pt;
-    margin-top: 5pt;
-    margin-bottom: 5pt;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 h3 {

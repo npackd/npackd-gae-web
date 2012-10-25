@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,50 +48,58 @@ public class RepUploadAction extends Action {
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		ServletFileUpload upload = new ServletFileUpload();
+		Found f = null;
+		String tag = "unknown";
+		if (ServletFileUpload.isMultipartContent(req)) {
+			ServletFileUpload upload = new ServletFileUpload();
+			FileItemIterator iterator;
+			try {
+				iterator = upload.getItemIterator(req);
+				while (iterator.hasNext()) {
+					FileItemStream item = iterator.next();
+					InputStream stream = item.openStream();
 
-		FileItemIterator iterator;
-		try {
-			iterator = upload.getItemIterator(req);
-			Found f = null;
-			String tag = "unknown";
-			while (iterator.hasNext()) {
-				FileItemStream item = iterator.next();
-				InputStream stream = item.openStream();
+					try {
+						if (item.isFormField()) {
+							log.warning("Got a form field: "
+									+ item.getFieldName());
+							if (item.getFieldName().equals("tag")) {
+								BufferedReader r = new BufferedReader(
+										new InputStreamReader(stream));
+								tag = r.readLine();
+								log.warning("Got a form field tag: " + tag);
+							}
+						} else {
+							log.warning("Got an uploaded file: "
+									+ item.getFieldName() + ", name = "
+									+ item.getName());
 
-				try {
-					if (item.isFormField()) {
-						log.warning("Got a form field: " + item.getFieldName());
-						if (item.getFieldName().equals("tag")) {
-							BufferedReader r = new BufferedReader(
-									new InputStreamReader(stream));
-							tag = r.readLine();
-							log.warning("Got a form field tag: " + tag);
+							f = process(stream);
 						}
-					} else {
-						log.warning("Got an uploaded file: "
-								+ item.getFieldName() + ", name = "
-								+ item.getName());
-
-						f = process(stream);
+					} finally {
+						stream.close();
 					}
-				} finally {
-					stream.close();
-				}
-			}
-			if (f != null) {
-				for (PackageVersion pv : f.pvs) {
-					pv.tags.add(tag);
 				}
 
-				Objectify ofy = ObjectifyService.begin();
-				ofy.put(f.lics);
-				ofy.put(f.pvs);
-				ofy.put(f.ps);
+			} catch (FileUploadException e) {
+				throw (IOException) new IOException(e.getMessage())
+						.initCause(e);
+			}
+		} else {
+			tag = req.getParameter("tag");
+			String rep = req.getParameter("repository");
+			f = process(new ByteArrayInputStream(rep.getBytes("UTF-8")));
+		}
+
+		if (f != null) {
+			for (PackageVersion pv : f.pvs) {
+				pv.tags.add(tag);
 			}
 
-		} catch (FileUploadException e) {
-			throw (IOException) new IOException(e.getMessage()).initCause(e);
+			Objectify ofy = ObjectifyService.begin();
+			ofy.put(f.lics);
+			ofy.put(f.pvs);
+			ofy.put(f.ps);
 		}
 
 		resp.sendRedirect("/");
