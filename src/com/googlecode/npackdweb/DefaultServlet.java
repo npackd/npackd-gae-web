@@ -108,6 +108,8 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new PackageVersionSaveAction());
 		registerAction(new PackageVersionFileAction());
 		registerAction(new PackageVersionFileSaveAction());
+		registerAction(new PackageVersionDeleteAction());
+		registerAction(new PackageVersionDeleteConfirmedAction());
 
 		registerAction(new HomeAction());
 		registerAction(new Error404Action("^/robots\\.txt$"));

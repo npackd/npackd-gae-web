@@ -193,6 +193,10 @@ public class PackageVersionPage extends FramePage {
 
 		if (editable) {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
+			w
+					.e("input", "class", "input", "type", "button", "value",
+							"Delete", "onclick",
+							"this.form.action='/package-version/delete'; this.form.submit()");
 			w.end("form");
 		}
 
