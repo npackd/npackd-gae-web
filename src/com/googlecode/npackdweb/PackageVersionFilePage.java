@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.googlecode.npackdweb.wlib.HTMLWriter;
+
 /**
  * Edit package version file.
  */

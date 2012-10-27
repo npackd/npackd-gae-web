@@ -6,6 +6,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
@@ -18,7 +20,7 @@ public class PackageVersionSaveAction extends Action {
 	 * -
 	 */
 	public PackageVersionSaveAction() {
-		super("^/package-version/save$", ActionSecurityType.ADMINISTRATOR);
+		super("^/package-version/save$");
 	}
 
 	@Override

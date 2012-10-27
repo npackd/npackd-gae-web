@@ -6,6 +6,8 @@ import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.wlib.Page;
+
 /**
  * A page with a frame.
  */

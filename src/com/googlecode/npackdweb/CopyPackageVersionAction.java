@@ -12,14 +12,14 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
 /**
- * Delete a package version.
+ * Start a copy of a package version.
  */
-public class PackageVersionDeleteConfirmedAction extends Action {
+public class CopyPackageVersionAction extends Action {
 	/**
 	 * -
 	 */
-	public PackageVersionDeleteConfirmedAction() {
-		super("^/package-version/delete-confirmed$");
+	public CopyPackageVersionAction() {
+		super("^/package-version/copy$");
 	}
 
 	@Override
@@ -29,8 +29,6 @@ public class PackageVersionDeleteConfirmedAction extends Action {
 		Objectify ofy = ObjectifyService.begin();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
-		ofy.delete(p);
-		resp.sendRedirect("/p/" + p.package_);
-		return null;
+		return new CopyPackageVersionPage(p);
 	}
 }

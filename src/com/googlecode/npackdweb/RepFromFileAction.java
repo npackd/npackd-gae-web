@@ -5,6 +5,9 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.Page;
+
 /**
  * Form for a repository upload.
  */
@@ -13,7 +16,7 @@ public class RepFromFileAction extends Action {
 	 * -
 	 */
 	public RepFromFileAction() {
-		super("^/rep/from-file$", ActionSecurityType.ADMINISTRATOR);
+		super("^/rep/from-file$");
 	}
 
 	@Override

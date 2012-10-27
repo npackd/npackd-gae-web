@@ -5,6 +5,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
+import com.googlecode.npackdweb.wlib.Page;
+
 /**
  * Action for /
  */
@@ -13,7 +17,7 @@ public class HomeAction extends Action {
 	 * -
 	 */
 	public HomeAction() {
-		super("^/$");
+		super("^/$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override

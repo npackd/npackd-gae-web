@@ -22,6 +22,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -42,7 +44,7 @@ public class RepUploadAction extends Action {
 	 * -
 	 */
 	public RepUploadAction() {
-		super("^/rep/upload$", ActionSecurityType.ADMINISTRATOR);
+		super("^/rep/upload$");
 	}
 
 	@Override

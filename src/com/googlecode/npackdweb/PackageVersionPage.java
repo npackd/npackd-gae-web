@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -72,7 +73,7 @@ public class PackageVersionPage extends FramePage {
 		w.e("td", "License:");
 		w.start("td");
 		if (lic == null)
-			w.e("td", "unknown");
+			w.t("unknown");
 		else
 			w.e("a", "href", lic.url, lic.title);
 		w.end("td");
@@ -193,6 +194,10 @@ public class PackageVersionPage extends FramePage {
 
 		if (editable) {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
+			w
+					.e("input", "class", "input", "type", "button", "value",
+							"Copy", "onclick",
+							"this.form.action='/package-version/copy'; this.form.submit()");
 			w
 					.e("input", "class", "input", "type", "button", "value",
 							"Delete", "onclick",

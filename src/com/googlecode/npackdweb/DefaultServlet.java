@@ -14,6 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.Error404Action;
+import com.googlecode.npackdweb.wlib.Page;
 
 /**
  * Default servlet for HTML pages.
@@ -110,6 +113,8 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new PackageVersionFileSaveAction());
 		registerAction(new PackageVersionDeleteAction());
 		registerAction(new PackageVersionDeleteConfirmedAction());
+		registerAction(new CopyPackageVersionAction());
+		registerAction(new CopyPackageVersionConfirmedAction());
 
 		registerAction(new HomeAction());
 		registerAction(new Error404Action("^/robots\\.txt$"));

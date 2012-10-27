@@ -1,9 +1,10 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.wlib;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * Always returns 404

@@ -86,4 +86,29 @@ public class PackageVersion {
 	public List<String> getDependencyVersionRanges() {
 		return dependencyVersionRanges;
 	}
+
+	/**
+	 * @return copy of this object
+	 */
+	public PackageVersion copy() {
+		PackageVersion c = new PackageVersion();
+		c.name = this.name;
+		c.package_ = this.package_;
+		c.version = this.version;
+		c.oneFile = this.oneFile;
+		c.url = this.url;
+		c.sha1 = this.sha1;
+		c.detectMSI = this.detectMSI;
+		c.importantFileTitles.addAll(this.importantFileTitles);
+		c.importantFilePaths.addAll(this.importantFilePaths);
+		c.filePaths.addAll(this.filePaths);
+		c.fileContents.addAll(this.fileContents);
+		c.dependencyPackages.addAll(this.dependencyPackages);
+		c.dependencyVersionRanges.addAll(this.dependencyVersionRanges);
+		c.dependencyEnvVars.addAll(this.dependencyEnvVars);
+		c.detectFilePaths.addAll(this.detectFilePaths);
+		c.detectFileSHA1s.addAll(this.detectFileSHA1s);
+		c.tags.addAll(this.tags);
+		return c;
+	}
 }

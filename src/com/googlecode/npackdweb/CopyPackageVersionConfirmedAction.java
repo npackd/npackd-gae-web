@@ -12,25 +12,33 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
 /**
- * Delete a package version.
+ * Start a copy of a package version.
  */
-public class PackageVersionDeleteConfirmedAction extends Action {
+public class CopyPackageVersionConfirmedAction extends Action {
 	/**
 	 * -
 	 */
-	public PackageVersionDeleteConfirmedAction() {
-		super("^/package-version/delete-confirmed$");
+	public CopyPackageVersionConfirmedAction() {
+		super("^/package-version/copy-confirmed$");
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String name = req.getParameter("name");
+		String version = req.getParameter("version");
 		Objectify ofy = ObjectifyService.begin();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
-		ofy.delete(p);
-		resp.sendRedirect("/p/" + p.package_);
+		PackageVersion copy = p.copy();
+		copy.name = copy.package_ + "@" + version;
+		copy.version = version;
+		copy.sha1 = "";
+		copy.detectFileSHA1s.clear();
+		copy.detectFilePaths.clear();
+		copy.detectMSI = "";
+		ofy.put(copy);
+		resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
 		return null;
 	}
 }

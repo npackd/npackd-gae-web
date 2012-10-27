@@ -7,28 +7,32 @@ import javax.servlet.http.HttpServletRequest;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 
 /**
- * Delete package version confirmation.
+ * Copy a package version.
  */
-public class PackageVersionDeletePage extends FramePage {
+public class CopyPackageVersionPage extends FramePage {
 	private PackageVersion pv;
 
 	/**
-	 * @param pv
-	 *            this version should be deleted
+	 * -
+	 * 
+	 * @param p
+	 *            package version that should be copied
 	 */
-	public PackageVersionDeletePage(PackageVersion pv) {
-		this.pv = pv;
+	public CopyPackageVersionPage(PackageVersion p) {
+		this.pv = p;
 	}
 
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
 		w.start("form", "method", "post", "action",
-				"/package-version/delete-confirmed");
-		w.e("div", "Do you really want to delete " + pv.package_ + " "
-				+ pv.version + "?");
+				"/package-version/copy-confirmed");
+		w.e("div", "Copy " + pv.package_ + " " + pv.version + "?");
 		w.e("input", "type", "hidden", "name", "name", "value", pv.name);
-		w.e("input", "class", "input", "type", "submit", "value", "Delete");
+		w.e("input", "type", "text", "name", "version", "value", pv.version,
+				"size", "20");
+		w.e("br");
+		w.e("input", "class", "input", "type", "submit", "value", "Create");
 		w.e("input", "class", "input", "type", "button", "value", "Cancel",
 				"onclick", "window.location.href='/p/" + pv.package_ + "/"
 						+ pv.version + "'");
@@ -38,6 +42,6 @@ public class PackageVersionDeletePage extends FramePage {
 
 	@Override
 	public String getTitle() {
-		return "Confirmation";
+		return "Copy package version";
 	}
 }

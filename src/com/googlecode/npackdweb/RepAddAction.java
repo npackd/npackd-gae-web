@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -16,7 +18,7 @@ public class RepAddAction extends Action {
 	 * -
 	 */
 	public RepAddAction() {
-		super("^/rep/add$", ActionSecurityType.ADMINISTRATOR);
+		super("^/rep/add$");
 	}
 
 	@Override

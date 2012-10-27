@@ -5,6 +5,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
+import com.googlecode.npackdweb.wlib.Page;
+
 /**
  * Packages
  */
@@ -13,7 +17,7 @@ public class PackagesAction extends Action {
 	 * -
 	 */
 	public PackagesAction() {
-		super("^/p$");
+		super("^/p$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override

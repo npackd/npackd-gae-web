@@ -23,6 +23,7 @@ import org.w3c.dom.Text;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.ObjectifyService;
 
 import freemarker.template.Configuration;

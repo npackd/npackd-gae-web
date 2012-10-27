@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.wlib;
 
 /**
  * Fluent interface for HTML creation.

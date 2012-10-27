@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.wlib;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
  * An action.
  */
 public abstract class Action {
-	private ActionSecurityType securityType = ActionSecurityType.ANONYMOUS;
+	private ActionSecurityType securityType = ActionSecurityType.ADMINISTRATOR;
 	private String urlRegEx;
 
 	/**
