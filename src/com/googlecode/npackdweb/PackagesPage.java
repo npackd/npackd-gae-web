@@ -12,7 +12,7 @@ import com.googlecode.objectify.ObjectifyService;
 /**
  * Packages.
  */
-public class PackagesPage extends FramePage {
+public class PackagesPage extends MyPage {
 	private static final int PAGE_SIZE = 20;
 	private List<Package> packages;
 

@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Home page.
  */
-public class HomePage extends FramePage {
+public class HomePage extends MyPage {
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
 		return NWUtils.tmpl("Home.html");

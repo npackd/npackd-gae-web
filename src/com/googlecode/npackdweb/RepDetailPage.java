@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Repository details.
  */
-public class RepDetailPage extends FramePage {
+public class RepDetailPage extends MyPage {
 	private Repository r;
 
 	/**

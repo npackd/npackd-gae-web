@@ -11,15 +11,12 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -33,21 +30,6 @@ import com.googlecode.objectify.Query;
  */
 public class RepXMLPage extends Page {
 	private String tag;
-
-	private static final String GPL_LICENSE = "\n    This file is part of Npackd.\n"
-			+ "    \n"
-			+ "    Npackd is free software: you can redistribute it and/or modify\n"
-			+ "    it under the terms of the GNU General Public License as published by\n"
-			+ "    the Free Software Foundation, either version 3 of the License, or\n"
-			+ "    (at your option) any later version.\n"
-			+ "    \n"
-			+ "    Npackd is distributed in the hope that it will be useful,\n"
-			+ "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-			+ "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-			+ "    GNU General Public License for more details.\n"
-			+ "    \n"
-			+ "    You should have received a copy of the GNU General Public License\n"
-			+ "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
 	/**
 	 * @param tag
@@ -83,22 +65,9 @@ public class RepXMLPage extends Page {
 	 * @return XML for the whole repository definition
 	 */
 	public Document toXML() {
-		Document d;
-		try {
-			d = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-					.newDocument();
-		} catch (ParserConfigurationException e) {
-			throw (InternalError) new InternalError(e.getMessage())
-					.initCause(e);
-		}
+		Document d = NWUtils.newXMLRepository(true);
 
-		Element root = d.createElement("root");
-		d.appendChild(root);
-		Comment comment = d.createComment(GPL_LICENSE);
-		// root.getParentNode().insertBefore(root, comment);
-		root.appendChild(comment);
-
-		NWUtils.e(root, "spec-version", "2");
+		Element root = d.getDocumentElement();
 
 		// getting data
 		Objectify ofy = ObjectifyService.begin();
@@ -159,18 +128,7 @@ public class RepXMLPage extends Page {
 		}
 
 		for (Package p : ps) {
-			Element package_ = d.createElement("package");
-			package_.setAttribute("name", p.name);
-			if (!p.title.isEmpty())
-				NWUtils.e(package_, "title", p.title);
-			if (!p.url.isEmpty())
-				NWUtils.e(package_, "url", p.url);
-			if (!p.description.isEmpty())
-				NWUtils.e(package_, "description", p.description);
-			if (!p.icon.isEmpty())
-				NWUtils.e(package_, "icon", p.icon);
-			if (!p.license.isEmpty())
-				NWUtils.e(package_, "license", p.license);
+			Element package_ = p.toXML(d);
 
 			root.appendChild(package_);
 		}
@@ -182,48 +140,7 @@ public class RepXMLPage extends Page {
 				NWUtils.t(root, "\n\n    ");
 			}
 
-			Element version = d.createElement("version");
-			version.setAttribute("name", pv.version);
-			version.setAttribute("package", pv.package_);
-			if (pv.oneFile)
-				version.setAttribute("type", "one-file");
-			for (int i = 0; i < pv.importantFilePaths.size(); i++) {
-				Element importantFile = d.createElement("important-file");
-				version.appendChild(importantFile);
-				importantFile
-						.setAttribute("path", pv.importantFilePaths.get(i));
-				importantFile.setAttribute("title", pv.importantFileTitles
-						.get(i));
-			}
-			for (int i = 0; i < pv.filePaths.size(); i++) {
-				Element file = d.createElement("file");
-				version.appendChild(file);
-				file.setAttribute("path", pv.filePaths.get(i));
-				NWUtils.t(file, pv.fileContents.get(i));
-			}
-			if (!pv.url.isEmpty())
-				NWUtils.e(version, "url", pv.url);
-			if (!pv.sha1.isEmpty())
-				NWUtils.e(version, "sha1", pv.sha1);
-			for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-				Element dependency = d.createElement("dependency");
-				version.appendChild(dependency);
-				dependency
-						.setAttribute("package", pv.dependencyPackages.get(i));
-				dependency.setAttribute("versions", pv.dependencyVersionRanges
-						.get(i));
-				if (!pv.dependencyEnvVars.get(i).isEmpty())
-					NWUtils.e(dependency, "variable", pv.dependencyEnvVars
-							.get(i));
-			}
-			if (!pv.detectMSI.isEmpty())
-				NWUtils.e(version, "detect-msi", pv.detectMSI);
-			for (int i = 0; i < pv.detectFilePaths.size(); i++) {
-				Element detectFile = d.createElement("detect-file");
-				version.appendChild(detectFile);
-				NWUtils.e(detectFile, "path", pv.detectFilePaths.get(i));
-				NWUtils.e(detectFile, "sha1", pv.detectFileSHA1s.get(i));
-			}
+			Element version = pv.toXML(d);
 
 			root.appendChild(version);
 		}

@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -14,7 +15,15 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,6 +32,7 @@ import org.w3c.dom.Text;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -36,6 +46,21 @@ import freemarker.template.TemplateException;
 public class NWUtils {
 	/** Application log */
 	public static final Logger LOG = Logger.getLogger(NWUtils.class.getName());
+
+	private static final String GPL_LICENSE = "\n    This file is part of Npackd.\n"
+			+ "    \n"
+			+ "    Npackd is free software: you can redistribute it and/or modify\n"
+			+ "    it under the terms of the GNU General Public License as published by\n"
+			+ "    the Free Software Foundation, either version 3 of the License, or\n"
+			+ "    (at your option) any later version.\n"
+			+ "    \n"
+			+ "    Npackd is distributed in the hope that it will be useful,\n"
+			+ "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+			+ "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+			+ "    GNU General Public License for more details.\n"
+			+ "    \n"
+			+ "    You should have received a copy of the GNU General Public License\n"
+			+ "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
 	private static Configuration cfg;
 
@@ -397,5 +422,80 @@ public class NWUtils {
 					.initCause(e);
 		}
 		return r;
+	}
+
+	/**
+	 * @return empty XML document
+	 */
+	public static Document newXML() {
+		try {
+			return DocumentBuilderFactory.newInstance().newDocumentBuilder()
+					.newDocument();
+		} catch (ParserConfigurationException e) {
+			throw (InternalError) new InternalError(e.getMessage())
+					.initCause(e);
+		}
+	}
+
+	/**
+	 * @param gpl
+	 *            true = add GPL license
+	 * @return empty repository
+	 */
+	public static Document newXMLRepository(boolean gpl) {
+		Document d = NWUtils.newXML();
+
+		Element root = d.createElement("root");
+		d.appendChild(root);
+		if (gpl) {
+			Comment comment = d.createComment(GPL_LICENSE);
+			// root.getParentNode().insertBefore(root, comment);
+			root.appendChild(comment);
+		}
+
+		NWUtils.e(root, "spec-version", "2");
+		return d;
+	}
+
+	/**
+	 * Converts XML to a string
+	 * 
+	 * @param xml
+	 *            XML
+	 * @return string
+	 * @throws IOException
+	 */
+	public static String toString(Document xml) throws IOException {
+		try {
+			Transformer t = TransformerFactory.newInstance().newTransformer();
+			t.setOutputProperty(OutputKeys.INDENT, "yes");
+			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+					"4");
+			t.setOutputProperty("{http://xml.apache.org/xalan}line-separator",
+					"\r\n");
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			t.transform(new DOMSource(xml.getDocumentElement()),
+					new StreamResult(baos));
+			baos.close();
+
+			return baos.toString("UTF-8");
+		} catch (Exception e) {
+			throw (IOException) new IOException(e.getMessage()).initCause(e);
+		}
+	}
+
+	/**
+	 * Creates an <input type="button"> that changes window.location.href
+	 * 
+	 * @param w
+	 *            HTML output
+	 * @param title
+	 *            button title
+	 * @param url
+	 *            new URL
+	 */
+	public static void jsButton(HTMLWriter w, String title, String url) {
+		w.e("input", "class", "input", "type", "button", "value", title,
+				"onclick", "window.location.href='" + url + "'");
 	}
 }

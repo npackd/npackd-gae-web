@@ -56,13 +56,13 @@
     top: 35px;
     left: 0;
     z-index: 99999;    
-    background: #444;
-    background: -moz-linear-gradient(#444, #111);
-    background: -webkit-gradient(linear,left bottom,left top,color-stop(0, #111),color-stop(1, #444));
-    background: -webkit-linear-gradient(#444, #111);    
-    background: -o-linear-gradient(#444, #111); 
-    background: -ms-linear-gradient(#444, #111);        
-    background: linear-gradient(#444, #111);    
+    background: #fff;
+    background: -moz-linear-gradient(#fff, #ebeff9);
+    background: -webkit-gradient(linear,left bottom,left top,color-stop(0, #ebeff9),color-stop(1, #fff));
+    background: -webkit-linear-gradient(#fff, #ebeff9);    
+    background: -o-linear-gradient(#fff, #ebeff9); 
+    background: -ms-linear-gradient(#fff, #ebeff9);        
+    background: linear-gradient(#fff, #ebeff9);    
     -moz-border-radius: 5px;
     border-radius: 5px;
 }

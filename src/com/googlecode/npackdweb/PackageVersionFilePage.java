@@ -9,7 +9,7 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 /**
  * Edit package version file.
  */
-public class PackageVersionFilePage extends FramePage {
+public class PackageVersionFilePage extends MyPage {
 	private PackageVersion pv;
 	private String path;
 
@@ -48,7 +48,8 @@ public class PackageVersionFilePage extends FramePage {
 		w.start("tr");
 		w.e("td", "File content:");
 		w.start("td");
-		w.e("textarea", "name", "content", "rows", "20", "cols", "80", content);
+		w.e("textarea", "name", "content", "rows", "20", "cols", "80", "wrap",
+				"off", content);
 		w.end("td");
 		w.end("tr");
 

@@ -9,7 +9,7 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 /**
  * Copy a package version.
  */
-public class CopyPackageVersionPage extends FramePage {
+public class CopyPackageVersionPage extends MyPage {
 	private PackageVersion pv;
 
 	/**

@@ -13,7 +13,7 @@ import com.googlecode.objectify.ObjectifyService;
 /**
  * A package.
  */
-public class PackageDetailPage extends FramePage {
+public class PackageDetailPage extends MyPage {
 	private Package p;
 	private List<PackageVersion> versions;
 	private License license;
@@ -158,6 +158,8 @@ public class PackageDetailPage extends FramePage {
 
 		if (editable) {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
+			NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
+					+ p.name);
 			w.end("form");
 		}
 

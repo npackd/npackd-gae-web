@@ -9,7 +9,7 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 /**
  * List of repositories.
  */
-public class RepPage extends FramePage {
+public class RepPage extends MyPage {
 	private static final String[] TITLES = { "Stable", "Stable 64 bit", "Libs",
 			"Unstable" };
 	private static final String[] NAMES = { "stable", "stable64", "libs",

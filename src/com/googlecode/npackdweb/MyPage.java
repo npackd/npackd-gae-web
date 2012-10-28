@@ -11,7 +11,7 @@ import com.googlecode.npackdweb.wlib.Page;
 /**
  * A page with a frame.
  */
-public abstract class FramePage extends Page {
+public abstract class MyPage extends Page {
 	@Override
 	public final void create(HttpServletRequest request,
 			HttpServletResponse resp) throws IOException {

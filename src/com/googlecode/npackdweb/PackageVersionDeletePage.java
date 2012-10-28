@@ -9,7 +9,7 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 /**
  * Delete package version confirmation.
  */
-public class PackageVersionDeletePage extends FramePage {
+public class PackageVersionDeletePage extends MyPage {
 	private PackageVersion pv;
 
 	/**
