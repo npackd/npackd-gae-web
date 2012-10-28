@@ -17,6 +17,11 @@ public abstract class MyPage extends Page {
 			HttpServletResponse resp) throws IOException {
 		resp.setContentType("text/html; charset=UTF-8");
 		Writer out = resp.getWriter();
+
+		String thisURL = request.getRequestURI();
+		if (request.getQueryString() != null)
+			thisURL += "?" + request.getQueryString();
+
 		out.write(NWUtils.tmpl("basic/Frame.html", "title", getTitle(),
 				"content", createContent(request), "login", NWUtils
 						.getLoginFooter(request)));

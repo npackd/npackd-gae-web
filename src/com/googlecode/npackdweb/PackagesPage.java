@@ -1,11 +1,14 @@
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.appengine.api.memcache.ErrorHandlers;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -28,14 +31,22 @@ public class PackagesPage extends MyPage {
 			start = 0;
 		}
 
-		Objectify ofy = ObjectifyService.begin();
-		packages = new ArrayList<Package>();
-		for (Package p : ofy.query(Package.class).limit(PAGE_SIZE + 1).offset(
-				start).order("title").fetch())
-			packages.add(p);
+		final String key = getClass().getCanonicalName() + ".content." + start;
+		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+		syncCache.setErrorHandler(ErrorHandlers
+				.getConsistentLogAndContinue(Level.INFO));
+		String value = (String) syncCache.get(key); // read from cache
+		if (value == null) {
+			Objectify ofy = ObjectifyService.begin();
+			packages = ofy.query(Package.class).limit(PAGE_SIZE + 1).offset(
+					start).order("title").list();
 
-		return NWUtils.tmpl(this, "Packages.html")
-				+ createPager(start, packages.size() > PAGE_SIZE);
+			value = NWUtils.tmpl(this, "Packages.html")
+					+ createPager(start, packages.size() > PAGE_SIZE);
+
+			syncCache.put(key, value); // populate cache
+		}
+		return value;
 	}
 
 	private String createPager(int cur, boolean hasNextPage) {

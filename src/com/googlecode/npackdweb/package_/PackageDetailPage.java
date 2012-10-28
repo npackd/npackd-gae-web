@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.package_;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,6 +6,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.googlecode.npackdweb.License;
+import com.googlecode.npackdweb.MyPage;
+import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.Package;
+import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
