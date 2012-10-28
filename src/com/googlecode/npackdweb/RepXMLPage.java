@@ -1,6 +1,10 @@
 package com.googlecode.npackdweb;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,6 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +27,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.appengine.api.memcache.ErrorHandlers;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
@@ -45,19 +55,51 @@ public class RepXMLPage extends Page {
 			throws IOException {
 		resp.setContentType("application/xml");
 
-		try {
-			Document d = toXML();
-			Transformer t = TransformerFactory.newInstance().newTransformer();
-			t.setOutputProperty(OutputKeys.INDENT, "yes");
-			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
-					"4");
-			t.setOutputProperty("{http://xml.apache.org/xalan}line-separator",
-					"\r\n");
-			t.transform(new DOMSource(d.getDocumentElement()),
-					new StreamResult(resp.getOutputStream()));
-			resp.getOutputStream().close();
-		} catch (Exception e) {
-			throw (IOException) new IOException(e.getMessage()).initCause(e);
+		final String key = "RepXMLPage." + this.tag;
+		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+		syncCache.setErrorHandler(ErrorHandlers
+				.getConsistentLogAndContinue(Level.INFO));
+		byte[] value = (byte[]) syncCache.get(key); // read from cache
+		if (value == null) {
+			NWUtils.LOG.warning("Found no value in cache");
+			try {
+				Document d = toXML();
+				Transformer t = TransformerFactory.newInstance()
+						.newTransformer();
+				t.setOutputProperty(OutputKeys.INDENT, "yes");
+				t.setOutputProperty(
+						"{http://xml.apache.org/xslt}indent-amount", "4");
+				t.setOutputProperty(
+						"{http://xml.apache.org/xalan}line-separator", "\r\n");
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				GZIPOutputStream gos = new GZIPOutputStream(baos);
+				t.transform(new DOMSource(d.getDocumentElement()),
+						new StreamResult(gos));
+				gos.finish();
+				gos.flush();
+				value = baos.toByteArray();
+				if (value.length < 1024 * 1024)
+					syncCache.put(key, value); // populate cache
+			} catch (Exception e) {
+				throw (IOException) new IOException(e.getMessage())
+						.initCause(e);
+			}
+		} else {
+			NWUtils.LOG.warning("Found value in cache " + value.length
+					+ " bytes");
+		}
+
+		GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(
+				value));
+		copy(gis, resp.getOutputStream());
+		resp.getOutputStream().close();
+	}
+
+	private void copy(InputStream gis, OutputStream os) throws IOException {
+		byte[] buffer = new byte[8 * 1024];
+		int read;
+		while ((read = gis.read(buffer)) != -1) {
+			os.write(buffer, 0, read);
 		}
 	}
 

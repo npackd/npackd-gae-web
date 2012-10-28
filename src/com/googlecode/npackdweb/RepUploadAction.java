@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,9 +30,6 @@ import com.googlecode.objectify.ObjectifyService;
  * Upload a repository.
  */
 public class RepUploadAction extends Action {
-	private static final Logger log = Logger.getLogger(RepUploadAction.class
-			.getName());
-
 	private static final class Found {
 		List<License> lics;
 		public List<Package> ps;
@@ -63,19 +59,12 @@ public class RepUploadAction extends Action {
 
 					try {
 						if (item.isFormField()) {
-							log.warning("Got a form field: "
-									+ item.getFieldName());
 							if (item.getFieldName().equals("tag")) {
 								BufferedReader r = new BufferedReader(
 										new InputStreamReader(stream));
 								tag = r.readLine();
-								log.warning("Got a form field tag: " + tag);
 							}
 						} else {
-							log.warning("Got an uploaded file: "
-									+ item.getFieldName() + ", name = "
-									+ item.getName());
-
 							f = process(stream);
 						}
 					} finally {

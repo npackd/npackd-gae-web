@@ -13,13 +13,17 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
  */
 public class EditAsXMLPage extends MyPage {
 	private Document xml;
+	private String tag;
 
 	/**
 	 * @param xml
 	 *            XML for a repository
+	 * @param tag
+	 *            tag that should be assigned to all package versions
 	 */
-	public EditAsXMLPage(Document xml) {
+	public EditAsXMLPage(Document xml, String tag) {
 		this.xml = xml;
+		this.tag = tag;
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class EditAsXMLPage extends MyPage {
 		w.start("tr");
 		w.e("td", "Tag:");
 		w.start("td");
-		w.e("input", "type", "text", "name", "tag");
+		w.e("input", "type", "text", "name", "tag", "value", tag);
 		w.end("td");
 		w.end("tr");
 		w.end("table");

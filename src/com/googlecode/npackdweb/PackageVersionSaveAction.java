@@ -50,7 +50,7 @@ public class PackageVersionSaveAction extends Action {
 		p.sha1 = req.getParameter("sha1");
 		p.detectMSI = req.getParameter("detectMSI");
 		p.oneFile = "one-file".equals(req.getParameter("type"));
-		p.tags = NWUtils.split(req.getParameter("tags"));
+		p.tags = NWUtils.split(req.getParameter("tags"), ',');
 		List<String> lines = NWUtils.splitLines(req
 				.getParameter("importantFiles"));
 		p.importantFilePaths.clear();

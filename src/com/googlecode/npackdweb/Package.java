@@ -2,6 +2,7 @@ package com.googlecode.npackdweb;
 
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -93,5 +94,10 @@ public class Package {
 			NWUtils.e(package_, "license", p.license);
 
 		return package_;
+	}
+
+	@PrePersist
+	void onPersist() {
+		NWUtils.clearCache();
 	}
 }

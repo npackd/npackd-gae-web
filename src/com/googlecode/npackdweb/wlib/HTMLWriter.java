@@ -1,5 +1,9 @@
 package com.googlecode.npackdweb.wlib;
 
+import java.util.List;
+
+import com.googlecode.npackdweb.NWUtils;
+
 /**
  * Fluent interface for HTML creation.
  */
@@ -64,6 +68,25 @@ public class HTMLWriter {
 		b.append(tag);
 		b.append('>');
 
+		return this;
+	}
+
+	/**
+	 * Creates a tag.
+	 * 
+	 * @param tagAndAttrs
+	 *            name of the tag and attributes separated by spaces. Example:
+	 *            "textarea wrap off"
+	 * @param content
+	 *            text content for the tag. null is treated as an empty string
+	 * @return this
+	 */
+	public HTMLWriter ew(final String tagAndAttrs, String content) {
+		List<String> p = NWUtils.split(tagAndAttrs, ' ');
+		String tag = p.remove(0);
+		p.add(content);
+		String[] p_ = p.toArray(new String[p.size()]);
+		e(tag, p_);
 		return this;
 	}
 

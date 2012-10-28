@@ -29,8 +29,6 @@ public class PackageVersionFileSaveAction extends Action {
 		String path = req.getParameter("path");
 		String content = req.getParameter("content");
 
-		NWUtils.LOG.warning(content + path);
-
 		Objectify ofy = ObjectifyService.begin();
 		PackageVersion r = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));

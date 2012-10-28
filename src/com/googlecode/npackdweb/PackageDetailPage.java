@@ -52,7 +52,7 @@ public class PackageDetailPage extends MyPage {
 			w.e("img", "src", p.icon, "style",
 					"max-width: 32px; max-height: 32px");
 		}
-		w.t(p.title);
+		w.t(" " + p.title);
 		w.end("h3");
 
 		if (editable) {

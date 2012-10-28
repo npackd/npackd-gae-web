@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
@@ -30,6 +31,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.google.appengine.api.memcache.ErrorHandlers;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
@@ -79,6 +83,8 @@ public class NWUtils {
 		UserService userService = UserServiceFactory.getUserService();
 
 		String thisURL = request.getRequestURI();
+		if (request.getQueryString() != null)
+			thisURL += "?" + request.getQueryString();
 		String res;
 		if (request.getUserPrincipal() != null) {
 			res = NWUtils.tmpl("basic/LogoutFooter.html", NWUtils.newMap(
@@ -376,17 +382,19 @@ public class NWUtils {
 	}
 
 	/**
-	 * Splits the text on ","
+	 * Splits the text on the specified separator
 	 * 
 	 * @param txt
 	 *            a text
+	 * @param separator
+	 *            separator character
 	 * @return parts
 	 */
-	public static List<String> split(String txt) {
+	public static List<String> split(String txt, char separator) {
 		List<String> r = new ArrayList<String>();
 		while (true) {
 			txt = txt.trim();
-			int p = txt.indexOf(',');
+			int p = txt.indexOf(separator);
 			if (p < 0) {
 				if (!txt.isEmpty())
 					r.add(txt);
@@ -497,5 +505,15 @@ public class NWUtils {
 	public static void jsButton(HTMLWriter w, String title, String url) {
 		w.e("input", "class", "input", "type", "button", "value", title,
 				"onclick", "window.location.href='" + url + "'");
+	}
+
+	/**
+	 * Cleares the cache.
+	 */
+	public static void clearCache() {
+		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+		syncCache.setErrorHandler(ErrorHandlers
+				.getConsistentLogAndContinue(Level.INFO));
+		syncCache.clearAll();
 	}
 }

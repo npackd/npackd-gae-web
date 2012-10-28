@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -22,7 +23,7 @@ public class EditAsXMLAction extends Action {
 	 * -
 	 */
 	public EditAsXMLAction() {
-		super("^/rep/edit-as-xml$");
+		super("^/rep/edit-as-xml$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override
@@ -34,6 +35,7 @@ public class EditAsXMLAction extends Action {
 		Document d = NWUtils.newXMLRepository(false);
 
 		Element root = d.getDocumentElement();
+		String tag = "";
 		if (package_ == null) {
 			// nothing. Editing an empty repository.
 		} else if (version == null) {
@@ -46,9 +48,11 @@ public class EditAsXMLAction extends Action {
 			PackageVersion r = ofy.get(new Key<PackageVersion>(
 					PackageVersion.class, package_ + "@" + version));
 			Element e = r.toXML(d);
+			if (r.tags.size() > 0)
+				tag = r.tags.get(0);
 			root.appendChild(e);
 		}
 
-		return new EditAsXMLPage(d);
+		return new EditAsXMLPage(d, tag);
 	}
 }

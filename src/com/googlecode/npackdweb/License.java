@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb;
 
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 
 import com.googlecode.objectify.annotation.Entity;
 
@@ -24,5 +25,10 @@ public class License {
 
 	public String getName() {
 		return name;
+	}
+
+	@PrePersist
+	void onPersist() {
+		NWUtils.clearCache();
 	}
 }

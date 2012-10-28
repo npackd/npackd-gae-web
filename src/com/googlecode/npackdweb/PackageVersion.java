@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -164,5 +166,16 @@ public class PackageVersion {
 			NWUtils.e(detectFile, "sha1", pv.detectFileSHA1s.get(i));
 		}
 		return version;
+	}
+
+	@PostLoad
+	public void postLoad() {
+		if (this.sha1 == null)
+			this.sha1 = "";
+	}
+
+	@PrePersist
+	void onPersist() {
+		NWUtils.clearCache();
 	}
 }
