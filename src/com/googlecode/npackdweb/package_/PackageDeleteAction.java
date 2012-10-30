@@ -20,17 +20,16 @@ public class PackageDeleteAction extends Action {
 	 * -
 	 */
 	public PackageDeleteAction() {
-		super("^/p/delete$");
+		super("^/package/delete$");
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		long id = Long.parseLong(req.getParameter("id"));
+		String id = req.getParameter("id");
 		Objectify ofy = ObjectifyService.begin();
-		ofy.delete(new Key<Package>(Package.class, id));
+		Package p = ofy.get(new Key<Package>(Package.class, id));
 
-		resp.sendRedirect("/p");
-		return null;
+		return new PackageDeletePage(p);
 	}
 }

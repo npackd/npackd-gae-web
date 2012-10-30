@@ -11,32 +11,34 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.googlecode.objectify.annotation.AlsoLoad;
+import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
 
 /**
  * A package version.
  */
 @Entity
+@Cached
 public class PackageVersion {
 	@Id
-	String name = "";
+	public String name = "";
 	@AlsoLoad("package")
-	String package_ = "";
-	String version = "";
-	boolean oneFile;
-	String url = "";
-	String sha1 = "";
-	String detectMSI = "";
-	List<String> importantFileTitles = new ArrayList<String>();
-	List<String> importantFilePaths = new ArrayList<String>();
-	List<String> filePaths = new ArrayList<String>();
-	List<String> fileContents = new ArrayList<String>();
-	List<String> dependencyPackages = new ArrayList<String>();
-	List<String> dependencyVersionRanges = new ArrayList<String>();
-	List<String> dependencyEnvVars = new ArrayList<String>();
-	List<String> detectFilePaths = new ArrayList<String>();
-	List<String> detectFileSHA1s = new ArrayList<String>();
-	List<String> tags = new ArrayList<String>();
+	public String package_ = "";
+	public String version = "";
+	public boolean oneFile;
+	public String url = "";
+	public String sha1 = "";
+	public String detectMSI = "";
+	public List<String> importantFileTitles = new ArrayList<String>();
+	public List<String> importantFilePaths = new ArrayList<String>();
+	public List<String> filePaths = new ArrayList<String>();
+	public List<String> fileContents = new ArrayList<String>();
+	public List<String> dependencyPackages = new ArrayList<String>();
+	public List<String> dependencyVersionRanges = new ArrayList<String>();
+	public List<String> dependencyEnvVars = new ArrayList<String>();
+	public List<String> detectFilePaths = new ArrayList<String>();
+	public List<String> detectFileSHA1s = new ArrayList<String>();
+	public List<String> tags = new ArrayList<String>();
 
 	/**
 	 * For Objectify.
@@ -176,6 +178,6 @@ public class PackageVersion {
 
 	@PrePersist
 	void onPersist() {
-		NWUtils.clearCache();
+		DefaultServlet.dataVersion.incrementAndGet();
 	}
 }

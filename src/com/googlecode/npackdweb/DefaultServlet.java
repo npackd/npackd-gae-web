@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.package_.PackageDeleteAction;
+import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
 import com.googlecode.npackdweb.package_.PackageNewAction;
 import com.googlecode.npackdweb.package_.PackageSaveAction;
@@ -27,6 +29,9 @@ import com.googlecode.npackdweb.wlib.Page;
  */
 @SuppressWarnings("serial")
 public class DefaultServlet extends HttpServlet {
+	/** version of the data (versions, packages, licenses): 0, 1, ... */
+	public static AtomicInteger dataVersion = new AtomicInteger();
+
 	private List<Pattern> urlPatterns = new ArrayList<Pattern>();
 	private List<Action> actions = new ArrayList<Action>();
 
@@ -108,6 +113,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new PackageNewAction());
 		registerAction(new PackageSaveAction());
 		registerAction(new PackageDeleteAction());
+		registerAction(new PackageDeleteConfirmedAction());
 
 		/* package version */
 		registerAction(new PackageVersionDetailAction());

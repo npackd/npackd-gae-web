@@ -7,21 +7,23 @@ import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
 
 /**
  * A package.
  */
 @Entity
+@Cached
 public class Package {
 	@Id
-	String name = "";
-	String title = "";
-	String url = "";
-	String description = "";
-	String icon = "";
-	String license = "";
-	String comment = "";
+	public String name = "";
+	public String title = "";
+	public String url = "";
+	public String description = "";
+	public String icon = "";
+	public String license = "";
+	public String comment = "";
 
 	/**
 	 * For Objectify.
@@ -98,6 +100,6 @@ public class Package {
 
 	@PrePersist
 	void onPersist() {
-		NWUtils.clearCache();
+		DefaultServlet.dataVersion.incrementAndGet();
 	}
 }

@@ -1,10 +1,12 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.package_;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
+import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
@@ -12,25 +14,25 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
 /**
- * Delete a repository.
+ * Delete a package version.
  */
-public class RepDeleteAction extends Action {
+public class PackageDeleteConfirmedAction extends Action {
 	/**
 	 * -
 	 */
-	public RepDeleteAction() {
-		super("^/rep/delete$");
+	public PackageDeleteConfirmedAction() {
+		super("^/package/delete-confirmed$");
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		long id = Long.parseLong(req.getParameter("id"));
+		String name = req.getParameter("name");
 		Objectify ofy = ObjectifyService.begin();
-		ofy.delete(new Key<Repository>(Repository.class, id));
+		Package p = ofy.get(new Key<Package>(Package.class, name));
+		ofy.delete(p);
 		DefaultServlet.dataVersion.incrementAndGet();
-
-		resp.sendRedirect("/rep");
+		resp.sendRedirect("/p");
 		return null;
 	}
 }

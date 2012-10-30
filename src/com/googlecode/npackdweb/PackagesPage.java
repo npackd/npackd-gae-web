@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -31,7 +32,8 @@ public class PackagesPage extends MyPage {
 			start = 0;
 		}
 
-		final String key = getClass().getCanonicalName() + ".content." + start;
+		final String key = getClass().getCanonicalName() + ".content." + start
+				+ "@" + DefaultServlet.dataVersion.get();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
 				.getConsistentLogAndContinue(Level.INFO));
@@ -41,12 +43,43 @@ public class PackagesPage extends MyPage {
 			packages = ofy.query(Package.class).limit(PAGE_SIZE + 1).offset(
 					start).order("title").list();
 
-			value = NWUtils.tmpl(this, "Packages.html")
+			value = createContent2()
 					+ createPager(start, packages.size() > PAGE_SIZE);
 
 			syncCache.put(key, value); // populate cache
 		}
 		return value;
+	}
+
+	private String createContent2() {
+		HTMLWriter w = new HTMLWriter();
+		w.start("div", "class", "nw-packages");
+		Objectify ofy = ObjectifyService.begin();
+		for (Package p : this.getPackages()) {
+			License lic;
+			if (!p.license.isEmpty())
+				lic = ofy.find(License.class, p.license);
+			else
+				lic = null;
+
+			w.start("div");
+			w.start("h3");
+			if (p.icon.isEmpty()) {
+				w.e("img", "src", "/App.png");
+			} else {
+				w.e("img", "src", p.icon, "style",
+						"max-width: 32px; max-height: 32px");
+			}
+			w.t(" ");
+			w.e("a", "href", "/p/" + p.name, p.title);
+			w.end("h3");
+			w.e("div", "Description: " + p.description);
+			w.e("div", "License: " + (lic == null ? "unknown" : lic.title));
+			w.end("div");
+		}
+		w.end("div");
+
+		return w.toString();
 	}
 
 	private String createPager(int cur, boolean hasNextPage) {
@@ -71,7 +104,7 @@ public class PackagesPage extends MyPage {
 
 	@Override
 	public String getTitle() {
-		return "Packages";
+		return NWUtils.countPackages() + " packages";
 	}
 
 	/**

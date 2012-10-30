@@ -3,17 +3,19 @@ package com.googlecode.npackdweb;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 
+import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
 
 /**
  * A license definition.
  */
 @Entity
+@Cached
 public class License {
 	@Id
-	String name;
-	String title;
-	String url;
+	public String name;
+	public String title;
+	public String url;
 
 	public String getTitle() {
 		return title;
@@ -29,6 +31,6 @@ public class License {
 
 	@PrePersist
 	void onPersist() {
-		NWUtils.clearCache();
+		DefaultServlet.dataVersion.incrementAndGet();
 	}
 }

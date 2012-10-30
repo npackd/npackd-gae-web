@@ -38,6 +38,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
+import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
 import freemarker.template.Configuration;
@@ -508,12 +509,20 @@ public class NWUtils {
 	}
 
 	/**
-	 * Cleares the cache.
+	 * @return the number of packages
 	 */
-	public static void clearCache() {
+	public static int countPackages() {
+		final String key = NWUtils.class.getName() + ".countPackages@"
+				+ DefaultServlet.dataVersion.get();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
 				.getConsistentLogAndContinue(Level.INFO));
-		syncCache.clearAll();
+		Integer value = (Integer) syncCache.get(key); // read from cache
+		if (value == null) {
+			Objectify ofy = ObjectifyService.begin();
+			value = ofy.query(Package.class).count();
+			syncCache.put(key, value); // populate cache
+		}
+		return value;
 	}
 }

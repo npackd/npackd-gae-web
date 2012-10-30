@@ -55,7 +55,8 @@ public class RepXMLPage extends Page {
 			throws IOException {
 		resp.setContentType("application/xml");
 
-		final String key = "RepXMLPage." + this.tag;
+		final String key = "RepXMLPage." + this.tag + "@"
+				+ DefaultServlet.dataVersion.get();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
 				.getConsistentLogAndContinue(Level.INFO));

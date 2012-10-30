@@ -30,6 +30,7 @@ public class PackageVersionDeleteConfirmedAction extends Action {
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
 		ofy.delete(p);
+		DefaultServlet.dataVersion.incrementAndGet();
 		resp.sendRedirect("/p/" + p.package_);
 		return null;
 	}
