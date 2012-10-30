@@ -87,6 +87,11 @@ public class PackageDetailPage extends MyPage {
 		if (editable) {
 			w.e("input", "type", "text", "name", "url", "value", p.url, "size",
 					"120");
+			if (!p.url.isEmpty()) {
+				w.start("a", "href", p.url, "target", "_blank");
+				w.e("img", "src", "/Link.png");
+				w.end("a");
+			}
 		} else {
 			w.e("a", "href", p.url, p.url);
 		}
