@@ -157,6 +157,9 @@ public class HTMLWriter {
 			case '<':
 				sb.append("&lt;");
 				break;
+			case '&':
+				sb.append("&amp;");
+				break;
 			default:
 				sb.append(c);
 			}
