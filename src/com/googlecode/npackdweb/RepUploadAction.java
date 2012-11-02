@@ -189,8 +189,8 @@ public class RepUploadAction extends Action {
 					p.importantFilePaths.add(che.getAttribute("path"));
 					p.importantFileTitles.add(che.getAttribute("title"));
 				} else if (che.getNodeName().equals("file")) {
-					p.filePaths.add(che.getAttribute("path"));
-					p.fileContents.add(NWUtils.getTagContent_(che));
+					p.addFile(che.getAttribute("path"), NWUtils
+							.getTagContent_(che));
 				} else if (che.getNodeName().equals("dependency")) {
 					p.dependencyPackages.add(che.getAttribute("package"));
 					p.dependencyVersionRanges.add(che.getAttribute("versions"));

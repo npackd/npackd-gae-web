@@ -10,6 +10,7 @@ import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.appengine.api.datastore.Text;
 import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
@@ -20,6 +21,8 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 @Cached
 public class PackageVersion {
+	private List<Object> fileContents = new ArrayList<Object>();
+
 	@Id
 	public String name = "";
 	@AlsoLoad("package")
@@ -32,7 +35,6 @@ public class PackageVersion {
 	public List<String> importantFileTitles = new ArrayList<String>();
 	public List<String> importantFilePaths = new ArrayList<String>();
 	public List<String> filePaths = new ArrayList<String>();
-	public List<String> fileContents = new ArrayList<String>();
 	public List<String> dependencyPackages = new ArrayList<String>();
 	public List<String> dependencyVersionRanges = new ArrayList<String>();
 	public List<String> dependencyEnvVars = new ArrayList<String>();
@@ -144,7 +146,7 @@ public class PackageVersion {
 			Element file = d.createElement("file");
 			version.appendChild(file);
 			file.setAttribute("path", pv.filePaths.get(i));
-			NWUtils.t(file, pv.fileContents.get(i));
+			NWUtils.t(file, pv.getFileContents(i));
 		}
 		if (!pv.url.isEmpty())
 			NWUtils.e(version, "url", pv.url);
@@ -170,14 +172,72 @@ public class PackageVersion {
 		return version;
 	}
 
+	/**
+	 * @param i
+	 *            index of the file
+	 * @return file contents <file>
+	 */
+	public String getFileContents(int i) {
+		Object obj = fileContents.get(i);
+		if (obj instanceof Text)
+			return ((Text) obj).getValue();
+		else
+			return (String) obj;
+	}
+
 	@PostLoad
 	public void postLoad() {
 		if (this.sha1 == null)
 			this.sha1 = "";
+
+		// Bugfix: the content was stored as <String> which lead to the
+		// conversion of long strings (> 500 characters) to Text and changing
+		// their position in the list
+		for (int i = 0; i < this.fileContents.size(); i++) {
+			Object obj = this.fileContents.get(i);
+			if (obj instanceof String)
+				this.fileContents.set(i, new Text((String) obj));
+		}
 	}
 
 	@PrePersist
 	void onPersist() {
 		DefaultServlet.dataVersion.incrementAndGet();
+	}
+
+	/**
+	 * Removes the file with the specified index.
+	 * 
+	 * @param index
+	 *            index of the file
+	 */
+	public void removeFile(int index) {
+		this.filePaths.remove(index);
+		this.fileContents.remove(index);
+	}
+
+	/**
+	 * Changes the content of the specified <file>
+	 * 
+	 * @param index
+	 *            index of the file
+	 * @param content
+	 *            file content
+	 */
+	public void setFileContents(int index, String content) {
+		this.fileContents.set(index, new Text(content));
+	}
+
+	/**
+	 * Adds a new <file>
+	 * 
+	 * @param path
+	 *            file path
+	 * @param content
+	 *            file content
+	 */
+	public void addFile(String path, String content) {
+		this.filePaths.add(path);
+		this.fileContents.add(new Text(content));
 	}
 }

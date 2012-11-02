@@ -36,15 +36,13 @@ public class PackageVersionFileSaveAction extends Action {
 		int index = r.filePaths.indexOf(path);
 		if (index >= 0) {
 			if (content.isEmpty()) {
-				r.filePaths.remove(index);
-				r.fileContents.remove(index);
+				r.removeFile(index);
 			} else {
-				r.fileContents.set(index, content);
+				r.setFileContents(index, content);
 			}
 		} else {
 			if (!content.isEmpty()) {
-				r.filePaths.add(path);
-				r.fileContents.add(content);
+				r.addFile(path, content);
 			}
 		}
 		ofy.put(r);

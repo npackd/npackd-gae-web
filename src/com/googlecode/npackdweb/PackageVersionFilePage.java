@@ -29,7 +29,7 @@ public class PackageVersionFilePage extends MyPage {
 		int index = this.pv.filePaths.indexOf(this.path);
 		String content = "";
 		if (index >= 0) {
-			content = pv.fileContents.get(index);
+			content = pv.getFileContents(index);
 		}
 
 		HTMLWriter w = new HTMLWriter();
