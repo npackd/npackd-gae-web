@@ -11,7 +11,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Save or create a package.
@@ -29,7 +28,7 @@ public class PackageVersionSaveAction extends Action {
 			throws IOException {
 		String name = req.getParameter("name");
 		NWUtils.LOG.severe(name);
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		PackageVersion p;
 		if (name == null || name.trim().length() == 0) {
 			p = new PackageVersion();

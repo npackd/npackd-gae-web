@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Packages.
@@ -225,7 +224,7 @@ public class PackageVersionPage extends MyPage {
 	 */
 	public Package getPackage() {
 		if (this.package_ == null) {
-			Objectify objectify = ObjectifyService.begin();
+			Objectify objectify = NWUtils.OBJECTIFY.get();
 			this.package_ = objectify.get(Package.class, this.pv.package_);
 		}
 		return this.package_;
@@ -245,7 +244,7 @@ public class PackageVersionPage extends MyPage {
 		if (this.license == null) {
 			Package p = getPackage();
 			if (!p.license.isEmpty()) {
-				Objectify ofy = ObjectifyService.begin();
+				Objectify ofy = NWUtils.OBJECTIFY.get();
 				this.license = ofy.get(License.class, p.license);
 			}
 		}

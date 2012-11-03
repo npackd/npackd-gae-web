@@ -13,7 +13,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Edit a package, a package version or a complete repository as XML.
@@ -39,12 +38,12 @@ public class EditAsXMLAction extends Action {
 		if (package_ == null) {
 			// nothing. Editing an empty repository.
 		} else if (version == null) {
-			Objectify ofy = ObjectifyService.begin();
+			Objectify ofy = NWUtils.OBJECTIFY.get();
 			Package r = ofy.get(new Key<Package>(Package.class, package_));
 			Element e = r.toXML(d);
 			root.appendChild(e);
 		} else {
-			Objectify ofy = ObjectifyService.begin();
+			Objectify ofy = NWUtils.OBJECTIFY.get();
 			PackageVersion r = ofy.get(new Key<PackageVersion>(
 					PackageVersion.class, package_ + "@" + version));
 			Element e = r.toXML(d);

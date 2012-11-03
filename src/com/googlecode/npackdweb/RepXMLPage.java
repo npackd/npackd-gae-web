@@ -32,7 +32,6 @@ import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Query;
 
 /**
@@ -113,7 +112,7 @@ public class RepXMLPage extends Page {
 		Element root = d.getDocumentElement();
 
 		// getting data
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
 		Query<PackageVersion> q = ofy.query(PackageVersion.class)
 				.chunkSize(500);

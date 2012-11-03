@@ -10,7 +10,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Save <file> in a package version.
@@ -30,7 +29,7 @@ public class PackageVersionFileSaveAction extends Action {
 		String path = req.getParameter("path");
 		String content = req.getParameter("content");
 
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		PackageVersion r = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
 

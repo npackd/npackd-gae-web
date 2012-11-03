@@ -9,7 +9,6 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Delete a repository.
@@ -26,7 +25,7 @@ public class RepDeleteAction extends Action {
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		long id = Long.parseLong(req.getParameter("id"));
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		ofy.delete(new Key<Repository>(Repository.class, id));
 		DefaultServlet.dataVersion.incrementAndGet();
 

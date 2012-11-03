@@ -10,7 +10,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Delete a package version.
@@ -27,7 +26,7 @@ public class PackageVersionDeleteAction extends Action {
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String name = req.getParameter("name");
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
 		return new PackageVersionDeletePage(p);

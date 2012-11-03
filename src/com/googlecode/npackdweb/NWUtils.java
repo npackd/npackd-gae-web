@@ -75,6 +75,16 @@ public class NWUtils {
 	private static boolean objectifyInitialized;
 
 	/**
+	 * Thread local Objectify instance.
+	 */
+	public static ThreadLocal<Objectify> OBJECTIFY = new ThreadLocal<Objectify>() {
+		@Override
+		protected Objectify initialValue() {
+			return ObjectifyService.begin();
+		}
+	};
+
+	/**
 	 * Login/Logout-footer
 	 * 
 	 * @param request
@@ -522,7 +532,7 @@ public class NWUtils {
 				.getConsistentLogAndContinue(Level.INFO));
 		Integer value = (Integer) syncCache.get(key); // read from cache
 		if (value == null) {
-			Objectify ofy = ObjectifyService.begin();
+			Objectify ofy = NWUtils.OBJECTIFY.get();
 			value = ofy.query(Package.class).count();
 			syncCache.put(key, value); // populate cache
 		}

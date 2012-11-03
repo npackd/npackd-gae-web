@@ -12,7 +12,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * A package version.
@@ -34,7 +33,7 @@ public class PackageVersionFileAction extends Action {
 		String package_ = m.group(1);
 		String version = m.group(2);
 
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		PackageVersion r = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, package_ + "@" + version));
 

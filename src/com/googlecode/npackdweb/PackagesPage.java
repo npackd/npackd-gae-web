@@ -11,7 +11,6 @@ import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Packages.
@@ -39,7 +38,7 @@ public class PackagesPage extends MyPage {
 				.getConsistentLogAndContinue(Level.INFO));
 		String value = (String) syncCache.get(key); // read from cache
 		if (value == null) {
-			Objectify ofy = ObjectifyService.begin();
+			Objectify ofy = NWUtils.OBJECTIFY.get();
 			packages = ofy.query(Package.class).limit(PAGE_SIZE + 1).offset(
 					start).order("title").list();
 
@@ -54,7 +53,7 @@ public class PackagesPage extends MyPage {
 	private String createContent2() {
 		HTMLWriter w = new HTMLWriter();
 		w.start("div", "class", "nw-packages");
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		for (Package p : this.getPackages()) {
 			License lic;
 			if (!p.license.isEmpty())

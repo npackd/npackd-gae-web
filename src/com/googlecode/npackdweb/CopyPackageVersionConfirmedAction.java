@@ -10,7 +10,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Start a copy of a package version.
@@ -28,7 +27,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
 			throws IOException {
 		String name = req.getParameter("name");
 		String version = req.getParameter("version");
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
 		PackageVersion copy = p.copy();

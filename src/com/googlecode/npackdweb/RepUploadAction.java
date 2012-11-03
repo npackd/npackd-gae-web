@@ -28,7 +28,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Upload a repository.
@@ -102,7 +101,7 @@ public class RepUploadAction extends Action {
 				pv.tags.add(tag);
 			}
 
-			Objectify ofy = ObjectifyService.begin();
+			Objectify ofy = NWUtils.OBJECTIFY.get();
 			List<Key<?>> keys = new ArrayList<Key<?>>();
 			for (License lic : f.lics) {
 				keys.add(lic.createKey());

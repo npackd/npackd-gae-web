@@ -13,7 +13,6 @@ import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * A package.
@@ -35,7 +34,7 @@ public class PackageDetailPage extends MyPage {
 		this.p = p;
 		this.editable = editable;
 
-		Objectify ofy = ObjectifyService.begin();
+		Objectify ofy = NWUtils.OBJECTIFY.get();
 		versions = new ArrayList<PackageVersion>();
 		if (p != null) {
 			for (PackageVersion pv : ofy.query(PackageVersion.class).filter(
@@ -215,7 +214,7 @@ public class PackageDetailPage extends MyPage {
 	 */
 	public List<License> getLicenses() {
 		if (this.licenses == null) {
-			Objectify ofy = ObjectifyService.begin();
+			Objectify ofy = NWUtils.OBJECTIFY.get();
 			this.licenses = new ArrayList<License>();
 			for (License p : ofy.query(License.class).fetch())
 				this.licenses.add(p);
