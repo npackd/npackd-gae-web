@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -20,7 +21,7 @@ public class PackageDeleteAction extends Action {
 	 * -
 	 */
 	public PackageDeleteAction() {
-		super("^/package/delete$");
+		super("^/package/delete$", ActionSecurityType.EDITOR);
 	}
 
 	@Override

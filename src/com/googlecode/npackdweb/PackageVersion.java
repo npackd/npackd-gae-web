@@ -11,6 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.appengine.api.datastore.Text;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
@@ -239,5 +240,12 @@ public class PackageVersion {
 	public void addFile(String path, String content) {
 		this.filePaths.add(path);
 		this.fileContents.add(new Text(content));
+	}
+
+	/**
+	 * @return created Key for this object
+	 */
+	public Key<PackageVersion> createKey() {
+		return new Key<PackageVersion>(PackageVersion.class, this.name);
 	}
 }

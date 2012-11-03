@@ -18,9 +18,19 @@ public class RepFromFilePage extends MyPage {
 		w.t("Repository: ");
 		w.e("input", "type", "file", "name", "repository");
 		w.e("br");
-		w.t("Tag: ");
+		w
+				.t("Please use one of these default tags to place the package versions in the right repository: stable, stable64, unstable, libs");
+		w.e("br");
+		w.t("Tag for package versions: ");
 		w.e("input", "type", "text", "name", "tag");
 		w.e("br");
+
+		w.t("Overwrite:");
+		w.e("input", "type", "checkbox", "name", "overwrite");
+		w
+				.t("If this checkbox is not selected, only new packages, package versions and licenses will be created");
+		w.e("br");
+
 		w.e("input", "type", "submit", "value", "submit");
 		w.e("br");
 		w.end("form");

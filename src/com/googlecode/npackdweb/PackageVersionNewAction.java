@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 
 /**
@@ -16,7 +17,7 @@ public class PackageVersionNewAction extends Action {
 	 * -
 	 */
 	public PackageVersionNewAction() {
-		super("^/pv/new$");
+		super("^/pv/new$", ActionSecurityType.EDITOR);
 	}
 
 	@Override

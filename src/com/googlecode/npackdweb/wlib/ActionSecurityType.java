@@ -10,6 +10,9 @@ public enum ActionSecurityType {
 	/** only logged in users can call this action */
 	LOGGED_IN,
 
+	/** package editors */
+	EDITOR,
+
 	/** only administrators can call this action */
 	ADMINISTRATOR
 }

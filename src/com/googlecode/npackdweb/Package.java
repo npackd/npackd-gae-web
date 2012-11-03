@@ -7,6 +7,7 @@ import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
 
@@ -101,5 +102,12 @@ public class Package {
 	@PrePersist
 	void onPersist() {
 		DefaultServlet.dataVersion.incrementAndGet();
+	}
+
+	/**
+	 * @return created Key for this object
+	 */
+	public Key<Package> createKey() {
+		return new Key<Package>(Package.class, this.name);
 	}
 }

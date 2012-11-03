@@ -34,6 +34,7 @@ import org.w3c.dom.Text;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
@@ -66,6 +67,8 @@ public class NWUtils {
 			+ "    \n"
 			+ "    You should have received a copy of the GNU General Public License\n"
 			+ "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
+
+	public static final Object EDITOR_1 = "chevdor@gmail.com";
 
 	private static Configuration cfg;
 
@@ -524,5 +527,15 @@ public class NWUtils {
 			syncCache.put(key, value); // populate cache
 		}
 		return value;
+	}
+
+	/**
+	 * @return true if a user is logged in that can edit packages
+	 */
+	public static boolean isEditorLoggedIn() {
+		UserService us = UserServiceFactory.getUserService();
+		User u = us.getCurrentUser();
+		return us.isUserLoggedIn()
+				&& (us.isUserAdmin() || u.getEmail().equals(NWUtils.EDITOR_1));
 	}
 }

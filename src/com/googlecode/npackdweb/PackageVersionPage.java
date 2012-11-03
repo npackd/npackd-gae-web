@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
@@ -237,8 +235,7 @@ public class PackageVersionPage extends MyPage {
 	 * @return true if the data should be editable
 	 */
 	public boolean getEditable() {
-		UserService us = UserServiceFactory.getUserService();
-		return us.isUserLoggedIn() && us.isUserAdmin();
+		return NWUtils.isEditorLoggedIn();
 	}
 
 	/**

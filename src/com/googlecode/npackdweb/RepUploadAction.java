@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +24,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -36,11 +40,17 @@ public class RepUploadAction extends Action {
 		public List<PackageVersion> pvs;
 	}
 
+	private static final class Stats {
+		public int pOverwritten, pAppended, pExisting;
+		public int pvOverwritten, pvAppended, pvExisting;
+		public int licOverwritten, licAppended, licExisting;
+	}
+
 	/**
 	 * -
 	 */
 	public RepUploadAction() {
-		super("^/rep/upload$");
+		super("^/rep/upload$", ActionSecurityType.EDITOR);
 	}
 
 	@Override
@@ -48,6 +58,7 @@ public class RepUploadAction extends Action {
 			throws IOException {
 		Found f = null;
 		String tag = "unknown";
+		boolean overwrite = false;
 		if (ServletFileUpload.isMultipartContent(req)) {
 			ServletFileUpload upload = new ServletFileUpload();
 			FileItemIterator iterator;
@@ -63,6 +74,8 @@ public class RepUploadAction extends Action {
 								BufferedReader r = new BufferedReader(
 										new InputStreamReader(stream));
 								tag = r.readLine();
+							} else if (item.getFieldName().equals("overwrite")) {
+								overwrite = true;
 							}
 						} else {
 							f = process(stream);
@@ -71,7 +84,6 @@ public class RepUploadAction extends Action {
 						stream.close();
 					}
 				}
-
 			} catch (FileUploadException e) {
 				throw (IOException) new IOException(e.getMessage())
 						.initCause(e);
@@ -79,22 +91,91 @@ public class RepUploadAction extends Action {
 		} else {
 			tag = req.getParameter("tag");
 			String rep = req.getParameter("repository");
+			overwrite = req.getParameter("overwrite") != null;
 			f = process(new ByteArrayInputStream(rep.getBytes("UTF-8")));
 		}
 
+		// NWUtils.LOG.warning("overwrite: " + overwrite);
+		String txt = "no data found";
 		if (f != null) {
 			for (PackageVersion pv : f.pvs) {
 				pv.tags.add(tag);
 			}
 
 			Objectify ofy = ObjectifyService.begin();
+			List<Key<?>> keys = new ArrayList<Key<?>>();
+			for (License lic : f.lics) {
+				keys.add(lic.createKey());
+			}
+			for (PackageVersion pv : f.pvs) {
+				keys.add(pv.createKey());
+			}
+			for (Package p : f.ps) {
+				keys.add(p.createKey());
+			}
+
+			Map<Key<Object>, Object> existing = ofy.get(keys);
+
+			Stats stats = new Stats();
+			Iterator<PackageVersion> it = f.pvs.iterator();
+			while (it.hasNext()) {
+				PackageVersion pv = it.next();
+				PackageVersion found = (PackageVersion) existing.get(pv
+						.createKey());
+				if (found != null) {
+					stats.pvExisting++;
+					if (!overwrite)
+						it.remove();
+				}
+			}
+
+			Iterator<License> itLic = f.lics.iterator();
+			while (itLic.hasNext()) {
+				License pv = itLic.next();
+				License found = (License) existing.get(pv.createKey());
+				if (found != null) {
+					stats.licExisting++;
+					if (!overwrite)
+						itLic.remove();
+				}
+			}
+
+			Iterator<Package> itP = f.ps.iterator();
+			while (itP.hasNext()) {
+				Package p = itP.next();
+				Package found = (Package) existing.get(p.createKey());
+				if (found != null) {
+					stats.pExisting++;
+					if (!overwrite)
+						itP.remove();
+				}
+			}
+
 			ofy.put(f.lics);
 			ofy.put(f.pvs);
 			ofy.put(f.ps);
+
+			if (overwrite) {
+				stats.pOverwritten = stats.pExisting;
+				stats.pvOverwritten = stats.pvExisting;
+				stats.licOverwritten = stats.licExisting;
+				stats.pAppended = f.ps.size() - stats.pOverwritten;
+				stats.pvAppended = f.pvs.size() - stats.pvOverwritten;
+				stats.licAppended = f.lics.size() - stats.licOverwritten;
+			} else {
+				stats.pAppended = f.ps.size();
+				stats.pvAppended = f.pvs.size();
+				stats.licAppended = f.lics.size();
+			}
+			txt = stats.pOverwritten + " packages overwritten, "
+					+ stats.pvOverwritten + " package versions overwritten, "
+					+ stats.licOverwritten + " licenses overwritten, "
+					+ stats.pAppended + " packages appended, "
+					+ stats.pvAppended + " package versions appended, "
+					+ stats.licAppended + " licenses appended";
 		}
 
-		resp.sendRedirect("/");
-		return null;
+		return new MessagePage(txt);
 	}
 
 	private Found process(InputStream stream) throws IOException {

@@ -77,6 +77,19 @@ public class DefaultServlet extends HttpServlet {
 					resp.getWriter().close();
 				}
 				break;
+			case EDITOR:
+				if (us.getCurrentUser() == null) {
+					ok = false;
+					resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
+				} else if (!us.isUserAdmin()
+						&& !us.getCurrentUser().getEmail()
+								.equals(NWUtils.EDITOR_1)) {
+					ok = false;
+					resp.setContentType("text/plain");
+					resp.getWriter().write("Not an admin");
+					resp.getWriter().close();
+				}
+				break;
 			default:
 				throw new InternalError("Unknown security type");
 			}

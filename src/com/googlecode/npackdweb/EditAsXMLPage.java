@@ -41,11 +41,23 @@ public class EditAsXMLPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "Tag:");
+		w.e("td", "Tag for package versions:");
 		w.start("td");
 		w.e("input", "type", "text", "name", "tag", "value", tag);
+		w
+				.t("Please use one of these default tags to place the package versions in the right repository: stable, stable64, unstable, libs");
 		w.end("td");
 		w.end("tr");
+
+		w.start("tr");
+		w.e("td", "Overwrite:");
+		w.start("td");
+		w.e("input", "type", "checkbox", "name", "overwrite");
+		w
+				.t("If this checkbox is not selected, only new packages, package versions and licenses will be created");
+		w.end("td");
+		w.end("tr");
+
 		w.end("table");
 		w.e("input", "type", "submit", "value", "submit");
 		w.end("form");

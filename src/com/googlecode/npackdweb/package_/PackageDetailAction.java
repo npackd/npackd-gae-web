@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -38,6 +39,6 @@ public class PackageDetailAction extends Action {
 		}
 
 		UserService us = UserServiceFactory.getUserService();
-		return new PackageDetailPage(r, us.isUserLoggedIn() && us.isUserAdmin());
+		return new PackageDetailPage(r, NWUtils.isEditorLoggedIn());
 	}
 }

@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
 
@@ -32,5 +33,12 @@ public class License {
 	@PrePersist
 	void onPersist() {
 		DefaultServlet.dataVersion.incrementAndGet();
+	}
+
+	/**
+	 * @return created Key for this object
+	 */
+	public Key<License> createKey() {
+		return new Key<License>(License.class, name);
 	}
 }
