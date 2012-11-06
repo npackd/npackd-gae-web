@@ -187,6 +187,24 @@ public class PackageVersionPage extends MyPage {
 			w.end("tr");
 		}
 
+		if (editable) {
+			w.start("tr");
+			w.e("td", "Download check:");
+			w.start("td");
+			if (pv.downloadCheckAt != null) {
+				String s = "Checked at " + pv.downloadCheckAt + ". ";
+				if (pv.downloadCheckError == null)
+					s += "The download completed successfully.";
+				else
+					s += "The download failed: " + pv.downloadCheckError;
+				w.t(s);
+			} else {
+				w.t("Not yet checked");
+			}
+			w.end("td");
+			w.end("tr");
+		}
+
 		w.end("table");
 
 		if (editable) {

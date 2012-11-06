@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Id;
@@ -42,6 +43,12 @@ public class PackageVersion {
 	public List<String> detectFilePaths = new ArrayList<String>();
 	public List<String> detectFileSHA1s = new ArrayList<String>();
 	public List<String> tags = new ArrayList<String>();
+
+	/** can be null if the check was not yet performed */
+	public Date downloadCheckAt;
+
+	/** error message or null if none */
+	public String downloadCheckError;
 
 	/**
 	 * For Objectify.

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queue-entries>
+  <queue>
+    <name>default</name>
+    <rate>2/h</rate>
+  </queue>
+</queue-entries>

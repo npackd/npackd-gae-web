@@ -46,6 +46,7 @@ public class PackageVersionFileSaveAction extends Action {
 			}
 		}
 		ofy.put(r);
+		DefaultServlet.dataVersion.incrementAndGet();
 
 		int pos = name.indexOf("@");
 		String package_ = name.substring(0, pos);

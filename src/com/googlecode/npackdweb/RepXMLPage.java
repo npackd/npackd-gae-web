@@ -118,8 +118,7 @@ public class RepXMLPage extends Page {
 				.chunkSize(500);
 		if (this.tag != null)
 			q.filter("tags =", tag);
-		for (PackageVersion p : q.fetch())
-			pvs.add(p);
+		pvs.addAll(q.list());
 		Collections.sort(pvs, new Comparator<PackageVersion>() {
 			public int compare(PackageVersion a, PackageVersion b) {
 				int r = a.package_.compareToIgnoreCase(b.package_);

@@ -182,4 +182,14 @@ public class HTMLWriter {
 		encodeHTML(b, txt);
 		return this;
 	}
+
+	/**
+	 * Adds HTML
+	 * 
+	 * @param html
+	 *            HTML
+	 */
+	public void unencoded(String html) {
+		this.b.append(html);
+	}
 }

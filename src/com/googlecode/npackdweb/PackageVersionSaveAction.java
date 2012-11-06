@@ -65,6 +65,7 @@ public class PackageVersionSaveAction extends Action {
 			}
 		}
 		ofy.put(p);
+		DefaultServlet.dataVersion.incrementAndGet();
 		resp.sendRedirect("/p/" + p.package_);
 		return null;
 	}
