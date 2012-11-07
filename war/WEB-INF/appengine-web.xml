@@ -6,7 +6,7 @@
   <!--
     Allows App Engine to send multiple requests to one instance in parallel:
   -->
-  <threadsafe>false</threadsafe>
+  <threadsafe>true</threadsafe>
 
   <!-- Configure java.util.logging -->
   <system-properties>

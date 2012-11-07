@@ -42,7 +42,7 @@ public class CheckDownloadAction extends Action {
 		String cursor = req.getParameter("cursor");
 		// NWUtils.LOG.warning("checking download at cursor " + cursor);
 
-		Objectify ob = NWUtils.OBJECTIFY.get();
+		Objectify ob = NWUtils.getObjectify();
 		Query<PackageVersion> q = ob.query(PackageVersion.class);
 		if (cursor != null)
 			q.startCursor(Cursor.fromWebSafeString(cursor));

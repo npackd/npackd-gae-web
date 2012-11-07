@@ -25,7 +25,7 @@ public class RepDeleteAction extends Action {
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		long id = Long.parseLong(req.getParameter("id"));
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		ofy.delete(new Key<Repository>(Repository.class, id));
 		DefaultServlet.dataVersion.incrementAndGet();
 

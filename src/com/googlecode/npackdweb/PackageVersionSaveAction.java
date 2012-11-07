@@ -28,7 +28,7 @@ public class PackageVersionSaveAction extends Action {
 			throws IOException {
 		String name = req.getParameter("name");
 		NWUtils.LOG.severe(name);
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p;
 		if (name == null || name.trim().length() == 0) {
 			p = new PackageVersion();

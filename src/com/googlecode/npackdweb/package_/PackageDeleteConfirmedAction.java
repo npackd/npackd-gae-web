@@ -29,7 +29,7 @@ public class PackageDeleteConfirmedAction extends Action {
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String name = req.getParameter("name");
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		Package p = ofy.get(new Key<Package>(Package.class, name));
 		ofy.delete(p);
 		DefaultServlet.dataVersion.incrementAndGet();

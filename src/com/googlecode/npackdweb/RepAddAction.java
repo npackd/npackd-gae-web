@@ -25,7 +25,7 @@ public class RepAddAction extends Action {
 			throws IOException {
 		Repository r = new Repository();
 		r.name = req.getParameter("title");
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		ofy.put(r);
 
 		resp.sendRedirect("/rep");

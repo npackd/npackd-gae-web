@@ -33,7 +33,7 @@ public class PackageVersionFileAction extends Action {
 		String package_ = m.group(1);
 		String version = m.group(2);
 
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion r = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, package_ + "@" + version));
 

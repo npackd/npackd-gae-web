@@ -26,7 +26,7 @@ public class CopyPackageVersionAction extends Action {
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String name = req.getParameter("name");
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
 		return new CopyPackageVersionPage(p);

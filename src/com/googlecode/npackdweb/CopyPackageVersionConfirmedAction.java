@@ -27,7 +27,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
 			throws IOException {
 		String name = req.getParameter("name");
 		String version = req.getParameter("version");
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 				PackageVersion.class, name));
 		PackageVersion copy = p.copy();

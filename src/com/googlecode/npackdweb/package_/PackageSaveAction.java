@@ -28,7 +28,7 @@ public class PackageSaveAction extends Action {
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String name = req.getParameter("name");
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		Package p;
 		if (name == null || name.trim().length() == 0) {
 			p = new Package(name);

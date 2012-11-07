@@ -242,7 +242,7 @@ public class PackageVersionPage extends MyPage {
 	 */
 	public Package getPackage() {
 		if (this.package_ == null) {
-			Objectify objectify = NWUtils.OBJECTIFY.get();
+			Objectify objectify = NWUtils.getObjectify();
 			this.package_ = objectify.get(Package.class, this.pv.package_);
 		}
 		return this.package_;
@@ -262,7 +262,7 @@ public class PackageVersionPage extends MyPage {
 		if (this.license == null) {
 			Package p = getPackage();
 			if (!p.license.isEmpty()) {
-				Objectify ofy = NWUtils.OBJECTIFY.get();
+				Objectify ofy = NWUtils.getObjectify();
 				this.license = ofy.get(License.class, p.license);
 			}
 		}

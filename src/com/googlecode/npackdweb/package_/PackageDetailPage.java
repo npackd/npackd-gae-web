@@ -34,7 +34,7 @@ public class PackageDetailPage extends MyPage {
 		this.p = p;
 		this.editable = editable;
 
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		versions = new ArrayList<PackageVersion>();
 		if (p != null) {
 			for (PackageVersion pv : ofy.query(PackageVersion.class).filter(
@@ -214,7 +214,7 @@ public class PackageDetailPage extends MyPage {
 	 */
 	public List<License> getLicenses() {
 		if (this.licenses == null) {
-			Objectify ofy = NWUtils.OBJECTIFY.get();
+			Objectify ofy = NWUtils.getObjectify();
 			this.licenses = new ArrayList<License>();
 			for (License p : ofy.query(License.class).fetch())
 				this.licenses.add(p);

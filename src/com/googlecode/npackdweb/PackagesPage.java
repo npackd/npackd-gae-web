@@ -38,7 +38,7 @@ public class PackagesPage extends MyPage {
 				.getConsistentLogAndContinue(Level.INFO));
 		String value = (String) syncCache.get(key); // read from cache
 		if (value == null) {
-			Objectify ofy = NWUtils.OBJECTIFY.get();
+			Objectify ofy = NWUtils.getObjectify();
 			packages = ofy.query(Package.class).limit(PAGE_SIZE + 1).offset(
 					start).order("title").list();
 
@@ -53,7 +53,7 @@ public class PackagesPage extends MyPage {
 	private String createContent2() {
 		HTMLWriter w = new HTMLWriter();
 		w.start("div", "class", "nw-packages");
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		for (Package p : this.getPackages()) {
 			License lic;
 			if (!p.license.isEmpty())

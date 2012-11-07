@@ -27,7 +27,7 @@ public class RepDetailAction extends Action {
 			throws IOException {
 		long id = Long.parseLong(req.getRequestURI().substring(5));
 
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		Repository r = ofy.get(new Key<Repository>(Repository.class, id));
 
 		return new RepDetailPage(r);

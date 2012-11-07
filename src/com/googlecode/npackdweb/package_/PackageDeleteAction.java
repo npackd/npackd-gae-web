@@ -28,7 +28,7 @@ public class PackageDeleteAction extends Action {
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String id = req.getParameter("id");
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		Package p = ofy.get(new Key<Package>(Package.class, id));
 
 		return new PackageDeletePage(p);

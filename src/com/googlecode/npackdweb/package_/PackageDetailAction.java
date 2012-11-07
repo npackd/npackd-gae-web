@@ -29,7 +29,7 @@ public class PackageDetailAction extends Action {
 			throws IOException {
 		String name = req.getRequestURI().substring(3);
 
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		Package r = ofy.find(new Key<Package>(Package.class, name));
 		if (r == null) {
 			r = new Package(name);

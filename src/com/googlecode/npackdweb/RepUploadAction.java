@@ -101,7 +101,7 @@ public class RepUploadAction extends Action {
 				pv.tags.add(tag);
 			}
 
-			Objectify ofy = NWUtils.OBJECTIFY.get();
+			Objectify ofy = NWUtils.getObjectify();
 			List<Key<?>> keys = new ArrayList<Key<?>>();
 			for (License lic : f.lics) {
 				keys.add(lic.createKey());

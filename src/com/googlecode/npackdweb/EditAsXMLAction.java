@@ -38,12 +38,12 @@ public class EditAsXMLAction extends Action {
 		if (package_ == null) {
 			// nothing. Editing an empty repository.
 		} else if (version == null) {
-			Objectify ofy = NWUtils.OBJECTIFY.get();
+			Objectify ofy = NWUtils.getObjectify();
 			Package r = ofy.get(new Key<Package>(Package.class, package_));
 			Element e = r.toXML(d);
 			root.appendChild(e);
 		} else {
-			Objectify ofy = NWUtils.OBJECTIFY.get();
+			Objectify ofy = NWUtils.getObjectify();
 			PackageVersion r = ofy.get(new Key<PackageVersion>(
 					PackageVersion.class, package_ + "@" + version));
 			Element e = r.toXML(d);

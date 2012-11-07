@@ -112,7 +112,7 @@ public class RepXMLPage extends Page {
 		Element root = d.getDocumentElement();
 
 		// getting data
-		Objectify ofy = NWUtils.OBJECTIFY.get();
+		Objectify ofy = NWUtils.getObjectify();
 		ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
 		Query<PackageVersion> q = ofy.query(PackageVersion.class)
 				.chunkSize(500);
