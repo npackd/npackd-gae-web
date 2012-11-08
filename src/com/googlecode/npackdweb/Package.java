@@ -1,5 +1,7 @@
 package com.googlecode.npackdweb;
 
+import java.util.Date;
+
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
@@ -25,6 +27,9 @@ public class Package {
 	public String icon = "";
 	public String license = "";
 	public String comment = "";
+
+	/** last modification date */
+	public Date lastModifiedAt = new Date();
 
 	/**
 	 * For Objectify.
@@ -72,6 +77,14 @@ public class Package {
 	public void postLoad() {
 		if (this.comment == null)
 			this.comment = "";
+		if (this.lastModifiedAt == null)
+			this.lastModifiedAt = new Date();
+	}
+
+	@PrePersist
+	void onPersist() {
+		DefaultServlet.dataVersion.incrementAndGet();
+		this.lastModifiedAt = new Date();
 	}
 
 	/**
@@ -97,11 +110,6 @@ public class Package {
 			NWUtils.e(package_, "license", p.license);
 
 		return package_;
-	}
-
-	@PrePersist
-	void onPersist() {
-		DefaultServlet.dataVersion.incrementAndGet();
 	}
 
 	/**

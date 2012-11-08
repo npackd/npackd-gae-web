@@ -1,6 +1,9 @@
 package com.googlecode.npackdweb;
 
+import java.util.Date;
+
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 
 import com.googlecode.objectify.Key;
@@ -18,6 +21,9 @@ public class License {
 	public String title;
 	public String url;
 
+	/** last modification date */
+	public Date lastModifiedAt;
+
 	public String getTitle() {
 		return title;
 	}
@@ -30,9 +36,16 @@ public class License {
 		return name;
 	}
 
+	@PostLoad
+	public void postLoad() {
+		if (this.lastModifiedAt == null)
+			this.lastModifiedAt = new Date();
+	}
+
 	@PrePersist
 	void onPersist() {
 		DefaultServlet.dataVersion.incrementAndGet();
+		this.lastModifiedAt = new Date();
 	}
 
 	/**

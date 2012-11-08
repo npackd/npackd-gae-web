@@ -50,6 +50,9 @@ public class PackageVersion {
 	/** error message or null if none */
 	public String downloadCheckError;
 
+	/** last modification date */
+	public Date lastModifiedAt = new Date();
+
 	/**
 	 * For Objectify.
 	 */
@@ -165,7 +168,7 @@ public class PackageVersion {
 			version.appendChild(dependency);
 			dependency.setAttribute("package", pv.dependencyPackages.get(i));
 			dependency.setAttribute("versions", pv.dependencyVersionRanges
-					.get(i));
+			        .get(i));
 			if (!pv.dependencyEnvVars.get(i).isEmpty())
 				NWUtils.e(dependency, "variable", pv.dependencyEnvVars.get(i));
 		}
@@ -206,11 +209,15 @@ public class PackageVersion {
 			if (obj instanceof String)
 				this.fileContents.set(i, new Text((String) obj));
 		}
+
+		if (this.lastModifiedAt == null)
+			this.lastModifiedAt = new Date();
 	}
 
 	@PrePersist
 	void onPersist() {
 		DefaultServlet.dataVersion.incrementAndGet();
+		this.lastModifiedAt = new Date();
 	}
 
 	/**

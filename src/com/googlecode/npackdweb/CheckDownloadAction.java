@@ -38,7 +38,7 @@ public class CheckDownloadAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		String cursor = req.getParameter("cursor");
 		// NWUtils.LOG.warning("checking download at cursor " + cursor);
 
@@ -56,24 +56,25 @@ public class CheckDownloadAction extends Action {
 			if (!data.url.isEmpty()) {
 				try {
 					URLFetchService s = URLFetchServiceFactory
-							.getURLFetchService();
+					        .getURLFetchService();
 					HTTPRequest ht = new HTTPRequest(new URL(data.url));
 					ht.getFetchOptions().setDeadline(10 * 60.0);
 					HTTPResponse r = s.fetch(ht);
 					if (r.getResponseCode() / 100 != 2) {
 						data.downloadCheckError = "HTTP response code: "
-								+ r.getResponseCode();
+						        + r.getResponseCode();
 					} else {
 						data.downloadCheckError = null;
 					}
 				} catch (Exception e) {
 					data.downloadCheckError = "Error downloading: "
-							+ e.getMessage();
+					        + e.getMessage();
 				}
 			} else {
 				data.downloadCheckError = "URL is empty";
 			}
 			ob.put(data);
+
 			DefaultServlet.dataVersion.incrementAndGet();
 
 			cursor = iterator.getCursor().toWebSafeString();

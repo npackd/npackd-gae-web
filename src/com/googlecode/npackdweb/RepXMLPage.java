@@ -51,30 +51,30 @@ public class RepXMLPage extends Page {
 
 	@Override
 	public void create(HttpServletRequest request, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		resp.setContentType("application/xml");
 
 		final String key = "RepXMLPage." + this.tag + "@"
-				+ DefaultServlet.dataVersion.get();
+		        + DefaultServlet.dataVersion.get();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
-				.getConsistentLogAndContinue(Level.INFO));
+		        .getConsistentLogAndContinue(Level.INFO));
 		byte[] value = (byte[]) syncCache.get(key); // read from cache
 		if (value == null) {
 			NWUtils.LOG.warning("Found no value in cache");
 			try {
-				Document d = toXML();
+				Document d = toXML(this.tag);
 				Transformer t = TransformerFactory.newInstance()
-						.newTransformer();
+				        .newTransformer();
 				t.setOutputProperty(OutputKeys.INDENT, "yes");
 				t.setOutputProperty(
-						"{http://xml.apache.org/xslt}indent-amount", "4");
+				        "{http://xml.apache.org/xslt}indent-amount", "4");
 				t.setOutputProperty(
-						"{http://xml.apache.org/xalan}line-separator", "\r\n");
+				        "{http://xml.apache.org/xalan}line-separator", "\r\n");
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				GZIPOutputStream gos = new GZIPOutputStream(baos);
 				t.transform(new DOMSource(d.getDocumentElement()),
-						new StreamResult(gos));
+				        new StreamResult(gos));
 				gos.finish();
 				gos.flush();
 				value = baos.toByteArray();
@@ -82,15 +82,15 @@ public class RepXMLPage extends Page {
 					syncCache.put(key, value); // populate cache
 			} catch (Exception e) {
 				throw (IOException) new IOException(e.getMessage())
-						.initCause(e);
+				        .initCause(e);
 			}
 		} else {
 			NWUtils.LOG.warning("Found value in cache " + value.length
-					+ " bytes");
+			        + " bytes");
 		}
 
 		GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(
-				value));
+		        value));
 		copy(gis, resp.getOutputStream());
 		resp.getOutputStream().close();
 	}
@@ -104,9 +104,11 @@ public class RepXMLPage extends Page {
 	}
 
 	/**
+	 * @param tag
+	 *            package versions tag or null for "everything"
 	 * @return XML for the whole repository definition
 	 */
-	public Document toXML() {
+	public static Document toXML(String tag) {
 		Document d = NWUtils.newXMLRepository(true);
 
 		Element root = d.getDocumentElement();
@@ -115,8 +117,8 @@ public class RepXMLPage extends Page {
 		Objectify ofy = NWUtils.getObjectify();
 		ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
 		Query<PackageVersion> q = ofy.query(PackageVersion.class)
-				.chunkSize(500);
-		if (this.tag != null)
+		        .chunkSize(500);
+		if (tag != null)
 			q.filter("tags =", tag);
 		pvs.addAll(q.list());
 		Collections.sort(pvs, new Comparator<PackageVersion>() {
