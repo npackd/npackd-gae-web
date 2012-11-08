@@ -1,10 +1,6 @@
 package com.googlecode.npackdweb;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,24 +8,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.appengine.api.memcache.ErrorHandlers;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.files.AppEngineFile;
+import com.google.appengine.api.files.FileService;
+import com.google.appengine.api.files.FileServiceFactory;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.Query;
@@ -42,8 +33,7 @@ public class RepXMLPage extends Page {
 
 	/**
 	 * @param tag
-	 *            only package versions with this tag will be exported. null
-	 *            means all package versions will be exported
+	 *            only package versions with this tag will be exported.
 	 */
 	public RepXMLPage(String tag) {
 		this.tag = tag;
@@ -54,53 +44,12 @@ public class RepXMLPage extends Page {
 	        throws IOException {
 		resp.setContentType("application/xml");
 
-		final String key = "RepXMLPage." + this.tag + "@"
-		        + DefaultServlet.dataVersion.get();
-		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-		syncCache.setErrorHandler(ErrorHandlers
-		        .getConsistentLogAndContinue(Level.INFO));
-		byte[] value = (byte[]) syncCache.get(key); // read from cache
-		if (value == null) {
-			NWUtils.LOG.warning("Found no value in cache");
-			try {
-				Document d = toXML(this.tag);
-				Transformer t = TransformerFactory.newInstance()
-				        .newTransformer();
-				t.setOutputProperty(OutputKeys.INDENT, "yes");
-				t.setOutputProperty(
-				        "{http://xml.apache.org/xslt}indent-amount", "4");
-				t.setOutputProperty(
-				        "{http://xml.apache.org/xalan}line-separator", "\r\n");
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				GZIPOutputStream gos = new GZIPOutputStream(baos);
-				t.transform(new DOMSource(d.getDocumentElement()),
-				        new StreamResult(gos));
-				gos.finish();
-				gos.flush();
-				value = baos.toByteArray();
-				if (value.length < 1024 * 1024)
-					syncCache.put(key, value); // populate cache
-			} catch (Exception e) {
-				throw (IOException) new IOException(e.getMessage())
-				        .initCause(e);
-			}
-		} else {
-			NWUtils.LOG.warning("Found value in cache " + value.length
-			        + " bytes");
-		}
-
-		GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(
-		        value));
-		copy(gis, resp.getOutputStream());
-		resp.getOutputStream().close();
-	}
-
-	private void copy(InputStream gis, OutputStream os) throws IOException {
-		byte[] buffer = new byte[8 * 1024];
-		int read;
-		while ((read = gis.read(buffer)) != -1) {
-			os.write(buffer, 0, read);
-		}
+		Repository r = ExportRepsAction.export(tag, false);
+		BlobstoreService blobstoreService = BlobstoreServiceFactory
+		        .getBlobstoreService();
+		FileService fileService = FileServiceFactory.getFileService();
+		BlobKey blobKey = fileService.getBlobKey(new AppEngineFile(r.blobFile));
+		blobstoreService.serve(blobKey, resp);
 	}
 
 	/**
@@ -109,10 +58,6 @@ public class RepXMLPage extends Page {
 	 * @return XML for the whole repository definition
 	 */
 	public static Document toXML(String tag) {
-		Document d = NWUtils.newXMLRepository(true);
-
-		Element root = d.getDocumentElement();
-
 		// getting data
 		Objectify ofy = NWUtils.getObjectify();
 		ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
@@ -121,6 +66,18 @@ public class RepXMLPage extends Page {
 		if (tag != null)
 			q.filter("tags =", tag);
 		pvs.addAll(q.list());
+
+		return toXML(ofy, pvs);
+	}
+
+	/**
+	 * @param ofy
+	 *            Objectify
+	 * @param pvs
+	 *            package versions
+	 * @return XML for the specified package versions
+	 */
+	public static Document toXML(Objectify ofy, ArrayList<PackageVersion> pvs) {
 		Collections.sort(pvs, new Comparator<PackageVersion>() {
 			public int compare(PackageVersion a, PackageVersion b) {
 				int r = a.package_.compareToIgnoreCase(b.package_);
@@ -158,6 +115,9 @@ public class RepXMLPage extends Page {
 				return a.name.compareToIgnoreCase(b.name);
 			}
 		});
+
+		Document d = NWUtils.newXMLRepository(true);
+		Element root = d.getDocumentElement();
 
 		for (License l : licenses) {
 			Element license = d.createElement("license");

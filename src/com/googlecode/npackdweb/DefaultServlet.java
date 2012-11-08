@@ -21,8 +21,8 @@ import com.googlecode.npackdweb.package_.PackageDetailAction;
 import com.googlecode.npackdweb.package_.PackageNewAction;
 import com.googlecode.npackdweb.package_.PackageSaveAction;
 import com.googlecode.npackdweb.wlib.Action;
-import com.googlecode.npackdweb.wlib.SendStatusAction;
 import com.googlecode.npackdweb.wlib.Page;
+import com.googlecode.npackdweb.wlib.SendStatusAction;
 
 /**
  * Default servlet for HTML pages.
@@ -37,7 +37,7 @@ public class DefaultServlet extends HttpServlet {
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		String pi = req.getRequestURI();
 		// NWUtils.LOG.severe("getPathInfo(): " + pi);
 		if (pi == null) {
@@ -82,8 +82,8 @@ public class DefaultServlet extends HttpServlet {
 					ok = false;
 					resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
 				} else if (!us.isUserAdmin()
-						&& !us.getCurrentUser().getEmail().equals(
-								NWUtils.EDITOR_1)) {
+				        && !us.getCurrentUser().getEmail().equals(
+				                NWUtils.EDITOR_1)) {
 					ok = false;
 					resp.setContentType("text/plain");
 					resp.getWriter().write("Not an admin");
@@ -119,6 +119,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new RepDetailAction());
 		registerAction(new RepAction());
 		registerAction(new RepXMLAction());
+		registerAction(new RecentRepXMLAction());
 
 		/* package */
 		registerAction(new PackagesAction());
@@ -144,6 +145,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new SendStatusAction("^/robots\\.txt$", 404));
 		registerAction(new CheckDownloadAction());
 		registerAction(new SendStatusAction("^/cron/tick$", 200));
+		registerAction(new ExportRepsAction());
 	}
 
 	/**
@@ -159,7 +161,7 @@ public class DefaultServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	        throws ServletException, IOException {
 		doGet(req, resp);
 	}
 }

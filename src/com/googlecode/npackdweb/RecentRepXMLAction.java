@@ -10,19 +10,19 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 
 /**
- * Creates XML for a whole repository definition.
+ * Creates XML for 20 recently changed package versions.
  */
-public class RepXMLAction extends Action {
+public class RecentRepXMLAction extends Action {
 	/**
 	 * -
 	 */
-	public RepXMLAction() {
-		super("^/rep/xml$", ActionSecurityType.ANONYMOUS);
+	public RecentRepXMLAction() {
+		super("^/rep/recent-xml$", ActionSecurityType.ANONYMOUS);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 	        throws IOException {
-		return new RepXMLPage(req.getParameter("tag"));
+		return new RecentRepXMLPage();
 	}
 }

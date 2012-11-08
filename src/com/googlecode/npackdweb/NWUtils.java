@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -54,19 +55,19 @@ public class NWUtils {
 	public static final Logger LOG = Logger.getLogger(NWUtils.class.getName());
 
 	private static final String GPL_LICENSE = "\n    This file is part of Npackd.\n"
-			+ "    \n"
-			+ "    Npackd is free software: you can redistribute it and/or modify\n"
-			+ "    it under the terms of the GNU General Public License as published by\n"
-			+ "    the Free Software Foundation, either version 3 of the License, or\n"
-			+ "    (at your option) any later version.\n"
-			+ "    \n"
-			+ "    Npackd is distributed in the hope that it will be useful,\n"
-			+ "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-			+ "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-			+ "    GNU General Public License for more details.\n"
-			+ "    \n"
-			+ "    You should have received a copy of the GNU General Public License\n"
-			+ "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
+	        + "    \n"
+	        + "    Npackd is free software: you can redistribute it and/or modify\n"
+	        + "    it under the terms of the GNU General Public License as published by\n"
+	        + "    the Free Software Foundation, either version 3 of the License, or\n"
+	        + "    (at your option) any later version.\n"
+	        + "    \n"
+	        + "    Npackd is distributed in the hope that it will be useful,\n"
+	        + "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+	        + "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+	        + "    GNU General Public License for more details.\n"
+	        + "    \n"
+	        + "    You should have received a copy of the GNU General Public License\n"
+	        + "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
 	public static final Object EDITOR_1 = "chevdor@gmail.com";
 
@@ -83,7 +84,7 @@ public class NWUtils {
 	 * @throws IOException
 	 */
 	public static String getLoginFooter(HttpServletRequest request)
-			throws IOException {
+	        throws IOException {
 		UserService userService = UserServiceFactory.getUserService();
 
 		String thisURL = request.getRequestURI();
@@ -92,11 +93,11 @@ public class NWUtils {
 		String res;
 		if (request.getUserPrincipal() != null) {
 			res = NWUtils.tmpl("basic/LogoutFooter.html", NWUtils.newMap(
-					"name", request.getUserPrincipal().getName(), "logoutURL",
-					userService.createLogoutURL(thisURL)));
+			        "name", request.getUserPrincipal().getName(), "logoutURL",
+			        userService.createLogoutURL(thisURL)));
 		} else {
 			res = NWUtils.tmpl("basic/LoginFooter.html", NWUtils.newMap(
-					"loginURL", userService.createLoginURL(thisURL)));
+			        "loginURL", userService.createLoginURL(thisURL)));
 		}
 		return res;
 	}
@@ -135,14 +136,14 @@ public class NWUtils {
 	 *             if the template cannot be read
 	 */
 	public static String tmpl(String templateName, Map<String, Object> values)
-			throws IOException {
+	        throws IOException {
 		Template t = cfg.getTemplate(templateName);
 		StringWriter sw = new StringWriter();
 		try {
 			t.process(values, sw);
 		} catch (TemplateException e) {
 			throw new IOException("Error while processing FreeMarker template",
-					e);
+			        e);
 		}
 		return sw.getBuffer().toString();
 	}
@@ -161,7 +162,7 @@ public class NWUtils {
 	 *             if the template cannot be read
 	 */
 	public static String tmpl(String templateName, String key, String value)
-			throws IOException {
+	        throws IOException {
 		return tmpl(templateName, newMap(key, value));
 	}
 
@@ -177,7 +178,7 @@ public class NWUtils {
 	 *             if the template cannot be read
 	 */
 	public static String tmpl(String templateName, String... keysAndValues)
-			throws IOException {
+	        throws IOException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		for (int i = 0; i < keysAndValues.length; i += 2) {
 			map.put(keysAndValues[i], keysAndValues[i + 1]);
@@ -197,7 +198,7 @@ public class NWUtils {
 	 *             if the template cannot be read
 	 */
 	public static String tmpl(Page page, String templateName,
-			String... keysAndValues) throws IOException {
+	        String... keysAndValues) throws IOException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		for (int i = 0; i < keysAndValues.length; i += 2) {
 			map.put(keysAndValues[i], keysAndValues[i + 1]);
@@ -215,7 +216,7 @@ public class NWUtils {
 	 *             if the user is not logged in
 	 */
 	public static void checkLogin(HttpServletRequest request)
-			throws IOException {
+	        throws IOException {
 		if (request.getUserPrincipal() == null) {
 			throw new IOException("Login required");
 		}
@@ -234,7 +235,7 @@ public class NWUtils {
 	 *             if the template cannot be read
 	 */
 	public static void serve(HttpServletResponse resp, String templateName,
-			Map<String, String> root) throws IOException {
+	        Map<String, String> root) throws IOException {
 		// Get the template object
 		Template t = cfg.getTemplate(templateName);
 
@@ -249,7 +250,7 @@ public class NWUtils {
 			t.process(root, out);
 		} catch (TemplateException e) {
 			throw new IOException("Error while processing FreeMarker template",
-					e);
+			        e);
 		}
 	}
 
@@ -282,7 +283,7 @@ public class NWUtils {
 	 * @return map with the specified values
 	 */
 	public static Map<String, Object> newMap(String key, String value,
-			String key2, String value2) {
+	        String key2, String value2) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(key, value);
 		map.put(key2, value2);
@@ -431,7 +432,7 @@ public class NWUtils {
 			}
 		} catch (IOException e) {
 			throw (InternalError) new InternalError(e.getMessage())
-					.initCause(e);
+			        .initCause(e);
 		}
 		return r;
 	}
@@ -442,10 +443,10 @@ public class NWUtils {
 	public static Document newXML() {
 		try {
 			return DocumentBuilderFactory.newInstance().newDocumentBuilder()
-					.newDocument();
+			        .newDocument();
 		} catch (ParserConfigurationException e) {
 			throw (InternalError) new InternalError(e.getMessage())
-					.initCause(e);
+			        .initCause(e);
 		}
 	}
 
@@ -482,12 +483,12 @@ public class NWUtils {
 			Transformer t = TransformerFactory.newInstance().newTransformer();
 			t.setOutputProperty(OutputKeys.INDENT, "yes");
 			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
-					"4");
+			        "4");
 			t.setOutputProperty("{http://xml.apache.org/xalan}line-separator",
-					"\r\n");
+			        "\r\n");
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			t.transform(new DOMSource(xml.getDocumentElement()),
-					new StreamResult(baos));
+			        new StreamResult(baos));
 			baos.close();
 
 			return baos.toString("UTF-8");
@@ -508,7 +509,7 @@ public class NWUtils {
 	 */
 	public static void jsButton(HTMLWriter w, String title, String url) {
 		w.e("input", "class", "input", "type", "button", "value", title,
-				"onclick", "window.location.href='" + url + "'");
+		        "onclick", "window.location.href='" + url + "'");
 	}
 
 	/**
@@ -516,10 +517,10 @@ public class NWUtils {
 	 */
 	public static int countPackages() {
 		final String key = NWUtils.class.getName() + ".countPackages@"
-				+ DefaultServlet.dataVersion.get();
+		        + DefaultServlet.dataVersion.get();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
-				.getConsistentLogAndContinue(Level.INFO));
+		        .getConsistentLogAndContinue(Level.INFO));
 		Integer value = (Integer) syncCache.get(key); // read from cache
 		if (value == null) {
 			Objectify ofy = NWUtils.getObjectify();
@@ -536,7 +537,7 @@ public class NWUtils {
 		UserService us = UserServiceFactory.getUserService();
 		User u = us.getCurrentUser();
 		return us.isUserLoggedIn()
-				&& (us.isUserAdmin() || u.getEmail().equals(NWUtils.EDITOR_1));
+		        && (us.isUserAdmin() || u.getEmail().equals(NWUtils.EDITOR_1));
 	}
 
 	/**
@@ -544,5 +545,30 @@ public class NWUtils {
 	 */
 	public static Objectify getObjectify() {
 		return ObjectifyService.begin();
+	}
+
+	/**
+	 * Serializes XML
+	 * 
+	 * @param d
+	 *            XML document
+	 * @param gos
+	 *            output
+	 */
+	public static void serializeXML(Document d, OutputStream gos)
+	        throws IOException {
+		Transformer t;
+		try {
+			t = TransformerFactory.newInstance().newTransformer();
+			t.setOutputProperty(OutputKeys.INDENT, "yes");
+			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+			        "4");
+			t.setOutputProperty("{http://xml.apache.org/xalan}line-separator",
+			        "\r\n");
+			t.transform(new DOMSource(d.getDocumentElement()),
+			        new StreamResult(gos));
+		} catch (Exception e) {
+			throw (IOException) new IOException(e.getMessage()).initCause(e);
+		}
 	}
 }
