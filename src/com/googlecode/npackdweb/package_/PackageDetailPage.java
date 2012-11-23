@@ -2,6 +2,8 @@ package com.googlecode.npackdweb.package_;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.PackageVersion;
+import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
 
@@ -38,7 +41,7 @@ public class PackageDetailPage extends MyPage {
 		versions = new ArrayList<PackageVersion>();
 		if (p != null) {
 			for (PackageVersion pv : ofy.query(PackageVersion.class).filter(
-					"package_ =", p.name).fetch())
+			        "package_ =", p.name).fetch())
 				versions.add(pv);
 
 			if (!p.license.isEmpty())
@@ -54,7 +57,7 @@ public class PackageDetailPage extends MyPage {
 			w.e("img", "src", "/App.png");
 		} else {
 			w.e("img", "src", p.icon, "style",
-					"max-width: 32px; max-height: 32px");
+			        "max-width: 32px; max-height: 32px");
 		}
 		w.t(" " + p.title);
 		w.end("h3");
@@ -75,7 +78,7 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Title:");
 			w.start("td");
 			w.e("input", "type", "text", "name", "title", "value", p.title,
-					"size", "80");
+			        "size", "80");
 			w.end("td");
 			w.end("tr");
 		}
@@ -85,7 +88,7 @@ public class PackageDetailPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "url", "value", p.url, "size",
-					"120");
+			        "120");
 			if (!p.url.isEmpty()) {
 				w.start("a", "href", p.url, "target", "_blank");
 				w.e("img", "src", "/Link.png");
@@ -102,7 +105,7 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Icon:");
 			w.start("td");
 			w.e("input", "type", "text", "name", "icon", "value", p.icon,
-					"size", "120");
+			        "size", "120");
 			w.end("td");
 			w.end("tr");
 		}
@@ -112,7 +115,7 @@ public class PackageDetailPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("textarea", "rows", "5", "name", "description", "cols", "80",
-					p.description);
+			        p.description);
 		} else {
 			w.t(p.description);
 		}
@@ -127,7 +130,7 @@ public class PackageDetailPage extends MyPage {
 			w.e("option", "value", "");
 			for (License lic : this.getLicenses()) {
 				w.e("option", "value", lic.name, "selected", lic.name
-						.equals(p.license) ? "selected" : null, lic.title);
+				        .equals(p.license) ? "selected" : null, lic.title);
 			}
 			w.end("select");
 		} else {
@@ -144,7 +147,7 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Comment:");
 			w.start("td");
 			w.e("textarea", "rows", "5", "name", "comment", "cols", "80",
-					p.comment);
+			        p.comment);
 			w.end("td");
 			w.end("tr");
 		}
@@ -153,13 +156,20 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Versions:");
 		w.start("td");
 		List<PackageVersion> pvs = this.getVersions();
+		Collections.sort(pvs, new Comparator<PackageVersion>() {
+			public int compare(PackageVersion a, PackageVersion b) {
+				Version va = Version.parse(a.version);
+				Version vb = Version.parse(b.version);
+				return va.compare(vb);
+			}
+		});
 		for (int i = 0; i < pvs.size(); i++) {
 			PackageVersion pv = pvs.get(i);
 			if (i != 0)
 				w.t(", ");
 			w
-					.e("a", "href", "/p/" + pv.package_ + "/" + pv.version,
-							pv.version);
+			        .e("a", "href", "/p/" + pv.package_ + "/" + pv.version,
+			                pv.version);
 		}
 		w.end("td");
 		w.end("tr");
@@ -168,7 +178,7 @@ public class PackageDetailPage extends MyPage {
 		if (editable) {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
 			NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-					+ p.name);
+			        + p.name);
 			NWUtils.jsButton(w, "Delete", "/package/delete?id=" + p.name);
 			w.end("form");
 		}
