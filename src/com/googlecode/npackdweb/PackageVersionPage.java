@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 
 /**
@@ -34,7 +35,7 @@ public class PackageVersionPage extends MyPage {
 			w.e("img", "src", "/App.png");
 		} else {
 			w.e("img", "src", p.icon, "style",
-					"max-width: 32px; max-height: 32px");
+			        "max-width: 32px; max-height: 32px");
 		}
 		w.t(" " + p.title);
 		w.end("h3");
@@ -42,8 +43,8 @@ public class PackageVersionPage extends MyPage {
 		boolean editable = getEditable();
 		if (editable) {
 			w
-					.start("form", "method", "post", "action",
-							"/package-version/save");
+			        .start("form", "method", "post", "action",
+			                "/package-version/save");
 			w.e("input", "type", "hidden", "name", "name", "value", pv.name);
 		}
 
@@ -86,7 +87,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "url", "value", pv.url,
-					"size", "120");
+			        "size", "120");
 		} else {
 			w.e("a", "href", pv.url, pv.url);
 		}
@@ -98,7 +99,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "sha1", "value", pv.sha1,
-					"size", "45");
+			        "size", "45");
 		} else {
 			w.t(pv.sha1);
 		}
@@ -110,7 +111,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "detectMSI", "value",
-					pv.detectMSI, "size", "43");
+			        pv.detectMSI, "size", "43");
 		} else {
 			w.t(pv.detectMSI);
 		}
@@ -120,12 +121,19 @@ public class PackageVersionPage extends MyPage {
 		w.start("tr");
 		w.e("td", "Dependencies:");
 		w.start("td");
+		w.start("ul");
 		for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-			w.e("a", "href", "/p/" + pv.dependencyPackages.get(i), pv
-					.getDependencyPackages().get(i));
+			Objectify ofy = NWUtils.getObjectify();
+			Package dp = ofy.find(new Key<Package>(Package.class,
+			        pv.dependencyPackages.get(i)));
+
+			w.start("li");
+			w.e("a", "href", "/p/" + pv.dependencyPackages.get(i), dp.title);
 			w.t(" ");
 			w.t(pv.dependencyVersionRanges.get(i));
+			w.end("li");
 		}
+		w.end("ul");
 		w.end("td");
 		w.end("tr");
 
@@ -134,9 +142,9 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "radio", "name", "type", "value", "one-file",
-					"checked", pv.oneFile ? "checked" : null, "one file");
+			        "checked", pv.oneFile ? "checked" : null, "one file");
 			w.e("input", "type", "radio", "name", "type", "value", "zip",
-					"checked", !pv.oneFile ? "checked" : null, "zip");
+			        "checked", !pv.oneFile ? "checked" : null, "zip");
 		} else {
 			w.t(pv.oneFile ? "one file" : "zip");
 		}
@@ -148,7 +156,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "tags", "value", NWUtils.join(
-					", ", pv.tags), "size", "80");
+			        ", ", pv.tags), "size", "80");
 		} else {
 			w.t(NWUtils.join(", ", pv.tags));
 		}
@@ -160,10 +168,10 @@ public class PackageVersionPage extends MyPage {
 			w.e("td", "Important files:");
 			w.start("td");
 			w.start("textarea", "rows", "5", "name", "importantFiles", "cols",
-					"80");
+			        "80");
 			for (int i = 0; i < pv.importantFilePaths.size(); i++) {
 				w.t(pv.importantFilePaths.get(i) + " "
-						+ pv.importantFileTitles.get(i) + "\n");
+				        + pv.importantFileTitles.get(i) + "\n");
 			}
 			w.end("textarea");
 			w.end("td");
@@ -179,8 +187,8 @@ public class PackageVersionPage extends MyPage {
 					w.t(", ");
 				String c = pv.filePaths.get(i);
 				w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version
-						+ "/file?path=" + pv.filePaths.get(i), c == null ? "-"
-						: c);
+				        + "/file?path=" + pv.filePaths.get(i), c == null ? "-"
+				        : c);
 			}
 			w.end("textarea");
 			w.end("td");
@@ -210,15 +218,15 @@ public class PackageVersionPage extends MyPage {
 		if (editable) {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
 			w
-					.e("input", "class", "input", "type", "button", "value",
-							"Copy", "onclick",
-							"this.form.action='/package-version/copy'; this.form.submit()");
+			        .e("input", "class", "input", "type", "button", "value",
+			                "Copy", "onclick",
+			                "this.form.action='/package-version/copy'; this.form.submit()");
 			NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-					+ pv.package_ + "&version=" + pv.version);
+			        + pv.package_ + "&version=" + pv.version);
 			w
-					.e("input", "class", "input", "type", "button", "value",
-							"Delete", "onclick",
-							"this.form.action='/package-version/delete'; this.form.submit()");
+			        .e("input", "class", "input", "type", "button", "value",
+			                "Delete", "onclick",
+			                "this.form.action='/package-version/delete'; this.form.submit()");
 			w.end("form");
 		}
 
