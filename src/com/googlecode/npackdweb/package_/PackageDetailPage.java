@@ -45,7 +45,7 @@ public class PackageDetailPage extends MyPage {
 				versions.add(pv);
 
 			if (!p.license.isEmpty())
-				this.license = ofy.get(License.class, p.license);
+				this.license = ofy.find(License.class, p.license);
 		}
 	}
 
