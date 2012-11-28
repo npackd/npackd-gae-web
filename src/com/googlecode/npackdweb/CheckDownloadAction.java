@@ -32,6 +32,11 @@ import com.googlecode.objectify.Query;
  * Check a package version URL (download it).
  */
 public class CheckDownloadAction extends Action {
+	private static class Info {
+		public byte[] sha1;
+		public long size;
+	}
+
 	/**
 	 * -
 	 */
@@ -44,6 +49,12 @@ public class CheckDownloadAction extends Action {
 	        throws IOException {
 		String cursor = req.getParameter("cursor");
 		// NWUtils.LOG.warning("checking download at cursor " + cursor);
+
+		// download rate in bytes per millisecond
+		double rate = 512 * 1024 * 1024 / (24 * 60 * 60 * 1000);
+
+		// average download size
+		long downloaded = 10 * 1024 * 1024;
 
 		Objectify ob = NWUtils.getObjectify();
 		Query<PackageVersion> q = ob.query(PackageVersion.class);
@@ -61,11 +72,12 @@ public class CheckDownloadAction extends Action {
 			data.downloadCheckError = "Unknown error";
 			if (!data.url.isEmpty()) {
 				try {
-					byte[] sha1 = download(data.url);
+					Info info = download(data.url);
+					downloaded = info.size;
 					if (data.sha1.trim().isEmpty())
 						data.downloadCheckError = null;
 					else {
-						String sha1_ = NWUtils.byteArrayToHexString(sha1);
+						String sha1_ = NWUtils.byteArrayToHexString(info.sha1);
 						if (sha1_.equalsIgnoreCase(data.sha1)) {
 							data.downloadCheckError = null;
 						} else {
@@ -95,6 +107,9 @@ public class CheckDownloadAction extends Action {
 			TaskOptions to = withUrl("/tasks/check-download");
 			if (cursor != null)
 				to.param("cursor", cursor);
+			long delay = Math.round(downloaded / rate);
+			NWUtils.LOG.warning("delay in ms: " + delay);
+			to.countdownMillis(delay);
 
 			// NWUtils.LOG.warning("adding task at cursor " + cursor);
 			queue.add(to);
@@ -106,8 +121,9 @@ public class CheckDownloadAction extends Action {
 		return null;
 	}
 
-	private static byte[] download(String url) throws IOException,
+	private static Info download(String url) throws IOException,
 	        InterruptedException, NoSuchAlgorithmException {
+		Info info = new Info();
 		MessageDigest crypt = MessageDigest.getInstance("SHA-1");
 
 		URL u = new URL(url);
@@ -139,11 +155,13 @@ public class CheckDownloadAction extends Action {
 			crypt.update(content);
 
 			startPosition += segment;
+			info.size += content.length;
 
 			if (content.length < segment)
 				break;
 		}
 
-		return crypt.digest();
+		info.sha1 = crypt.digest();
+		return info;
 	}
 }
