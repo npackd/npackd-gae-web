@@ -17,12 +17,12 @@ public class PackageNewAction extends Action {
 	 * -
 	 */
 	public PackageNewAction() {
-		super("^/p/new$", ActionSecurityType.EDITOR);
+		super("^/package/new$", ActionSecurityType.EDITOR);
 	}
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		return new PackageDetailPage(null, true);
 	}
 }

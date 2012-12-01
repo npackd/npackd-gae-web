@@ -29,7 +29,7 @@ public class PackageDetailPage extends MyPage {
 
 	/**
 	 * @param p
-	 *            a package
+	 *            a package or null
 	 * @param editable
 	 *            true if the data should be editable
 	 */
@@ -53,32 +53,43 @@ public class PackageDetailPage extends MyPage {
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
 		w.start("h3");
-		if (p.icon.isEmpty()) {
+		if (p == null || p.icon.isEmpty()) {
 			w.e("img", "src", "/App.png");
 		} else {
 			w.e("img", "src", p.icon, "style",
 			        "max-width: 32px; max-height: 32px");
 		}
-		w.t(" " + p.title);
+		if (p != null)
+			w.t(" " + p.title);
+		else
+			w.t(" New package");
 		w.end("h3");
 
 		if (editable) {
 			w.start("form", "method", "post", "action", "/package/save");
-			w.e("input", "type", "hidden", "name", "name", "value", p.name);
+			if (p != null)
+				w.e("input", "type", "hidden", "name", "name", "value", p.name);
 		}
 
 		w.start("table", "border", "0");
 		w.start("tr");
 		w.e("td", "ID:");
-		w.e("td", p.name);
+		if (p != null)
+			w.e("td", p.name);
+		else {
+			w.start("td");
+			w.e("input", "type", "text", "name", "name", "value", "", "size",
+			        "80");
+			w.end("td");
+		}
 		w.end("tr");
 
 		if (editable) {
 			w.start("tr");
 			w.e("td", "Title:");
 			w.start("td");
-			w.e("input", "type", "text", "name", "title", "value", p.title,
-			        "size", "80");
+			w.e("input", "type", "text", "name", "title", "value",
+			        p == null ? "" : p.title, "size", "80");
 			w.end("td");
 			w.end("tr");
 		}
@@ -87,9 +98,9 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Product home page:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "type", "text", "name", "url", "value", p.url, "size",
-			        "120");
-			if (!p.url.isEmpty()) {
+			w.e("input", "type", "text", "name", "url", "value", p == null ? ""
+			        : p.url, "size", "120");
+			if (p != null && !p.url.isEmpty()) {
 				w.start("a", "href", p.url, "target", "_blank");
 				w.e("img", "src", "/Link.png");
 				w.end("a");
@@ -104,8 +115,8 @@ public class PackageDetailPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Icon:");
 			w.start("td");
-			w.e("input", "type", "text", "name", "icon", "value", p.icon,
-			        "size", "120");
+			w.e("input", "type", "text", "name", "icon", "value",
+			        p == null ? "" : p.icon, "size", "120");
 			w.end("td");
 			w.end("tr");
 		}
@@ -115,7 +126,7 @@ public class PackageDetailPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("textarea", "rows", "5", "name", "description", "cols", "80",
-			        p.description);
+			        p == null ? "" : p.description);
 		} else {
 			w.t(p.description);
 		}
@@ -129,8 +140,9 @@ public class PackageDetailPage extends MyPage {
 			w.start("select", "name", "license");
 			w.e("option", "value", "");
 			for (License lic : this.getLicenses()) {
-				w.e("option", "value", lic.name, "selected", lic.name
-				        .equals(p.license) ? "selected" : null, lic.title);
+				w.e("option", "value", lic.name, "selected", p != null
+				        && lic.name.equals(p.license) ? "selected" : null,
+				        lic.title);
 			}
 			w.end("select");
 		} else {
@@ -147,7 +159,7 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Comment:");
 			w.start("td");
 			w.e("textarea", "rows", "5", "name", "comment", "cols", "80",
-			        p.comment);
+			        p == null ? "" : p.comment);
 			w.end("td");
 			w.end("tr");
 		}
@@ -177,9 +189,11 @@ public class PackageDetailPage extends MyPage {
 
 		if (editable) {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
-			NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-			        + p.name);
-			NWUtils.jsButton(w, "Delete", "/package/delete?id=" + p.name);
+			if (p != null) {
+				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
+				        + p.name);
+				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + p.name);
+			}
 			w.end("form");
 		}
 
