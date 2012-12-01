@@ -133,7 +133,6 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new PackageVersionDetailAction());
 		registerAction(new PackageVersionNewAction());
 		registerAction(new PackageVersionSaveAction());
-		registerAction(new PackageVersionFileAction());
 		registerAction(new PackageVersionFileSaveAction());
 		registerAction(new PackageVersionDeleteAction());
 		registerAction(new PackageVersionDeleteConfirmedAction());

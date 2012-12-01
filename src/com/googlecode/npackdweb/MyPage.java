@@ -14,7 +14,7 @@ import com.googlecode.npackdweb.wlib.Page;
 public abstract class MyPage extends Page {
 	@Override
 	public final void create(HttpServletRequest request,
-			HttpServletResponse resp) throws IOException {
+	        HttpServletResponse resp) throws IOException {
 		resp.setContentType("text/html; charset=UTF-8");
 		Writer out = resp.getWriter();
 
@@ -23,8 +23,8 @@ public abstract class MyPage extends Page {
 			thisURL += "?" + request.getQueryString();
 
 		out.write(NWUtils.tmpl("basic/Frame.html", "title", getTitle(),
-				"content", createContent(request), "login", NWUtils
-						.getLoginFooter(request)));
+		        "content", createContent(request), "login", NWUtils
+		                .getLoginFooter(request), "head", getHeadPart()));
 		out.close();
 	}
 
@@ -34,10 +34,17 @@ public abstract class MyPage extends Page {
 	 * @return HTML
 	 */
 	public abstract String createContent(HttpServletRequest request)
-			throws IOException;
+	        throws IOException;
 
 	/**
 	 * @return page title
 	 */
 	public abstract String getTitle();
+
+	/**
+	 * @return HTML code that should be inserted in <head>
+	 */
+	public String getHeadPart() {
+		return "";
+	}
 }

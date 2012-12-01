@@ -586,4 +586,14 @@ public class NWUtils {
 		}
 		return result;
 	}
+
+	/**
+	 * Throws InternalError
+	 * 
+	 * @param e
+	 *            cause
+	 */
+	public static void throwInternal(IOException e) {
+		throw (InternalError) new InternalError(e.getMessage()).initCause(e);
+	}
 }

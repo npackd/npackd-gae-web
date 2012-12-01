@@ -48,7 +48,7 @@ public class PackageVersionPage extends MyPage {
 			w.e("input", "type", "hidden", "name", "name", "value", pv.name);
 		}
 
-		w.start("table");
+		w.start("table", "id", "fields");
 
 		w.start("tr");
 		w.e("td", "Full internal name:");
@@ -99,7 +99,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "sha1", "value", pv.sha1,
-			        "size", "45");
+			        "size", "50");
 		} else {
 			w.t(pv.sha1);
 		}
@@ -182,17 +182,32 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Text files:");
 			w.start("td");
-			for (int i = 0; i < pv.filePaths.size(); i++) {
-				if (i != 0)
-					w.t(", ");
-				String c = pv.filePaths.get(i);
-				w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version
-				        + "/file?path=" + pv.filePaths.get(i), c == null ? "-"
-				        : c);
-			}
-			w.end("textarea");
+			w.e("input", "class", "input", "type", "button", "value", "More",
+			        "onclick", "addFile()");
+			w.e("input", "class", "input", "type", "button", "value", "Less",
+			        "onclick", "removeFile()");
 			w.end("td");
 			w.end("tr");
+			for (int i = 0; i < pv.filePaths.size(); i++) {
+				String path = pv.filePaths.get(i);
+				String content = pv.getFileContents(i);
+
+				w.start("tr", "class", "filePath");
+				w.e("td", "File path " + i + ":");
+				w.start("td");
+				w.e("input", "type", "text", "name", "path." + i, "value",
+				        path, "size", "80");
+				w.end("td");
+				w.end("tr");
+
+				w.start("tr", "class", "fileContent");
+				w.e("td", "File content " + i + ":");
+				w.start("td");
+				w.e("textarea", "name", "content." + i, "rows", "20", "cols",
+				        "80", "wrap", "off", content);
+				w.end("td");
+				w.end("tr");
+			}
 		}
 
 		if (editable) {
@@ -275,5 +290,16 @@ public class PackageVersionPage extends MyPage {
 			}
 		}
 		return license;
+	}
+
+	@Override
+	public String getHeadPart() {
+		try {
+			return "<script>" + NWUtils.tmpl("PackageVersionPage.js", "a", "")
+			        + "</script>";
+		} catch (IOException e) {
+			NWUtils.throwInternal(e);
+		}
+		return "";
 	}
 }

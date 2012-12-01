@@ -262,4 +262,12 @@ public class PackageVersion {
 	public Key<PackageVersion> createKey() {
 		return new Key<PackageVersion>(PackageVersion.class, this.name);
 	}
+
+	/**
+	 * Removes all defined text files.
+	 */
+	public void clearFiles() {
+		this.filePaths.clear();
+		this.fileContents.clear();
+	}
 }

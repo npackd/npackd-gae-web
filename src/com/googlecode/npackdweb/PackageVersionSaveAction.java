@@ -25,7 +25,7 @@ public class PackageVersionSaveAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		String name = req.getParameter("name");
 		NWUtils.LOG.severe(name);
 		Objectify ofy = NWUtils.getObjectify();
@@ -52,7 +52,7 @@ public class PackageVersionSaveAction extends Action {
 		p.oneFile = "one-file".equals(req.getParameter("type"));
 		p.tags = NWUtils.split(req.getParameter("tags"), ',');
 		List<String> lines = NWUtils.splitLines(req
-				.getParameter("importantFiles"));
+		        .getParameter("importantFiles"));
 		p.importantFilePaths.clear();
 		p.importantFileTitles.clear();
 		for (String line : lines) {
@@ -64,6 +64,18 @@ public class PackageVersionSaveAction extends Action {
 				p.importantFileTitles.add(title);
 			}
 		}
+		p.clearFiles();
+		for (int i = 0;; i++) {
+			String path = req.getParameter("path." + i);
+			if (path == null)
+				break;
+
+			if (!path.trim().isEmpty()) {
+				String content = req.getParameter("content." + i);
+				p.addFile(path, content);
+			}
+		}
+
 		ofy.put(p);
 		DefaultServlet.dataVersion.incrementAndGet();
 		resp.sendRedirect("/p/" + p.package_);
