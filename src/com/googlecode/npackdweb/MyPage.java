@@ -22,8 +22,8 @@ public abstract class MyPage extends Page {
 		if (request.getQueryString() != null)
 			thisURL += "?" + request.getQueryString();
 
-		out.write(NWUtils.tmpl("basic/Frame.html", "title", getTitle(),
-		        "content", createContent(request), "login", NWUtils
+		out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "content",
+		        createContent(request), "login", NWUtils
 		                .getLoginFooter(request), "head", getHeadPart()));
 		out.close();
 	}

@@ -90,16 +90,22 @@ public class NWUtils {
 		String thisURL = request.getRequestURI();
 		if (request.getQueryString() != null)
 			thisURL += "?" + request.getQueryString();
-		String res;
+		HTMLWriter res = new HTMLWriter();
 		if (request.getUserPrincipal() != null) {
-			res = NWUtils.tmpl("basic/LogoutFooter.html", NWUtils.newMap(
-			        "name", request.getUserPrincipal().getName(), "logoutURL",
-			        userService.createLogoutURL(thisURL)));
+			res.start("p");
+			res.t("Hello, " + request.getUserPrincipal().getName()
+			        + "!  You can ");
+			res
+			        .e("a", "href", userService.createLogoutURL(thisURL),
+			                "sign out");
+			res.t(".");
+			res.end("p");
 		} else {
-			res = NWUtils.tmpl("basic/LoginFooter.html", NWUtils.newMap(
-			        "loginURL", userService.createLoginURL(thisURL)));
+			res.start("p");
+			res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
+			res.end("p");
 		}
-		return res;
+		return res.toString();
 	}
 
 	/**

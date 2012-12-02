@@ -186,6 +186,10 @@ public class PackageVersionPage extends MyPage {
 			        "onclick", "addFile()");
 			w.e("input", "class", "input", "type", "button", "value", "Less",
 			        "onclick", "removeFile()");
+			w.e("input", "class", "input", "type", "button", "value",
+			        "Add NSIS files", "onclick", "addNSISFiles()");
+			w.e("input", "class", "input", "type", "button", "value",
+			        "Add Inno Setup files", "onclick", "addInnoSetupFiles()");
 			w.end("td");
 			w.end("tr");
 			for (int i = 0; i < pv.filePaths.size(); i++) {

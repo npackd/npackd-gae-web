@@ -86,7 +86,13 @@ public class DefaultServlet extends HttpServlet {
 				                NWUtils.EDITOR_1)) {
 					ok = false;
 					resp.setContentType("text/plain");
-					resp.getWriter().write("Not an admin");
+					resp
+					        .getWriter()
+					        .write(
+					                "Not an editor. "
+					                        + "Please file an issue at http://code.google.com/p/"
+					                        + "windows-package-manager/issues/entry "
+					                        + "to become one.");
 					resp.getWriter().close();
 				}
 				break;
