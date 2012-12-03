@@ -2,3 +2,6 @@ syntax: regexp
 ^war/WEB-INF/classes/
 ^war/WEB-INF/appengine-generated/
 \.orig$
+war/com.googlecode.npackdweb.pv.PVEditor/
+^war/WEB\-INF/deploy/
+^gwt\-unitCache/

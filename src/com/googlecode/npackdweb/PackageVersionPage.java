@@ -27,6 +27,9 @@ public class PackageVersionPage extends MyPage {
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
+		w
+		        .unencoded("<iframe src=\"javascript:''\" id=\"__gwt_historyFrame\" tabIndex='-1' style=\"position:absolute;width:0;height:0;border:0\"></iframe>");
+
 		Package p = getPackage();
 		License lic = getLicense();
 
@@ -118,24 +121,48 @@ public class PackageVersionPage extends MyPage {
 		w.end("td");
 		w.end("tr");
 
-		w.start("tr");
-		w.e("td", "Dependencies:");
-		w.start("td");
-		w.start("ul");
-		for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-			Objectify ofy = NWUtils.getObjectify();
-			Package dp = ofy.find(new Key<Package>(Package.class,
-			        pv.dependencyPackages.get(i)));
+		if (editable) {
+			w.start("tr");
+			w.e("td", "Dependencies:");
+			w.start("td");
+			w.e("button", "type", "button", "id", "addDep", "More");
+			w.e("button", "type", "button", "id", "removeDep", "Less");
+			w.start("ul", "id", "deps");
+			for (int i = 0; i < pv.dependencyPackages.size(); i++) {
+				String dp = pv.dependencyPackages.get(i);
+				String dvr = pv.dependencyVersionRanges.get(i);
 
-			w.start("li");
-			w.e("a", "href", "/p/" + pv.dependencyPackages.get(i), dp.title);
-			w.t(" ");
-			w.t(pv.dependencyVersionRanges.get(i));
-			w.end("li");
+				w.start("li");
+				w.e("input", "type", "text", "name", "depPackage." + i,
+				        "value", dp, "size", "80");
+				w.e("input", "name", "depVersions." + i, "type", "text",
+				        "size", "20", "value", dvr);
+				w.end("li");
+			}
+			w.end("ul");
+			w.end("td");
+		} else {
+			w.start("tr");
+			w.e("td", "Dependencies:");
+			w.start("td");
+			w.start("ul");
+			for (int i = 0; i < pv.dependencyPackages.size(); i++) {
+				Objectify ofy = NWUtils.getObjectify();
+				Package dp = ofy.find(new Key<Package>(Package.class,
+				        pv.dependencyPackages.get(i)));
+
+				w.start("li");
+				w
+				        .e("a", "href", "/p/" + pv.dependencyPackages.get(i),
+				                dp.title);
+				w.t(" ");
+				w.t(pv.dependencyVersionRanges.get(i));
+				w.end("li");
+			}
+			w.end("ul");
+			w.end("td");
+			w.end("tr");
 		}
-		w.end("ul");
-		w.end("td");
-		w.end("tr");
 
 		w.start("tr");
 		w.e("td", "Type:");
@@ -299,7 +326,9 @@ public class PackageVersionPage extends MyPage {
 	@Override
 	public String getHeadPart() {
 		try {
-			return "<script>" + NWUtils.tmpl("PackageVersionPage.js", "a", "")
+			return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.pv.PVEditor/com.googlecode.npackdweb.pv.PVEditor.nocache.js\"></script>\n"
+			        + "<script>"
+			        + NWUtils.tmpl("PackageVersionPage.js", "a", "")
 			        + "</script>";
 		} catch (IOException e) {
 			NWUtils.throwInternal(e);

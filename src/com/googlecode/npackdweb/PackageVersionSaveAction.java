@@ -64,6 +64,7 @@ public class PackageVersionSaveAction extends Action {
 				p.importantFileTitles.add(title);
 			}
 		}
+
 		p.clearFiles();
 		for (int i = 0;; i++) {
 			String path = req.getParameter("path." + i);
@@ -73,6 +74,20 @@ public class PackageVersionSaveAction extends Action {
 			if (!path.trim().isEmpty()) {
 				String content = req.getParameter("content." + i);
 				p.addFile(path, content);
+			}
+		}
+
+		p.dependencyPackages.clear();
+		p.dependencyVersionRanges.clear();
+		for (int i = 0;; i++) {
+			String package_ = req.getParameter("depPackage." + i);
+			if (package_ == null)
+				break;
+
+			if (!package_.trim().isEmpty()) {
+				String versions = req.getParameter("depVersions." + i);
+				p.dependencyPackages.add(package_);
+				p.dependencyVersionRanges.add(versions);
 			}
 		}
 
