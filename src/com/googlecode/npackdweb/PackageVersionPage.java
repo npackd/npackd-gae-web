@@ -209,36 +209,36 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Text files:");
 			w.start("td");
-			w.e("input", "class", "input", "type", "button", "value", "More",
-			        "onclick", "addFile()");
-			w.e("input", "class", "input", "type", "button", "value", "Less",
-			        "onclick", "removeFile()");
-			w.e("input", "class", "input", "type", "button", "value",
-			        "Add NSIS files", "onclick", "addNSISFiles()");
-			w.e("input", "class", "input", "type", "button", "value",
-			        "Add Inno Setup files", "onclick", "addInnoSetupFiles()");
+			w.e("button", "type", "button", "id", "addFile", "More");
+			w.e("button", "type", "button", "id", "removeFile", "Less");
+			w.e("button", "type", "button", "id", "addNSISFiles",
+			        "Add NSIS files");
+			w.e("button", "type", "button", "id", "addInnoSetupFiles",
+			        "Add Inno Setup files");
 			w.end("td");
 			w.end("tr");
+
+			w.start("tr");
+			w.e("td");
+			w.start("td");
+			w.start("div", "id", "files");
 			for (int i = 0; i < pv.filePaths.size(); i++) {
 				String path = pv.filePaths.get(i);
 				String content = pv.getFileContents(i);
 
-				w.start("tr", "class", "filePath");
-				w.e("td", "File path " + i + ":");
-				w.start("td");
+				w.start("div");
+				w.e("div", "File path " + i + ":");
 				w.e("input", "type", "text", "name", "path." + i, "value",
 				        path, "size", "80");
-				w.end("td");
-				w.end("tr");
 
-				w.start("tr", "class", "fileContent");
-				w.e("td", "File content " + i + ":");
-				w.start("td");
+				w.e("div", "File content " + i + ":");
 				w.e("textarea", "name", "content." + i, "rows", "20", "cols",
 				        "80", "wrap", "off", content);
-				w.end("td");
-				w.end("tr");
+				w.end("div");
 			}
+			w.end("div");
+			w.end("td");
+			w.end("tr");
 		}
 
 		if (editable) {
@@ -325,14 +325,6 @@ public class PackageVersionPage extends MyPage {
 
 	@Override
 	public String getHeadPart() {
-		try {
-			return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.pv.PVEditor/com.googlecode.npackdweb.pv.PVEditor.nocache.js\"></script>\n"
-			        + "<script>"
-			        + NWUtils.tmpl("PackageVersionPage.js", "a", "")
-			        + "</script>";
-		} catch (IOException e) {
-			NWUtils.throwInternal(e);
-		}
-		return "";
+		return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.pv.PVEditor/com.googlecode.npackdweb.pv.PVEditor.nocache.js\"></script>\n";
 	}
 }
