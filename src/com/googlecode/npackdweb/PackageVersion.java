@@ -212,6 +212,9 @@ public class PackageVersion {
 
 		if (this.lastModifiedAt == null)
 			this.lastModifiedAt = new Date();
+
+		while (this.dependencyEnvVars.size() < this.dependencyPackages.size())
+			this.dependencyEnvVars.add("");
 	}
 
 	@PrePersist

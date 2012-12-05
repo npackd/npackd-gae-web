@@ -5,7 +5,8 @@ import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
-import com.google.gwt.dom.client.LIElement;
+import com.google.gwt.dom.client.TableCellElement;
+import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -154,26 +155,42 @@ public class PVEditorEntryPoint implements EntryPoint {
 
 	private void removeDep() {
 		Document d = Document.get();
-		Element ul = d.getElementById("deps");
-		int n = ul.getChildCount();
+		Element table = d.getElementById("deps");
+		Element tbody = table.getFirstChildElement();
+		int n = tbody.getChildCount();
 		if (n > 0)
-			ul.removeChild(ul.getChild(n - 1));
+			tbody.removeChild(tbody.getChild(n - 1));
 	}
 
 	private void addDep() {
 		Document d = Document.get();
-		Element ul = d.getElementById("deps");
-		int n = ul.getChildCount();
+		Element table = d.getElementById("deps");
+		Element tbody = table.getFirstChildElement();
+		int n = tbody.getChildCount();
 
-		LIElement li = d.createLIElement();
+		TableRowElement tr = d.createTRElement();
+
+		TableCellElement td = d.createTDElement();
 		InputElement p = d.createTextInputElement();
 		p.setName("depPackage." + n);
 		p.setSize(80);
-		li.appendChild(p);
+		td.appendChild(p);
+		tr.appendChild(td);
+
+		td = d.createTDElement();
 		InputElement v = d.createTextInputElement();
 		v.setName("depVersions." + n);
 		v.setSize(20);
-		li.appendChild(v);
-		ul.appendChild(li);
+		td.appendChild(v);
+		tr.appendChild(td);
+
+		td = d.createTDElement();
+		InputElement ev = d.createTextInputElement();
+		ev.setName("depEnvVar." + n);
+		ev.setSize(20);
+		td.appendChild(ev);
+		tr.appendChild(td);
+
+		tbody.appendChild(tr);
 	}
 }

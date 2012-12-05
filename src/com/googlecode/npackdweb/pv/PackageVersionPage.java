@@ -1,9 +1,14 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.pv;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.googlecode.npackdweb.License;
+import com.googlecode.npackdweb.MyPage;
+import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.Package;
+import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -127,19 +132,30 @@ public class PackageVersionPage extends MyPage {
 			w.start("td");
 			w.e("button", "type", "button", "id", "addDep", "More");
 			w.e("button", "type", "button", "id", "removeDep", "Less");
-			w.start("ul", "id", "deps");
+			w.start("table", "id", "deps");
+			w.start("tbody");
 			for (int i = 0; i < pv.dependencyPackages.size(); i++) {
 				String dp = pv.dependencyPackages.get(i);
 				String dvr = pv.dependencyVersionRanges.get(i);
+				String v = pv.dependencyEnvVars.get(i);
 
-				w.start("li");
+				w.start("tr");
+				w.start("td");
 				w.e("input", "type", "text", "name", "depPackage." + i,
 				        "value", dp, "size", "80");
+				w.end("td");
+				w.start("td");
 				w.e("input", "name", "depVersions." + i, "type", "text",
 				        "size", "20", "value", dvr);
-				w.end("li");
+				w.end("td");
+				w.start("td");
+				w.e("input", "name", "depEnvVar." + i, "type", "text", "size",
+				        "20", "value", v);
+				w.end("td");
+				w.end("tr");
 			}
-			w.end("ul");
+			w.end("tbody");
+			w.end("table");
 			w.end("td");
 		} else {
 			w.start("tr");

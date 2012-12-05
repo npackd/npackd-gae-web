@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.pv;
 
 import java.io.IOException;
 import java.util.List;
@@ -6,6 +6,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
+import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -79,6 +82,7 @@ public class PackageVersionSaveAction extends Action {
 
 		p.dependencyPackages.clear();
 		p.dependencyVersionRanges.clear();
+		p.dependencyEnvVars.clear();
 		for (int i = 0;; i++) {
 			String package_ = req.getParameter("depPackage." + i);
 			if (package_ == null)
@@ -86,8 +90,10 @@ public class PackageVersionSaveAction extends Action {
 
 			if (!package_.trim().isEmpty()) {
 				String versions = req.getParameter("depVersions." + i);
+				String envVar = req.getParameter("depEnvVar." + i);
 				p.dependencyPackages.add(package_);
 				p.dependencyVersionRanges.add(versions);
+				p.dependencyEnvVars.add(envVar);
 			}
 		}
 
