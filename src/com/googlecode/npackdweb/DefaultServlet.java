@@ -112,7 +112,7 @@ public class DefaultServlet extends HttpServlet {
 				}
 			}
 		} else {
-			throw new IOException("Unknown command: " + pi);
+			resp.sendError(404, "Unknown command: " + pi);
 		}
 	}
 
