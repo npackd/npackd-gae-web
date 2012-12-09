@@ -240,7 +240,7 @@ public class PackageDetailPage extends MyPage {
 		if (this.licenses == null) {
 			Objectify ofy = NWUtils.getObjectify();
 			this.licenses = new ArrayList<License>();
-			for (License p : ofy.query(License.class).fetch())
+			for (License p : ofy.query(License.class).order("title").fetch())
 				this.licenses.add(p);
 		}
 		return licenses;
