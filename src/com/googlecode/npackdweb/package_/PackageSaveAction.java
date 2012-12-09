@@ -26,7 +26,7 @@ public class PackageSaveAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		String name = req.getParameter("name");
 		Objectify ofy = NWUtils.getObjectify();
 		Package p;
@@ -43,6 +43,9 @@ public class PackageSaveAction extends Action {
 		p.url = req.getParameter("url");
 		p.license = req.getParameter("license");
 		p.comment = req.getParameter("comment");
+		p.discoveryPage = req.getParameter("discoveryPage");
+		p.discoveryRE = req.getParameter("discoveryRE");
+		p.discoveryURLPattern = req.getParameter("discoveryURLPattern");
 		ofy.put(p);
 		resp.sendRedirect("/p");
 		return null;

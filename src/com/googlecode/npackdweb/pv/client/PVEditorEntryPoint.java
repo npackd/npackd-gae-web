@@ -10,8 +10,12 @@ import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TextBox;
 
 /**
  * Editor for a package version.
@@ -20,6 +24,19 @@ public class PVEditorEntryPoint implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 		Document d = Document.get();
+
+		Element url_ = d.getElementById("url");
+		final TextBox url = TextBox.wrap(url_);
+		url.setTitle("http:// or https:// address to download the "
+		        + "package binary file. Double click to open in a new window.");
+		url.addDoubleClickHandler(new DoubleClickHandler() {
+			@Override
+			public void onDoubleClick(DoubleClickEvent event) {
+				String txt = url.getText();
+				if (!txt.trim().isEmpty())
+					Window.open(txt, null, null);
+			}
+		});
 
 		Element addDep_ = d.getElementById("addDep");
 		if (addDep_ != null) {

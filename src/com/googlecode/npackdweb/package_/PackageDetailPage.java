@@ -5,17 +5,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.PackageVersion;
+import com.googlecode.npackdweb.QueryCache;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.Query;
 
 /**
  * A package.
@@ -185,6 +190,34 @@ public class PackageDetailPage extends MyPage {
 		}
 		w.end("td");
 		w.end("tr");
+
+		if (editable) {
+			w.start("tr");
+			w.e("td", "Discovery page (URL):");
+			w.start("td");
+			w.e("input", "type", "text", "name", "discoveryPage", "value",
+			        p == null ? "" : p.discoveryPage, "size", "120");
+			w.end("td");
+			w.end("tr");
+
+			w.start("tr");
+			w.e("td", "Discovery regular expression:");
+			w.start("td");
+			w.e("input", "type", "text", "name", "discoveryRE", "value",
+			        p == null ? "" : p.discoveryRE, "size", "40");
+			w.end("td");
+			w.end("tr");
+
+			w.start("tr");
+			w.e("td", "Discovery URL pattern:");
+			w.start("td");
+			w.e("input", "type", "text", "name", "discoveryURLPattern",
+			        "value", p == null ? "" : p.discoveryURLPattern, "size",
+			        "120");
+			w.end("td");
+			w.end("tr");
+		}
+
 		w.end("table");
 
 		if (editable) {
@@ -240,8 +273,11 @@ public class PackageDetailPage extends MyPage {
 		if (this.licenses == null) {
 			Objectify ofy = NWUtils.getObjectify();
 			this.licenses = new ArrayList<License>();
-			for (License p : ofy.query(License.class).order("title").fetch())
-				this.licenses.add(p);
+			String cacheSuffix = "@" + DefaultServlet.dataVersion.get();
+			Query<License> q = ofy.query(License.class).order("title");
+			List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
+			Map<Key<License>, License> k2v = ofy.get(keys);
+			this.licenses.addAll(k2v.values());
 		}
 		return licenses;
 	}

@@ -35,6 +35,24 @@ public class Package {
 	public Date createdAt = new Date();
 
 	/**
+	 * URL of the HTML/plain text page where the current version number is
+	 * present
+	 */
+	public String discoveryPage = "";
+
+	/** regular expression to discover the version number */
+	public String discoveryRE = "";
+
+	/**
+	 * Pattern for the package binary download URL Available variables:
+	 * ${{version}} ${{version2Parts}} ${{version3Parts}}
+	 * ${{version2PartsWithoutDots}} ${{actualVersion}}
+	 * ${{actualVersionWithoutDots}} ${{actualVersionWithUnderscores}}
+	 * ${{match}}
+	 */
+	public String discoveryURLPattern = "";
+
+	/**
 	 * For Objectify.
 	 */
 	public Package() {
@@ -84,6 +102,12 @@ public class Package {
 			this.lastModifiedAt = new Date();
 		if (this.createdAt == null)
 			this.createdAt = new Date(1355048474); // December 9, 2012, 11:21:14
+		if (this.discoveryPage == null)
+			this.discoveryPage = "";
+		if (this.discoveryRE == null)
+			this.discoveryRE = "";
+		if (this.discoveryURLPattern == null)
+			this.discoveryURLPattern = "";
 	}
 
 	@PrePersist

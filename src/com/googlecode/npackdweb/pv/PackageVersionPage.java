@@ -95,7 +95,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "url", "value", pv.url,
-			        "size", "120");
+			        "size", "120", "id", "url");
 		} else {
 			w.e("a", "href", pv.url, pv.url);
 		}
