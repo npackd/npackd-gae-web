@@ -31,6 +31,9 @@ public class Package {
 	/** last modification date */
 	public Date lastModifiedAt = new Date();
 
+	/** creation time */
+	public Date createdAt = new Date();
+
 	/**
 	 * For Objectify.
 	 */
@@ -79,6 +82,8 @@ public class Package {
 			this.comment = "";
 		if (this.lastModifiedAt == null)
 			this.lastModifiedAt = new Date();
+		if (this.createdAt == null)
+			this.createdAt = new Date(1355048474); // December 9, 2012, 11:21:14
 	}
 
 	@PrePersist

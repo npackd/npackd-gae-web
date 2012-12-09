@@ -11,6 +11,7 @@ import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.Query;
 
 /**
  * Packages.
@@ -18,32 +19,43 @@ import com.googlecode.objectify.Objectify;
 public class PackagesPage extends MyPage {
 	private static final int PAGE_SIZE = 20;
 	private List<Package> packages;
+	private boolean recent;
+	private int start;
+
+	/**
+	 * -
+	 * 
+	 * @param recent
+	 *            true = sort by creation time, false = sort by title
+	 * @param start
+	 *            initial offset
+	 */
+	public PackagesPage(boolean recent, int start) {
+		this.recent = recent;
+		this.start = start;
+	}
 
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
-		String start_ = request.getParameter("start");
-		if (start_ == null)
-			start_ = "0";
-		int start;
-		try {
-			start = Integer.parseInt(start_);
-		} catch (NumberFormatException e) {
-			start = 0;
-		}
-
 		final String key = getClass().getCanonicalName() + ".content." + start
-				+ "@" + DefaultServlet.dataVersion.get();
+		        + "@" + DefaultServlet.dataVersion.get() + "," + recent;
+
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
-				.getConsistentLogAndContinue(Level.INFO));
+		        .getConsistentLogAndContinue(Level.INFO));
 		String value = (String) syncCache.get(key); // read from cache
 		if (value == null) {
 			Objectify ofy = NWUtils.getObjectify();
-			packages = ofy.query(Package.class).limit(PAGE_SIZE + 1).offset(
-					start).order("title").list();
+			Query<Package> q = ofy.query(Package.class).limit(PAGE_SIZE + 1)
+			        .offset(start);
+			if (recent)
+				q.order("-createdAt");
+			else
+				q.order("title");
+			packages = q.list();
 
 			value = createContent2()
-					+ createPager(start, packages.size() > PAGE_SIZE);
+			        + createPager(start, packages.size() > PAGE_SIZE);
 
 			syncCache.put(key, value); // populate cache
 		}
@@ -67,7 +79,7 @@ public class PackagesPage extends MyPage {
 				w.e("img", "src", "/App.png");
 			} else {
 				w.e("img", "src", p.icon, "style",
-						"max-width: 32px; max-height: 32px");
+				        "max-width: 32px; max-height: 32px");
 			}
 			w.t(" ");
 			w.e("a", "href", "/p/" + p.name, p.title);
@@ -84,7 +96,8 @@ public class PackagesPage extends MyPage {
 	private String createPager(int cur, boolean hasNextPage) {
 		String r = "";
 		if (cur >= PAGE_SIZE) {
-			r += " <a href='/p?start=" + (cur - PAGE_SIZE) + "'>";
+			r += " <a href='/p?start=" + (cur - PAGE_SIZE)
+			        + (recent ? "&sort=created" : "") + "'>";
 		}
 		r += "Previous page";
 		if (cur >= PAGE_SIZE) {
@@ -92,7 +105,8 @@ public class PackagesPage extends MyPage {
 		}
 		r += " ";
 		if (hasNextPage) {
-			r += "<a href='/p?start=" + (cur + PAGE_SIZE) + "'>";
+			r += "<a href='/p?start=" + (cur + PAGE_SIZE)
+			        + (recent ? "&sort=created" : "") + "'>";
 		}
 		r += "Next page";
 		if (hasNextPage) {
@@ -103,7 +117,11 @@ public class PackagesPage extends MyPage {
 
 	@Override
 	public String getTitle() {
-		return NWUtils.countPackages() + " packages";
+		if (recent)
+			return NWUtils.countPackages()
+			        + " packages sorted by creation time";
+		else
+			return NWUtils.countPackages() + " packages sorted by title";
 	}
 
 	/**

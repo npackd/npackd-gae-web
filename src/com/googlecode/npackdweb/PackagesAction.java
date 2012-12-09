@@ -22,7 +22,18 @@ public class PackagesAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		return new PackagesPage();
+	        throws IOException {
+		String start_ = req.getParameter("start");
+		if (start_ == null)
+			start_ = "0";
+		int start;
+		try {
+			start = Integer.parseInt(start_);
+		} catch (NumberFormatException e) {
+			start = 0;
+		}
+
+		return new PackagesPage("created".equals(req.getParameter("sort")),
+		        start);
 	}
 }
