@@ -305,6 +305,8 @@ public class NWUtils {
 			ObjectifyService.register(Package.class);
 			ObjectifyService.register(PackageVersion.class);
 			ObjectifyService.register(License.class);
+			ObjectifyService.register(EntityCounter.class);
+			ObjectifyService.register(EntityCounterShard.class);
 			objectifyInitialized = true;
 		}
 	}
@@ -529,8 +531,14 @@ public class NWUtils {
 		        .getConsistentLogAndContinue(Level.INFO));
 		Integer value = (Integer) syncCache.get(key); // read from cache
 		if (value == null) {
-			Objectify ofy = NWUtils.getObjectify();
-			value = ofy.query(Package.class).count();
+			ShardedCounter sc = ShardedCounter.getOrCreateCounter(
+			        "NumberOfPackages", 2);
+			value = sc.getCount();
+			if (sc.getCount() == 0) {
+				Objectify ofy = getObjectify();
+				sc.increment(ofy.query(Package.class).count());
+				value = sc.getCount();
+			}
 			syncCache.put(key, value); // populate cache
 		}
 		return value;
@@ -601,5 +609,25 @@ public class NWUtils {
 	 */
 	public static void throwInternal(IOException e) {
 		throw (InternalError) new InternalError(e.getMessage()).initCause(e);
+	}
+
+	/**
+	 * Increments the counter for the number of packages.
+	 */
+	public static void increasePackageNumber() {
+		ShardedCounter sc = ShardedCounter.getOrCreateCounter(
+		        "NumberOfPackages", 2);
+		sc.increment();
+	}
+
+	/**
+	 * Decrements the counter for the number of packages.
+	 */
+	public static void decrementPackageNumber() {
+		ShardedCounter sc = ShardedCounter.getOrCreateCounter(
+		        "NumberOfPackages", 2);
+		sc.decrement();
+		if (sc.getCount() < 0)
+			sc.increment(-sc.getCount());
 	}
 }

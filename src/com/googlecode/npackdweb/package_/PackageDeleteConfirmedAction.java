@@ -27,11 +27,12 @@ public class PackageDeleteConfirmedAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		String name = req.getParameter("name");
 		Objectify ofy = NWUtils.getObjectify();
 		Package p = ofy.get(new Key<Package>(Package.class, name));
 		ofy.delete(p);
+		NWUtils.decrementPackageNumber();
 		DefaultServlet.dataVersion.incrementAndGet();
 		resp.sendRedirect("/p");
 		return null;

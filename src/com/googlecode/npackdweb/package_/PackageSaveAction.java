@@ -46,6 +46,9 @@ public class PackageSaveAction extends Action {
 		p.discoveryPage = req.getParameter("discoveryPage");
 		p.discoveryRE = req.getParameter("discoveryRE");
 		p.discoveryURLPattern = req.getParameter("discoveryURLPattern");
+		if (ofy.find(p.createKey()) == null) {
+			NWUtils.increasePackageNumber();
+		}
 		ofy.put(p);
 		resp.sendRedirect("/p");
 		return null;
