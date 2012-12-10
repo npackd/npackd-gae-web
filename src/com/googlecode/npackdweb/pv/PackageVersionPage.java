@@ -231,6 +231,8 @@ public class PackageVersionPage extends MyPage {
 			        "Add NSIS files");
 			w.e("button", "type", "button", "id", "addInnoSetupFiles",
 			        "Add Inno Setup files");
+			w.e("button", "type", "button", "id", "addMSIFiles",
+			        "Add MSI files");
 			w.end("td");
 			w.end("tr");
 

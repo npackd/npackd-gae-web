@@ -99,6 +99,16 @@ public class PVEditorEntryPoint implements EntryPoint {
 				}
 			});
 		}
+		Element addMSIFiles_ = d.getElementById("addMSIFiles");
+		if (addMSIFiles_ != null) {
+			Button addMSIFiles = Button.wrap(addMSIFiles_);
+			addMSIFiles.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					addMSIFiles();
+				}
+			});
+		}
 
 		RootPanel.get("fields");
 	}
@@ -117,6 +127,15 @@ public class PVEditorEntryPoint implements EntryPoint {
 		                + "set err=%errorlevel%\r\n"
 		                + "type .Npackd\\InnoSetupUninstall.log\r\n"
 		                + "if %err% neq 0 exit %err%\r\n");
+	}
+
+	private void addMSIFiles() {
+		addFile(
+		        ".Npackd\\Install.bat",
+		        "if \"%npackd_cl%\" equ \"\" set npackd_cl=..\\com.googlecode.windows-package-manager.NpackdCL-1\r\n"
+		                + "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=com.googlecode.windows-package-manager.NpackdInstallerHelper\" \"--versions=[1.1, 2)\"\r\n"
+		                + "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set npackdih=%%x\r\n"
+		                + "call \"%npackdih%\\InstallMSI.bat\" INSTALLDIR yes\r\n");
 	}
 
 	private void addNSISFiles() {
