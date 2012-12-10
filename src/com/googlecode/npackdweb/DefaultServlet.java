@@ -155,6 +155,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new CheckDownloadAction());
 		registerAction(new SendStatusAction("^/cron/tick$", 200));
 		registerAction(new ExportRepsAction());
+		// registerAction(new StoreDataAction());
 	}
 
 	/**
