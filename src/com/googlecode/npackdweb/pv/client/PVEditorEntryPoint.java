@@ -4,16 +4,16 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.ImageElement;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.TableCellElement;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
@@ -26,17 +26,25 @@ public class PVEditorEntryPoint implements EntryPoint {
 		Document d = Document.get();
 
 		Element url_ = d.getElementById("url");
-		final TextBox url = TextBox.wrap(url_);
-		url.setTitle("http:// or https:// address to download the "
-		        + "package binary file. Double click to open in a new window.");
-		url.addDoubleClickHandler(new DoubleClickHandler() {
-			@Override
-			public void onDoubleClick(DoubleClickEvent event) {
-				String txt = url.getText();
-				if (!txt.trim().isEmpty())
-					Window.open(txt, null, null);
-			}
-		});
+		if (url_ != null) {
+			final TextBox url = TextBox.wrap(url_);
+			url.setTitle("http:// or https:// address to download the "
+			        + "package binary file");
+
+			ImageElement im_ = d.createImageElement();
+			im_.setSrc("/Link.png");
+			url_.getParentElement().insertAfter(im_, url_);
+			Image im = Image.wrap(im_);
+			im.setTitle("click to open the URL in a new window");
+			im.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					String txt = url.getText();
+					if (!txt.trim().isEmpty())
+						Window.open(txt, null, null);
+				}
+			});
+		}
 
 		Element addDep_ = d.getElementById("addDep");
 		if (addDep_ != null) {
