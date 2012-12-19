@@ -9,6 +9,7 @@ import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.appengine.api.search.Field;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
@@ -20,7 +21,9 @@ import com.googlecode.objectify.annotation.Entity;
 @Cached
 public class Package {
 	@Id
+	/* internal name of the package like com.example.Test */
 	public String name = "";
+
 	public String title = "";
 	public String url = "";
 	public String description = "";
@@ -146,5 +149,22 @@ public class Package {
 	 */
 	public Key<Package> createKey() {
 		return new Key<Package>(Package.class, this.name);
+	}
+
+	/**
+	 * @return document for the search index
+	 */
+	public com.google.appengine.api.search.Document createDocument() {
+		com.google.appengine.api.search.Document d = com.google.appengine.api.search.Document
+		        .newBuilder()
+		        .setId(this.name)
+		        .addField(
+		                Field.newBuilder().setName("title").setText(this.title))
+		        .addField(
+		                Field.newBuilder().setName("description").setText(
+		                        this.description)).addField(
+		                Field.newBuilder().setName("createdAt").setDate(
+		                        this.createdAt)).build();
+		return d;
 	}
 }

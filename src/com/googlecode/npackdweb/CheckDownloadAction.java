@@ -93,9 +93,7 @@ public class CheckDownloadAction extends Action {
 			} else {
 				data.downloadCheckError = "URL is empty";
 			}
-			ob.put(data);
-
-			DefaultServlet.dataVersion.incrementAndGet();
+			NWUtils.savePackageVersion(ob, data);
 
 			cursor = iterator.getCursor().toWebSafeString();
 		} else {

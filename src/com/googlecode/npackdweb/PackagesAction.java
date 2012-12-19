@@ -32,8 +32,11 @@ public class PackagesAction extends Action {
 		} catch (NumberFormatException e) {
 			start = 0;
 		}
+		String q = req.getParameter("q");
+		if (q == null)
+			q = "";
 
-		return new PackagesPage("created".equals(req.getParameter("sort")),
+		return new PackagesPage(q, "created".equals(req.getParameter("sort")),
 		        start);
 	}
 }

@@ -54,7 +54,7 @@ public class RepUploadAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		Found f = null;
 		String tag = "unknown";
 		boolean overwrite = false;
@@ -71,7 +71,7 @@ public class RepUploadAction extends Action {
 						if (item.isFormField()) {
 							if (item.getFieldName().equals("tag")) {
 								BufferedReader r = new BufferedReader(
-										new InputStreamReader(stream));
+								        new InputStreamReader(stream));
 								tag = r.readLine();
 							} else if (item.getFieldName().equals("overwrite")) {
 								overwrite = true;
@@ -85,7 +85,7 @@ public class RepUploadAction extends Action {
 				}
 			} catch (FileUploadException e) {
 				throw (IOException) new IOException(e.getMessage())
-						.initCause(e);
+				        .initCause(e);
 			}
 		} else {
 			tag = req.getParameter("tag");
@@ -120,7 +120,7 @@ public class RepUploadAction extends Action {
 			while (it.hasNext()) {
 				PackageVersion pv = it.next();
 				PackageVersion found = (PackageVersion) existing.get(pv
-						.createKey());
+				        .createKey());
 				if (found != null) {
 					stats.pvExisting++;
 					if (!overwrite)
@@ -152,7 +152,10 @@ public class RepUploadAction extends Action {
 
 			ofy.put(f.lics);
 			ofy.put(f.pvs);
-			ofy.put(f.ps);
+
+			for (Package p : f.ps) {
+				NWUtils.savePackage(ofy, p);
+			}
 
 			if (overwrite) {
 				stats.pOverwritten = stats.pExisting;
@@ -167,11 +170,11 @@ public class RepUploadAction extends Action {
 				stats.licAppended = f.lics.size();
 			}
 			txt = stats.pOverwritten + " packages overwritten, "
-					+ stats.pvOverwritten + " package versions overwritten, "
-					+ stats.licOverwritten + " licenses overwritten, "
-					+ stats.pAppended + " packages appended, "
-					+ stats.pvAppended + " package versions appended, "
-					+ stats.licAppended + " licenses appended";
+			        + stats.pvOverwritten + " package versions overwritten, "
+			        + stats.licOverwritten + " licenses overwritten, "
+			        + stats.pAppended + " packages appended, "
+			        + stats.pvAppended + " package versions appended, "
+			        + stats.licAppended + " licenses appended";
 		}
 
 		return new MessagePage(txt);
@@ -181,7 +184,7 @@ public class RepUploadAction extends Action {
 		Found f = null;
 		try {
 			DocumentBuilder db = javax.xml.parsers.DocumentBuilderFactory
-					.newInstance().newDocumentBuilder();
+			        .newInstance().newDocumentBuilder();
 			Document d = db.parse(stream);
 			f = process(d);
 		} catch (Exception e) {
@@ -205,7 +208,7 @@ public class RepUploadAction extends Action {
 		for (int i = 0; i < children.getLength(); i++) {
 			Node ch = children.item(i);
 			if (ch.getNodeType() == Element.ELEMENT_NODE
-					&& ch.getNodeName().equals("license")) {
+			        && ch.getNodeName().equals("license")) {
 				Element license = (Element) ch;
 				License lic = new License();
 				lic.name = license.getAttribute("name");
@@ -222,7 +225,7 @@ public class RepUploadAction extends Action {
 		for (int i = 0; i < children.getLength(); i++) {
 			Node ch = children.item(i);
 			if (ch.getNodeType() == Element.ELEMENT_NODE
-					&& ch.getNodeName().equals("package")) {
+			        && ch.getNodeName().equals("package")) {
 				Element e = (Element) ch;
 				Package p = new Package(e.getAttribute("name"));
 				p.title = NWUtils.getSubTagContent(e, "title", "");
@@ -241,7 +244,7 @@ public class RepUploadAction extends Action {
 		for (int i = 0; i < children.getLength(); i++) {
 			Node ch = children.item(i);
 			if (ch.getNodeType() == Element.ELEMENT_NODE
-					&& ch.getNodeName().equals("version")) {
+			        && ch.getNodeName().equals("version")) {
 				Element e = (Element) ch;
 				PackageVersion pv = createPackageVersion(e);
 				v.add(pv);
@@ -270,12 +273,12 @@ public class RepUploadAction extends Action {
 					p.importantFileTitles.add(che.getAttribute("title"));
 				} else if (che.getNodeName().equals("file")) {
 					p.addFile(che.getAttribute("path"), NWUtils
-							.getTagContent_(che));
+					        .getTagContent_(che));
 				} else if (che.getNodeName().equals("dependency")) {
 					p.dependencyPackages.add(che.getAttribute("package"));
 					p.dependencyVersionRanges.add(che.getAttribute("versions"));
 					p.dependencyEnvVars.add(NWUtils.getSubTagContent(che,
-							"variable", ""));
+					        "variable", ""));
 				}
 			}
 		}

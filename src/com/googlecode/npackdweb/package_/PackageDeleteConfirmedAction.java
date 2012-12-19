@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.search.Index;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Package;
@@ -33,6 +34,8 @@ public class PackageDeleteConfirmedAction extends Action {
 		Package p = ofy.get(new Key<Package>(Package.class, name));
 		ofy.delete(p);
 		NWUtils.decrementPackageNumber();
+		Index index = NWUtils.getIndex();
+		index.remove(p.name);
 		DefaultServlet.dataVersion.incrementAndGet();
 		resp.sendRedirect("/p");
 		return null;

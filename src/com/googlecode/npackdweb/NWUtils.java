@@ -35,6 +35,9 @@ import org.w3c.dom.Text;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.search.Index;
+import com.google.appengine.api.search.IndexSpec;
+import com.google.appengine.api.search.SearchServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -42,6 +45,7 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.Query;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -629,5 +633,91 @@ public class NWUtils {
 		sc.decrement();
 		if (sc.getCount() < 0)
 			sc.increment(-sc.getCount());
+	}
+
+	/**
+	 * @return index for packages
+	 */
+	public static Index getIndex() {
+		IndexSpec spec = IndexSpec.newBuilder().setName("Packages").build();
+		Index index = SearchServiceFactory.getSearchService().getIndex(spec);
+		return index;
+	}
+
+	/**
+	 * Re-creates the index for packages
+	 */
+	public static void recreateIndex() {
+		Objectify ofy = NWUtils.getObjectify();
+		Query<Package> q = ofy.query(Package.class);
+		Index index = getIndex();
+		for (Package p : q) {
+			index.add(p.createDocument());
+		}
+	}
+
+	/**
+	 * Saves a package. The package can be new or an already existing one. The
+	 * total number of packages and the index will be automatically updated.
+	 * 
+	 * @param ofy
+	 *            Objectify
+	 * @param p
+	 *            package
+	 */
+	public static void savePackage(Objectify ofy, Package p) {
+		if (ofy.find(p.createKey()) == null) {
+			NWUtils.increasePackageNumber();
+		}
+		ofy.put(p);
+		DefaultServlet.dataVersion.incrementAndGet();
+		Index index = NWUtils.getIndex();
+		index.add(p.createDocument());
+	}
+
+	/**
+	 * Saves a package version.
+	 * 
+	 * @param ofy
+	 *            Objectify
+	 * @param p
+	 *            package version
+	 */
+	public static void savePackageVersion(Objectify ofy, PackageVersion p) {
+		ofy.put(p);
+		DefaultServlet.dataVersion.incrementAndGet();
+	}
+
+	/**
+	 * Encodes URL parameters.
+	 * http://stackoverflow.com/questions/724043/http-url
+	 * -address-encoding-in-java
+	 * 
+	 * @param input
+	 *            value of an URL parameter
+	 * @return encoded value
+	 */
+	public static String encode(String input) {
+		StringBuilder resultStr = new StringBuilder();
+		for (char ch : input.toCharArray()) {
+			if (isUnsafe(ch)) {
+				resultStr.append('%');
+				resultStr.append(toHex(ch / 16));
+				resultStr.append(toHex(ch % 16));
+			} else {
+				resultStr.append(ch);
+			}
+		}
+		return resultStr.toString();
+	}
+
+	private static char toHex(int ch) {
+		return (char) (ch < 10 ? '0' + ch : 'A' + ch - 10);
+	}
+
+	private static boolean isUnsafe(char ch) {
+		if (ch > 128 || ch < 0)
+			return true;
+		return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
 	}
 }

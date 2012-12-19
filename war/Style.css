@@ -34,9 +34,10 @@ ul {
     list-style-type: disc;
 }
 
-.login-header {
+.nw-login-header {
     padding: 5pt;
     text-align: right;
+    float: right;
 }
 
 td {

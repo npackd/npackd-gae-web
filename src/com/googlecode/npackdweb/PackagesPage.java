@@ -1,17 +1,21 @@
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.appengine.api.memcache.ErrorHandlers;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.search.DateUtil;
+import com.google.appengine.api.search.Index;
+import com.google.appengine.api.search.QueryOptions;
+import com.google.appengine.api.search.Results;
+import com.google.appengine.api.search.ScoredDocument;
+import com.google.appengine.api.search.SortExpression;
+import com.google.appengine.api.search.SortOptions;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.Query;
 
 /**
  * Packages.
@@ -21,49 +25,96 @@ public class PackagesPage extends MyPage {
 	private List<Package> packages;
 	private boolean recent;
 	private int start;
+	private String query;
+	private long found;
+	private String content;
 
 	/**
 	 * -
 	 * 
+	 * @param query
+	 *            search query. Example: "title:Python"
 	 * @param recent
 	 *            true = sort by creation time, false = sort by title
 	 * @param start
 	 *            initial offset
 	 */
-	public PackagesPage(boolean recent, int start) {
+	public PackagesPage(String query, boolean recent, int start) {
+		this.query = query;
 		this.recent = recent;
 		this.start = start;
+		this.content = internalCreateContent();
 	}
 
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
-		final String key = getClass().getCanonicalName() + ".content." + start
-		        + "@" + DefaultServlet.dataVersion.get() + "," + recent;
+		return this.content;
+	}
 
-		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-		syncCache.setErrorHandler(ErrorHandlers
-		        .getConsistentLogAndContinue(Level.INFO));
-		String value = (String) syncCache.get(key); // read from cache
-		if (value == null) {
-			Objectify ofy = NWUtils.getObjectify();
-			Query<Package> q = ofy.query(Package.class).limit(PAGE_SIZE + 1)
-			        .offset(start);
-			if (recent)
-				q.order("-createdAt");
-			else
-				q.order("title");
-			packages = q.list();
+	private String internalCreateContent() {
+		Index index = NWUtils.getIndex();
+		QueryOptions.Builder ob = QueryOptions.newBuilder().setLimit(1000)
+		        .setOffset(start);
 
-			value = createContent2()
-			        + createPager(start, packages.size() > PAGE_SIZE);
+		SortExpression se;
+		if (!recent)
+			se = SortExpression.newBuilder().setExpression("title")
+			        .setDirection(SortExpression.SortDirection.ASCENDING)
+			        .setDefaultValue("").build();
+		else
+			se = SortExpression.newBuilder().setExpression("createdAt")
+			        .setDirection(SortExpression.SortDirection.DESCENDING)
+			        .setDefaultValueDate(DateUtil.MIN_DATE).build();
+		ob = ob.setSortOptions(SortOptions.newBuilder().addSortExpression(se)
+		        .setLimit(1000));
+		com.google.appengine.api.search.Query.Builder qb = com.google.appengine.api.search.Query
+		        .newBuilder().setOptions(ob.build());
 
-			syncCache.put(key, value); // populate cache
+		Results<ScoredDocument> r = index.search(qb.build(query));
+		found = r.getNumberFound();
+		if (found == 0)
+			NWUtils.recreateIndex();
+
+		packages = new ArrayList<Package>();
+		Objectify obj = NWUtils.getObjectify();
+		for (ScoredDocument sd : r) {
+			String id = sd.getId();
+			Package p = obj.find(new Key<Package>(Package.class, id));
+			if (p != null) {
+				packages.add(p);
+				if (packages.size() > PAGE_SIZE)
+					break;
+			}
 		}
-		return value;
+
+		return createContent2()
+		        + createPager(start, packages.size() > PAGE_SIZE);
 	}
 
 	private String createContent2() {
 		HTMLWriter w = new HTMLWriter();
+
+		w.start("form", "method", "get", "action", "/p");
+		w.t("Search: ");
+		w.e("input", "type", "text", "name", "q", "value", query, "size", "50");
+		w.t(" Sort: ");
+		w.start("select", "name", "sort");
+		w.e("option", "value", "title", "selected", !this.recent ? "selected"
+		        : null, "By title");
+		w.e("option", "value", "created", "selected", this.recent ? "selected"
+		        : null, "By creation date");
+		w.end("select");
+		w.t(" ");
+		w.e("input", "class", "input", "type", "submit", "value", "Search");
+		w.t(" ");
+		w
+		        .e(
+		                "a",
+		                "href",
+		                "https://developers.google.com/appengine/docs/java/search/overview#Building_Queries",
+		                "target", "_blank", "Help");
+		w.end("form");
+
 		w.start("div", "class", "nw-packages");
 		Objectify ofy = NWUtils.getObjectify();
 		for (Package p : this.getPackages()) {
@@ -97,7 +148,8 @@ public class PackagesPage extends MyPage {
 		String r = "";
 		if (cur >= PAGE_SIZE) {
 			r += " <a href='/p?start=" + (cur - PAGE_SIZE)
-			        + (recent ? "&sort=created" : "") + "'>";
+			        + (recent ? "&sort=created" : "") + "&q="
+			        + NWUtils.encode(this.query) + "'>";
 		}
 		r += "Previous page";
 		if (cur >= PAGE_SIZE) {
@@ -106,7 +158,8 @@ public class PackagesPage extends MyPage {
 		r += " ";
 		if (hasNextPage) {
 			r += "<a href='/p?start=" + (cur + PAGE_SIZE)
-			        + (recent ? "&sort=created" : "") + "'>";
+			        + (recent ? "&sort=created" : "") + "&q="
+			        + NWUtils.encode(this.query) + "'>";
 		}
 		r += "Next page";
 		if (hasNextPage) {
@@ -118,10 +171,9 @@ public class PackagesPage extends MyPage {
 	@Override
 	public String getTitle() {
 		if (recent)
-			return NWUtils.countPackages()
-			        + " packages sorted by creation time";
+			return found + " packages sorted by creation time";
 		else
-			return NWUtils.countPackages() + " packages sorted by title";
+			return found + " packages sorted by title";
 	}
 
 	/**

@@ -6,7 +6,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -97,8 +96,8 @@ public class PackageVersionSaveAction extends Action {
 			}
 		}
 
-		ofy.put(p);
-		DefaultServlet.dataVersion.incrementAndGet();
+		NWUtils.savePackageVersion(ofy, p);
+
 		resp.sendRedirect("/p/" + p.package_);
 		return null;
 	}

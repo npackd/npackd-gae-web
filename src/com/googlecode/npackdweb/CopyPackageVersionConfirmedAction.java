@@ -24,12 +24,12 @@ public class CopyPackageVersionConfirmedAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		String name = req.getParameter("name");
 		String version = req.getParameter("version");
 		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
-				PackageVersion.class, name));
+		        PackageVersion.class, name));
 		PackageVersion copy = p.copy();
 		copy.name = copy.package_ + "@" + version;
 		copy.version = version;
@@ -37,7 +37,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
 		copy.detectFileSHA1s.clear();
 		copy.detectFilePaths.clear();
 		copy.detectMSI = "";
-		ofy.put(copy);
+		NWUtils.savePackageVersion(ofy, copy);
 		resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
 		return null;
 	}
