@@ -299,7 +299,8 @@ public class PackageVersionPage extends MyPage {
 
 	@Override
 	public String getTitle() {
-		return "Package version";
+		Package p = getPackage();
+		return p.title + " " + pv.version;
 	}
 
 	/**

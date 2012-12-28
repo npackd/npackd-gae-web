@@ -191,6 +191,13 @@ public class PackageDetailPage extends MyPage {
 		w.end("td");
 		w.end("tr");
 
+		w.start("tr");
+		w.e("td", "Created:");
+		w.start("td");
+		w.t(p == null ? "" : p.createdAt.toString());
+		w.end("td");
+		w.end("tr");
+
 		if (editable) {
 			w.start("tr");
 			w.e("td", "Discovery page (URL):");
@@ -235,7 +242,7 @@ public class PackageDetailPage extends MyPage {
 
 	@Override
 	public String getTitle() {
-		return "Package";
+		return p == null ? "Package" : p.title;
 	}
 
 	/**
