@@ -159,7 +159,7 @@ public class CheckDownloadAction extends Action {
 				break;
 
 			if (info.size > 250 * 1024 * 1024)
-				throw new IOException("The file was big than 250 MB");
+				throw new IOException("The file was bigger than 250 MB");
 		}
 
 		info.sha1 = crypt.digest();

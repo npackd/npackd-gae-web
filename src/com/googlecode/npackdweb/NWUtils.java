@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -43,6 +44,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Query;
@@ -719,5 +721,25 @@ public class NWUtils {
 		if (ch > 128 || ch < 0)
 			return true;
 		return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
+	}
+
+	/**
+	 * Deletes a package
+	 * 
+	 * @param ofy
+	 *            Objectify
+	 * @param name
+	 *            package name
+	 */
+	public static void deletePackage(Objectify ofy, String name) {
+		Package p = ofy.get(new Key<Package>(Package.class, name));
+		ofy.delete(p);
+		QueryResultIterable<Key<PackageVersion>> k = ofy.query(
+		        PackageVersion.class).filter("package_ =", name).fetchKeys();
+		ofy.delete(k);
+		NWUtils.decrementPackageNumber();
+		Index index = NWUtils.getIndex();
+		index.remove(p.name);
+		DefaultServlet.dataVersion.incrementAndGet();
 	}
 }
