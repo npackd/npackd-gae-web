@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.markdown4j.Markdown4jProcessor;
+
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
@@ -72,7 +74,15 @@ public class PackageVersionPage extends MyPage {
 
 		w.start("tr");
 		w.e("td", "Description:");
-		w.e("td", p.description);
+		Markdown4jProcessor mp = new Markdown4jProcessor();
+		w.start("td");
+		try {
+			w.unencoded(mp.process(p.description));
+		} catch (IOException e) {
+			w.t(p.description + " Failed to parse the Markdown syntax: "
+			        + e.getMessage());
+		}
+		w.end("td");
 		w.end("tr");
 
 		w.start("tr");

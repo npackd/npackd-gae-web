@@ -87,8 +87,8 @@ public class DefaultServlet extends HttpServlet {
 					ok = false;
 					resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
 				} else if (!us.isUserAdmin()
-				        && !us.getCurrentUser().getEmail().equals(
-				                NWUtils.EDITOR_1)) {
+				        && !NWUtils.EDITORS.contains(us.getCurrentUser()
+				                .getEmail())) {
 					ok = false;
 					resp.setContentType("text/plain");
 					resp

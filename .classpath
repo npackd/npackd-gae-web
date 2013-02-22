@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/freemarker-gae-2.3.19.jar" sourcepath="C:/Users/t/libs/freemarker-2.3.19/src"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-fileupload-1.2.2.jar"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/markdown4j-2.2.jar" sourcepath="C:/Users/t/libs/markdown4j-src-2.2/src"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

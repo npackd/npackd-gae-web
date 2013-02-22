@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.markdown4j.Markdown4jProcessor;
+
 import com.google.appengine.api.search.DateUtil;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.QueryOptions;
@@ -115,6 +117,7 @@ public class PackagesPage extends MyPage {
 
 		w.start("div", "class", "nw-packages");
 		Objectify ofy = NWUtils.getObjectify();
+		Markdown4jProcessor mp = new Markdown4jProcessor();
 		for (Package p : this.getPackages()) {
 			License lic;
 			if (!p.license.isEmpty())
@@ -133,7 +136,13 @@ public class PackagesPage extends MyPage {
 			w.t(" ");
 			w.e("a", "href", "/p/" + p.name, p.title);
 			w.end("h3");
-			w.e("div", "Description: " + p.description);
+			try {
+				w.unencoded(mp.process("Description: " + p.description));
+			} catch (IOException e) {
+				w.e("div", "Description: " + p.description
+				        + " Failed to parse the Markdown syntax: "
+				        + e.getMessage());
+			}
 			w.e("div", "License: " + (lic == null ? "unknown" : lic.title));
 			w.end("div");
 		}

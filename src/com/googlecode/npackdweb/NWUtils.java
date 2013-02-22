@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,11 @@ public class NWUtils {
 	        + "    You should have received a copy of the GNU General Public License\n"
 	        + "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
-	public static final Object EDITOR_1 = "chevdor@gmail.com";
+	/**
+	 * Current list of the editors.
+	 */
+	public static final List<String> EDITORS = Arrays.asList(
+	        "chevdor@gmail.com", "knockdowncore@gmail.com");
 
 	private static Configuration cfg;
 
@@ -557,7 +562,7 @@ public class NWUtils {
 		UserService us = UserServiceFactory.getUserService();
 		User u = us.getCurrentUser();
 		return us.isUserLoggedIn()
-		        && (us.isUserAdmin() || u.getEmail().equals(NWUtils.EDITOR_1));
+		        && (us.isUserAdmin() || EDITORS.contains(u.getEmail()));
 	}
 
 	/**

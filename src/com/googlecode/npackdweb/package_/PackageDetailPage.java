@@ -9,6 +9,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.markdown4j.Markdown4jProcessor;
+
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
@@ -130,10 +132,22 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Description:");
 		w.start("td");
 		if (editable) {
-			w.e("textarea", "rows", "5", "name", "description", "cols", "80",
+			w.t("You can use the ");
+			w.e("a", "href",
+			        "http://daringfireball.net/projects/markdown/syntax",
+			        "target", "_blank", "Markdown syntax");
+			w.t(" in the following text area");
+			w.e("br");
+			w.e("textarea", "rows", "10", "name", "description", "cols", "80",
 			        p == null ? "" : p.description);
 		} else {
-			w.t(p.description);
+			Markdown4jProcessor mp = new Markdown4jProcessor();
+			try {
+				w.unencoded(mp.process(p.description));
+			} catch (IOException e) {
+				w.t(p.description + " Failed to parse the Markdown syntax: "
+				        + e.getMessage());
+			}
 		}
 		w.end("td");
 		w.end("tr");
