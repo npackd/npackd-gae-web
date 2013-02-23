@@ -10,6 +10,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.appengine.api.search.Field;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
@@ -55,10 +57,14 @@ public class Package {
 	 */
 	public String discoveryURLPattern = "";
 
+	/** this package was created by this user */
+	public User createdBy;
+
 	/**
 	 * For Objectify.
 	 */
 	public Package() {
+		createdBy = UserServiceFactory.getUserService().getCurrentUser();
 	}
 
 	/**
@@ -111,6 +117,9 @@ public class Package {
 			this.discoveryRE = "";
 		if (this.discoveryURLPattern == null)
 			this.discoveryURLPattern = "";
+		if (this.createdBy == null)
+			this.createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
+
 	}
 
 	@PrePersist

@@ -214,6 +214,13 @@ public class PackageDetailPage extends MyPage {
 
 		if (editable) {
 			w.start("tr");
+			w.e("td", "Created by:");
+			w.start("td");
+			w.t(p.createdBy.getNickname());
+			w.end("td");
+			w.end("tr");
+
+			w.start("tr");
 			w.e("td", "Discovery page (URL):");
 			w.start("td");
 			w.e("input", "type", "text", "name", "discoveryPage", "value",
