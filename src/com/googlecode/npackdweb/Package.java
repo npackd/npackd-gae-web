@@ -65,6 +65,8 @@ public class Package {
 	 */
 	public Package() {
 		createdBy = UserServiceFactory.getUserService().getCurrentUser();
+		if (createdBy == null)
+			createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
 	}
 
 	/**
@@ -72,6 +74,7 @@ public class Package {
 	 *            full internal name of the package
 	 */
 	public Package(String name) {
+		this();
 		this.name = name;
 	}
 
@@ -119,7 +122,6 @@ public class Package {
 			this.discoveryURLPattern = "";
 		if (this.createdBy == null)
 			this.createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
-
 	}
 
 	@PrePersist

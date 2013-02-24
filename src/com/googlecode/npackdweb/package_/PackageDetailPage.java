@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.markdown4j.Markdown4jProcessor;
 
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
@@ -216,7 +217,10 @@ public class PackageDetailPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Created by:");
 			w.start("td");
-			w.t(p.createdBy.getNickname());
+			w
+			        .t(p == null ? UserServiceFactory.getUserService()
+			                .getCurrentUser().getNickname() : p.createdBy
+			                .getNickname());
 			w.end("td");
 			w.end("tr");
 
