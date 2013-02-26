@@ -21,10 +21,24 @@ h2 {
 h3 {
     color: #666;
     font-size: 14pt;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 li {
     display: list-item;
+}
+
+ol {
+    margin: 5pt;
+    padding-left: 2em;
+    list-style: decimal;
+    list-style-type: decimal;
 }
 
 ul {
@@ -58,6 +72,6 @@ div.content {
 
 .nw-packages > div {
     border-top: 1px solid #cbcfd9;
-    margin: 1em;
-    padding-top: 1em;
+    margin: 0.5em;
+    padding-top: 0.5em;
 }

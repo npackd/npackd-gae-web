@@ -64,9 +64,6 @@ public class Package {
 	 * For Objectify.
 	 */
 	public Package() {
-		createdBy = UserServiceFactory.getUserService().getCurrentUser();
-		if (createdBy == null)
-			createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
 	}
 
 	/**
@@ -74,7 +71,9 @@ public class Package {
 	 *            full internal name of the package
 	 */
 	public Package(String name) {
-		this();
+		createdBy = UserServiceFactory.getUserService().getCurrentUser();
+		if (createdBy == null)
+			createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
 		this.name = name;
 	}
 
