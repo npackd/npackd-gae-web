@@ -42,6 +42,6 @@ public class PackageVersionDetailAction extends Action {
 			r = new PackageVersion(package_, version);
 		}
 
-		return new PackageVersionPage(r);
+		return new PackageVersionPage(r, false);
 	}
 }

@@ -258,6 +258,7 @@ public class PackageDetailPage extends MyPage {
 				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
 				        + p.name);
 				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + p.name);
+				NWUtils.jsButton(w, "New version", "/p/" + p.name + "/new");
 			}
 			w.end("form");
 		}

@@ -28,25 +28,21 @@ public class PackageVersionSaveAction extends Action {
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 	        throws IOException {
-		String name = req.getParameter("name");
-		NWUtils.LOG.severe(name);
+		String package2 = req.getParameter("package");
+		String version = req.getParameter("version");
+
+		if (package2 == null || package2.trim().length() == 0
+		        || version == null || version.trim().length() == 0)
+			throw new InternalError("Wrong parameters");
+
 		Objectify ofy = NWUtils.getObjectify();
-		PackageVersion p;
-		if (name == null || name.trim().length() == 0) {
+		PackageVersion p = ofy.find(new Key<PackageVersion>(
+		        PackageVersion.class, package2 + "@" + version));
+		if (p == null) {
 			p = new PackageVersion();
-			p.name = name;
-			int pos = name.indexOf("@");
-			p.package_ = name.substring(0, pos);
-			p.version = name.substring(pos + 1);
-		} else {
-			p = ofy.find(new Key<PackageVersion>(PackageVersion.class, name));
-			if (p == null) {
-				p = new PackageVersion();
-				p.name = name;
-				int pos = name.indexOf("@");
-				p.package_ = name.substring(0, pos);
-				p.version = name.substring(pos + 1);
-			}
+			p.name = package2 + "@" + version;
+			p.package_ = package2;
+			p.version = version;
 		}
 		p.url = req.getParameter("url");
 		p.sha1 = req.getParameter("sha1");

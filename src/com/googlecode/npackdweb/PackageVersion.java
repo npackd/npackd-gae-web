@@ -25,10 +25,13 @@ import com.googlecode.objectify.annotation.Entity;
 public class PackageVersion {
 	private List<Object> fileContents = new ArrayList<Object>();
 
+	/** abc@2.4 */
 	@Id
 	public String name = "";
+
 	@AlsoLoad("package")
 	public String package_ = "";
+
 	public String version = "";
 	public boolean oneFile;
 	public String url = "";

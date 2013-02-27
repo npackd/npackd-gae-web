@@ -22,13 +22,18 @@ public class PackageVersionPage extends MyPage {
 	private PackageVersion pv;
 	private Package package_;
 	private License license;
+	private boolean new_;
 
 	/**
 	 * @param pv
 	 *            a package version
+	 * @param new_
+	 *            true = a new package version will be created, false = an an
+	 *            existing package version will be edited
 	 */
-	public PackageVersionPage(PackageVersion pv) {
+	public PackageVersionPage(PackageVersion pv, boolean new_) {
 		this.pv = pv;
+		this.new_ = new_;
 	}
 
 	@Override
@@ -55,7 +60,8 @@ public class PackageVersionPage extends MyPage {
 			w
 			        .start("form", "method", "post", "action",
 			                "/package-version/save");
-			w.e("input", "type", "hidden", "name", "name", "value", pv.name);
+			w.e("input", "type", "hidden", "name", "package", "value",
+			        pv.package_);
 		}
 
 		w.start("table", "id", "fields");
@@ -97,7 +103,18 @@ public class PackageVersionPage extends MyPage {
 
 		w.start("tr");
 		w.e("td", "Version:");
-		w.e("td", pv.version);
+		w.start("td");
+		if (new_) {
+			w.e("input", "type", "text", "name", "version", "value", "",
+			        "size", "20");
+		} else if (editable) {
+			w.e("input", "type", "hidden", "name", "version", "value",
+			        pv.version);
+			w.t(pv.version);
+		} else {
+			w.t(pv.version);
+		}
+		w.end("td");
 		w.end("tr");
 
 		w.start("tr");
@@ -291,16 +308,18 @@ public class PackageVersionPage extends MyPage {
 
 		if (editable) {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
-			w
-			        .e("input", "class", "input", "type", "button", "value",
-			                "Copy", "onclick",
-			                "this.form.action='/package-version/copy'; this.form.submit()");
-			NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-			        + pv.package_ + "&version=" + pv.version);
-			w
-			        .e("input", "class", "input", "type", "button", "value",
-			                "Delete", "onclick",
-			                "this.form.action='/package-version/delete'; this.form.submit()");
+			if (!new_) {
+				w
+				        .e("input", "class", "input", "type", "button",
+				                "value", "Copy", "onclick",
+				                "this.form.action='/package-version/copy'; this.form.submit()");
+				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
+				        + pv.package_ + "&version=" + pv.version);
+				w
+				        .e("input", "class", "input", "type", "button",
+				                "value", "Delete", "onclick",
+				                "this.form.action='/package-version/delete'; this.form.submit()");
+			}
 			w.end("form");
 		}
 
