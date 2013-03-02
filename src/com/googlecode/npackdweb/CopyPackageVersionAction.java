@@ -24,11 +24,12 @@ public class CopyPackageVersionAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		String name = req.getParameter("name");
+	        throws IOException {
+		String package_ = req.getParameter("package");
+		String version = req.getParameter("version");
 		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
-				PackageVersion.class, name));
+		        PackageVersion.class, package_ + "@" + version));
 		return new CopyPackageVersionPage(p);
 	}
 }

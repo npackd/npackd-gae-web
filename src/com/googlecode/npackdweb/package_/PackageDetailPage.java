@@ -88,6 +88,14 @@ public class PackageDetailPage extends MyPage {
 			w.start("td");
 			w.e("input", "type", "text", "name", "name", "value", "", "size",
 			        "80");
+			w.t(" See ");
+			w
+			        .e(
+			                "a",
+			                "href",
+			                "http://code.google.com/p/windows-package-manager/wiki/RepositoryFormat#Package_naming_rules",
+			                "target", "_blank", "Package naming rules");
+			w.t(" for more details");
 			w.end("td");
 		}
 		w.end("tr");
@@ -133,12 +141,11 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Description:");
 		w.start("td");
 		if (editable) {
-			w.t("You can use the ");
 			w.e("a", "href",
 			        "http://daringfireball.net/projects/markdown/syntax",
 			        "target", "_blank", "Markdown syntax");
-			w.t(" in the following text area");
-			w.e("br");
+			w.t(" can be used in the following text area");
+			w.unencoded("<br><br>");
 			w.e("textarea", "rows", "10", "name", "description", "cols", "80",
 			        p == null ? "" : p.description);
 		} else {
