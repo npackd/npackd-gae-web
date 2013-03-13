@@ -1,26 +1,48 @@
 package com.googlecode.npackdweb.pv.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.ImageElement;
 import com.google.gwt.dom.client.InputElement;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.TableCellElement;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Editor for a package version.
  */
 public class PVEditorEntryPoint implements EntryPoint {
+	private static final int VK_H = 72;
+	private static final int VK_G = 71;
+	private static final int VK_D = 68;
+	private static final int VK_S = 83;
+	private static final int VK_C = 67;
+
+	private RootPanel rp;
+
 	@Override
 	public void onModuleLoad() {
 		Document d = Document.get();
@@ -28,14 +50,12 @@ public class PVEditorEntryPoint implements EntryPoint {
 		Element url_ = d.getElementById("url");
 		if (url_ != null) {
 			final TextBox url = TextBox.wrap(url_);
-			url.setTitle("http:// or https:// address to download the "
-			        + "package binary file");
 
 			ImageElement im_ = d.createImageElement();
 			im_.setSrc("/Link.png");
+			im_.setTitle("Stars the file download");
 			url_.getParentElement().insertAfter(im_, url_);
 			Image im = Image.wrap(im_);
-			im.setTitle("click to open the URL in a new window");
 			im.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
@@ -118,7 +138,141 @@ public class PVEditorEntryPoint implements EntryPoint {
 			});
 		}
 
-		RootPanel.get("fields");
+		rp = RootPanel.get();
+		rp.sinkEvents(Event.KEYEVENTS);
+		rp.addDomHandler(new KeyPressHandler() {
+			@Override
+			public void onKeyPress(KeyPressEvent event) {
+
+			}
+		}, KeyPressEvent.getType());
+
+		Event.addNativePreviewHandler(new NativePreviewHandler() {
+			@Override
+			public void onPreviewNativeEvent(NativePreviewEvent event) {
+				NativeEvent ne = event.getNativeEvent();
+				EventTarget et = ne.getEventTarget();
+				/*
+				Logger logger = Logger.getLogger("MyLogger");
+				logger.log(Level.SEVERE, "Message: " + ne.getAltKey()
+				        + ne.getCtrlKey() + !ne.getMetaKey() + Element.is(et)
+				        + Element.as(et).getNodeName().toLowerCase() + " "
+				        + ne.getKeyCode());*/
+				if (ne.getAltKey()
+				        && ne.getCtrlKey()
+				        && !ne.getMetaKey()
+				        && Element.is(et)
+				        && Element.as(et).getNodeName().toLowerCase().equals(
+				                "body")) {
+
+					final int c = ne.getKeyCode();
+					if (c == VK_H || c == VK_G || c == VK_D || c == VK_S
+					        || c == VK_C) {
+						ne.preventDefault();
+						Scheduler.get().scheduleDeferred(new Command() {
+							@Override
+							public void execute() {
+								processShortcut(c);
+							}
+						});
+					}
+				}
+			}
+		});
+	}
+
+	private void processShortcut(int c) {
+		switch (c) {
+		case VK_H:
+			showKeyboardShortcuts();
+			break;
+		case VK_G:
+			goto_();
+			break;
+		case VK_D:
+			download();
+			break;
+		case VK_S:
+			save();
+			break;
+		case VK_C:
+			copy();
+			break;
+		}
+	}
+
+	private void goto_() {
+		Document d = Document.get();
+
+		Element url_ = d.getElementById("packageURL");
+		if (url_ != null) {
+			String href = url_.getAttribute("href");
+			if (!href.trim().isEmpty())
+				Window.open(href, null, null);
+		}
+	}
+
+	private void download() {
+		Document d = Document.get();
+
+		Element url_ = d.getElementById("url");
+		if (url_ != null) {
+			String href = url_.getAttribute("value");
+			if (!href.trim().isEmpty())
+				Window.open(href, null, null);
+		}
+	}
+
+	private void save() {
+		Document d = Document.get();
+
+		Element b_ = d.getElementById("save");
+		if (b_ != null) {
+			InputElement.as(b_).click();
+		}
+	}
+
+	private void copy() {
+		Document d = Document.get();
+
+		Element b_ = d.getElementById("copy");
+		if (b_ != null) {
+			InputElement.as(b_).click();
+		}
+	}
+
+	private void showKeyboardShortcuts() {
+		PopupPanel p = new PopupPanel(true, false) {
+			@Override
+			protected void onPreviewNativeEvent(NativePreviewEvent event) {
+				if (!event.isCanceled() && !event.isConsumed()) {
+					NativeEvent ne = event.getNativeEvent();
+					if (ne.getKeyCode() == KeyCodes.KEY_ESCAPE) {
+						ne.preventDefault();
+						hide();
+					}
+				}
+				super.onPreviewNativeEvent(event);
+			}
+		};
+		VerticalPanel vp = new VerticalPanel();
+		HTML h = new HTML("<h3>Keyboard shortcuts</h3>");
+		vp.add(h);
+		Label label = new Label("Ctrl-Alt-H show this list");
+		vp.add(label);
+		label = new Label("Ctrl-Alg-G open home page");
+		vp.add(label);
+		label = new Label("Ctrl-Alt-D download the binary");
+		vp.add(label);
+		label = new Label("Ctrl-Alt-S saves this package version");
+		vp.add(label);
+		label = new Label("Ctrl-Alt-C creates a copy of this package version");
+		vp.add(label);
+
+		p.setWidget(vp);
+		p.setPopupPosition(100, 100);
+		p.center();
+		p.show();
 	}
 
 	private void addInnoSetupFiles() {

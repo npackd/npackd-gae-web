@@ -75,3 +75,8 @@ div.content {
     margin: 0.5em;
     padding-top: 0.5em;
 }
+
+.nw-help {
+    font-size: x-small;
+    color: gray;
+}

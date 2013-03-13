@@ -87,7 +87,9 @@ public class PackageDetailPage extends MyPage {
 		else {
 			w.start("td");
 			w.e("input", "type", "text", "name", "name", "value", "", "size",
-			        "80");
+			        "80", "title",
+			        "Full package name including the reversed domain name");
+			w.start("p", "class", "nw-help");
 			w.t(" See ");
 			w
 			        .e(
@@ -96,6 +98,7 @@ public class PackageDetailPage extends MyPage {
 			                "http://code.google.com/p/windows-package-manager/wiki/RepositoryFormat#Package_naming_rules",
 			                "target", "_blank", "Package naming rules");
 			w.t(" for more details");
+			w.end("p");
 			w.end("td");
 		}
 		w.end("tr");
@@ -105,7 +108,8 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Title:");
 			w.start("td");
 			w.e("input", "type", "text", "name", "title", "value",
-			        p == null ? "" : p.title, "size", "80");
+			        p == null ? "" : p.title, "size", "80", "title",
+			        "Name of the package");
 			w.end("td");
 			w.end("tr");
 		}
@@ -115,7 +119,8 @@ public class PackageDetailPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "url", "value", p == null ? ""
-			        : p.url, "size", "120");
+			        : p.url, "size", "120", "title",
+			        "http: or https: address of the product home page");
 			if (p != null && !p.url.isEmpty()) {
 				w.start("a", "href", p.url, "target", "_blank");
 				w.e("img", "src", "/Link.png");
@@ -131,8 +136,10 @@ public class PackageDetailPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Icon:");
 			w.start("td");
-			w.e("input", "type", "text", "name", "icon", "value",
-			        p == null ? "" : p.icon, "size", "120");
+			w
+			        .e("input", "type", "text", "name", "icon", "value",
+			                p == null ? "" : p.icon, "size", "120", "title",
+			                "http: or https: address of a 32x32 PNG icon representing this package");
 			w.end("td");
 			w.end("tr");
 		}
@@ -141,13 +148,17 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Description:");
 		w.start("td");
 		if (editable) {
+			w.start("p", "class", "nw-help");
 			w.e("a", "href",
 			        "http://daringfireball.net/projects/markdown/syntax",
 			        "target", "_blank", "Markdown syntax");
 			w.t(" can be used in the following text area");
-			w.unencoded("<br><br>");
+			w.end("p");
 			w.e("textarea", "rows", "10", "name", "description", "cols", "80",
-			        p == null ? "" : p.description);
+			        "title", "Possibly long description of the package. "
+			                + "Try to not repeat the package name here and "
+			                + "keep it simple and informative.", p == null ? ""
+			                : p.description);
 		} else {
 			Markdown4jProcessor mp = new Markdown4jProcessor();
 			try {
@@ -164,7 +175,8 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "License:");
 		w.start("td");
 		if (editable) {
-			w.start("select", "name", "license");
+			w.start("select", "name", "license", "title",
+			        "Package licensing terms");
 			w.e("option", "value", "");
 			for (License lic : this.getLicenses()) {
 				w.e("option", "value", lic.name, "selected", p != null
@@ -185,8 +197,18 @@ public class PackageDetailPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Comment:");
 			w.start("td");
-			w.e("textarea", "rows", "5", "name", "comment", "cols", "80",
-			        p == null ? "" : p.comment);
+			w
+			        .e(
+			                "textarea",
+			                "rows",
+			                "5",
+			                "name",
+			                "comment",
+			                "cols",
+			                "80",
+			                "title",
+			                "Internal comments normally only visible to the package editors",
+			                p == null ? "" : p.comment);
 			w.end("td");
 			w.end("tr");
 		}
@@ -232,27 +254,62 @@ public class PackageDetailPage extends MyPage {
 			w.end("tr");
 
 			w.start("tr");
+			w.start("td", "colspan", "2");
+			w
+			        .e(
+			                "p",
+			                "class",
+			                "nw-help",
+			                "The following three fields should help to identify new package versions and are currently unused");
+			w.end("td");
+			w.end("tr");
+
+			w.start("tr");
 			w.e("td", "Discovery page (URL):");
 			w.start("td");
-			w.e("input", "type", "text", "name", "discoveryPage", "value",
-			        p == null ? "" : p.discoveryPage, "size", "120");
+			w
+			        .e("input", "type", "text", "name", "discoveryPage",
+			                "value", p == null ? "" : p.discoveryPage, "size",
+			                "120", "title",
+			                "This URL of an HTML or text page that contains the current version number");
 			w.end("td");
 			w.end("tr");
 
 			w.start("tr");
 			w.e("td", "Discovery regular expression:");
 			w.start("td");
-			w.e("input", "type", "text", "name", "discoveryRE", "value",
-			        p == null ? "" : p.discoveryRE, "size", "40");
+			w
+			        .e(
+			                "input",
+			                "type",
+			                "text",
+			                "name",
+			                "discoveryRE",
+			                "value",
+			                p == null ? "" : p.discoveryRE,
+			                "size",
+			                "40",
+			                "title",
+			                "Regular expression that will be used to find the current version number on the page");
 			w.end("td");
 			w.end("tr");
 
 			w.start("tr");
 			w.e("td", "Discovery URL pattern:");
 			w.start("td");
-			w.e("input", "type", "text", "name", "discoveryURLPattern",
-			        "value", p == null ? "" : p.discoveryURLPattern, "size",
-			        "120");
+			w
+			        .e(
+			                "input",
+			                "type",
+			                "text",
+			                "name",
+			                "discoveryURLPattern",
+			                "value",
+			                p == null ? "" : p.discoveryURLPattern,
+			                "size",
+			                "120",
+			                "title",
+			                "Special URL pattern where ${{actualVersion}} and similar variables will be used to identify the binary of the new package version");
 			w.end("td");
 			w.end("tr");
 		}
@@ -263,9 +320,11 @@ public class PackageDetailPage extends MyPage {
 			w.e("input", "class", "input", "type", "submit", "value", "Save");
 			if (p != null) {
 				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-				        + p.name);
-				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + p.name);
-				NWUtils.jsButton(w, "New version", "/p/" + p.name + "/new");
+				        + p.name, "Edit this package as repository XML");
+				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + p.name,
+				        "Deletes this package and all associated versions");
+				NWUtils.jsButton(w, "New version", "/p/" + p.name + "/new",
+				        "Creates new version");
 			}
 			w.end("form");
 		}

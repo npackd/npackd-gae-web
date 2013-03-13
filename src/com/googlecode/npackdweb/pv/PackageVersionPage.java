@@ -74,7 +74,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("tr");
 		w.e("td", "Project site:");
 		w.start("td");
-		w.e("a", "href", p.url, p.url);
+		w.e("a", "id", "packageURL", "href", p.url, p.url);
 		w.end("td");
 		w.end("tr");
 
@@ -122,7 +122,8 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "url", "value", pv.url,
-			        "size", "120", "id", "url");
+			        "size", "120", "id", "url", "title",
+			        "http: or https: address of the package binary");
 		} else {
 			w.e("a", "href", pv.url, pv.url);
 		}
@@ -133,8 +134,21 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "SHA1:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "type", "text", "name", "sha1", "value", pv.sha1,
-			        "size", "50");
+			w
+			        .e(
+			                "input",
+			                "type",
+			                "text",
+			                "name",
+			                "sha1",
+			                "value",
+			                pv.sha1,
+			                "size",
+			                "50",
+			                "title",
+			                "SHA1 check sum for the package binary. "
+			                        + "Leave this field empty if different binaries are "
+			                        + "distributed from the same address.");
 		} else {
 			w.t(pv.sha1);
 		}
@@ -146,7 +160,10 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "detectMSI", "value",
-			        pv.detectMSI, "size", "43");
+			        pv.detectMSI, "size", "43", "title", "MSI package ID like "
+			                + "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. "
+			                + "Leave this field empty if the package does not "
+			                + "install itself using the Microsoft installer.");
 		} else {
 			w.t(pv.detectMSI);
 		}
@@ -157,10 +174,17 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Dependencies:");
 			w.start("td");
-			w.e("button", "type", "button", "id", "addDep", "More");
-			w.e("button", "type", "button", "id", "removeDep", "Less");
+			w.e("button", "type", "button", "id", "addDep", "title",
+			        "Adds a dependency entry on another package", "More");
+			w.e("button", "type", "button", "id", "removeDep", "title",
+			        "Removes the last dependency entry", "Less");
 			w.start("table", "id", "deps");
 			w.start("tbody");
+			w.start("tr");
+			w.e("td", "Full package name");
+			w.e("td", "Range of versions");
+			w.e("td", "Environment variable");
+			w.end("tr");
 			for (int i = 0; i < pv.dependencyPackages.size(); i++) {
 				String dp = pv.dependencyPackages.get(i);
 				String dvr = pv.dependencyVersionRanges.get(i);
@@ -211,10 +235,34 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Type:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "type", "radio", "name", "type", "value", "one-file",
-			        "checked", pv.oneFile ? "checked" : null, "one file");
-			w.e("input", "type", "radio", "name", "type", "value", "zip",
-			        "checked", !pv.oneFile ? "checked" : null, "zip");
+			w
+			        .e(
+			                "input",
+			                "type",
+			                "radio",
+			                "name",
+			                "type",
+			                "value",
+			                "one-file",
+			                "checked",
+			                pv.oneFile ? "checked" : null,
+			                "title",
+			                "The file may have any format and will be downloaded as-is.",
+			                "one file");
+			w
+			        .e(
+			                "input",
+			                "type",
+			                "radio",
+			                "name",
+			                "type",
+			                "value",
+			                "zip",
+			                "checked",
+			                !pv.oneFile ? "checked" : null,
+			                "title",
+			                "The file must be in ZIP format and will be unpacked automatically.",
+			                "zip");
 		} else {
 			w.t(pv.oneFile ? "one file" : "zip");
 		}
@@ -226,7 +274,12 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input", "type", "text", "name", "tags", "value", NWUtils.join(
-			        ", ", pv.tags), "size", "80");
+			        ", ", pv.tags), "size", "80", "title",
+			        "Comma separated list of tags associated with "
+			                + "this package version. The default tags "
+			                + "'stable', 'stable64', 'libs' and 'unstable' "
+			                + "can be used to include this package "
+			                + "version into one of the default repositories.");
 		} else {
 			w.t(NWUtils.join(", ", pv.tags));
 		}
@@ -237,8 +290,21 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Important files:");
 			w.start("td");
-			w.start("textarea", "rows", "5", "name", "importantFiles", "cols",
-			        "80");
+			w
+			        .start(
+			                "textarea",
+			                "rows",
+			                "5",
+			                "name",
+			                "importantFiles",
+			                "cols",
+			                "80",
+			                "title",
+			                "List of important files inside of the package. "
+			                        + "For each file mentioned here an entry in the Windows "
+			                        + "start menu will be created. Each line should contain "
+			                        + "one file name and the associated title separated by a "
+			                        + "space character.");
 			for (int i = 0; i < pv.importantFilePaths.size(); i++) {
 				w.t(pv.importantFilePaths.get(i) + " "
 				        + pv.importantFileTitles.get(i) + "\n");
@@ -252,13 +318,23 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Text files:");
 			w.start("td");
-			w.e("button", "type", "button", "id", "addFile", "More");
-			w.e("button", "type", "button", "id", "removeFile", "Less");
-			w.e("button", "type", "button", "id", "addNSISFiles",
-			        "Add NSIS files");
-			w.e("button", "type", "button", "id", "addInnoSetupFiles",
+			w.e("button", "type", "button", "id", "addFile", "title",
+			        "Adds a file entry", "More");
+			w.e("button", "type", "button", "id", "removeFile", "title",
+			        "Removes the last file entry", "Less");
+			w.e("button", "type", "button", "id", "addNSISFiles", "title",
+			        "Adds the files necessary to install and "
+			                + "uninstall an installation package (.exe) "
+			                + "created using NSIS", "Add NSIS files");
+			w.e("button", "type", "button", "id", "addInnoSetupFiles", "title",
+			        "Adds the files necessary to install and "
+			                + "uninstall an installation package (.exe) "
+			                + "created using Inno Setup",
 			        "Add Inno Setup files");
-			w.e("button", "type", "button", "id", "addMSIFiles",
+			w.e("button", "type", "button", "id", "addMSIFiles", "title",
+			        "Adds the files necessary to install and "
+			                + "uninstall an installation package (.msi) "
+			                + "created for the Microsoft Installer",
 			        "Add MSI files");
 			w.end("td");
 			w.end("tr");
@@ -307,16 +383,32 @@ public class PackageVersionPage extends MyPage {
 		w.end("table");
 
 		if (editable) {
-			w.e("input", "class", "input", "type", "submit", "value", "Save");
+			w
+			        .e("p", "class", "nw-help",
+			                "Press Ctrl-Alt-H for the list of available keyboard shortcuts");
+			w.e("input", "class", "input", "type", "submit", "title",
+			        "Saves the changes", "value", "Save", "id", "save");
 			if (!new_) {
 				w
-				        .e("input", "class", "input", "type", "button",
-				                "value", "Copy", "onclick",
-				                "this.form.action='/package-version/copy'; this.form.submit()");
+				        .e(
+				                "input",
+				                "class",
+				                "input",
+				                "type",
+				                "button",
+				                "value",
+				                "Copy",
+				                "title",
+				                "Create a copy of this package version",
+				                "onclick",
+				                "this.form.action='/package-version/copy'; this.form.submit()",
+				                "id", "copy");
 				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-				        + pv.package_ + "&version=" + pv.version);
+				        + pv.package_ + "&version=" + pv.version,
+				        "Edits this package version as repository XML");
 				w
 				        .e("input", "class", "input", "type", "button",
+				                "title", "Delete this package version",
 				                "value", "Delete", "onclick",
 				                "this.form.action='/package-version/delete'; this.form.submit()");
 			}

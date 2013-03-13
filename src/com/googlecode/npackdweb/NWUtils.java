@@ -521,14 +521,19 @@ public class NWUtils {
 	 * 
 	 * @param w
 	 *            HTML output
-	 * @param title
+	 * @param txt
 	 *            button title
 	 * @param url
 	 *            new URL
+	 * @param title
+	 *            tooltip
 	 */
-	public static void jsButton(HTMLWriter w, String title, String url) {
-		w.e("input", "class", "input", "type", "button", "value", title,
-		        "onclick", "window.location.href='" + url + "'");
+	public static void jsButton(HTMLWriter w, String txt, String url,
+	        String title) {
+		w
+		        .e("input", "class", "input", "type", "button", "value", txt,
+		                "onclick", "window.location.href='" + url + "'",
+		                "title", title);
 	}
 
 	/**
