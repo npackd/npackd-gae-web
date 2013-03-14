@@ -28,32 +28,42 @@ public class CopyPackageVersionConfirmedAction extends Action {
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
 	        throws IOException {
-		String name = req.getParameter("name");
-		String version = req.getParameter("version");
+		String name = req.getParameter("name").trim();
+		String version = req.getParameter("version").trim();
 
-		Version version_ = Version.parse(version);
-		version_.normalize();
-		version = version_.toString();
+		String err = null;
+		try {
+			Version version_ = Version.parse(version);
+			version_.normalize();
+			version = version_.toString();
+		} catch (NumberFormatException e) {
+			err = "Error parsing the version number: " + e.getMessage();
+		}
 
 		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 		        PackageVersion.class, name));
-		PackageVersion copy = p.copy();
-		copy.name = copy.package_ + "@" + version;
-		copy.version = version;
-		copy.sha1 = "";
-		copy.detectFileSHA1s.clear();
-		copy.detectFilePaths.clear();
-		copy.detectMSI = "";
 
 		PackageVersion copyFound = ofy.find(new Key<PackageVersion>(
-		        PackageVersion.class, copy.name));
+		        PackageVersion.class, p.package_ + "@" + version));
 		if (copyFound != null)
-			throw new InternalError("This version already exists: "
-			        + copy.package_ + " " + copy.version);
+			err = "This version already exists: " + p.package_ + " " + version;
 
-		NWUtils.savePackageVersion(ofy, copy);
-		resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
-		return null;
+		if (err != null) {
+			return new CopyPackageVersionPage(p, err, req
+			        .getParameter("version"));
+		} else {
+			PackageVersion copy = p.copy();
+			copy.name = copy.package_ + "@" + version;
+			copy.version = version;
+			copy.sha1 = "";
+			copy.detectFileSHA1s.clear();
+			copy.detectFilePaths.clear();
+			copy.detectMSI = "";
+
+			NWUtils.savePackageVersion(ofy, copy);
+			resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
+			return null;
+		}
 	}
 }

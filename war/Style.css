@@ -81,8 +81,16 @@ div.content {
     color: gray;
 }
 
+/* error messages */
+.nw-error {
+    background-color: #ffffaa;
+    color: black;
+    font-weight: bold;
+    padding: 1em;
+}
+
 .gwt-PopupPanel {
-  border: 3px solid #C3D9FF;
-  padding: 3px;
-  background: white;
+    border: 3px solid #C3D9FF;
+    padding: 3px;
+    background: white;
 }
