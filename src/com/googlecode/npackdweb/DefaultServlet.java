@@ -20,6 +20,8 @@ import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
 import com.googlecode.npackdweb.package_.PackageNewAction;
 import com.googlecode.npackdweb.package_.PackageSaveAction;
+import com.googlecode.npackdweb.pv.CopyPackageVersionAction;
+import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;

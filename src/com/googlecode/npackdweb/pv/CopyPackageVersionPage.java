@@ -1,9 +1,11 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.pv;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.googlecode.npackdweb.MyPage;
+import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 
 /**
