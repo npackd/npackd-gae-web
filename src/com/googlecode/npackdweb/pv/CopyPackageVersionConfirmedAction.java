@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackageVersion;
+import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -29,6 +30,11 @@ public class CopyPackageVersionConfirmedAction extends Action {
 	        throws IOException {
 		String name = req.getParameter("name");
 		String version = req.getParameter("version");
+
+		Version version_ = Version.parse(version);
+		version_.normalize();
+		version = version_.toString();
+
 		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p = ofy.get(new Key<PackageVersion>(
 		        PackageVersion.class, name));
@@ -39,6 +45,13 @@ public class CopyPackageVersionConfirmedAction extends Action {
 		copy.detectFileSHA1s.clear();
 		copy.detectFilePaths.clear();
 		copy.detectMSI = "";
+
+		PackageVersion copyFound = ofy.find(new Key<PackageVersion>(
+		        PackageVersion.class, copy.name));
+		if (copyFound != null)
+			throw new InternalError("This version already exists: "
+			        + copy.package_ + " " + copy.version);
+
 		NWUtils.savePackageVersion(ofy, copy);
 		resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
 		return null;

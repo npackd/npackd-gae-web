@@ -28,16 +28,18 @@ public class PackageVersionDetailAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		Pattern p = Pattern.compile(getURLRegExp());
 		Matcher m = p.matcher(req.getRequestURI());
 		m.matches();
 		String package_ = m.group(1);
 		String version = m.group(2);
 
+		// TODO: normalize version and redirect
+
 		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion r = ofy.find(new Key<PackageVersion>(
-				PackageVersion.class, package_ + "@" + version));
+		        PackageVersion.class, package_ + "@" + version));
 		if (r == null) {
 			r = new PackageVersion(package_, version);
 		}
