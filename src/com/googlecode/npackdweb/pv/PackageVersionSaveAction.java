@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackageVersion;
+import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -34,6 +35,10 @@ public class PackageVersionSaveAction extends Action {
 		if (package2 == null || package2.trim().length() == 0
 		        || version == null || version.trim().length() == 0)
 			throw new InternalError("Wrong parameters");
+
+		Version version_ = Version.parse(version);
+		version_.normalize();
+		version = version_.toString();
 
 		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion p = ofy.find(new Key<PackageVersion>(

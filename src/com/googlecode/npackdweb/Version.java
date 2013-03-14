@@ -2,6 +2,8 @@ package com.googlecode.npackdweb;
 
 /**
  * 1.2.3
+ * 
+ * Default constructor creates "1"
  */
 public class Version {
 	private int parts[] = new int[] { 1 };
@@ -46,5 +48,33 @@ public class Version {
 			}
 		}
 		return r;
+	}
+
+	/**
+	 * Removes the trailing zeros.
+	 */
+	public void normalize() {
+		int i = this.parts.length - 1;
+		while (i > 0) {
+			if (this.parts[i] != 0)
+				break;
+			i--;
+		}
+		if (i != this.parts.length - 1) {
+			int[] newParts = new int[i + 1];
+			System.arraycopy(this.parts, 0, newParts, 0, i + 1);
+			this.parts = newParts;
+		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < this.parts.length; i++) {
+			if (i != 0)
+				sb.append('.');
+			sb.append(this.parts[i]);
+		}
+		return sb.toString();
 	}
 }
