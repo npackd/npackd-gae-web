@@ -356,7 +356,7 @@ public class PVEditorEntryPoint implements EntryPoint {
 		Element table = d.getElementById("deps");
 		Element tbody = table.getFirstChildElement();
 		int n = tbody.getChildCount();
-		if (n > 0)
+		if (n > 1)
 			tbody.removeChild(tbody.getChild(n - 1));
 	}
 
@@ -370,21 +370,21 @@ public class PVEditorEntryPoint implements EntryPoint {
 
 		TableCellElement td = d.createTDElement();
 		InputElement p = d.createTextInputElement();
-		p.setName("depPackage." + n);
+		p.setName("depPackage." + (n - 1));
 		p.setSize(80);
 		td.appendChild(p);
 		tr.appendChild(td);
 
 		td = d.createTDElement();
 		InputElement v = d.createTextInputElement();
-		v.setName("depVersions." + n);
+		v.setName("depVersions." + (n - 1));
 		v.setSize(20);
 		td.appendChild(v);
 		tr.appendChild(td);
 
 		td = d.createTDElement();
 		InputElement ev = d.createTextInputElement();
-		ev.setName("depEnvVar." + n);
+		ev.setName("depEnvVar." + (n - 1));
 		ev.setSize(20);
 		td.appendChild(ev);
 		tr.appendChild(td);
