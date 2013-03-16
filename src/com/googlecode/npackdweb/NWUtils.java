@@ -541,7 +541,7 @@ public class NWUtils {
 	 */
 	public static int countPackages() {
 		final String key = NWUtils.class.getName() + ".countPackages@"
-		        + DefaultServlet.dataVersion.get();
+		        + NWUtils.getDataVersion();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
 		        .getConsistentLogAndContinue(Level.INFO));
@@ -669,6 +669,38 @@ public class NWUtils {
 	}
 
 	/**
+	 * Increments the version of the data.
+	 * 
+	 * @return new version number
+	 */
+	public static long incDataVersion() {
+		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+		syncCache.setErrorHandler(ErrorHandlers
+		        .getConsistentLogAndContinue(Level.INFO));
+		Long v = syncCache.increment("DataVersion", 1L);
+		if (v == null) {
+			syncCache.put("DataVersion", 1);
+			v = 1L;
+		}
+		return v;
+	}
+
+	/**
+	 * @return current data version
+	 */
+	public static long getDataVersion() {
+		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+		syncCache.setErrorHandler(ErrorHandlers
+		        .getConsistentLogAndContinue(Level.INFO));
+		Long v = (Long) syncCache.get("DataVersion");
+		if (v == null) {
+			syncCache.put("DataVersion", 1L);
+			v = 1L;
+		}
+		return v;
+	}
+
+	/**
 	 * Saves a package. The package can be new or an already existing one. The
 	 * total number of packages and the index will be automatically updated.
 	 * 
@@ -682,7 +714,7 @@ public class NWUtils {
 			NWUtils.increasePackageNumber();
 		}
 		ofy.put(p);
-		DefaultServlet.dataVersion.incrementAndGet();
+		NWUtils.incDataVersion();
 		Index index = NWUtils.getIndex();
 		index.add(p.createDocument());
 	}
@@ -697,7 +729,7 @@ public class NWUtils {
 	 */
 	public static void savePackageVersion(Objectify ofy, PackageVersion p) {
 		ofy.put(p);
-		DefaultServlet.dataVersion.incrementAndGet();
+		NWUtils.incDataVersion();
 	}
 
 	/**
@@ -750,6 +782,6 @@ public class NWUtils {
 		NWUtils.decrementPackageNumber();
 		Index index = NWUtils.getIndex();
 		index.remove(p.name);
-		DefaultServlet.dataVersion.incrementAndGet();
+		NWUtils.incDataVersion();
 	}
 }

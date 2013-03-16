@@ -125,7 +125,7 @@ public class Package {
 
 	@PrePersist
 	void onPersist() {
-		DefaultServlet.dataVersion.incrementAndGet();
+		NWUtils.incDataVersion();
 		this.lastModifiedAt = new Date();
 	}
 

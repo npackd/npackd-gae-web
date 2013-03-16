@@ -23,11 +23,11 @@ public class RepDeleteAction extends Action {
 
 	@Override
 	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	        throws IOException {
 		long id = Long.parseLong(req.getParameter("id"));
 		Objectify ofy = NWUtils.getObjectify();
 		ofy.delete(new Key<Repository>(Repository.class, id));
-		DefaultServlet.dataVersion.incrementAndGet();
+		NWUtils.incDataVersion();
 
 		resp.sendRedirect("/rep");
 		return null;

@@ -32,7 +32,7 @@ public class Repository {
 
 	@PrePersist
 	void onPersist() {
-		DefaultServlet.dataVersion.incrementAndGet();
+		NWUtils.incDataVersion();
 		this.lastModifiedAt = new Date();
 	}
 

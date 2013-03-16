@@ -27,7 +27,7 @@ public class RecentRepXMLPage extends Page {
 		resp.setContentType("application/xml");
 
 		final String key = this.getClass().getName() + "@"
-		        + DefaultServlet.dataVersion.get();
+		        + NWUtils.getDataVersion();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
 		        .getConsistentLogAndContinue(Level.INFO));

@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.markdown4j.Markdown4jProcessor;
 
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
@@ -372,7 +371,7 @@ public class PackageDetailPage extends MyPage {
 		if (this.licenses == null) {
 			Objectify ofy = NWUtils.getObjectify();
 			this.licenses = new ArrayList<License>();
-			String cacheSuffix = "@" + DefaultServlet.dataVersion.get();
+			String cacheSuffix = "@" + NWUtils.getDataVersion();
 			Query<License> q = ofy.query(License.class).order("title");
 			List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
 			Map<Key<License>, License> k2v = ofy.get(keys);
