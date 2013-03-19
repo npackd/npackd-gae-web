@@ -664,7 +664,7 @@ public class NWUtils {
 		Query<Package> q = ofy.query(Package.class);
 		Index index = getIndex();
 		for (Package p : q) {
-			index.add(p.createDocument());
+			index.put(p.createDocument());
 		}
 	}
 
@@ -716,7 +716,7 @@ public class NWUtils {
 		ofy.put(p);
 		NWUtils.incDataVersion();
 		Index index = NWUtils.getIndex();
-		index.add(p.createDocument());
+		index.put(p.createDocument());
 	}
 
 	/**
@@ -781,7 +781,7 @@ public class NWUtils {
 		ofy.delete(k);
 		NWUtils.decrementPackageNumber();
 		Index index = NWUtils.getIndex();
-		index.remove(p.name);
+		index.delete(p.name);
 		NWUtils.incDataVersion();
 	}
 }
