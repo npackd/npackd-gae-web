@@ -56,10 +56,6 @@ public class CopyPackageVersionConfirmedAction extends Action {
 			PackageVersion copy = p.copy();
 			copy.name = copy.package_ + "@" + version;
 			copy.version = version;
-			copy.sha1 = "";
-			copy.detectFileSHA1s.clear();
-			copy.detectFilePaths.clear();
-			copy.detectMSI = "";
 
 			NWUtils.savePackageVersion(ofy, copy);
 			resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);

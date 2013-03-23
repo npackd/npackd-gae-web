@@ -22,6 +22,7 @@ import com.googlecode.npackdweb.package_.PackageNewAction;
 import com.googlecode.npackdweb.package_.PackageSaveAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
+import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
@@ -151,6 +152,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new CopyPackageVersionAction());
 		registerAction(new CopyPackageVersionConfirmedAction());
 		registerAction(new EditAsXMLAction());
+		registerAction(new DetectPackageVersionAction());
 
 		registerAction(new HomeAction());
 		registerAction(new SendStatusAction("^/robots\\.txt$", 404));

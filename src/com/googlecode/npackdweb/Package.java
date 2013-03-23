@@ -177,4 +177,15 @@ public class Package {
 		                        this.createdAt)).build();
 		return d;
 	}
+
+	/**
+	 * Checks a package name
+	 * 
+	 * @param name
+	 *            full package name
+	 * @return error message or null
+	 */
+	public static String checkName(String name) {
+		return null; // TODO
+	}
 }

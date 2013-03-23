@@ -679,7 +679,7 @@ public class NWUtils {
 		        .getConsistentLogAndContinue(Level.INFO));
 		Long v = syncCache.increment("DataVersion", 1L);
 		if (v == null) {
-			syncCache.put("DataVersion", 1);
+			syncCache.put("DataVersion", 1L);
 			v = 1L;
 		}
 		return v;

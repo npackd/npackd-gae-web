@@ -255,11 +255,8 @@ public class PackageDetailPage extends MyPage {
 			w.start("tr");
 			w.start("td", "colspan", "2");
 			w
-			        .e(
-			                "p",
-			                "class",
-			                "nw-help",
-			                "The following three fields should help to identify new package versions and are currently unused");
+			        .e("p", "class", "nw-help",
+			                "The following two fields could help to identify new package versions");
 			w.end("td");
 			w.end("tr");
 
@@ -287,9 +284,20 @@ public class PackageDetailPage extends MyPage {
 			                "value",
 			                p == null ? "" : p.discoveryRE,
 			                "size",
-			                "40",
+			                "80",
 			                "title",
 			                "Regular expression that will be used to find the current version number on the page");
+			w.end("td");
+			w.end("tr");
+
+			w.start("tr");
+			w.start("td", "colspan", "2");
+			w
+			        .e(
+			                "p",
+			                "class",
+			                "nw-help",
+			                "The following field will help to define the download URL for a newly detected version in the future and is currently unused");
 			w.end("td");
 			w.end("tr");
 
@@ -324,6 +332,12 @@ public class PackageDetailPage extends MyPage {
 				        "Deletes this package and all associated versions");
 				NWUtils.jsButton(w, "New version", "/p/" + p.name + "/new",
 				        "Creates new version");
+				NWUtils
+				        .jsButton(
+				                w,
+				                "Detect new version",
+				                "/p/" + p.name + "/detect",
+				                "Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package");
 			}
 			w.end("form");
 		}
