@@ -19,452 +19,435 @@ import com.googlecode.objectify.Objectify;
  * Packages.
  */
 public class PackageVersionPage extends MyPage {
-	private PackageVersion pv;
-	private Package package_;
-	private License license;
-	private boolean new_;
+    private PackageVersion pv;
+    private Package package_;
+    private License license;
+    private boolean new_;
 
-	/**
-	 * @param pv
-	 *            a package version
-	 * @param new_
-	 *            true = a new package version will be created, false = an an
-	 *            existing package version will be edited
-	 */
-	public PackageVersionPage(PackageVersion pv, boolean new_) {
-		this.pv = pv;
-		this.new_ = new_;
-	}
+    /**
+     * @param pv
+     *            a package version
+     * @param new_
+     *            true = a new package version will be created, false = an an
+     *            existing package version will be edited
+     */
+    public PackageVersionPage(PackageVersion pv, boolean new_) {
+        this.pv = pv;
+        this.new_ = new_;
+    }
 
-	@Override
-	public String createContent(HttpServletRequest request) throws IOException {
-		HTMLWriter w = new HTMLWriter();
-		w
-		        .unencoded("<iframe src=\"javascript:''\" id=\"__gwt_historyFrame\" tabIndex='-1' style=\"position:absolute;width:0;height:0;border:0\"></iframe>");
+    @Override
+    public String createContent(HttpServletRequest request) throws IOException {
+        HTMLWriter w = new HTMLWriter();
+        w.unencoded("<iframe src=\"javascript:''\" id=\"__gwt_historyFrame\" tabIndex='-1' style=\"position:absolute;width:0;height:0;border:0\"></iframe>");
 
-		Package p = getPackage();
-		License lic = getLicense();
+        Package p = getPackage();
+        License lic = getLicense();
 
-		w.start("h3");
-		if (p.icon.isEmpty()) {
-			w.e("img", "src", "/App.png");
-		} else {
-			w.e("img", "src", p.icon, "style",
-			        "max-width: 32px; max-height: 32px");
-		}
-		w.t(" " + p.title);
-		w.end("h3");
+        w.start("h3");
+        if (p.icon.isEmpty()) {
+            w.e("img", "src", "/App.png");
+        } else {
+            w.e("img", "src", p.icon, "style",
+                    "max-width: 32px; max-height: 32px");
+        }
+        w.t(" " + p.title);
+        w.end("h3");
 
-		boolean editable = getEditable();
-		if (editable) {
-			w
-			        .start("form", "method", "post", "action",
-			                "/package-version/save");
-			w.e("input", "type", "hidden", "name", "package", "value",
-			        pv.package_);
-		}
+        boolean editable = getEditable();
+        if (editable) {
+            w.start("form", "method", "post", "action", "/package-version/save");
+            w.e("input", "type", "hidden", "name", "package", "value",
+                    pv.package_);
+        }
 
-		w.start("table", "id", "fields");
+        w.start("table", "id", "fields");
 
-		w.start("tr");
-		w.e("td", "Full internal name:");
-		w.e("td", p.name);
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Full internal name:");
+        w.e("td", p.name);
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "Project site:");
-		w.start("td");
-		w.e("a", "id", "packageURL", "href", p.url, p.url);
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Project site:");
+        w.start("td");
+        w.e("a", "id", "packageURL", "href", p.url, p.url);
+        w.end("td");
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "Description:");
-		Markdown4jProcessor mp = new Markdown4jProcessor();
-		w.start("td");
-		try {
-			w.unencoded(mp.process(p.description));
-		} catch (IOException e) {
-			w.t(p.description + " Failed to parse the Markdown syntax: "
-			        + e.getMessage());
-		}
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Description:");
+        Markdown4jProcessor mp = new Markdown4jProcessor();
+        w.start("td");
+        try {
+            w.unencoded(mp.process(p.description));
+        } catch (IOException e) {
+            w.t(p.description + " Failed to parse the Markdown syntax: "
+                    + e.getMessage());
+        }
+        w.end("td");
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "License:");
-		w.start("td");
-		if (lic == null)
-			w.t("unknown");
-		else
-			w.e("a", "href", lic.url, lic.title);
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "License:");
+        w.start("td");
+        if (lic == null)
+            w.t("unknown");
+        else
+            w.e("a", "href", lic.url, lic.title);
+        w.end("td");
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "Version:");
-		w.start("td");
-		if (new_) {
-			w.e("input", "type", "text", "name", "version", "value", "",
-			        "size", "20");
-		} else if (editable) {
-			w.e("input", "type", "hidden", "name", "version", "value",
-			        pv.version);
-			w.t(pv.version);
-		} else {
-			w.t(pv.version);
-		}
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Version:");
+        w.start("td");
+        if (new_) {
+            w.e("input", "type", "text", "name", "version", "value", "",
+                    "size", "20");
+        } else if (editable) {
+            w.e("input", "type", "hidden", "name", "version", "value",
+                    pv.version);
+            w.t(pv.version);
+        } else {
+            w.t(pv.version);
+        }
+        w.end("td");
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "Download:");
-		w.start("td");
-		if (editable) {
-			w.e("input", "type", "text", "name", "url", "value", pv.url,
-			        "size", "120", "id", "url", "title",
-			        "http: or https: address of the package binary");
-		} else {
-			w.e("a", "href", pv.url, pv.url);
-		}
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Download:");
+        w.start("td");
+        if (editable) {
+            w.e("input", "type", "text", "name", "url", "value", pv.url,
+                    "size", "120", "id", "url", "title",
+                    "http: or https: address of the package binary");
+        } else {
+            w.e("a", "href", pv.url, pv.url);
+        }
+        w.end("td");
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "SHA1:");
-		w.start("td");
-		if (editable) {
-			w
-			        .e(
-			                "input",
-			                "type",
-			                "text",
-			                "name",
-			                "sha1",
-			                "value",
-			                pv.sha1,
-			                "size",
-			                "50",
-			                "title",
-			                "SHA1 check sum for the package binary. "
-			                        + "Leave this field empty if different binaries are "
-			                        + "distributed from the same address.");
-		} else {
-			w.t(pv.sha1);
-		}
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "SHA1:");
+        w.start("td");
+        if (editable) {
+            w.e("input",
+                    "type",
+                    "text",
+                    "name",
+                    "sha1",
+                    "value",
+                    pv.sha1,
+                    "size",
+                    "50",
+                    "title",
+                    "SHA1 check sum for the package binary. "
+                            + "Leave this field empty if different binaries are "
+                            + "distributed from the same address.");
+        } else {
+            w.t(pv.sha1);
+        }
+        w.end("td");
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "Detect MSI GUID:");
-		w.start("td");
-		if (editable) {
-			w.e("input", "type", "text", "name", "detectMSI", "value",
-			        pv.detectMSI, "size", "43", "title", "MSI package ID like "
-			                + "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. "
-			                + "Leave this field empty if the package does not "
-			                + "install itself using the Microsoft installer.");
-		} else {
-			w.t(pv.detectMSI);
-		}
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Detect MSI GUID:");
+        w.start("td");
+        if (editable) {
+            w.e("input", "type", "text", "name", "detectMSI", "value",
+                    pv.detectMSI, "size", "43", "title", "MSI package ID like "
+                            + "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. "
+                            + "Leave this field empty if the package does not "
+                            + "install itself using the Microsoft installer.");
+        } else {
+            w.t(pv.detectMSI);
+        }
+        w.end("td");
+        w.end("tr");
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Dependencies:");
-			w.start("td");
-			w.e("button", "type", "button", "id", "addDep", "title",
-			        "Adds a dependency entry on another package", "More");
-			w.e("button", "type", "button", "id", "removeDep", "title",
-			        "Removes the last dependency entry", "Less");
-			w.start("table", "id", "deps");
-			w.start("tbody");
-			w.start("tr");
-			w.e("td", "Full package name");
-			w.e("td", "Range of versions");
-			w.e("td", "Environment variable");
-			w.end("tr");
-			for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-				String dp = pv.dependencyPackages.get(i);
-				String dvr = pv.dependencyVersionRanges.get(i);
-				String v = pv.dependencyEnvVars.get(i);
+        if (editable) {
+            w.start("tr");
+            w.e("td", "Dependencies:");
+            w.start("td");
+            w.e("button", "type", "button", "id", "addDep", "title",
+                    "Adds a dependency entry on another package", "More");
+            w.e("button", "type", "button", "id", "removeDep", "title",
+                    "Removes the last dependency entry", "Less");
+            w.start("table", "id", "deps");
+            w.start("tbody");
+            w.start("tr");
+            w.e("td", "Full package name");
+            w.e("td", "Range of versions");
+            w.e("td", "Environment variable");
+            w.end("tr");
+            for (int i = 0; i < pv.dependencyPackages.size(); i++) {
+                String dp = pv.dependencyPackages.get(i);
+                String dvr = pv.dependencyVersionRanges.get(i);
+                String v = pv.dependencyEnvVars.get(i);
 
-				w.start("tr");
-				w.start("td");
-				w.e("input", "type", "text", "name", "depPackage." + i,
-				        "value", dp, "size", "80");
-				w.end("td");
-				w.start("td");
-				w.e("input", "name", "depVersions." + i, "type", "text",
-				        "size", "20", "value", dvr);
-				w.end("td");
-				w.start("td");
-				w.e("input", "name", "depEnvVar." + i, "type", "text", "size",
-				        "20", "value", v);
-				w.end("td");
-				w.end("tr");
-			}
-			w.end("tbody");
-			w.end("table");
-			w.end("td");
-		} else {
-			w.start("tr");
-			w.e("td", "Dependencies:");
-			w.start("td");
-			w.start("ul");
-			for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-				Objectify ofy = NWUtils.getObjectify();
-				Package dp = ofy.find(new Key<Package>(Package.class,
-				        pv.dependencyPackages.get(i)));
+                w.start("tr");
+                w.start("td");
+                w.e("input", "type", "text", "name", "depPackage." + i,
+                        "value", dp, "size", "80");
+                w.end("td");
+                w.start("td");
+                w.e("input", "name", "depVersions." + i, "type", "text",
+                        "size", "20", "value", dvr);
+                w.end("td");
+                w.start("td");
+                w.e("input", "name", "depEnvVar." + i, "type", "text", "size",
+                        "20", "value", v);
+                w.end("td");
+                w.end("tr");
+            }
+            w.end("tbody");
+            w.end("table");
+            w.end("td");
+        } else {
+            w.start("tr");
+            w.e("td", "Dependencies:");
+            w.start("td");
+            w.start("ul");
+            for (int i = 0; i < pv.dependencyPackages.size(); i++) {
+                Objectify ofy = NWUtils.getObjectify();
+                Package dp = ofy.find(new Key<Package>(Package.class,
+                        pv.dependencyPackages.get(i)));
 
-				w.start("li");
-				w
-				        .e("a", "href", "/p/" + pv.dependencyPackages.get(i),
-				                dp.title);
-				w.t(" ");
-				w.t(pv.dependencyVersionRanges.get(i));
-				w.end("li");
-			}
-			w.end("ul");
-			w.end("td");
-			w.end("tr");
-		}
+                w.start("li");
+                w.e("a", "href", "/p/" + pv.dependencyPackages.get(i), dp.title);
+                w.t(" ");
+                w.t(pv.dependencyVersionRanges.get(i));
+                w.end("li");
+            }
+            w.end("ul");
+            w.end("td");
+            w.end("tr");
+        }
 
-		w.start("tr");
-		w.e("td", "Type:");
-		w.start("td");
-		if (editable) {
-			w
-			        .e(
-			                "input",
-			                "type",
-			                "radio",
-			                "name",
-			                "type",
-			                "value",
-			                "one-file",
-			                "checked",
-			                pv.oneFile ? "checked" : null,
-			                "title",
-			                "The file may have any format and will be downloaded as-is.",
-			                "one file");
-			w
-			        .e(
-			                "input",
-			                "type",
-			                "radio",
-			                "name",
-			                "type",
-			                "value",
-			                "zip",
-			                "checked",
-			                !pv.oneFile ? "checked" : null,
-			                "title",
-			                "The file must be in ZIP format and will be unpacked automatically.",
-			                "zip");
-		} else {
-			w.t(pv.oneFile ? "one file" : "zip");
-		}
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Type:");
+        w.start("td");
+        if (editable) {
+            w.e("input",
+                    "type",
+                    "radio",
+                    "name",
+                    "type",
+                    "value",
+                    "one-file",
+                    "checked",
+                    pv.oneFile ? "checked" : null,
+                    "title",
+                    "The file may have any format and will be downloaded as-is.",
+                    "one file");
+            w.e("input",
+                    "type",
+                    "radio",
+                    "name",
+                    "type",
+                    "value",
+                    "zip",
+                    "checked",
+                    !pv.oneFile ? "checked" : null,
+                    "title",
+                    "The file must be in ZIP format and will be unpacked automatically.",
+                    "zip");
+        } else {
+            w.t(pv.oneFile ? "one file" : "zip");
+        }
+        w.end("td");
+        w.end("tr");
 
-		w.start("tr");
-		w.e("td", "Tags:");
-		w.start("td");
-		if (editable) {
-			w.e("input", "type", "text", "name", "tags", "value", NWUtils.join(
-			        ", ", pv.tags), "size", "80", "title",
-			        "Comma separated list of tags associated with "
-			                + "this package version. The default tags "
-			                + "'stable', 'stable64', 'libs' and 'unstable' "
-			                + "can be used to include this package "
-			                + "version into one of the default repositories.");
-		} else {
-			w.t(NWUtils.join(", ", pv.tags));
-		}
-		w.end("td");
-		w.end("tr");
+        w.start("tr");
+        w.e("td", "Tags:");
+        w.start("td");
+        if (editable) {
+            w.e("input", "type", "text", "name", "tags", "value",
+                    NWUtils.join(", ", pv.tags), "size", "80", "title",
+                    "Comma separated list of tags associated with "
+                            + "this package version. The default tags "
+                            + "'stable', 'stable64', 'libs' and 'unstable' "
+                            + "can be used to include this package "
+                            + "version into one of the default repositories.");
+        } else {
+            w.t(NWUtils.join(", ", pv.tags));
+        }
+        w.end("td");
+        w.end("tr");
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Important files:");
-			w.start("td");
-			w
-			        .start(
-			                "textarea",
-			                "rows",
-			                "5",
-			                "name",
-			                "importantFiles",
-			                "cols",
-			                "80",
-			                "title",
-			                "List of important files inside of the package. "
-			                        + "For each file mentioned here an entry in the Windows "
-			                        + "start menu will be created. Each line should contain "
-			                        + "one file name and the associated title separated by a "
-			                        + "space character.");
-			for (int i = 0; i < pv.importantFilePaths.size(); i++) {
-				w.t(pv.importantFilePaths.get(i) + " "
-				        + pv.importantFileTitles.get(i) + "\n");
-			}
-			w.end("textarea");
-			w.end("td");
-			w.end("tr");
-		}
+        if (editable) {
+            w.start("tr");
+            w.e("td", "Important files:");
+            w.start("td");
+            w.start("textarea",
+                    "rows",
+                    "5",
+                    "name",
+                    "importantFiles",
+                    "cols",
+                    "80",
+                    "title",
+                    "List of important files inside of the package. "
+                            + "For each file mentioned here an entry in the Windows "
+                            + "start menu will be created. Each line should contain "
+                            + "one file name and the associated title separated by a "
+                            + "space character.");
+            for (int i = 0; i < pv.importantFilePaths.size(); i++) {
+                w.t(pv.importantFilePaths.get(i) + " "
+                        + pv.importantFileTitles.get(i) + "\n");
+            }
+            w.end("textarea");
+            w.end("td");
+            w.end("tr");
+        }
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Text files:");
-			w.start("td");
-			w.e("button", "type", "button", "id", "addFile", "title",
-			        "Adds a file entry", "More");
-			w.e("button", "type", "button", "id", "removeFile", "title",
-			        "Removes the last file entry", "Less");
-			w.e("button", "type", "button", "id", "addNSISFiles", "title",
-			        "Adds the files necessary to install and "
-			                + "uninstall an installation package (.exe) "
-			                + "created using NSIS", "Add NSIS files");
-			w.e("button", "type", "button", "id", "addInnoSetupFiles", "title",
-			        "Adds the files necessary to install and "
-			                + "uninstall an installation package (.exe) "
-			                + "created using Inno Setup",
-			        "Add Inno Setup files");
-			w.e("button", "type", "button", "id", "addMSIFiles", "title",
-			        "Adds the files necessary to install and "
-			                + "uninstall an installation package (.msi) "
-			                + "created for the Microsoft Installer",
-			        "Add MSI files");
-			w.end("td");
-			w.end("tr");
+        if (editable) {
+            w.start("tr");
+            w.e("td", "Text files:");
+            w.start("td");
+            w.e("button", "type", "button", "id", "addFile", "title",
+                    "Adds a file entry", "More");
+            w.e("button", "type", "button", "id", "removeFile", "title",
+                    "Removes the last file entry", "Less");
+            w.e("button", "type", "button", "id", "addNSISFiles", "title",
+                    "Adds the files necessary to install and "
+                            + "uninstall an installation package (.exe) "
+                            + "created using NSIS", "Add NSIS files");
+            w.e("button", "type", "button", "id", "addInnoSetupFiles", "title",
+                    "Adds the files necessary to install and "
+                            + "uninstall an installation package (.exe) "
+                            + "created using Inno Setup",
+                    "Add Inno Setup files");
+            w.e("button", "type", "button", "id", "addMSIFiles", "title",
+                    "Adds the files necessary to install and "
+                            + "uninstall an installation package (.msi) "
+                            + "created for the Microsoft Installer",
+                    "Add MSI files");
+            w.end("td");
+            w.end("tr");
 
-			w.start("tr");
-			w.e("td");
-			w.start("td");
-			w.start("div", "id", "files");
-			for (int i = 0; i < pv.filePaths.size(); i++) {
-				String path = pv.filePaths.get(i);
-				String content = pv.getFileContents(i);
+            w.start("tr");
+            w.e("td");
+            w.start("td");
+            w.start("div", "id", "files");
+            for (int i = 0; i < pv.filePaths.size(); i++) {
+                String path = pv.filePaths.get(i);
+                String content = pv.getFileContents(i);
 
-				w.start("div");
-				w.e("div", "File path " + i + ":");
-				w.e("input", "type", "text", "name", "path." + i, "value",
-				        path, "size", "80");
+                w.start("div");
+                w.e("div", "File path " + i + ":");
+                w.e("input", "type", "text", "name", "path." + i, "value",
+                        path, "size", "80");
 
-				w.e("div", "File content " + i + ":");
-				w.e("textarea", "name", "content." + i, "rows", "20", "cols",
-				        "80", "wrap", "off", content);
-				w.end("div");
-			}
-			w.end("div");
-			w.end("td");
-			w.end("tr");
-		}
+                w.e("div", "File content " + i + ":");
+                w.e("textarea", "name", "content." + i, "rows", "20", "cols",
+                        "80", "wrap", "off", content);
+                w.end("div");
+            }
+            w.end("div");
+            w.end("td");
+            w.end("tr");
+        }
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Download check:");
-			w.start("td");
-			if (pv.downloadCheckAt != null) {
-				String s = "Checked at " + pv.downloadCheckAt + ". ";
-				if (pv.downloadCheckError == null)
-					s += "The download completed successfully.";
-				else
-					s += "The download failed: " + pv.downloadCheckError;
-				w.t(s);
-			} else {
-				w.t("Not yet checked");
-			}
-			w.end("td");
-			w.end("tr");
-		}
+        if (editable) {
+            w.start("tr");
+            w.e("td", "Download check:");
+            w.start("td");
+            if (pv.downloadCheckAt != null) {
+                String s = "Checked at " + pv.downloadCheckAt + ". ";
+                if (pv.downloadCheckError == null)
+                    s += "The download completed successfully.";
+                else
+                    s += "The download failed: " + pv.downloadCheckError;
+                w.t(s);
+            } else {
+                w.t("Not yet checked");
+            }
+            w.end("td");
+            w.end("tr");
+        }
 
-		w.end("table");
+        w.end("table");
 
-		if (editable) {
-			w
-			        .e("p", "class", "nw-help",
-			                "Press Ctrl-Alt-H for the list of available keyboard shortcuts");
-			w.e("input", "class", "input", "type", "submit", "title",
-			        "Saves the changes", "value", "Save", "id", "save");
-			if (!new_) {
-				w
-				        .e(
-				                "input",
-				                "class",
-				                "input",
-				                "type",
-				                "button",
-				                "value",
-				                "Copy",
-				                "title",
-				                "Create a copy of this package version",
-				                "onclick",
-				                "this.form.action='/package-version/copy'; this.form.submit()",
-				                "id", "copy");
-				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-				        + pv.package_ + "&version=" + pv.version,
-				        "Edits this package version as repository XML");
-				w
-				        .e("input", "class", "input", "type", "button",
-				                "title", "Delete this package version",
-				                "value", "Delete", "onclick",
-				                "this.form.action='/package-version/delete'; this.form.submit()");
-			}
-			w.end("form");
-		}
+        if (editable) {
+            w.e("p", "class", "nw-help",
+                    "Press Ctrl-Alt-H for the list of available keyboard shortcuts");
+            w.e("input", "class", "input", "type", "submit", "title",
+                    "Saves the changes", "value", "Save", "id", "save");
+            if (!new_) {
+                w.e("input",
+                        "class",
+                        "input",
+                        "type",
+                        "button",
+                        "value",
+                        "Copy",
+                        "title",
+                        "Create a copy of this package version",
+                        "onclick",
+                        "this.form.action='/package-version/copy'; this.form.submit()",
+                        "id", "copy");
+                NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
+                        + pv.package_ + "&version=" + pv.version,
+                        "Edits this package version as repository XML");
+                w.e("input", "class", "input", "type", "button", "title",
+                        "Delete this package version", "value", "Delete",
+                        "onclick",
+                        "this.form.action='/package-version/delete'; this.form.submit()");
+            }
+            w.end("form");
+        }
 
-		return w.toString();
-	}
+        return w.toString();
+    }
 
-	@Override
-	public String getTitle() {
-		Package p = getPackage();
-		return p.title + " " + pv.version;
-	}
+    @Override
+    public String getTitle() {
+        Package p = getPackage();
+        return p.title + " " + pv.version;
+    }
 
-	/**
-	 * @return associated package version
-	 */
-	public PackageVersion getPackageVersion() {
-		return pv;
-	}
+    /**
+     * @return associated package version
+     */
+    public PackageVersion getPackageVersion() {
+        return pv;
+    }
 
-	/**
-	 * @return associated package
-	 */
-	public Package getPackage() {
-		if (this.package_ == null) {
-			Objectify objectify = NWUtils.getObjectify();
-			this.package_ = objectify.get(Package.class, this.pv.package_);
-		}
-		return this.package_;
-	}
+    /**
+     * @return associated package
+     */
+    public Package getPackage() {
+        if (this.package_ == null) {
+            Objectify objectify = NWUtils.getObjectify();
+            this.package_ = objectify.get(Package.class, this.pv.package_);
+        }
+        return this.package_;
+    }
 
-	/**
-	 * @return true if the data should be editable
-	 */
-	public boolean getEditable() {
-		return NWUtils.isEditorLoggedIn();
-	}
+    /**
+     * @return true if the data should be editable
+     */
+    public boolean getEditable() {
+        return NWUtils.isEditorLoggedIn();
+    }
 
-	/**
-	 * @return associated license or null
-	 */
-	public License getLicense() {
-		if (this.license == null) {
-			Package p = getPackage();
-			if (!p.license.isEmpty()) {
-				Objectify ofy = NWUtils.getObjectify();
-				this.license = ofy.get(License.class, p.license);
-			}
-		}
-		return license;
-	}
+    /**
+     * @return associated license or null
+     */
+    public License getLicense() {
+        if (this.license == null) {
+            Package p = getPackage();
+            if (!p.license.isEmpty()) {
+                Objectify ofy = NWUtils.getObjectify();
+                this.license = ofy.get(License.class, p.license);
+            }
+        }
+        return license;
+    }
 
-	@Override
-	public String getHeadPart() {
-		return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.pv.PVEditor/com.googlecode.npackdweb.pv.PVEditor.nocache.js\"></script>\n";
-	}
+    @Override
+    public String getHeadPart() {
+        return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.pv.PVEditor/com.googlecode.npackdweb.pv.PVEditor.nocache.js\"></script>\n";
+    }
 }

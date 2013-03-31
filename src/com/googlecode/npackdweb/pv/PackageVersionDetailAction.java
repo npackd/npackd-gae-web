@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackageVersion;
+import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -35,15 +36,28 @@ public class PackageVersionDetailAction extends Action {
 		String package_ = m.group(1);
 		String version = m.group(2);
 
-		// TODO: normalize version and redirect
-
 		Objectify ofy = NWUtils.getObjectify();
 		PackageVersion r = ofy.find(new Key<PackageVersion>(
 		        PackageVersion.class, package_ + "@" + version));
 		if (r == null) {
-			r = new PackageVersion(package_, version);
+			Version v = Version.parse(version);
+			if (!v.toString().equals(version)) {
+				resp.sendRedirect("/p/" + package_ + "/" + v.toString());
+				return null;
+			}
 		}
 
-		return new PackageVersionPage(r, false);
+		PackageVersionPage pvp = null;
+		if (r == null) {
+			if (NWUtils.isEditorLoggedIn()) {
+				r = new PackageVersion(package_, version);
+				pvp = new PackageVersionPage(r, true);
+			} else {
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			}
+		} else {
+			pvp = new PackageVersionPage(r, false);
+		}
+		return pvp;
 	}
 }
