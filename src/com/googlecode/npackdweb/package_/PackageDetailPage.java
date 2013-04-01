@@ -1,9 +1,12 @@
 package com.googlecode.npackdweb.package_;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.markdown4j.Markdown4jProcessor;
 
-import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.users.User;
+import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
@@ -28,369 +32,469 @@ import com.googlecode.objectify.Query;
  * A package.
  */
 public class PackageDetailPage extends MyPage {
-	private Package p;
-	private List<PackageVersion> versions;
-	private License license;
-	private boolean editable;
-	private List<License> licenses;
+    private List<PackageVersion> versions;
+    private License license_;
+    private List<License> licenses;
 
-	/**
-	 * @param p
-	 *            a package or null
-	 * @param editable
-	 *            true if the data should be editable
-	 */
-	public PackageDetailPage(Package p, boolean editable) {
-		this.p = p;
-		this.editable = editable;
+    /** error message or null */
+    public String error;
 
-		Objectify ofy = NWUtils.getObjectify();
-		versions = new ArrayList<PackageVersion>();
-		if (p != null) {
-			for (PackageVersion pv : ofy.query(PackageVersion.class).filter(
-			        "package_ =", p.name).fetch())
-				versions.add(pv);
+    /** full package id */
+    public String id;
 
-			if (!p.license.isEmpty())
-				this.license = ofy.find(License.class, p.license);
-		}
-	}
+    /** package title */
+    public String title;
 
-	@Override
-	public String createContent(HttpServletRequest request) throws IOException {
-		HTMLWriter w = new HTMLWriter();
-		w.start("h3");
-		if (p == null || p.icon.isEmpty()) {
-			w.e("img", "src", "/App.png");
-		} else {
-			w.e("img", "src", p.icon, "style",
-			        "max-width: 32px; max-height: 32px");
-		}
-		if (p != null)
-			w.t(" " + p.title);
-		else
-			w.t(" New package");
-		w.end("h3");
+    /** package home page */
+    public String url;
 
-		if (editable) {
-			w.start("form", "method", "post", "action", "/package/save");
-			if (p != null)
-				w.e("input", "type", "hidden", "name", "name", "value", p.name);
-		}
+    /** package icon */
+    public String icon;
 
-		w.start("table", "border", "0");
-		w.start("tr");
-		w.e("td", "ID:");
-		if (p != null)
-			w.e("td", p.name);
-		else {
-			w.start("td");
-			w.e("input", "type", "text", "name", "name", "value", "", "size",
-			        "80", "title",
-			        "Full package name including the reversed domain name");
-			w.start("p", "class", "nw-help");
-			w.t(" See ");
-			w
-			        .e(
-			                "a",
-			                "href",
-			                "http://code.google.com/p/windows-package-manager/wiki/RepositoryFormat#Package_naming_rules",
-			                "target", "_blank", "Package naming rules");
-			w.t(" for more details");
-			w.end("p");
-			w.end("td");
-		}
-		w.end("tr");
+    /** package description */
+    public String description;
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Title:");
-			w.start("td");
-			w.e("input", "type", "text", "name", "title", "value",
-			        p == null ? "" : p.title, "size", "80", "title",
-			        "Name of the package");
-			w.end("td");
-			w.end("tr");
-		}
+    /** package comment */
+    public String comment;
 
-		w.start("tr");
-		w.e("td", "Product home page:");
-		w.start("td");
-		if (editable) {
-			w.e("input", "type", "text", "name", "url", "value", p == null ? ""
-			        : p.url, "size", "120", "title",
-			        "http: or https: address of the product home page");
-			if (p != null && !p.url.isEmpty()) {
-				w.start("a", "href", p.url, "target", "_blank");
-				w.e("img", "src", "/Link.png");
-				w.end("a");
-			}
-		} else {
-			w.e("a", "href", p.url, p.url);
-		}
-		w.end("td");
-		w.end("tr");
+    /** discovery URL */
+    public String discoveryURL;
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Icon:");
-			w.start("td");
-			w
-			        .e("input", "type", "text", "name", "icon", "value",
-			                p == null ? "" : p.icon, "size", "120", "title",
-			                "http: or https: address of a 32x32 PNG icon representing this package");
-			w.end("td");
-			w.end("tr");
-		}
+    /** discovery regular expression */
+    public String discoveryRE;
 
-		w.start("tr");
-		w.e("td", "Description:");
-		w.start("td");
-		if (editable) {
-			w.start("p", "class", "nw-help");
-			w.e("a", "href",
-			        "http://daringfireball.net/projects/markdown/syntax",
-			        "target", "_blank", "Markdown syntax");
-			w.t(" can be used in the following text area");
-			w.end("p");
-			w.e("textarea", "rows", "10", "name", "description", "cols", "80",
-			        "title", "Possibly long description of the package. "
-			                + "Try to not repeat the package name here and "
-			                + "keep it simple and informative.", p == null ? ""
-			                : p.description);
-		} else {
-			Markdown4jProcessor mp = new Markdown4jProcessor();
-			try {
-				w.unencoded(mp.process(p.description));
-			} catch (IOException e) {
-				w.t(p.description + " Failed to parse the Markdown syntax: "
-				        + e.getMessage());
-			}
-		}
-		w.end("td");
-		w.end("tr");
+    /** pattern for the download URL */
+    public String discoveryURLPattern;
 
-		w.start("tr");
-		w.e("td", "License:");
-		w.start("td");
-		if (editable) {
-			w.start("select", "name", "license", "title",
-			        "Package licensing terms");
-			w.e("option", "value", "");
-			for (License lic : this.getLicenses()) {
-				w.e("option", "value", lic.name, "selected", p != null
-				        && lic.name.equals(p.license) ? "selected" : null,
-				        lic.title);
-			}
-			w.end("select");
-		} else {
-			if (p.license.isEmpty())
-				w.t("unknown");
-			else
-				w.e("a", "href", getLicense().url, getLicense().title);
-		}
-		w.end("td");
-		w.end("tr");
+    /** mode for this form */
+    public FormMode mode;
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Comment:");
-			w.start("td");
-			w
-			        .e(
-			                "textarea",
-			                "rows",
-			                "5",
-			                "name",
-			                "comment",
-			                "cols",
-			                "80",
-			                "title",
-			                "Internal comments normally only visible to the package editors",
-			                p == null ? "" : p.comment);
-			w.end("td");
-			w.end("tr");
-		}
+    /** date and time of the package creation or null for new packages */
+    public Date createdAt;
 
-		w.start("tr");
-		w.e("td", "Versions:");
-		w.start("td");
-		List<PackageVersion> pvs = this.getVersions();
-		Collections.sort(pvs, new Comparator<PackageVersion>() {
-			public int compare(PackageVersion a, PackageVersion b) {
-				Version va = Version.parse(a.version);
-				Version vb = Version.parse(b.version);
-				return va.compare(vb);
-			}
-		});
-		for (int i = 0; i < pvs.size(); i++) {
-			PackageVersion pv = pvs.get(i);
-			if (i != 0)
-				w.t(", ");
-			w
-			        .e("a", "href", "/p/" + pv.package_ + "/" + pv.version,
-			                pv.version);
-		}
-		w.end("td");
-		w.end("tr");
+    /** user that created the package or null */
+    public User createdBy;
 
-		w.start("tr");
-		w.e("td", "Created:");
-		w.start("td");
-		w.t(p == null ? "" : p.createdAt.toString());
-		w.end("td");
-		w.end("tr");
+    /** license ID */
+    public String license;
 
-		if (editable) {
-			w.start("tr");
-			w.e("td", "Created by:");
-			w.start("td");
-			w
-			        .t(p == null ? UserServiceFactory.getUserService()
-			                .getCurrentUser().getNickname() : p.createdBy
-			                .getNickname());
-			w.end("td");
-			w.end("tr");
+    /**
+     * @param p
+     *            a package or null
+     * @param editable
+     *            true if the data should be editable
+     */
+    public PackageDetailPage(Package p, boolean editable) {
+        if (p == null)
+            mode = FormMode.CREATE;
+        else
+            mode = editable ? FormMode.EDIT : FormMode.VIEW;
 
-			w.start("tr");
-			w.start("td", "colspan", "2");
-			w
-			        .e("p", "class", "nw-help",
-			                "The following two fields could help to identify new package versions");
-			w.end("td");
-			w.end("tr");
+        if (p == null) {
+            id = "";
+            title = "";
+            url = "";
+            icon = "";
+            description = "";
+            comment = "";
+            discoveryURL = "";
+            discoveryRE = "";
+            discoveryURLPattern = "";
+            license = "";
+        } else {
+            id = p.name;
+            title = p.title;
+            url = p.url;
+            icon = p.icon;
+            description = p.description;
+            comment = p.comment;
+            discoveryURL = p.discoveryPage;
+            discoveryRE = p.discoveryRE;
+            createdAt = p.createdAt;
+            createdBy = p.createdBy;
+            discoveryURLPattern = p.discoveryURLPattern;
+            license = p.license;
+        }
+        Objectify ofy = NWUtils.getObjectify();
+        versions = new ArrayList<PackageVersion>();
+        if (!id.isEmpty()) {
+            for (PackageVersion pv : ofy.query(PackageVersion.class)
+                    .filter("package_ =", p.name).fetch())
+                versions.add(pv);
 
-			w.start("tr");
-			w.e("td", "Discovery page (URL):");
-			w.start("td");
-			w
-			        .e("input", "type", "text", "name", "discoveryPage",
-			                "value", p == null ? "" : p.discoveryPage, "size",
-			                "120", "title",
-			                "This URL of an HTML or text page that contains the current version number");
-			w.end("td");
-			w.end("tr");
+        }
+        if (!license.isEmpty())
+            this.license_ = ofy.find(License.class, license);
+    }
 
-			w.start("tr");
-			w.e("td", "Discovery regular expression:");
-			w.start("td");
-			w
-			        .e(
-			                "input",
-			                "type",
-			                "text",
-			                "name",
-			                "discoveryRE",
-			                "value",
-			                p == null ? "" : p.discoveryRE,
-			                "size",
-			                "80",
-			                "title",
-			                "Regular expression that will be used to find the current version number on the page");
-			w.end("td");
-			w.end("tr");
+    @Override
+    public String createContent(HttpServletRequest request) throws IOException {
+        HTMLWriter w = new HTMLWriter();
+        if (error != null) {
+            w.e("p", "class", "nw-error", this.error);
+        }
+        w.start("h3");
+        if (icon.isEmpty()) {
+            w.e("img", "src", "/App.png");
+        } else {
+            w.e("img", "src", icon, "style",
+                    "max-width: 32px; max-height: 32px");
+        }
+        if (mode != FormMode.CREATE)
+            w.t(" " + title);
+        else
+            w.t(" New package");
+        w.end("h3");
 
-			w.start("tr");
-			w.start("td", "colspan", "2");
-			w
-			        .e(
-			                "p",
-			                "class",
-			                "nw-help",
-			                "The following field will help to define the download URL for a newly detected version in the future and is currently unused");
-			w.end("td");
-			w.end("tr");
+        if (mode != FormMode.VIEW) {
+            w.start("form", "method", "post", "action", "/package/save");
+            if (mode != FormMode.CREATE)
+                w.e("input", "type", "hidden", "name", "name", "value", id);
+        }
 
-			w.start("tr");
-			w.e("td", "Discovery URL pattern:");
-			w.start("td");
-			w
-			        .e(
-			                "input",
-			                "type",
-			                "text",
-			                "name",
-			                "discoveryURLPattern",
-			                "value",
-			                p == null ? "" : p.discoveryURLPattern,
-			                "size",
-			                "120",
-			                "title",
-			                "Special URL pattern where ${{actualVersion}} and similar variables will be used to identify the binary of the new package version");
-			w.end("td");
-			w.end("tr");
-		}
+        w.start("table", "border", "0");
+        w.start("tr");
+        w.e("td", "ID:");
+        if (mode != FormMode.CREATE)
+            w.e("td", id);
+        else {
+            w.start("td");
+            w.e("input", "type", "text", "name", "name", "value", id, "size",
+                    "80", "title",
+                    "Full package name including the reversed domain name");
+            w.start("p", "class", "nw-help");
+            w.t(" See ");
+            w.e("a",
+                    "href",
+                    "http://code.google.com/p/windows-package-manager/wiki/RepositoryFormat#Package_naming_rules",
+                    "target", "_blank", "Package naming rules");
+            w.t(" for more details");
+            w.end("p");
+            w.end("td");
+        }
+        w.end("tr");
 
-		w.end("table");
+        if (mode != FormMode.VIEW) {
+            w.start("tr");
+            w.e("td", "Title:");
+            w.start("td");
+            w.e("input", "type", "text", "name", "title", "value", title,
+                    "size", "80", "title", "Name of the package");
+            w.end("td");
+            w.end("tr");
+        }
 
-		if (editable) {
-			w.e("input", "class", "input", "type", "submit", "value", "Save");
-			if (p != null) {
-				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-				        + p.name, "Edit this package as repository XML");
-				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + p.name,
-				        "Deletes this package and all associated versions");
-				NWUtils.jsButton(w, "New version", "/p/" + p.name + "/new",
-				        "Creates new version");
-				NWUtils
-				        .jsButton(
-				                w,
-				                "Detect new version",
-				                "/p/" + p.name + "/detect",
-				                "Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package");
-			}
-			w.end("form");
-		}
+        w.start("tr");
+        w.e("td", "Product home page:");
+        w.start("td");
+        if (mode.isEditable()) {
+            w.e("input", "type", "text", "name", "url", "value", url, "size",
+                    "120", "title",
+                    "http: or https: address of the product home page");
+            w.start("a", "href", url, "target", "_blank");
+            w.e("img", "src", "/Link.png");
+            w.end("a");
+        } else {
+            w.e("a", "href", url, url);
+        }
+        w.end("td");
+        w.end("tr");
 
-		return w.toString();
-	}
+        if (mode.isEditable()) {
+            w.start("tr");
+            w.e("td", "Icon:");
+            w.start("td");
+            w.e("input", "type", "text", "name", "icon", "value", icon, "size",
+                    "120", "title",
+                    "http: or https: address of a 32x32 PNG icon representing this package");
+            w.end("td");
+            w.end("tr");
+        }
 
-	@Override
-	public String getTitle() {
-		return p == null ? "Package" : p.title;
-	}
+        w.start("tr");
+        w.e("td", "Description:");
+        w.start("td");
+        if (mode.isEditable()) {
+            w.start("p", "class", "nw-help");
+            w.e("a", "href",
+                    "http://daringfireball.net/projects/markdown/syntax",
+                    "target", "_blank", "Markdown syntax");
+            w.t(" can be used in the following text area");
+            w.end("p");
+            w.e("textarea", "rows", "10", "name", "description", "cols", "80",
+                    "title", "Possibly long description of the package. "
+                            + "Try to not repeat the package name here and "
+                            + "keep it simple and informative.", description);
+        } else {
+            Markdown4jProcessor mp = new Markdown4jProcessor();
+            try {
+                w.unencoded(mp.process(description));
+            } catch (IOException e) {
+                w.t(description + " Failed to parse the Markdown syntax: "
+                        + e.getMessage());
+            }
+        }
+        w.end("td");
+        w.end("tr");
 
-	/**
-	 * @return package shown on this page or null
-	 */
-	public Package getPackage() {
-		return p;
-	}
+        w.start("tr");
+        w.e("td", "License:");
+        w.start("td");
+        if (mode.isEditable()) {
+            w.start("select", "name", "license", "title",
+                    "Package licensing terms");
+            w.e("option", "value", "");
+            for (License lic : this.getLicenses()) {
+                w.e("option", "value", lic.name, "selected",
+                        lic.name.equals(license) ? "selected" : null, lic.title);
+            }
+            w.end("select");
+        } else {
+            if (license_ == null)
+                w.t("unknown");
+            else
+                w.e("a", "href", license_.url, license_.title);
+        }
+        w.end("td");
+        w.end("tr");
 
-	/**
-	 * @return versions of this package
-	 */
-	public List<PackageVersion> getVersions() {
-		return versions;
-	}
+        if (mode.isEditable()) {
+            w.start("tr");
+            w.e("td", "Comment:");
+            w.start("td");
+            w.e("textarea",
+                    "rows",
+                    "5",
+                    "name",
+                    "comment",
+                    "cols",
+                    "80",
+                    "title",
+                    "Internal comments normally only visible to the package editors",
+                    comment);
+            w.end("td");
+            w.end("tr");
+        }
 
-	/**
-	 * @return license of the package or null
-	 */
-	public License getLicense() {
-		return license;
-	}
+        w.start("tr");
+        w.e("td", "Versions:");
+        w.start("td");
+        List<PackageVersion> pvs = this.getVersions();
+        Collections.sort(pvs, new Comparator<PackageVersion>() {
+            public int compare(PackageVersion a, PackageVersion b) {
+                Version va = Version.parse(a.version);
+                Version vb = Version.parse(b.version);
+                return va.compare(vb);
+            }
+        });
+        for (int i = 0; i < pvs.size(); i++) {
+            PackageVersion pv = pvs.get(i);
+            if (i != 0)
+                w.t(", ");
+            w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version, pv.version);
+        }
+        w.end("td");
+        w.end("tr");
 
-	/**
-	 * @return true if the data should be editable
-	 */
-	public boolean getEditable() {
-		return editable;
-	}
+        w.start("tr");
+        w.e("td", "Created:");
+        w.start("td");
+        w.t(createdAt == null ? "" : createdAt.toString());
+        w.end("td");
+        w.end("tr");
 
-	/**
-	 * @return list of all licenses
-	 */
-	public List<License> getLicenses() {
-		if (this.licenses == null) {
-			Objectify ofy = NWUtils.getObjectify();
-			this.licenses = new ArrayList<License>();
-			String cacheSuffix = "@" + NWUtils.getDataVersion();
-			Query<License> q = ofy.query(License.class).order("title");
-			List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
-			Map<Key<License>, License> k2v = ofy.get(keys);
-			this.licenses.addAll(k2v.values());
-		}
-		return licenses;
-	}
+        if (mode.isEditable()) {
+            if (createdBy != null) {
+                w.start("tr");
+                w.e("td", "Created by:");
+                w.start("td");
+                w.t(createdBy.getNickname());
+                w.end("td");
+                w.end("tr");
+            }
+
+            w.start("tr");
+            w.e("td", "Discovery page (URL):");
+            w.start("td");
+            w.e("input",
+                    "type",
+                    "text",
+                    "name",
+                    "discoveryPage",
+                    "value",
+                    discoveryURL,
+                    "size",
+                    "120",
+                    "title",
+                    "http: or https: URL of an HTML or text page that contains the newest version number as text");
+            w.end("td");
+            w.end("tr");
+
+            w.start("tr");
+            w.start("td", "colspan", "2");
+            w.e("p", "class", "nw-help", "");
+            w.end("td");
+            w.end("tr");
+
+            w.start("tr");
+            w.e("td", "Discovery regular expression:");
+            w.start("td");
+            w.e("input",
+                    "type",
+                    "text",
+                    "name",
+                    "discoveryRE",
+                    "value",
+                    discoveryRE,
+                    "size",
+                    "80",
+                    "title",
+                    "Regular expression to match the newest version number. This regular expression should contain a match group for the version number.\nExample: <h1>the newest version is ([\\d\\.]+)</h1>");
+            w.end("td");
+            w.end("tr");
+            /*
+             * w.start("tr"); w.start("td", "colspan", "2"); w.e("p", "class",
+             * "nw-help",
+             * "The following field will help to define the download URL for a newly detected version in the future and is currently unused"
+             * ); w.end("td"); w.end("tr");
+             * 
+             * w.start("tr"); w.e("td", "Discovery URL pattern:");
+             * w.start("td"); w.e("input", "type", "text", "name",
+             * "discoveryURLPattern", "value", discoveryURLPattern, "size",
+             * "120", "title",
+             * "Special URL pattern where ${{actualVersion}} and similar variables will be used to identify the binary of the new package version"
+             * ); w.end("td"); w.end("tr");
+             */
+        }
+
+        w.end("table");
+
+        if (mode.isEditable()) {
+            w.e("input", "class", "input", "type", "submit", "value", "Save");
+            if (mode != FormMode.CREATE) {
+                NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
+                        + id, "Edit this package as repository XML");
+                NWUtils.jsButton(w, "Delete", "/package/delete?id=" + id,
+                        "Deletes this package and all associated versions");
+                NWUtils.jsButton(w, "New version", "/p/" + id + "/new",
+                        "Creates new version");
+                NWUtils.jsButton(
+                        w,
+                        "Detect new version",
+                        "/p/" + id + "/detect",
+                        "Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package");
+            }
+            w.end("form");
+        }
+
+        return w.toString();
+    }
+
+    @Override
+    public String getTitle() {
+        return title.isEmpty() ? "Package" : title;
+    }
+
+    /**
+     * @return versions of this package
+     */
+    public List<PackageVersion> getVersions() {
+        return versions;
+    }
+
+    /**
+     * @return list of all licenses
+     */
+    public List<License> getLicenses() {
+        if (this.licenses == null) {
+            Objectify ofy = NWUtils.getObjectify();
+            this.licenses = new ArrayList<License>();
+            String cacheSuffix = "@" + NWUtils.getDataVersion();
+            Query<License> q = ofy.query(License.class).order("title");
+            List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
+            Map<Key<License>, License> k2v = ofy.get(keys);
+            this.licenses.addAll(k2v.values());
+        }
+        return licenses;
+    }
+
+    /**
+     * Fills the values from an HTTP request.
+     * 
+     * @param req
+     *            HTTP request
+     */
+    public void fill(HttpServletRequest req) {
+        id = req.getParameter("name");
+        title = req.getParameter("title");
+        url = req.getParameter("url");
+        icon = req.getParameter("icon");
+        description = req.getParameter("description");
+        comment = req.getParameter("comment");
+        discoveryURL = req.getParameter("discoveryPage");
+        discoveryRE = req.getParameter("discoveryRE");
+        discoveryURLPattern = req.getParameter("discoveryURLPattern");
+        license = req.getParameter("license");
+    }
+
+    /**
+     * Transfers the data from this form into the specified object.
+     * 
+     * @param p
+     *            the data will be stored here
+     */
+    public void fillObject(Package p) {
+        p.description = description.trim();
+        p.icon = icon.trim();
+        p.title = title.trim();
+        p.url = url.trim();
+        p.license = license.trim();
+        p.comment = comment.trim();
+        p.discoveryPage = discoveryURL.trim();
+        p.discoveryRE = discoveryRE.trim();
+        p.discoveryURLPattern = discoveryURLPattern.trim();
+    }
+
+    /**
+     * Validates the data.
+     * 
+     * @return error message or null
+     */
+    public String validate() {
+        String msg = null;
+        msg = Package.checkName(this.id);
+        if (msg == null) {
+            if (title.trim().isEmpty())
+                msg = "Title cannot be empty";
+        }
+        if (msg == null) {
+            if (!this.url.trim().isEmpty()) {
+                try {
+                    URL url = new URL(this.url.trim());
+                    String p = url.getProtocol();
+                    if (!p.equals("http") && !p.equals("https"))
+                        msg = "Invalid protocol: " + p;
+                    if (msg == null && url.getHost().isEmpty())
+                        msg = "Empty host: " + this.url;
+                } catch (MalformedURLException e) {
+                    msg = e.getMessage();
+                }
+            }
+        }
+        if (msg == null) {
+            if (!this.icon.trim().isEmpty()) {
+                try {
+                    URL url = new URL(this.icon.trim());
+                    String p = url.getProtocol();
+                    if (!p.equals("http") && !p.equals("https"))
+                        msg = "Invalid protocol: " + p;
+                    if (msg == null && url.getHost().isEmpty())
+                        msg = "Empty host: " + this.icon;
+                } catch (MalformedURLException e) {
+                    msg = e.getMessage();
+                }
+            }
+        }
+        return msg;
+    }
 }
