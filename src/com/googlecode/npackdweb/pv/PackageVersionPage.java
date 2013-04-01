@@ -1,16 +1,21 @@
 package com.googlecode.npackdweb.pv;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.markdown4j.Markdown4jProcessor;
 
+import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.PackageVersion;
+import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -19,10 +24,49 @@ import com.googlecode.objectify.Objectify;
  * Packages.
  */
 public class PackageVersionPage extends MyPage {
-    private PackageVersion pv;
     private Package package_;
     private License license;
     private boolean new_;
+
+    private String packageName;
+    private String version;
+    private String url, sha1, detectMSI;
+    private List<String> dependencyPackages;
+    private List<String> dependencyVersionRanges;
+    private List<String> dependencyEnvVars;
+    private boolean oneFile;
+    private List<String> tags;
+    private List<String> importantFilePaths;
+    private List<String> importantFileTitles;
+    private List<String> filePaths;
+    private List<String> fileContents;
+    private String downloadCheckError;
+    private Date downloadCheckAt;
+
+    /** error message or null */
+    private String error;
+
+    /**
+     * -
+     */
+    public PackageVersionPage() {
+        this.packageName = "";
+        this.version = "";
+        this.url = "";
+        this.sha1 = "";
+        this.detectMSI = "";
+        this.dependencyPackages = new ArrayList<String>();
+        this.dependencyVersionRanges = new ArrayList<String>();
+        this.dependencyEnvVars = new ArrayList<String>();
+        this.oneFile = false;
+        this.tags = new ArrayList<String>();
+        this.importantFilePaths = new ArrayList<String>();
+        this.importantFileTitles = new ArrayList<String>();
+        this.filePaths = new ArrayList<String>();
+        this.fileContents = new ArrayList<String>();
+        this.downloadCheckAt = null;
+        this.downloadCheckError = null;
+    }
 
     /**
      * @param pv
@@ -32,8 +76,39 @@ public class PackageVersionPage extends MyPage {
      *            existing package version will be edited
      */
     public PackageVersionPage(PackageVersion pv, boolean new_) {
-        this.pv = pv;
+        this();
+        if (pv != null)
+            fillForm(pv);
         this.new_ = new_;
+    }
+
+    private void fillForm(PackageVersion pv) {
+        this.packageName = pv.package_;
+        this.version = pv.version.toString();
+        this.url = pv.url;
+        this.sha1 = pv.sha1;
+        this.detectMSI = pv.detectMSI;
+        this.dependencyPackages = new ArrayList<String>();
+        this.dependencyPackages.addAll(pv.dependencyPackages);
+        this.dependencyVersionRanges = new ArrayList<String>();
+        this.dependencyVersionRanges.addAll(pv.dependencyVersionRanges);
+        this.dependencyEnvVars = new ArrayList<String>();
+        this.dependencyEnvVars.addAll(pv.dependencyEnvVars);
+        this.oneFile = pv.oneFile;
+        this.tags = new ArrayList<String>();
+        this.tags.addAll(pv.tags);
+        this.importantFilePaths = new ArrayList<String>();
+        this.importantFilePaths.addAll(pv.importantFilePaths);
+        this.importantFileTitles = new ArrayList<String>();
+        this.importantFileTitles.addAll(pv.importantFileTitles);
+        this.filePaths = new ArrayList<String>();
+        this.filePaths.addAll(pv.filePaths);
+        this.fileContents = new ArrayList<String>();
+        for (int i = 0; i < this.filePaths.size(); i++) {
+            this.fileContents.add(pv.getFileContents(i));
+        }
+        this.downloadCheckAt = pv.downloadCheckAt;
+        this.downloadCheckError = pv.downloadCheckError;
     }
 
     @Override
@@ -43,6 +118,10 @@ public class PackageVersionPage extends MyPage {
 
         Package p = getPackage();
         License lic = getLicense();
+
+        if (error != null) {
+            w.e("p", "class", "nw-error", this.error);
+        }
 
         w.start("h3");
         if (p.icon.isEmpty()) {
@@ -58,7 +137,7 @@ public class PackageVersionPage extends MyPage {
         if (editable) {
             w.start("form", "method", "post", "action", "/package-version/save");
             w.e("input", "type", "hidden", "name", "package", "value",
-                    pv.package_);
+                    this.packageName);
         }
 
         w.start("table", "id", "fields");
@@ -102,14 +181,14 @@ public class PackageVersionPage extends MyPage {
         w.e("td", "Version:");
         w.start("td");
         if (new_) {
-            w.e("input", "type", "text", "name", "version", "value", "",
-                    "size", "20");
+            w.e("input", "type", "text", "name", "version", "value",
+                    this.version, "size", "20");
+            w.e("input", "type", "hidden", "name", "new", "value", "true");
         } else if (editable) {
-            w.e("input", "type", "hidden", "name", "version", "value",
-                    pv.version);
-            w.t(pv.version);
+            w.e("input", "type", "hidden", "name", "version", "value", version);
+            w.t(version);
         } else {
-            w.t(pv.version);
+            w.t(version);
         }
         w.end("td");
         w.end("tr");
@@ -118,11 +197,11 @@ public class PackageVersionPage extends MyPage {
         w.e("td", "Download:");
         w.start("td");
         if (editable) {
-            w.e("input", "type", "text", "name", "url", "value", pv.url,
-                    "size", "120", "id", "url", "title",
+            w.e("input", "type", "text", "name", "url", "value", url, "size",
+                    "120", "id", "url", "title",
                     "http: or https: address of the package binary");
         } else {
-            w.e("a", "href", pv.url, pv.url);
+            w.e("a", "href", url, url);
         }
         w.end("td");
         w.end("tr");
@@ -137,7 +216,7 @@ public class PackageVersionPage extends MyPage {
                     "name",
                     "sha1",
                     "value",
-                    pv.sha1,
+                    sha1,
                     "size",
                     "50",
                     "title",
@@ -145,7 +224,7 @@ public class PackageVersionPage extends MyPage {
                             + "Leave this field empty if different binaries are "
                             + "distributed from the same address.");
         } else {
-            w.t(pv.sha1);
+            w.t(sha1);
         }
         w.end("td");
         w.end("tr");
@@ -155,12 +234,12 @@ public class PackageVersionPage extends MyPage {
         w.start("td");
         if (editable) {
             w.e("input", "type", "text", "name", "detectMSI", "value",
-                    pv.detectMSI, "size", "43", "title", "MSI package ID like "
+                    detectMSI, "size", "43", "title", "MSI package ID like "
                             + "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. "
                             + "Leave this field empty if the package does not "
                             + "install itself using the Microsoft installer.");
         } else {
-            w.t(pv.detectMSI);
+            w.t(detectMSI);
         }
         w.end("td");
         w.end("tr");
@@ -180,10 +259,10 @@ public class PackageVersionPage extends MyPage {
             w.e("td", "Range of versions");
             w.e("td", "Environment variable");
             w.end("tr");
-            for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-                String dp = pv.dependencyPackages.get(i);
-                String dvr = pv.dependencyVersionRanges.get(i);
-                String v = pv.dependencyEnvVars.get(i);
+            for (int i = 0; i < dependencyPackages.size(); i++) {
+                String dp = dependencyPackages.get(i);
+                String dvr = dependencyVersionRanges.get(i);
+                String v = dependencyEnvVars.get(i);
 
                 w.start("tr");
                 w.start("td");
@@ -208,15 +287,15 @@ public class PackageVersionPage extends MyPage {
             w.e("td", "Dependencies:");
             w.start("td");
             w.start("ul");
-            for (int i = 0; i < pv.dependencyPackages.size(); i++) {
+            for (int i = 0; i < dependencyPackages.size(); i++) {
                 Objectify ofy = NWUtils.getObjectify();
                 Package dp = ofy.find(new Key<Package>(Package.class,
-                        pv.dependencyPackages.get(i)));
+                        dependencyPackages.get(i)));
 
                 w.start("li");
-                w.e("a", "href", "/p/" + pv.dependencyPackages.get(i), dp.title);
+                w.e("a", "href", "/p/" + dependencyPackages.get(i), dp.title);
                 w.t(" ");
-                w.t(pv.dependencyVersionRanges.get(i));
+                w.t(dependencyVersionRanges.get(i));
                 w.end("li");
             }
             w.end("ul");
@@ -236,7 +315,7 @@ public class PackageVersionPage extends MyPage {
                     "value",
                     "one-file",
                     "checked",
-                    pv.oneFile ? "checked" : null,
+                    oneFile ? "checked" : null,
                     "title",
                     "The file may have any format and will be downloaded as-is.",
                     "one file");
@@ -248,12 +327,12 @@ public class PackageVersionPage extends MyPage {
                     "value",
                     "zip",
                     "checked",
-                    !pv.oneFile ? "checked" : null,
+                    !oneFile ? "checked" : null,
                     "title",
                     "The file must be in ZIP format and will be unpacked automatically.",
                     "zip");
         } else {
-            w.t(pv.oneFile ? "one file" : "zip");
+            w.t(oneFile ? "one file" : "zip");
         }
         w.end("td");
         w.end("tr");
@@ -263,14 +342,14 @@ public class PackageVersionPage extends MyPage {
         w.start("td");
         if (editable) {
             w.e("input", "type", "text", "name", "tags", "value",
-                    NWUtils.join(", ", pv.tags), "size", "80", "title",
+                    NWUtils.join(", ", tags), "size", "80", "title",
                     "Comma separated list of tags associated with "
                             + "this package version. The default tags "
                             + "'stable', 'stable64', 'libs' and 'unstable' "
                             + "can be used to include this package "
                             + "version into one of the default repositories.");
         } else {
-            w.t(NWUtils.join(", ", pv.tags));
+            w.t(NWUtils.join(", ", tags));
         }
         w.end("td");
         w.end("tr");
@@ -292,9 +371,9 @@ public class PackageVersionPage extends MyPage {
                             + "start menu will be created. Each line should contain "
                             + "one file name and the associated title separated by a "
                             + "space character.");
-            for (int i = 0; i < pv.importantFilePaths.size(); i++) {
-                w.t(pv.importantFilePaths.get(i) + " "
-                        + pv.importantFileTitles.get(i) + "\n");
+            for (int i = 0; i < importantFilePaths.size(); i++) {
+                w.t(importantFilePaths.get(i) + " "
+                        + importantFileTitles.get(i) + "\n");
             }
             w.end("textarea");
             w.end("td");
@@ -330,9 +409,9 @@ public class PackageVersionPage extends MyPage {
             w.e("td");
             w.start("td");
             w.start("div", "id", "files");
-            for (int i = 0; i < pv.filePaths.size(); i++) {
-                String path = pv.filePaths.get(i);
-                String content = pv.getFileContents(i);
+            for (int i = 0; i < filePaths.size(); i++) {
+                String path = filePaths.get(i);
+                String content = fileContents.get(i);
 
                 w.start("div");
                 w.e("div", "File path " + i + ":");
@@ -353,12 +432,12 @@ public class PackageVersionPage extends MyPage {
             w.start("tr");
             w.e("td", "Download check:");
             w.start("td");
-            if (pv.downloadCheckAt != null) {
-                String s = "Checked at " + pv.downloadCheckAt + ". ";
-                if (pv.downloadCheckError == null)
+            if (downloadCheckAt != null) {
+                String s = "Checked at " + downloadCheckAt + ". ";
+                if (downloadCheckError == null)
                     s += "The download completed successfully.";
                 else
-                    s += "The download failed: " + pv.downloadCheckError;
+                    s += "The download failed: " + downloadCheckError;
                 w.t(s);
             } else {
                 w.t("Not yet checked");
@@ -388,7 +467,7 @@ public class PackageVersionPage extends MyPage {
                         "this.form.action='/package-version/copy'; this.form.submit()",
                         "id", "copy");
                 NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package="
-                        + pv.package_ + "&version=" + pv.version,
+                        + packageName + "&version=" + version,
                         "Edits this package version as repository XML");
                 w.e("input", "class", "input", "type", "button", "title",
                         "Delete this package version", "value", "Delete",
@@ -404,14 +483,7 @@ public class PackageVersionPage extends MyPage {
     @Override
     public String getTitle() {
         Package p = getPackage();
-        return p.title + " " + pv.version;
-    }
-
-    /**
-     * @return associated package version
-     */
-    public PackageVersion getPackageVersion() {
-        return pv;
+        return p.title + " " + version;
     }
 
     /**
@@ -420,7 +492,7 @@ public class PackageVersionPage extends MyPage {
     public Package getPackage() {
         if (this.package_ == null) {
             Objectify objectify = NWUtils.getObjectify();
-            this.package_ = objectify.get(Package.class, this.pv.package_);
+            this.package_ = objectify.get(Package.class, packageName);
         }
         return this.package_;
     }
@@ -449,5 +521,195 @@ public class PackageVersionPage extends MyPage {
     @Override
     public String getHeadPart() {
         return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.pv.PVEditor/com.googlecode.npackdweb.pv.PVEditor.nocache.js\"></script>\n";
+    }
+
+    public void fillForm(HttpServletRequest req) {
+        this.new_ = "true".equals(req.getParameter("new"));
+        packageName = req.getParameter("package");
+        version = req.getParameter("version");
+
+        url = req.getParameter("url");
+        sha1 = req.getParameter("sha1");
+        detectMSI = req.getParameter("detectMSI");
+        oneFile = "one-file".equals(req.getParameter("type"));
+        tags = NWUtils.split(req.getParameter("tags"), ',');
+        List<String> lines = NWUtils.splitLines(req
+                .getParameter("importantFiles"));
+        importantFilePaths.clear();
+        importantFileTitles.clear();
+        for (String line : lines) {
+            int pos = line.indexOf(" ");
+            if (pos > 0) {
+                String path = line.substring(0, pos);
+                String title = line.substring(pos + 1);
+                importantFilePaths.add(path);
+                importantFileTitles.add(title);
+            }
+        }
+
+        this.filePaths.clear();
+        this.fileContents.clear();
+        for (int i = 0;; i++) {
+            String path = req.getParameter("path." + i);
+            if (path == null)
+                break;
+
+            if (!path.trim().isEmpty()) {
+                String content = req.getParameter("content." + i);
+                this.filePaths.add(path);
+                this.fileContents.add(content);
+            }
+        }
+
+        dependencyPackages.clear();
+        dependencyVersionRanges.clear();
+        dependencyEnvVars.clear();
+        for (int i = 0;; i++) {
+            String package_ = req.getParameter("depPackage." + i);
+            if (package_ == null)
+                break;
+
+            if (!package_.trim().isEmpty()) {
+                String versions = req.getParameter("depVersions." + i);
+                String envVar = req.getParameter("depEnvVar." + i);
+                dependencyPackages.add(package_);
+                dependencyVersionRanges.add(versions);
+                dependencyEnvVars.add(envVar);
+            }
+        }
+    }
+
+    @Override
+    public String validate() {
+        String r = null;
+        if (packageName.trim().length() == 0)
+            r = "Empty package name";
+
+        if (r == null) {
+            if (version.trim().length() == 0)
+                r = "Empty version number";
+        }
+
+        if (r == null) {
+            try {
+                Version.parse(version);
+            } catch (NumberFormatException e) {
+                r = "Invalid version number: " + e.getMessage();
+            }
+        }
+
+        if (r == null) {
+            if (!this.url.trim().isEmpty()) {
+                r = NWUtils.validateURL(this.url);
+            }
+        }
+
+        if (r == null) {
+            if (!this.sha1.trim().isEmpty()) {
+                r = NWUtils.validateSHA1(this.sha1);
+            }
+        }
+
+        if (r == null) {
+            if (!this.detectMSI.trim().isEmpty()) {
+                r = NWUtils.validateGUID(this.detectMSI);
+            }
+        }
+
+        if (r == null) {
+            for (int i = 0; i < this.dependencyPackages.size(); i++) {
+                r = Package.checkName(this.dependencyPackages.get(i));
+                if (r != null)
+                    break;
+            }
+        }
+
+        if (r == null) {
+            for (int i = 0; i < this.dependencyVersionRanges.size(); i++) {
+                Dependency d = new Dependency();
+                r = d.setVersions(this.dependencyVersionRanges.get(i));
+                if (r != null)
+                    break;
+            }
+        }
+
+        if (r == null) {
+            for (int i = 0; i < this.dependencyEnvVars.size(); i++) {
+                r = NWUtils.validateEnvVarName(this.dependencyEnvVars.get(i));
+                if (r != null)
+                    break;
+            }
+        }
+
+        if (r == null) {
+            for (int i = 0; i < this.filePaths.size(); i++) {
+                String p = this.filePaths.get(i);
+
+                // TODO: incomplete
+                if (p.trim().isEmpty())
+                    r = "File path cannot be empty";
+
+                if (r != null)
+                    break;
+            }
+        }
+
+        return r;
+    }
+
+    /**
+     * @return full package name
+     */
+    public String getPackageName() {
+        return packageName;
+    }
+
+    /**
+     * @return entered version number
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * @param error
+     *            new error message or null
+     */
+    public void setErrorMessage(String error) {
+        this.error = error;
+    }
+
+    /**
+     * Transfers the data from this from into the specified object
+     * 
+     * @param pv
+     *            the object
+     */
+    public void fillObject(PackageVersion pv) {
+        pv.package_ = this.packageName;
+        pv.version = this.version.toString();
+        pv.name = this.packageName + "@" + this.version;
+        pv.url = this.url;
+        pv.sha1 = this.sha1;
+        pv.detectMSI = this.detectMSI;
+        pv.dependencyPackages = new ArrayList<String>();
+        pv.dependencyPackages.addAll(this.dependencyPackages);
+        pv.dependencyVersionRanges = new ArrayList<String>();
+        pv.dependencyVersionRanges.addAll(this.dependencyVersionRanges);
+        pv.dependencyEnvVars = new ArrayList<String>();
+        pv.dependencyEnvVars.addAll(this.dependencyEnvVars);
+        pv.oneFile = this.oneFile;
+        pv.tags = new ArrayList<String>();
+        pv.tags.addAll(this.tags);
+        pv.importantFilePaths = new ArrayList<String>();
+        pv.importantFilePaths.addAll(this.importantFilePaths);
+        pv.importantFileTitles = new ArrayList<String>();
+        pv.importantFileTitles.addAll(this.importantFileTitles);
+        pv.filePaths = new ArrayList<String>();
+        pv.filePaths.addAll(this.filePaths);
+        pv.clearFiles();
+        for (int i = 0; i < this.filePaths.size(); i++) {
+            pv.addFile(this.filePaths.get(i), this.fileContents.get(i));
+        }
     }
 }

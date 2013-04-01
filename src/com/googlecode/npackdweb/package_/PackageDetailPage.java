@@ -1,8 +1,6 @@
 package com.googlecode.npackdweb.package_;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -455,11 +453,6 @@ public class PackageDetailPage extends MyPage {
         p.discoveryURLPattern = discoveryURLPattern.trim();
     }
 
-    /**
-     * Validates the data.
-     * 
-     * @return error message or null
-     */
     public String validate() {
         String msg = null;
         msg = Package.checkName(this.id);
@@ -469,30 +462,12 @@ public class PackageDetailPage extends MyPage {
         }
         if (msg == null) {
             if (!this.url.trim().isEmpty()) {
-                try {
-                    URL url = new URL(this.url.trim());
-                    String p = url.getProtocol();
-                    if (!p.equals("http") && !p.equals("https"))
-                        msg = "Invalid protocol: " + p;
-                    if (msg == null && url.getHost().isEmpty())
-                        msg = "Empty host: " + this.url;
-                } catch (MalformedURLException e) {
-                    msg = e.getMessage();
-                }
+                msg = NWUtils.validateURL(this.url);
             }
         }
         if (msg == null) {
             if (!this.icon.trim().isEmpty()) {
-                try {
-                    URL url = new URL(this.icon.trim());
-                    String p = url.getProtocol();
-                    if (!p.equals("http") && !p.equals("https"))
-                        msg = "Invalid protocol: " + p;
-                    if (msg == null && url.getHost().isEmpty())
-                        msg = "Empty host: " + this.icon;
-                } catch (MalformedURLException e) {
-                    msg = e.getMessage();
-                }
+                msg = NWUtils.validateURL(this.icon);
             }
         }
         return msg;

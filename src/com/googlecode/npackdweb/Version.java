@@ -6,75 +6,93 @@ package com.googlecode.npackdweb;
  * Default constructor creates "1"
  */
 public class Version {
-	private int parts[] = new int[] { 1 };
+    private int parts[] = new int[] { 1 };
 
-	/**
-	 * Parses a string representation.
-	 * 
-	 * @param v
-	 *            "1.2.3"
-	 * @return [1, 2, 3]
-	 * @throws NumberFormatException
-	 *             if something cannot be parsed
-	 */
-	public static Version parse(String v) throws NumberFormatException {
-		Version r = new Version();
-		String[] parts = v.split("\\.");
-		r.parts = new int[parts.length];
-		for (int i = 0; i < parts.length; i++) {
-			r.parts[i] = Integer.parseInt(parts[i]);
-		}
-		return r;
-	}
+    /**
+     * "1"
+     */
+    public Version() {
+    }
 
-	/**
-	 * Compares this object with another version
-	 * 
-	 * @param v
-	 *            another version
-	 * @return 1, -1 or 0
-	 */
-	public int compare(Version v) {
-		int r = 0;
-		for (int i = 0; i < Math.max(parts.length, v.parts.length); i++) {
-			int thisp = i < parts.length ? parts[i] : 0;
-			int vp = i < v.parts.length ? v.parts[i] : 0;
-			if (thisp < vp) {
-				r = -1;
-				break;
-			} else if (thisp > vp) {
-				r = 1;
-				break;
-			}
-		}
-		return r;
-	}
+    /**
+     * -
+     * 
+     * @param major
+     *            major version number
+     * @param minor
+     *            minor version number
+     */
+    public Version(int major, int minor) {
+        this.parts = new int[] { major, minor };
+    }
 
-	/**
-	 * Removes the trailing zeros.
-	 */
-	public void normalize() {
-		int i = this.parts.length - 1;
-		while (i > 0) {
-			if (this.parts[i] != 0)
-				break;
-			i--;
-		}
-		if (i != this.parts.length - 1) {
-			int[] newParts = new int[i + 1];
-			System.arraycopy(this.parts, 0, newParts, 0, i + 1);
-			this.parts = newParts;
-		}
-	}
+    /**
+     * Parses a string representation.
+     * 
+     * @param v
+     *            "1.2.3"
+     * @return [1, 2, 3]
+     * @throws NumberFormatException
+     *             if something cannot be parsed
+     */
+    public static Version parse(String v) throws NumberFormatException {
+        Version r = new Version();
+        String[] parts = v.split("\\.");
+        r.parts = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            r.parts[i] = Integer.parseInt(parts[i]);
+        }
+        return r;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < this.parts.length; i++) {
-			if (i != 0)
-				sb.append('.');
-			sb.append(this.parts[i]);
-		}
-		return sb.toString();
-	}
+    /**
+     * Compares this object with another version
+     * 
+     * @param v
+     *            another version
+     * @return 1, -1 or 0
+     */
+    public int compare(Version v) {
+        int r = 0;
+        for (int i = 0; i < Math.max(parts.length, v.parts.length); i++) {
+            int thisp = i < parts.length ? parts[i] : 0;
+            int vp = i < v.parts.length ? v.parts[i] : 0;
+            if (thisp < vp) {
+                r = -1;
+                break;
+            } else if (thisp > vp) {
+                r = 1;
+                break;
+            }
+        }
+        return r;
+    }
+
+    /**
+     * Removes the trailing zeros.
+     */
+    public void normalize() {
+        int i = this.parts.length - 1;
+        while (i > 0) {
+            if (this.parts[i] != 0)
+                break;
+            i--;
+        }
+        if (i != this.parts.length - 1) {
+            int[] newParts = new int[i + 1];
+            System.arraycopy(this.parts, 0, newParts, 0, i + 1);
+            this.parts = newParts;
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < this.parts.length; i++) {
+            if (i != 0)
+                sb.append('.');
+            sb.append(this.parts[i]);
+        }
+        return sb.toString();
+    }
 }
