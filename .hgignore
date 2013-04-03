@@ -5,3 +5,4 @@ syntax: regexp
 war/com.googlecode.npackdweb.pv.PVEditor/
 ^war/WEB\-INF/deploy/
 ^gwt\-unitCache/
+^src/tags$
