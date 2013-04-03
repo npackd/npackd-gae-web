@@ -289,8 +289,9 @@ public class PackageVersionPage extends MyPage {
             w.start("ul");
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Objectify ofy = NWUtils.getObjectify();
-                Package dp = ofy.find(new Key<Package>(Package.class,
-                        dependencyPackages.get(i)));
+                Package dp = ofy
+                        .find(new com.googlecode.objectify.Key<Package>(
+                                Package.class, dependencyPackages.get(i)));
 
                 w.start("li");
                 w.e("a", "href", "/p/" + dependencyPackages.get(i), dp.title);
@@ -599,6 +600,19 @@ public class PackageVersionPage extends MyPage {
         }
 
         if (r == null) {
+            if (new_) {
+                Version v = Version.parse(version);
+                v.normalize();
+                Objectify ofy = NWUtils.getObjectify();
+                PackageVersion p = ofy.find(new Key<PackageVersion>(
+                        PackageVersion.class, packageName.trim() + "@"
+                                + v.toString()));
+                if (p != null)
+                    r = "Package version " + v + " already exists";
+            }
+        }
+
+        if (r == null) {
             if (!this.url.trim().isEmpty()) {
                 r = NWUtils.validateURL(this.url);
             }
@@ -687,7 +701,7 @@ public class PackageVersionPage extends MyPage {
      */
     public void fillObject(PackageVersion pv) {
         pv.package_ = this.packageName;
-        pv.version = this.version.toString();
+        pv.version = this.version;
         pv.name = this.packageName + "@" + this.version;
         pv.url = this.url;
         pv.sha1 = this.sha1;
@@ -711,5 +725,14 @@ public class PackageVersionPage extends MyPage {
         for (int i = 0; i < this.filePaths.size(); i++) {
             pv.addFile(this.filePaths.get(i), this.fileContents.get(i));
         }
+    }
+
+    /**
+     * Normalizes the version.
+     */
+    public void normalizeVersion() {
+        Version v = Version.parse(this.version);
+        v.normalize();
+        this.version = v.toString();
     }
 }

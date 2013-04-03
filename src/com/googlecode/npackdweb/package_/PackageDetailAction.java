@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.wlib.Action;
@@ -35,12 +36,17 @@ public class PackageDetailAction extends Action {
         if (r == null) {
             if (NWUtils.isEditorLoggedIn()) {
                 r = new Package(name);
-                pdp = new PackageDetailPage(r, NWUtils.isEditorLoggedIn());
+                pdp = new PackageDetailPage(
+                        NWUtils.isEditorLoggedIn() ? FormMode.EDIT
+                                : FormMode.VIEW);
+                pdp.fill(r);
             } else {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
-            pdp = new PackageDetailPage(r, NWUtils.isEditorLoggedIn());
+            pdp = new PackageDetailPage(
+                    NWUtils.isEditorLoggedIn() ? FormMode.EDIT : FormMode.VIEW);
+            pdp.fill(r);
         }
         return pdp;
     }

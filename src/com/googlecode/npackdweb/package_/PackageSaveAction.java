@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Package;
 import com.googlecode.npackdweb.wlib.Action;
@@ -33,12 +34,13 @@ public class PackageSaveAction extends Action {
         if (name != null && name.trim().length() != 0) {
             p = ofy.find(new Key<Package>(Package.class, name));
         }
-        PackageDetailPage pdp = new PackageDetailPage(p, true);
+        PackageDetailPage pdp = new PackageDetailPage(FormMode.EDIT);
         pdp.fill(req);
         String msg = pdp.validate();
         if (msg == null) {
             if (p == null)
                 p = new Package(name);
+            pdp.fillObject(p);
             NWUtils.savePackage(ofy, p);
             pdp = null;
             resp.sendRedirect("/p");

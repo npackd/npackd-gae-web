@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,10 +32,6 @@ import com.googlecode.objectify.Query;
  * A package.
  */
 public class PackageDetailPage extends MyPage {
-    private List<PackageVersion> versions;
-    private License license_;
-    private List<License> licenses;
-
     /** error message or null */
     public String error;
 
@@ -82,47 +80,19 @@ public class PackageDetailPage extends MyPage {
      * @param editable
      *            true if the data should be editable
      */
-    public PackageDetailPage(Package p, boolean editable) {
-        if (p == null)
-            mode = FormMode.CREATE;
-        else
-            mode = editable ? FormMode.EDIT : FormMode.VIEW;
+    public PackageDetailPage(FormMode mode) {
+        this.mode = mode;
 
-        if (p == null) {
-            id = "";
-            title = "";
-            url = "";
-            icon = "";
-            description = "";
-            comment = "";
-            discoveryURL = "";
-            discoveryRE = "";
-            discoveryURLPattern = "";
-            license = "";
-        } else {
-            id = p.name;
-            title = p.title;
-            url = p.url;
-            icon = p.icon;
-            description = p.description;
-            comment = p.comment;
-            discoveryURL = p.discoveryPage;
-            discoveryRE = p.discoveryRE;
-            createdAt = p.createdAt;
-            createdBy = p.createdBy;
-            discoveryURLPattern = p.discoveryURLPattern;
-            license = p.license;
-        }
-        Objectify ofy = NWUtils.getObjectify();
-        versions = new ArrayList<PackageVersion>();
-        if (!id.isEmpty()) {
-            for (PackageVersion pv : ofy.query(PackageVersion.class)
-                    .filter("package_ =", p.name).fetch())
-                versions.add(pv);
-
-        }
-        if (!license.isEmpty())
-            this.license_ = ofy.find(License.class, license);
+        id = "";
+        title = "";
+        url = "";
+        icon = "";
+        description = "";
+        comment = "";
+        discoveryURL = "";
+        discoveryRE = "";
+        discoveryURLPattern = "";
+        license = "";
     }
 
     @Override
@@ -144,11 +114,15 @@ public class PackageDetailPage extends MyPage {
             w.t(" New package");
         w.end("h3");
 
-        if (mode != FormMode.VIEW) {
+        if (mode == FormMode.CREATE || mode == FormMode.EDIT) {
             w.start("form", "method", "post", "action", "/package/save");
-            if (mode != FormMode.CREATE)
-                w.e("input", "type", "hidden", "name", "name", "value", id);
         }
+
+        if (mode == FormMode.EDIT)
+            w.e("input", "type", "hidden", "name", "name", "value", id);
+
+        if (mode == FormMode.CREATE)
+            w.e("input", "type", "hidden", "name", "new", "value", "true");
 
         w.start("table", "border", "0");
         w.start("tr");
@@ -248,6 +222,12 @@ public class PackageDetailPage extends MyPage {
             }
             w.end("select");
         } else {
+            License license_ = null;
+            if (!license.isEmpty()) {
+                Objectify ofy = NWUtils.getObjectify();
+                license_ = ofy.find(License.class, license);
+            }
+
             if (license_ == null)
                 w.t("unknown");
             else
@@ -397,22 +377,28 @@ public class PackageDetailPage extends MyPage {
      * @return versions of this package
      */
     public List<PackageVersion> getVersions() {
+        Objectify ofy = NWUtils.getObjectify();
+        ArrayList<PackageVersion> versions = new ArrayList<PackageVersion>();
+        if (!id.isEmpty()) {
+            for (PackageVersion pv : ofy.query(PackageVersion.class)
+                    .filter("package_ =", id).fetch())
+                versions.add(pv);
+
+        }
         return versions;
     }
 
     /**
      * @return list of all licenses
      */
-    public List<License> getLicenses() {
-        if (this.licenses == null) {
-            Objectify ofy = NWUtils.getObjectify();
-            this.licenses = new ArrayList<License>();
-            String cacheSuffix = "@" + NWUtils.getDataVersion();
-            Query<License> q = ofy.query(License.class).order("title");
-            List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
-            Map<Key<License>, License> k2v = ofy.get(keys);
-            this.licenses.addAll(k2v.values());
-        }
+    private List<License> getLicenses() {
+        Objectify ofy = NWUtils.getObjectify();
+        List<License> licenses = new ArrayList<License>();
+        String cacheSuffix = "@" + NWUtils.getDataVersion();
+        Query<License> q = ofy.query(License.class).order("title");
+        List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
+        Map<Key<License>, License> k2v = ofy.get(keys);
+        licenses.addAll(k2v.values());
         return licenses;
     }
 
@@ -423,6 +409,10 @@ public class PackageDetailPage extends MyPage {
      *            HTTP request
      */
     public void fill(HttpServletRequest req) {
+        if ("true".equals(req.getParameter("new")))
+            this.mode = FormMode.CREATE;
+        else
+            this.mode = FormMode.EDIT;
         id = req.getParameter("name");
         title = req.getParameter("title");
         url = req.getParameter("url");
@@ -431,7 +421,6 @@ public class PackageDetailPage extends MyPage {
         comment = req.getParameter("comment");
         discoveryURL = req.getParameter("discoveryPage");
         discoveryRE = req.getParameter("discoveryRE");
-        discoveryURLPattern = req.getParameter("discoveryURLPattern");
         license = req.getParameter("license");
     }
 
@@ -456,6 +445,16 @@ public class PackageDetailPage extends MyPage {
     public String validate() {
         String msg = null;
         msg = Package.checkName(this.id);
+
+        if (msg == null) {
+            if (mode == FormMode.CREATE) {
+                Objectify ofy = NWUtils.getObjectify();
+                Package r = ofy.find(new Key<Package>(Package.class, this.id));
+                if (r != null)
+                    msg = "A package with this ID already exists";
+            }
+        }
+
         if (msg == null) {
             if (title.trim().isEmpty())
                 msg = "Title cannot be empty";
@@ -470,6 +469,45 @@ public class PackageDetailPage extends MyPage {
                 msg = NWUtils.validateURL(this.icon);
             }
         }
+
+        if (msg == null) {
+            Markdown4jProcessor mp = new Markdown4jProcessor();
+            try {
+                mp.process(description);
+            } catch (IOException e) {
+                msg = " Failed to parse the Markdown syntax: " + e.getMessage();
+            }
+        }
+
+        if (msg == null) {
+            if (!this.discoveryURL.trim().isEmpty()) {
+                msg = NWUtils.validateURL(this.discoveryURL);
+            }
+        }
+
+        if (msg == null) {
+            if (!this.discoveryRE.trim().isEmpty()) {
+                try {
+                    Pattern.compile(this.discoveryRE);
+                } catch (PatternSyntaxException e) {
+                    msg = "Cannot parse the regular expression: "
+                            + e.getMessage();
+                }
+            }
+        }
         return msg;
+    }
+
+    public void fill(Package r) {
+        this.id = r.name;
+        description = r.description.trim();
+        icon = r.icon.trim();
+        title = r.title.trim();
+        url = r.url.trim();
+        license = r.license.trim();
+        comment = r.comment.trim();
+        discoveryURL = r.discoveryPage.trim();
+        discoveryRE = r.discoveryRE.trim();
+        discoveryURLPattern = r.discoveryURLPattern.trim();
     }
 }

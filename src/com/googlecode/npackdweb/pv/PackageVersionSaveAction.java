@@ -31,18 +31,17 @@ public class PackageVersionSaveAction extends Action {
         pvp.fillForm(req);
         String error = pvp.validate();
         if (error == null) {
-            String package2 = pvp.getPackageName();
-            String version = pvp.getVersion();
+            String package_ = pvp.getPackageName();
+            final String version = pvp.getVersion();
             Objectify ofy = NWUtils.getObjectify();
             PackageVersion p = ofy.find(new Key<PackageVersion>(
-                    PackageVersion.class, package2 + "@" + version));
+                    PackageVersion.class, package_ + "@" + version));
             if (p == null) {
+                pvp.normalizeVersion();
                 p = new PackageVersion();
-                p.name = package2 + "@" + version;
-                p.package_ = package2;
-                p.version = version;
             }
             pvp.fillObject(p);
+
             NWUtils.savePackageVersion(ofy, p);
 
             pvp = null;
