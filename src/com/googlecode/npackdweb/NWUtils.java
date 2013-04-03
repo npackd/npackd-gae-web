@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -551,14 +553,14 @@ public class NWUtils {
                 // save the administrator as en editor
                 Objectify ofy = NWUtils.getObjectify();
                 Editor e = ofy
-                        .find(new Key<Editor>(Editor.class, u.getUserId()));
+                        .find(new Key<Editor>(Editor.class, u.getEmail()));
                 if (e == null) {
                     ofy.put(new Editor(u));
                 }
             } else {
                 Objectify ofy = NWUtils.getObjectify();
                 Editor e = ofy
-                        .find(new Key<Editor>(Editor.class, u.getUserId()));
+                        .find(new Key<Editor>(Editor.class, u.getEmail()));
                 r = e != null;
             }
         } else {
@@ -877,5 +879,27 @@ public class NWUtils {
         if (n.contains(" "))
             err = "Environment variable names cannot contain spaces";
         return err;
+    }
+
+    /**
+     * Validates an email
+     * 
+     * @param email
+     *            text entered
+     * @return error message or null
+     */
+    public static String validateEmail(String email) {
+        String result = null;
+        if (email.indexOf('@') < 0)
+            result = "Missing the @ character";
+        if (result == null) {
+            try {
+                InternetAddress emailAddr = new InternetAddress(email);
+                emailAddr.validate();
+            } catch (AddressException ex) {
+                result = ex.getMessage();
+            }
+        }
+        return result;
     }
 }

@@ -52,4 +52,13 @@ public abstract class MyPage extends Page {
     public String validate() {
         return null;
     }
+
+    /**
+     * Fills the fields from HTTP parameters (e.g. a <form>).
+     * 
+     * @param req
+     *            HTTP request
+     */
+    public void fill(HttpServletRequest req) {
+    }
 }

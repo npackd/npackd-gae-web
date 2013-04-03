@@ -158,6 +158,8 @@ public class DefaultServlet extends HttpServlet {
         // registerAction(new StoreDataAction());
         registerAction(new RecreateIndexAction());
         registerAction(new ResavePackagesAction());
+        registerAction(new AddEditorAction());
+        registerAction(new AddEditorConfirmedAction());
     }
 
     /**

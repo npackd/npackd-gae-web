@@ -18,7 +18,7 @@ import com.googlecode.objectify.annotation.Entity;
 @Cached
 public class Editor {
     @Id
-    /* User.getUserId() */
+    /* User.getEmail() */
     public String name = "";
 
     /** last modification date */
@@ -44,9 +44,7 @@ public class Editor {
         createdBy = UserServiceFactory.getUserService().getCurrentUser();
         if (createdBy == null)
             createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
-        this.name = user.getUserId();
-        if (this.name == null)
-            this.name = user.getEmail();
+        this.name = user.getEmail();
     }
 
     public String getName() {
