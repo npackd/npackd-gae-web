@@ -10,7 +10,6 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,12 +76,6 @@ public class NWUtils {
             + "    \n"
             + "    You should have received a copy of the GNU General Public License\n"
             + "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
-
-    /**
-     * Current list of the editors.
-     */
-    public static final List<String> EDITORS = Arrays.asList(
-            "chevdor@gmail.com", "knockdowncore@gmail.com");
 
     private static Configuration cfg;
 
@@ -225,21 +218,6 @@ public class NWUtils {
     }
 
     /**
-     * Check if the user is logged in.
-     * 
-     * @param request
-     *            HTTP request
-     * @throws IOException
-     *             if the user is not logged in
-     */
-    public static void checkLogin(HttpServletRequest request)
-            throws IOException {
-        if (request.getUserPrincipal() == null) {
-            throw new IOException("Login required");
-        }
-    }
-
-    /**
      * Writes an HTML response
      * 
      * @param resp
@@ -318,6 +296,7 @@ public class NWUtils {
             ObjectifyService.register(License.class);
             ObjectifyService.register(EntityCounter.class);
             ObjectifyService.register(EntityCounterShard.class);
+            ObjectifyService.register(Editor.class);
             objectifyInitialized = true;
         }
     }
@@ -564,8 +543,28 @@ public class NWUtils {
     public static boolean isEditorLoggedIn() {
         UserService us = UserServiceFactory.getUserService();
         User u = us.getCurrentUser();
-        return us.isUserLoggedIn()
-                && (us.isUserAdmin() || EDITORS.contains(u.getEmail()));
+        boolean r;
+        if (us.isUserLoggedIn()) {
+            if (us.isUserAdmin()) {
+                r = true;
+
+                // save the administrator as en editor
+                Objectify ofy = NWUtils.getObjectify();
+                Editor e = ofy
+                        .find(new Key<Editor>(Editor.class, u.getUserId()));
+                if (e == null) {
+                    ofy.put(new Editor(u));
+                }
+            } else {
+                Objectify ofy = NWUtils.getObjectify();
+                Editor e = ofy
+                        .find(new Key<Editor>(Editor.class, u.getUserId()));
+                r = e != null;
+            }
+        } else {
+            r = false;
+        }
+        return r;
     }
 
     /**
