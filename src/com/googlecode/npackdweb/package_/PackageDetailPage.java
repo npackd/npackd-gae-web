@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.markdown4j.Markdown4jProcessor;
 
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
@@ -422,6 +423,17 @@ public class PackageDetailPage extends MyPage {
         discoveryURL = req.getParameter("discoveryPage");
         discoveryRE = req.getParameter("discoveryRE");
         license = req.getParameter("license");
+
+        if (this.mode == FormMode.CREATE) {
+            this.createdAt = new Date();
+            this.createdBy = UserServiceFactory.getUserService()
+                    .getCurrentUser();
+        } else {
+            Objectify ofy = NWUtils.getObjectify();
+            Package p = Package.findByName(ofy, this.id);
+            this.createdAt = p.createdAt;
+            this.createdBy = p.createdBy;
+        }
     }
 
     /**
@@ -509,5 +521,7 @@ public class PackageDetailPage extends MyPage {
         discoveryURL = r.discoveryPage.trim();
         discoveryRE = r.discoveryRE.trim();
         discoveryURLPattern = r.discoveryURLPattern.trim();
+        createdAt = r.createdAt;
+        createdBy = r.createdBy;
     }
 }

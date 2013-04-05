@@ -14,6 +14,7 @@ import com.google.appengine.api.search.Field;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
 
@@ -23,6 +24,17 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 @Cached
 public class Package {
+    /**
+     * Searches for a package with the given full package ID.
+     * 
+     * @param id
+     *            full package ID
+     * @return found package or null
+     */
+    public static Package findByName(Objectify ofy, String id) {
+        return ofy.find(new Key<Package>(Package.class, id));
+    }
+
     @Id
     /* internal name of the package like com.example.Test */
     public String name = "";

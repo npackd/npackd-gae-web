@@ -578,6 +578,17 @@ public class PackageVersionPage extends MyPage {
                 dependencyEnvVars.add(envVar);
             }
         }
+
+        if (this.new_) {
+            this.downloadCheckAt = null;
+            this.downloadCheckError = null;
+        } else {
+            Objectify ofy = NWUtils.getObjectify();
+            PackageVersion pv = PackageVersion.find(ofy, this.packageName,
+                    this.version);
+            this.downloadCheckAt = pv.downloadCheckAt;
+            this.downloadCheckError = pv.downloadCheckError;
+        }
     }
 
     @Override
