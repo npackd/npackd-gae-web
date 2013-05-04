@@ -21,33 +21,7 @@ ${head}
 <BODY>
 <div class="nw-login-header">${login}</div>
 
-<!-- http://www.red-team-design.com/css3-dropdown-menu -->
-<ul id="menu">
-        <li><a href="/">Home</a></li>
-        <li>
-                <a href="/p">Packages</a>
-                <ul>
-                        <li><a href="/p">All packages</a></li>
-                        <li><a href="/p?q=&sort=created">All packages sorted by creation date</a></li>                        
-                        <li><a href="http://code.google.com/p/windows-package-manager/issues/entry?template=Defect%20report%20from%20user">Suggest a package*</a></li>
-                </ul>
-        </li>
-        <li><a href="/rep">Repositories</a></li>
-        <li><a href="http://code.google.com/p/windows-package-manager/downloads/list">Download client*</a></li>
-        <li>
-                <a href="#">Edit</a>
-                <ul>
-                        <li><a href="/rep/from-file">Upload from a file</a></li>
-                        <li><a href="/rep/edit-as-xml">Upload as text</a></li>
-                        <li><a href="/package/new">Create new package</a></li>
-                        <!-- 
-                        <li><a href="/add-editor">Add editor</a></li>
-                        <li><a href="/recreate-index">Recreate index</a></li>
-                        <li><a href="/resave-packages">Re-save packages</a></li>
-                         -->
-                </ul>
-        </li>
-</ul>
+${menu}
 
 <div class="content">
 <h1>${title?html}</h1>
