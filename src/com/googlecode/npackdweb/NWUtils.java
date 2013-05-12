@@ -540,6 +540,14 @@ public class NWUtils {
     }
 
     /**
+     * @return true if an admin is logged in
+     */
+    public static boolean isAdminLoggedIn() {
+        UserService us = UserServiceFactory.getUserService();
+        return us.isUserLoggedIn() && us.isUserAdmin();
+    }
+
+    /**
      * @return true if a user is logged in that can edit packages
      */
     public static boolean isEditorLoggedIn() {

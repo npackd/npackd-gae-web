@@ -7,6 +7,7 @@ import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.Entity;
 
 /**
@@ -41,5 +42,18 @@ public class Repository {
      */
     public Key<Repository> createKey() {
         return new Key<Repository>(Repository.class, name);
+    }
+
+    /**
+     * Searches for the repository with the given tag.
+     * 
+     * @param ofy
+     *            Objectify
+     * @param tag
+     *            tag name
+     * @return found repository or null
+     */
+    public static Repository findByTag(Objectify ofy, String tag) {
+        return ofy.find(new Key<Repository>(Repository.class, tag));
     }
 }

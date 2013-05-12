@@ -75,6 +75,9 @@ public class PackageDetailPage extends MyPage {
     /** license ID */
     public String license;
 
+    /** list of tags separated by commas */
+    public String tags;
+
     /**
      * @param p
      *            a package or null
@@ -94,6 +97,7 @@ public class PackageDetailPage extends MyPage {
         discoveryRE = "";
         discoveryURLPattern = "";
         license = "";
+        tags = "";
     }
 
     @Override
@@ -233,6 +237,19 @@ public class PackageDetailPage extends MyPage {
                 w.t("unknown");
             else
                 w.e("a", "href", license_.url, license_.title);
+        }
+        w.end("td");
+        w.end("tr");
+
+        w.start("tr");
+        w.e("td", "Tags:");
+        w.start("td");
+        if (mode.isEditable()) {
+            w.e("input", "type", "text", "name", "tags", "value", tags, "size",
+                    "40", "title",
+                    "list of tags associated with this package separated by commas");
+        } else {
+            w.t(tags);
         }
         w.end("td");
         w.end("tr");
@@ -423,6 +440,7 @@ public class PackageDetailPage extends MyPage {
         discoveryURL = req.getParameter("discoveryPage");
         discoveryRE = req.getParameter("discoveryRE");
         license = req.getParameter("license");
+        tags = req.getParameter("tags");
 
         if (this.mode == FormMode.CREATE) {
             this.createdAt = new Date();
@@ -452,6 +470,7 @@ public class PackageDetailPage extends MyPage {
         p.discoveryPage = discoveryURL.trim();
         p.discoveryRE = discoveryRE.trim();
         p.discoveryURLPattern = discoveryURLPattern.trim();
+        p.tags = NWUtils.split(tags, ',');
     }
 
     public String validate() {
@@ -523,5 +542,6 @@ public class PackageDetailPage extends MyPage {
         discoveryURLPattern = r.discoveryURLPattern.trim();
         createdAt = r.createdAt;
         createdBy = r.createdBy;
+        tags = NWUtils.join(", ", r.tags);
     }
 }

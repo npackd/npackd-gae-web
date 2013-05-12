@@ -1,7 +1,9 @@
 package com.googlecode.npackdweb;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
@@ -10,6 +12,7 @@ import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Field;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -69,6 +72,8 @@ public class Package {
      * ${{match}}
      */
     public String discoveryURLPattern = "";
+
+    public List<String> tags = new ArrayList<String>();
 
     /** this package was created by this user */
     public User createdBy;
@@ -134,6 +139,8 @@ public class Package {
             this.discoveryURLPattern = "";
         if (this.createdBy == null)
             this.createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
+        if (this.tags == null)
+            this.tags = new ArrayList<String>();
     }
 
     @PrePersist
@@ -163,6 +170,8 @@ public class Package {
             NWUtils.e(package_, "icon", p.icon);
         if (!p.license.isEmpty())
             NWUtils.e(package_, "license", p.license);
+        if (tags.size() > 0)
+            NWUtils.e(package_, "tags", NWUtils.join(" ", tags));
 
         return package_;
     }
@@ -178,9 +187,8 @@ public class Package {
      * @return document for the search index
      */
     public com.google.appengine.api.search.Document createDocument() {
-        com.google.appengine.api.search.Document d = com.google.appengine.api.search.Document
-                .newBuilder()
-                .setId(this.name)
+        Builder b = com.google.appengine.api.search.Document.newBuilder();
+        b.setId(this.name)
                 .addField(
                         Field.newBuilder().setName("title").setText(this.title))
                 .addField(
@@ -188,7 +196,11 @@ public class Package {
                                 .setText(this.description))
                 .addField(
                         Field.newBuilder().setName("createdAt")
-                                .setDate(this.createdAt)).build();
+                                .setDate(this.createdAt))
+                .addField(
+                        Field.newBuilder().setName("tags")
+                                .setText(NWUtils.join(" ", tags)));
+        com.google.appengine.api.search.Document d = b.build();
         return d;
     }
 
