@@ -521,7 +521,7 @@ public class PackageVersionPage extends MyPage {
 
     @Override
     public String getHeadPart() {
-        return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.pv.PVEditor/com.googlecode.npackdweb.pv.PVEditor.nocache.js\"></script>\n";
+        return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.Editor/com.googlecode.npackdweb.Editor.nocache.js\"></script>\n";
     }
 
     public void fillForm(HttpServletRequest req) {

@@ -4,7 +4,7 @@
 	<inherits name="com.google.gwt.user.User" />
 	<source path="client" />
 	<entry-point
-		class="com.googlecode.npackdweb.pv.client.PVEditorEntryPoint" />
+		class="com.googlecode.npackdweb.client.PVEditorEntryPoint" />
 	<!-- 
 		<inherits name="com.google.gwt.user.theme.standard.Standard"/>
 		<inherits name="com.google.gwt.logging.Logging"/>

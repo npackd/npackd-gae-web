@@ -6,3 +6,4 @@ war/com.googlecode.npackdweb.pv.PVEditor/
 ^war/WEB\-INF/deploy/
 ^gwt\-unitCache/
 ^src/tags$
+^war/com.googlecode.npackdweb.Editor/

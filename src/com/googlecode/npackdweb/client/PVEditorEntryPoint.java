@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb.pv.client;
+package com.googlecode.npackdweb.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.Scheduler;
