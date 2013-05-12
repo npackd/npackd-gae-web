@@ -89,8 +89,21 @@ div.content {
     padding: 1em;
 }
 
+
 .gwt-PopupPanel {
     border: 3px solid #C3D9FF;
     padding: 3px;
     background: white;
 }
+
+.gwt-SuggestBoxPopup {
+    background: white;
+    margin-left: 3px;
+    border: 3px solid #C3D9FF;
+}
+
+.gwt-SuggestBoxPopup .item-selected {
+  background: #b7d6f6;
+}
+
+

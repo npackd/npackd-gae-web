@@ -101,6 +101,11 @@ public class PackageDetailPage extends MyPage {
     }
 
     @Override
+    public String getHeadPart() {
+        return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.Editor/com.googlecode.npackdweb.Editor.nocache.js\"></script>\n";
+    }
+
+    @Override
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
         if (error != null) {
@@ -120,7 +125,8 @@ public class PackageDetailPage extends MyPage {
         w.end("h3");
 
         if (mode == FormMode.CREATE || mode == FormMode.EDIT) {
-            w.start("form", "method", "post", "action", "/package/save");
+            w.start("form", "method", "post", "action", "/package/save", "id",
+                    "package-form");
         }
 
         if (mode == FormMode.EDIT)
@@ -246,7 +252,7 @@ public class PackageDetailPage extends MyPage {
         w.start("td");
         if (mode.isEditable()) {
             w.e("input", "type", "text", "name", "tags", "value", tags, "size",
-                    "40", "title",
+                    "40", "id", "tags", "autocomplete", "off", "title",
                     "list of tags associated with this package separated by commas");
         } else {
             w.t(tags);

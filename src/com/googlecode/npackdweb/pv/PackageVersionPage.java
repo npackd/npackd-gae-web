@@ -342,8 +342,9 @@ public class PackageVersionPage extends MyPage {
         w.e("td", "Tags:");
         w.start("td");
         if (editable) {
-            w.e("input", "type", "text", "name", "tags", "value",
-                    NWUtils.join(", ", tags), "size", "80", "title",
+            w.e("input", "type", "text", "name", "tags", "id", "tags",
+                    "autocomplete", "off", "value", NWUtils.join(", ", tags),
+                    "size", "80", "title",
                     "Comma separated list of tags associated with "
                             + "this package version. The default tags "
                             + "'stable', 'stable64', 'libs' and 'unstable' "
