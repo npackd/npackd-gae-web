@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +21,6 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Exports default repositories to BLOBs.
@@ -36,10 +36,10 @@ public class ExportRepsAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        export("stable", true);
-        export("stable64", true);
-        export("libs", true);
-        export("unstable", true);
+        Objectify ofy = NWUtils.getObjectify();
+        List<Repository> rs = Repository.findAll(ofy);
+        for (Repository r : rs)
+            export(ofy, r.name, true);
         resp.setStatus(200);
         return null;
     }
@@ -47,15 +47,16 @@ public class ExportRepsAction extends Action {
     /**
      * Exports a repository.
      * 
+     * @param ob
+     *            Objectify instance
      * @param tag
      *            tag for package versions. Cannot be null.
      * @param recreate
      *            true = recreate the repository if it already exists
      * @return the repository with blobFile != null
      */
-    public static Repository export(String tag, boolean recreate)
+    public static Repository export(Objectify ob, String tag, boolean recreate)
             throws IOException {
-        Objectify ob = ObjectifyService.begin();
         Repository r = ob.find(new Key<Repository>(Repository.class, tag));
         if (r == null) {
             r = new Repository();
@@ -65,13 +66,15 @@ public class ExportRepsAction extends Action {
 
         String blobToDelete = null;
 
-        if (r.blobFile == null || recreate) {
+        // Get a file service
+        FileService fileService = FileServiceFactory.getFileService();
+
+        if (r.blobFile == null
+                || recreate
+                || fileService.getBlobKey(new AppEngineFile(r.blobFile)) == null) {
             blobToDelete = r.blobFile;
 
             Document d = RepXMLPage.toXML(tag);
-
-            // Get a file service
-            FileService fileService = FileServiceFactory.getFileService();
 
             // Create a new Blob file with mime-type "text/plain"
             AppEngineFile file = fileService
@@ -99,7 +102,6 @@ public class ExportRepsAction extends Action {
 
         // delete the blob later after we recreated the repository
         if (blobToDelete != null) {
-            FileService fileService = FileServiceFactory.getFileService();
             try {
                 fileService.delete(new AppEngineFile(blobToDelete));
             } catch (Exception e) {

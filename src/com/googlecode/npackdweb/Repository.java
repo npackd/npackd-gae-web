@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
@@ -55,5 +56,14 @@ public class Repository {
      */
     public static Repository findByTag(Objectify ofy, String tag) {
         return ofy.find(new Key<Repository>(Repository.class, tag));
+    }
+
+    /**
+     * @param ofy
+     *            Objectify instance
+     * @return all defined repositories
+     */
+    public static List<Repository> findAll(Objectify ofy) {
+        return ofy.query(Repository.class).list();
     }
 }

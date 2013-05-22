@@ -27,10 +27,12 @@ public class RepXMLAction extends Action {
         String tag = req.getParameter("tag");
         Objectify ofy = NWUtils.getObjectify();
         Repository r = Repository.findByTag(ofy, tag);
-        if (r == null)
+        if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository "
                     + tag + " not found");
-
-        return new RepXMLPage(tag);
+            return null;
+        } else {
+            return new RepXMLPage(tag);
+        }
     }
 }
