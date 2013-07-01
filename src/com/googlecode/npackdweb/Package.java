@@ -171,7 +171,7 @@ public class Package {
         if (!p.license.isEmpty())
             NWUtils.e(package_, "license", p.license);
         if (tags.size() > 0)
-            NWUtils.e(package_, "tags", NWUtils.join(" ", tags));
+            NWUtils.e(package_, "category", NWUtils.join("|", tags));
 
         return package_;
     }
@@ -197,8 +197,9 @@ public class Package {
                 .addField(
                         Field.newBuilder().setName("createdAt")
                                 .setDate(this.createdAt))
+                .addField(Field.newBuilder().setName("name").setText(this.name))
                 .addField(
-                        Field.newBuilder().setName("tags")
+                        Field.newBuilder().setName("category")
                                 .setText(NWUtils.join(" ", tags)));
         com.google.appengine.api.search.Document d = b.build();
         return d;

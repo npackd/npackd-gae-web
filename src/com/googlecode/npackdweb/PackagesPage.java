@@ -76,6 +76,10 @@ public class PackagesPage extends MyPage {
         Results<ScoredDocument> r = index.search(qb.build(query));
         found = r.getNumberFound();
 
+        if (found == 0) {
+            NWUtils.sendMailToAdmin("Nothing found for " + query);
+        }
+
         packages = new ArrayList<Package>();
         Objectify obj = NWUtils.getObjectify();
         for (ScoredDocument sd : r) {

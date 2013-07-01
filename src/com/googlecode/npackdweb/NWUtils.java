@@ -13,11 +13,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -909,5 +914,28 @@ public class NWUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * Sends an email to the administrator.
+     * 
+     * @param string
+     *            body of the email
+     */
+    public static void sendMailToAdmin(String string) {
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+
+        try {
+            Message msg = new MimeMessage(session);
+            msg.setFrom(new InternetAddress("tim.lebedkov@gmail.com", "Admin"));
+            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
+                    "tim.lebedkov@gmail.com", "Admin"));
+            msg.setSubject("http://npackd.appspot.com");
+            msg.setText(string);
+            Transport.send(msg);
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Cannot send a mail to the admin", e);
+        }
     }
 }
