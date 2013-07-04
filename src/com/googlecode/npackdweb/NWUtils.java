@@ -928,9 +928,9 @@ public class NWUtils {
 
         try {
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress("tim.lebedkov@gmail.com", "Admin"));
+            msg.setFrom(new InternetAddress("admin@npackd.appspot.com", "Admin"));
             msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
-                    "tim.lebedkov@gmail.com", "Admin"));
+                    "admins", "Admin"));
             msg.setSubject("http://npackd.appspot.com");
             msg.setText(string);
             Transport.send(msg);
