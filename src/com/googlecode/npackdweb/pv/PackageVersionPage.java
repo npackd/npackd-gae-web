@@ -475,6 +475,10 @@ public class PackageVersionPage extends MyPage {
                         "Delete this package version", "value", "Delete",
                         "onclick",
                         "this.form.action='/package-version/delete'; this.form.submit()");
+                NWUtils.jsButton(w, "Compute SHA1",
+                        "/package-version/compute-sha1?package=" + packageName
+                                + "&version=" + version,
+                        "Computes SHA1 for this package version");
             }
             w.end("form");
         }

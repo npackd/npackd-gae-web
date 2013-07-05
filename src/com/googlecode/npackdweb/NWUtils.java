@@ -9,6 +9,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +50,11 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
+import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -635,7 +642,7 @@ public class NWUtils {
      * @param e
      *            cause
      */
-    public static void throwInternal(IOException e) {
+    public static void throwInternal(Exception e) {
         throw (InternalError) new InternalError(e.getMessage()).initCause(e);
     }
 
@@ -937,5 +944,74 @@ public class NWUtils {
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Cannot send a mail to the admin", e);
         }
+    }
+
+    /**
+     * Information about a downloaded file
+     */
+    public static class Info {
+        /** computed SHA1 */
+        public byte[] sha1;
+
+        /** size of the file */
+        public long size;
+    }
+
+    /**
+     * Downloads a file
+     * 
+     * @param url
+     *            http: or https: URL
+     * @return info about the downloaded file
+     * @throws IOException
+     *             file cannot be downloaded
+     * @throws NoSuchAlgorithmException
+     *             if SHA1 cannot be computed
+     */
+    public static Info download(String url) throws IOException,
+            NoSuchAlgorithmException {
+        Info info = new Info();
+        MessageDigest crypt = MessageDigest.getInstance("SHA-1");
+
+        URL u = new URL(url);
+        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
+
+        long startPosition = 0;
+        long segment = 10 * 1024 * 1024;
+        while (true) {
+            HTTPRequest ht = new HTTPRequest(u);
+            ht.setHeader(new HTTPHeader("User-Agent",
+                    "NpackdWeb/1 (compatible; MSIE 9.0)"));
+            ht.getFetchOptions().setDeadline(10 * 60.0);
+            ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition + "-"
+                    + (startPosition + segment - 1)));
+            HTTPResponse r = s.fetch(ht);
+            if (r.getResponseCode() == 416) {
+                if (startPosition == 0)
+                    throw new IOException(
+                            "Empty response with HTTP error code 416");
+                else
+                    break;
+            }
+
+            byte[] content = r.getContent();
+            if (r.getResponseCode() != 206 && r.getResponseCode() != 200) {
+                throw new IOException("HTTP response code: "
+                        + r.getResponseCode());
+            }
+            crypt.update(content);
+
+            startPosition += segment;
+            info.size += content.length;
+
+            if (content.length < segment || r.getResponseCode() == 200)
+                break;
+
+            if (info.size > 250 * 1024 * 1024)
+                throw new IOException("The file was bigger than 250 MB");
+        }
+
+        info.sha1 = crypt.digest();
+        return info;
     }
 }
