@@ -47,6 +47,8 @@ public class DefaultServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        req.setAttribute("com.googlecode.npackdweb.DefaultServlet", this);
+
         String pi = req.getRequestURI();
         // NWUtils.LOG.severe("getPathInfo(): " + pi);
         if (pi == null) {
@@ -54,11 +56,11 @@ public class DefaultServlet extends HttpServlet {
         }
 
         Action found = null;
-        for (int i = 0; i < urlPatterns.size(); i++) {
-            Pattern p = urlPatterns.get(i);
+        for (int i = 0; i < getUrlPatterns().size(); i++) {
+            Pattern p = getUrlPatterns().get(i);
             Matcher m = p.matcher(pi);
             if (m.matches()) {
-                found = actions.get(i);
+                found = getActions().get(i);
                 break;
             }
         }
@@ -162,6 +164,8 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new ResavePackagesAction());
         registerAction(new AddEditorAction());
         registerAction(new AddEditorConfirmedAction());
+        registerAction(new InfoAction());
+        registerAction(new DownloadFailedAction());
     }
 
     /**
@@ -171,13 +175,27 @@ public class DefaultServlet extends HttpServlet {
      *            registered action
      */
     private void registerAction(Action action) {
-        urlPatterns.add(Pattern.compile(action.getURLRegExp()));
-        actions.add(action);
+        getUrlPatterns().add(Pattern.compile(action.getURLRegExp()));
+        getActions().add(action);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         doGet(req, resp);
+    }
+
+    /**
+     * @return list of registered URL patterns
+     */
+    public List<Pattern> getUrlPatterns() {
+        return urlPatterns;
+    }
+
+    /**
+     * @return list of registered actions
+     */
+    public List<Action> getActions() {
+        return actions;
     }
 }

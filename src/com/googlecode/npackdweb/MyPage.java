@@ -96,10 +96,13 @@ public abstract class MyPage extends Page {
         mi(w, "/rep/from-file", "Upload from a file");
         mi(w, "/rep/edit-as-xml", "Upload as text");
         mi(w, "/package/new", "Create new package");
+        mi(w, "/download-failed", "List of failed downloads");
+
         if (NWUtils.isAdminLoggedIn()) {
             mi(w, "/add-editor", "Add editor");
             mi(w, "/recreate-index", "Recreate index");
             mi(w, "/resave-packages", "Re-save packages");
+            mi(w, "/info", "Show registered actions");
         }
         w.end("ul");
         w.end("li");

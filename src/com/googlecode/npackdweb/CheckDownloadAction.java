@@ -53,7 +53,11 @@ public class CheckDownloadAction extends Action {
         q.limit(1);
 
         QueryResultIterator<PackageVersion> iterator = q.iterator();
-        PackageVersion data = iterator.next();
+        PackageVersion data;
+        if (iterator.hasNext())
+            data = iterator.next();
+        else
+            data = null;
         if (data != null) {
             NWUtils.LOG.warning("Checking " + data.package_ + "@"
                     + data.version);
@@ -68,7 +72,7 @@ public class CheckDownloadAction extends Action {
                         data.downloadCheckError = null;
                     else {
                         String sha1_ = NWUtils.byteArrayToHexString(info.sha1);
-                        if (sha1_.equalsIgnoreCase(data.sha1)) {
+                        if (sha1_.equalsIgnoreCase(data.sha1.trim())) {
                             data.downloadCheckError = null;
                         } else {
                             data.downloadCheckError = "Wrong SHA1: "

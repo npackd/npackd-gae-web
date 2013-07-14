@@ -294,4 +294,14 @@ public class PackageVersion {
         return ofy.find(new Key<PackageVersion>(PackageVersion.class,
                 packageName + "@" + v));
     }
+
+    /**
+     * @param ofy
+     *            Objectify instance
+     * @return first 20 package versions with errors downloading the binary
+     */
+    public static List<PackageVersion> find20DownloadFailed(Objectify ofy) {
+        return ofy.query(PackageVersion.class).limit(20)
+                .filter("downloadCheckError !=", null).list();
+    }
 }
