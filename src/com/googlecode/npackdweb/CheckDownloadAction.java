@@ -3,7 +3,6 @@ package com.googlecode.npackdweb;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,31 +61,9 @@ public class CheckDownloadAction extends Action {
             NWUtils.LOG.warning("Checking " + data.package_ + "@"
                     + data.version);
 
-            data.downloadCheckAt = new Date();
-            data.downloadCheckError = "Unknown error";
-            if (!data.url.isEmpty()) {
-                try {
-                    NWUtils.Info info = NWUtils.download(data.url);
-                    downloaded = info.size;
-                    if (data.sha1.trim().isEmpty())
-                        data.downloadCheckError = null;
-                    else {
-                        String sha1_ = NWUtils.byteArrayToHexString(info.sha1);
-                        if (sha1_.equalsIgnoreCase(data.sha1.trim())) {
-                            data.downloadCheckError = null;
-                        } else {
-                            data.downloadCheckError = "Wrong SHA1: "
-                                    + data.sha1 + " was expected, but " + sha1_
-                                    + " was found";
-                        }
-                    }
-                } catch (Exception e) {
-                    data.downloadCheckError = "Error downloading: "
-                            + e.getMessage();
-                }
-            } else {
-                data.downloadCheckError = "URL is empty";
-            }
+            NWUtils.Info info = data.check(true);
+            if (info != null)
+                downloaded = info.size;
             NWUtils.savePackageVersion(ob, data);
 
             cursor = iterator.getCursor().toWebSafeString();

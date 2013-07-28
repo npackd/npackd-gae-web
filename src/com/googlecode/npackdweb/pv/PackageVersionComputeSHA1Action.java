@@ -1,7 +1,6 @@
 package com.googlecode.npackdweb.pv;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,16 +35,14 @@ public class PackageVersionComputeSHA1Action extends Action {
         PackageVersion p = ofy.get(new Key<PackageVersion>(
                 PackageVersion.class, package_ + "@" + version));
         Page ret = null;
-        try {
-            Info info = NWUtils.download(p.url);
+        Info info = p.check(false);
+        if (info != null)
             p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-            NWUtils.savePackageVersion(ofy, p);
-            ret = new PackageVersionPage(p, false);
-        } catch (IOException e) {
-            ret = new MessagePage("Cannot download the file: " + e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            NWUtils.throwInternal(e);
-        }
+        NWUtils.savePackageVersion(ofy, p);
+        ret = new PackageVersionPage(p, false);
+        if (p.downloadCheckError != null)
+            ret = new MessagePage("Cannot download the file: "
+                    + p.downloadCheckError);
         return ret;
     }
 }

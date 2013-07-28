@@ -304,4 +304,42 @@ public class PackageVersion {
         return ofy.query(PackageVersion.class).limit(20)
                 .filter("downloadCheckError !=", null).list();
     }
+
+    /**
+     * @param checkSHA1
+     *            true = also check SHA1
+     * @return info about the download or null if the download failed
+     */
+    public NWUtils.Info check(boolean checkSHA1) {
+        NWUtils.Info info = null;
+        this.downloadCheckAt = new Date();
+        this.downloadCheckError = "Unknown error";
+        if (!this.url.isEmpty()) {
+            try {
+                info = NWUtils.download(this.url);
+                if (checkSHA1) {
+                    if (this.sha1.trim().isEmpty())
+                        this.downloadCheckError = null;
+                    else {
+                        String sha1_ = NWUtils.byteArrayToHexString(info.sha1);
+                        if (sha1_.equalsIgnoreCase(this.sha1.trim())) {
+                            this.downloadCheckError = null;
+                        } else {
+                            this.downloadCheckError = "Wrong SHA1: "
+                                    + this.sha1 + " was expected, but " + sha1_
+                                    + " was found";
+                        }
+                    }
+                } else {
+                    this.downloadCheckError = null;
+                }
+            } catch (Exception e) {
+                this.downloadCheckError = "Error downloading: "
+                        + e.getMessage();
+            }
+        } else {
+            this.downloadCheckError = "URL is empty";
+        }
+        return info;
+    }
 }
