@@ -435,12 +435,17 @@ public class PackageVersionPage extends MyPage {
             w.e("td", "Download check:");
             w.start("td");
             if (downloadCheckAt != null) {
-                String s = "Checked at " + downloadCheckAt + ". ";
-                if (downloadCheckError == null)
-                    s += "The download completed successfully.";
-                else
-                    s += "The download failed: " + downloadCheckError;
-                w.t(s);
+                if (PackageVersion.DONT_CHECK_THIS_DOWNLOAD
+                        .equals(downloadCheckError)) {
+                    w.t("Download check disabled");
+                } else {
+                    String s = "Checked at " + downloadCheckAt + ". ";
+                    if (downloadCheckError == null)
+                        s += "The download completed successfully.";
+                    else
+                        s += "The download failed: " + downloadCheckError;
+                    w.t(s);
+                }
             } else {
                 w.t("Not yet checked");
             }
@@ -479,6 +484,10 @@ public class PackageVersionPage extends MyPage {
                         "/package-version/compute-sha1?package=" + packageName
                                 + "&version=" + version,
                         "Computes SHA1 for this package version");
+                NWUtils.jsButton(w, "Disable download check",
+                        "/package-version/dont-check-download?package="
+                                + packageName + "&version=" + version,
+                        "Disables binary download check for this package version");
             }
             w.end("form");
         }

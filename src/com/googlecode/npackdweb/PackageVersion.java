@@ -24,6 +24,12 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 @Cached
 public class PackageVersion {
+    /**
+     * this value can be stored in downloadCheckError to prevent the automatic
+     * download check for the binary
+     */
+    public static final String DONT_CHECK_THIS_DOWNLOAD = "@@@Don't check this download@@@";
+
     private List<Object> fileContents = new ArrayList<Object>();
 
     /** abc@2.4 */
@@ -133,6 +139,8 @@ public class PackageVersion {
         c.detectFilePaths.addAll(this.detectFilePaths);
         c.detectFileSHA1s.addAll(this.detectFileSHA1s);
         c.tags.addAll(this.tags);
+        c.downloadCheckAt = this.downloadCheckAt;
+        c.downloadCheckError = this.downloadCheckError;
         return c;
     }
 
@@ -302,7 +310,9 @@ public class PackageVersion {
      */
     public static List<PackageVersion> find20DownloadFailed(Objectify ofy) {
         return ofy.query(PackageVersion.class).limit(20)
-                .filter("downloadCheckError !=", null).list();
+                .filter("downloadCheckError !=", null)
+                .filter("downloadCheckError !=", DONT_CHECK_THIS_DOWNLOAD)
+                .list();
     }
 
     /**

@@ -977,7 +977,10 @@ public class NWUtils {
         URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
         long startPosition = 0;
-        long segment = 10 * 1024 * 1024;
+
+        // limit 32 MiB:
+        // https://developers.google.com/appengine/docs/java/urlfetch/
+        long segment = 30 * 1024 * 1024;
         while (true) {
             HTTPRequest ht = new HTTPRequest(u);
             ht.setHeader(new HTTPHeader("User-Agent",
