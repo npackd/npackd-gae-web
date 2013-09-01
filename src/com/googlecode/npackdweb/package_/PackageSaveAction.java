@@ -6,8 +6,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.npackdweb.FormMode;
+import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.Package;
+import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -30,16 +31,16 @@ public class PackageSaveAction extends Action {
             throws IOException {
         String name = req.getParameter("name");
         Objectify ofy = NWUtils.getObjectify();
-        Package p = null;
-        if (name != null && name.trim().length() != 0) {
-            p = ofy.find(new Key<Package>(Package.class, name));
-        }
         PackageDetailPage pdp = new PackageDetailPage(FormMode.EDIT);
         pdp.fill(req);
         String msg = pdp.validate();
         if (msg == null) {
+            Package p = ofy.find(new Key<Package>(Package.class, name));
             if (p == null)
                 p = new Package(name);
+            else if (!p.isCurrentUserPermittedToModify())
+                return new MessagePage(
+                        "You do not have permission to modify this package");
             pdp.fillObject(p);
             NWUtils.savePackage(ofy, p);
             pdp = null;

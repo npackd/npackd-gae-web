@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.googlecode.npackdweb.MyPage;
-import com.googlecode.npackdweb.Package;
+import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 
 /**

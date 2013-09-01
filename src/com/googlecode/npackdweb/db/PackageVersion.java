@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,6 +12,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.appengine.api.datastore.Text;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.AlsoLoad;
@@ -348,7 +349,7 @@ public class PackageVersion {
                         + e.getMessage();
             }
         } else {
-            this.downloadCheckError = "URL is empty";
+            this.downloadCheckError = null;
         }
         return info;
     }

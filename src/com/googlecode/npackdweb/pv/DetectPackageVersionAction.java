@@ -19,9 +19,9 @@ import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.Package;
-import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.Version;
+import com.googlecode.npackdweb.db.Package;
+import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -46,12 +46,16 @@ public class DetectPackageVersionAction extends Action {
         Matcher m = pattern.matcher(req.getRequestURI());
         m.matches();
         String package_ = m.group(1);
-        if (com.googlecode.npackdweb.Package.checkName(package_) != null) {
+        if (com.googlecode.npackdweb.db.Package.checkName(package_) != null) {
             throw new IOException("Invalid package name");
         }
 
         Objectify ofy = NWUtils.getObjectify();
         Package p = ofy.get(new Key<Package>(Package.class, package_));
+        if (!p.isCurrentUserPermittedToModify()) {
+            return new MessagePage(
+                    "You do not have permission to modify this package");
+        }
 
         String msg = null;
 

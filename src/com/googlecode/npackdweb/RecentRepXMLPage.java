@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;

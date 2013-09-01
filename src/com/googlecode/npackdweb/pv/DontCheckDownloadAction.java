@@ -6,8 +6,10 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.PackageVersion;
+import com.googlecode.npackdweb.db.Package;
+import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -32,12 +34,20 @@ public class DontCheckDownloadAction extends Action {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
         Objectify ofy = NWUtils.getObjectify();
-        PackageVersion p = ofy.get(new Key<PackageVersion>(
-                PackageVersion.class, package_ + "@" + version));
-        p.downloadCheckError = PackageVersion.DONT_CHECK_THIS_DOWNLOAD;
-        p.downloadCheckAt = new Date();
-        NWUtils.savePackageVersion(ofy, p);
-        resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
-        return null;
+        Package pa = ofy.get(new Key<Package>(Package.class, package_));
+        Page page;
+        if (!pa.isCurrentUserPermittedToModify())
+            page = new MessagePage(
+                    "You do not have permission to modify this package");
+        else {
+            PackageVersion p = ofy.get(new Key<PackageVersion>(
+                    PackageVersion.class, package_ + "@" + version));
+            p.downloadCheckError = PackageVersion.DONT_CHECK_THIS_DOWNLOAD;
+            p.downloadCheckAt = new Date();
+            NWUtils.savePackageVersion(ofy, p);
+            resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
+            page = null;
+        }
+        return page;
     }
 }

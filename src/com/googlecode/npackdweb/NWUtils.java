@@ -58,6 +58,12 @@ import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.db.Editor;
+import com.googlecode.npackdweb.db.License;
+import com.googlecode.npackdweb.db.Package;
+import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Repository;
+import com.googlecode.npackdweb.db.ShardedCounter;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
@@ -1009,9 +1015,6 @@ public class NWUtils {
 
             if (content.length < segment || r.getResponseCode() == 200)
                 break;
-
-            if (info.size > 250 * 1024 * 1024)
-                throw new IOException("The file was bigger than 250 MB");
         }
 
         info.sha1 = crypt.digest();

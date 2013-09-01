@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 import java.util.Date;
 
@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;

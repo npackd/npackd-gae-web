@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.markdown4j.Markdown4jProcessor;
 
 import com.googlecode.npackdweb.Dependency;
-import com.googlecode.npackdweb.License;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.Package;
-import com.googlecode.npackdweb.PackageVersion;
 import com.googlecode.npackdweb.Version;
+import com.googlecode.npackdweb.db.License;
+import com.googlecode.npackdweb.db.Package;
+import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -42,6 +42,7 @@ public class PackageVersionPage extends MyPage {
     private List<String> fileContents;
     private String downloadCheckError;
     private Date downloadCheckAt;
+    private Date lastModifiedAt;
 
     /** error message or null */
     private String error;
@@ -66,6 +67,7 @@ public class PackageVersionPage extends MyPage {
         this.fileContents = new ArrayList<String>();
         this.downloadCheckAt = null;
         this.downloadCheckError = null;
+        this.lastModifiedAt = null;
     }
 
     /**
@@ -109,6 +111,7 @@ public class PackageVersionPage extends MyPage {
         }
         this.downloadCheckAt = pv.downloadCheckAt;
         this.downloadCheckError = pv.downloadCheckError;
+        this.lastModifiedAt = pv.lastModifiedAt;
     }
 
     @Override
@@ -429,6 +432,13 @@ public class PackageVersionPage extends MyPage {
             w.end("td");
             w.end("tr");
         }
+
+        w.start("tr");
+        w.e("td", "Last modified:");
+        w.start("td");
+        w.t(lastModifiedAt == null ? "" : lastModifiedAt.toString());
+        w.end("td");
+        w.end("tr");
 
         if (editable) {
             w.start("tr");

@@ -15,6 +15,8 @@ import com.google.appengine.api.search.ScoredDocument;
 import com.google.appengine.api.search.SortExpression;
 import com.google.appengine.api.search.SortOptions;
 import com.google.appengine.api.search.checkers.SearchApiLimits;
+import com.googlecode.npackdweb.db.License;
+import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;

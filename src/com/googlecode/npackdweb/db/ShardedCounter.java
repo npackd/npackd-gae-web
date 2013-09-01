@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,6 +9,8 @@ import java.util.Random;
 
 import javax.persistence.Transient;
 
+import com.googlecode.npackdweb.EntityCounter;
+import com.googlecode.npackdweb.EntityCounterShard;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;

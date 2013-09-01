@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -15,7 +15,9 @@ import org.w3c.dom.Element;
 import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Field;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.Cached;
@@ -78,6 +80,9 @@ public class Package {
     /** this package was created by this user */
     public User createdBy;
 
+    /** list of users allowed to edit this package and package versions */
+    public List<User> permissions = new ArrayList<User>();
+
     /**
      * For Objectify.
      */
@@ -93,6 +98,30 @@ public class Package {
         if (createdBy == null)
             createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
         this.name = name;
+        this.permissions.add(createdBy);
+    }
+
+    /**
+     * @return true if the current user may modify the package
+     */
+    public boolean isCurrentUserPermittedToModify() {
+        UserService us = UserServiceFactory.getUserService();
+        User u = us.getCurrentUser();
+        boolean r = false;
+        if (u != null) {
+            if (us.isUserAdmin()) {
+                r = true;
+            } else {
+                for (int i = 0; i < this.permissions.size(); i++) {
+                    User cu = this.permissions.get(i);
+                    if (cu.getEmail().equals(u.getEmail())) {
+                        r = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return r;
     }
 
     public String getName() {
@@ -141,6 +170,10 @@ public class Package {
             this.createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
         if (this.tags == null)
             this.tags = new ArrayList<String>();
+        if (permissions == null) {
+            this.permissions = new ArrayList<User>();
+            this.permissions.add(this.createdBy);
+        }
     }
 
     @PrePersist

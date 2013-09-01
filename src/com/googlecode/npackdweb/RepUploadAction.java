@@ -23,6 +23,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.googlecode.npackdweb.db.License;
+import com.googlecode.npackdweb.db.Package;
+import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -148,6 +151,23 @@ public class RepUploadAction extends Action {
                     if (!overwrite)
                         itP.remove();
                 }
+            }
+
+            for (PackageVersion pv : f.pvs) {
+                Package p = ofy
+                        .get(new Key<Package>(Package.class, pv.package_));
+                if (!p.isCurrentUserPermittedToModify())
+                    return new MessagePage(
+                            "You do not have permission to modify this package: "
+                                    + pv.package_);
+            }
+
+            for (Package p : f.ps) {
+                Package p_ = ofy.get(new Key<Package>(Package.class, p.name));
+                if (!p_.isCurrentUserPermittedToModify())
+                    return new MessagePage(
+                            "You do not have permission to modify this package: "
+                                    + p.name);
             }
 
             ofy.put(f.lics);

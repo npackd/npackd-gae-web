@@ -13,6 +13,7 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskAlreadyExistsException;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -58,13 +59,16 @@ public class CheckDownloadAction extends Action {
         else
             data = null;
         if (data != null) {
-            NWUtils.LOG.warning("Checking " + data.package_ + "@"
-                    + data.version);
+            if (!PackageVersion.DONT_CHECK_THIS_DOWNLOAD
+                    .equals(data.downloadCheckError)) {
+                NWUtils.LOG.warning("Checking " + data.package_ + "@"
+                        + data.version);
 
-            NWUtils.Info info = data.check(true);
-            if (info != null)
-                downloaded = info.size;
-            NWUtils.savePackageVersion(ob, data);
+                NWUtils.Info info = data.check(true);
+                if (info != null)
+                    downloaded = info.size;
+                NWUtils.savePackageVersion(ob, data);
+            }
 
             cursor = iterator.getCursor().toWebSafeString();
         } else {
