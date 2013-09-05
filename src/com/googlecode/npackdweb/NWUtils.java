@@ -1020,4 +1020,23 @@ public class NWUtils {
         info.sha1 = crypt.digest();
         return info;
     }
+
+    /**
+     * Changes an email address so it cannot be easily parsed.
+     * 
+     * @param email
+     *            an email address
+     * @return HTML. abc dot def at bla dot com
+     */
+    public static String obfuscateEmail(String email) {
+        int index = email.indexOf('@');
+        if (index > 0) {
+            String before = email.substring(0, index);
+            String after = email.substring(index + 1);
+            return before.replaceAll("\\.", " dot ")
+                    + "<span style=\"display:none\">ab</span>" + " at "
+                    + after.replaceAll("\\.", " dot ");
+        }
+        return email;
+    }
 }

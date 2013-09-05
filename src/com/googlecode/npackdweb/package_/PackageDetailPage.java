@@ -305,16 +305,15 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
-        if (mode.isEditable()) {
-            if (createdBy != null) {
-                w.start("tr");
-                w.e("td", "Created by:");
-                w.start("td");
-                w.t(createdBy.getNickname());
-                w.end("td");
-                w.end("tr");
-            }
+        w.start("tr");
+        w.e("td", "Created by:");
+        w.start("td");
+        w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(createdBy
+                .getEmail()) : "");
+        w.end("td");
+        w.end("tr");
 
+        if (mode.isEditable()) {
             w.start("tr");
             w.e("td", "Discovery page (URL):");
             w.start("td");
