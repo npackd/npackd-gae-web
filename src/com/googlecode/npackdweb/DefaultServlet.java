@@ -159,6 +159,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new HomeAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
         registerAction(new CheckDownloadAction());
+        registerAction(new CheckUpdatesAction());
         registerAction(new SendStatusAction("^/cron/tick$", 200));
         registerAction(new ExportRepsAction());
         // registerAction(new StoreDataAction());

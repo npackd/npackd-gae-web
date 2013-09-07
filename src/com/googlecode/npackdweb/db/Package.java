@@ -1,9 +1,17 @@
 package com.googlecode.npackdweb.db;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
@@ -14,10 +22,14 @@ import org.w3c.dom.Element;
 
 import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Field;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.Version;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.Cached;
@@ -82,6 +94,9 @@ public class Package {
 
     /** list of users allowed to edit this package and package versions */
     public List<User> permissions = new ArrayList<User>();
+
+    /** last check performed which found no updates */
+    public Date noUpdatesCheck;
 
     /**
      * For Objectify.
@@ -295,5 +310,58 @@ public class Package {
         }
 
         return null;
+    }
+
+    /**
+     * Determines the newest available version of the package by downloading a
+     * package and scanning it for a version number.
+     * 
+     * @return found version number
+     * @throws IOException
+     *             if something goes wrong
+     */
+    public Version findNewestVersion() throws IOException {
+        if (discoveryPage == null || discoveryPage.trim().length() == 0)
+            throw new IOException("No discovery page is defined");
+
+        if (discoveryRE == null || discoveryRE.trim().length() == 0)
+            throw new IOException("No discovery regular expression is defined");
+
+        String version = null;
+
+        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
+        HTTPResponse r;
+        try {
+            r = s.fetch(new URL(discoveryPage));
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    new ByteArrayInputStream(r.getContent()), "UTF-8"));
+            String line;
+            Pattern vp = Pattern.compile(discoveryRE);
+            while ((line = br.readLine()) != null) {
+                Matcher vm = vp.matcher(line);
+                if (vm.find()) {
+                    version = vm.group(1);
+                    break;
+                }
+            }
+        } catch (MalformedURLException e) {
+            throw (IOException) new IOException(e.getMessage()).initCause(e);
+        } catch (IOException e) {
+            throw (IOException) new IOException(e.getMessage()).initCause(e);
+        }
+
+        if (version == null)
+            throw new IOException(
+                    "Error detecting new version: the version number pattern was not found.");
+
+        Version v = null;
+        try {
+            v = Version.parse(version);
+        } catch (NumberFormatException e) {
+            throw (IOException) new IOException(e.getMessage()).initCause(e);
+        }
+        v.normalize();
+
+        return v;
     }
 }

@@ -1,10 +1,6 @@
 package com.googlecode.npackdweb.pv;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -14,9 +10,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
@@ -65,36 +58,11 @@ public class DetectPackageVersionAction extends Action {
             msg = "No discovery regular expression for a package version is defined";
         }
 
-        String version = null;
-        if (msg == null) {
-            URLFetchService s = URLFetchServiceFactory.getURLFetchService();
-            HTTPResponse r = s.fetch(new URL(p.discoveryPage));
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    new ByteArrayInputStream(r.getContent()), "UTF-8"));
-            String line;
-            Pattern vp = Pattern.compile(p.discoveryRE);
-            while ((line = br.readLine()) != null) {
-                Matcher vm = vp.matcher(line);
-                if (vm.find()) {
-                    version = vm.group(1);
-                    break;
-                }
-            }
-
-            if (version == null) {
-                msg = "Error detecting new version: the version number pattern was not found.";
-            }
-        }
-
         Version v = null;
-        if (msg == null) {
-            try {
-                v = Version.parse(version);
-                v.normalize();
-            } catch (NumberFormatException e) {
-                msg = "Error parsing the version number " + version + ": "
-                        + e.getMessage();
-            }
+        try {
+            v = p.findNewestVersion();
+        } catch (IOException e) {
+            msg = e.getMessage();
         }
 
         if (msg == null) {

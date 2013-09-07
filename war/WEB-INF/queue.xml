@@ -2,6 +2,6 @@
 <queue-entries>
   <queue>
     <name>default</name>
-    <rate>10/h</rate>
+    <rate>40/h</rate>
   </queue>
 </queue-entries>

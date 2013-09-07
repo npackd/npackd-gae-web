@@ -136,6 +136,15 @@ public class PackagesPage extends MyPage {
             }
             w.t(" ");
             w.e("a", "href", "/p/" + p.name, p.title);
+            if (p.noUpdatesCheck != null
+                    && (System.currentTimeMillis() - p.noUpdatesCheck.getTime()) < 7L
+                            * 24 * 60 * 60 * 1000) {
+                w.t(" ");
+                w.e("span",
+                        "title",
+                        "This package was checked in the last 7 days and there were no updates",
+                        "\u2713");
+            }
             w.end("h3");
             try {
                 w.unencoded(mp.process("Description: " + p.description));
