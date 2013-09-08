@@ -220,6 +220,8 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        Objectify ofy = NWUtils.getObjectify();
+
         w.start("tr");
         w.e("td", "License:");
         w.start("td");
@@ -235,7 +237,6 @@ public class PackageDetailPage extends MyPage {
         } else {
             License license_ = null;
             if (!license.isEmpty()) {
-                Objectify ofy = NWUtils.getObjectify();
                 license_ = ofy.find(License.class, license);
             }
 
@@ -308,8 +309,8 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.e("td", "Created by:");
         w.start("td");
-        w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(createdBy
-                .getEmail()) : "");
+        w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(ofy,
+                createdBy.getEmail()) : "");
         w.end("td");
         w.end("tr");
 

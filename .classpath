@@ -9,5 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/freemarker-gae-2.3.20.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/recaptcha4j-0.0.7.jar" sourcepath="C:/Users/t/libs/recaptcha4j-0.0.7/src/main/java"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

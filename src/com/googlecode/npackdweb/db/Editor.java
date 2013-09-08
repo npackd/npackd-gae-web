@@ -31,6 +31,9 @@ public class Editor {
     /** this package was created by this user */
     public User createdBy;
 
+    /** ID > 0 */
+    public int id;
+
     /**
      * For Objectify.
      */
@@ -63,5 +66,14 @@ public class Editor {
      */
     public Key<Editor> createKey() {
         return new Key<Editor>(Editor.class, this.name);
+    }
+
+    /**
+     * Creates an ID for this Editor.
+     */
+    public void createId() {
+        ShardedCounter sc = ShardedCounter.getOrCreateCounter("EditorID", 20);
+        sc.increment();
+        this.id = sc.getCount();
     }
 }

@@ -36,6 +36,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import net.tanesha.recaptcha.ReCaptcha;
+import net.tanesha.recaptcha.ReCaptchaFactory;
+
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -63,6 +66,7 @@ import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Repository;
+import com.googlecode.npackdweb.db.Setting;
 import com.googlecode.npackdweb.db.ShardedCounter;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
@@ -317,6 +321,7 @@ public class NWUtils {
             ObjectifyService.register(EntityCounter.class);
             ObjectifyService.register(EntityCounterShard.class);
             ObjectifyService.register(Editor.class);
+            ObjectifyService.register(Setting.class);
             objectifyInitialized = true;
         }
     }
@@ -1028,15 +1033,85 @@ public class NWUtils {
      *            an email address
      * @return HTML. abc dot def at bla dot com
      */
-    public static String obfuscateEmail(String email) {
+    public static String obfuscateEmail(Objectify ob, String email) {
+        HTMLWriter w = new HTMLWriter();
         int index = email.indexOf('@');
         if (index > 0) {
-            String before = email.substring(0, index);
-            String after = email.substring(index + 1);
-            return before.replaceAll("\\.", " dot ")
-                    + "<span style=\"display:none\">ab</span>" + " at "
-                    + after.replaceAll("\\.", " dot ");
+            Editor e = ob.find(new Key<Editor>(Editor.class, email));
+            if (e != null) {
+                String before = email.substring(0, index);
+                if (before.length() > 10) {
+                    before = before.substring(0, 10) + "...";
+                }
+                w.start("a", "href", "/recaptcha?id=" + e.id);
+                w.t(before);
+                w.end("a");
+            } else {
+                w.t(email);
+            }
+        } else {
+            w.t(email);
         }
-        return email;
+        return w.toString();
+    }
+
+    /**
+     * Reads a setting
+     * 
+     * @param ofy
+     *            Objectify
+     * @param name
+     *            setting name
+     * @param defaultValue
+     *            default value returned if the setting does not exist
+     * @return setting value
+     */
+    public static String getSetting(Objectify ofy, String name,
+            String defaultValue) {
+        Setting st = ofy.find(new com.googlecode.objectify.Key<Setting>(
+                Setting.class, name));
+        String value;
+        if (st == null) {
+            st = new Setting();
+            st.name = name;
+            st.value = defaultValue;
+            ofy.put(st);
+        }
+        value = st.value;
+
+        return value;
+    }
+
+    /**
+     * Writes a setting
+     * 
+     * @param ofy
+     *            Objectify
+     * @param name
+     *            setting name
+     * @param value
+     *            new setting value
+     */
+    public static void setSetting(Objectify ofy, String name, String value) {
+        Setting st = ofy.find(new com.googlecode.objectify.Key<Setting>(
+                Setting.class, name));
+        if (st == null) {
+            st = new Setting();
+            st.name = name;
+        }
+        st.value = value;
+        ofy.put(st);
+    }
+
+    /**
+     * @param ofy
+     *            Objectify
+     * @return ReCaptcha-object
+     */
+    public static ReCaptcha createReCaptcha(Objectify ofy) {
+        ReCaptcha c = ReCaptchaFactory.newReCaptcha(
+                getSetting(ofy, "ReCaptchaPublicKey", ""),
+                getSetting(ofy, "ReCaptchaPrivateKey", ""), false);
+        return c;
     }
 }

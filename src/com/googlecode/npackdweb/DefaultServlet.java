@@ -169,6 +169,8 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new AddEditorConfirmedAction());
         registerAction(new InfoAction());
         registerAction(new DownloadFailedAction());
+        registerAction(new ReCaptchaAnswerAction());
+        registerAction(new ReCaptchaAction());
     }
 
     /**
