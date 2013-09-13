@@ -16,20 +16,20 @@ import com.googlecode.npackdweb.wlib.Page;
  * Create a new package version.
  */
 public class PackageVersionNewAction extends Action {
-	/**
-	 * -
-	 */
-	public PackageVersionNewAction() {
-		super("^/p/([^/]+)/new$", ActionSecurityType.EDITOR);
-	}
+    /**
+     * -
+     */
+    public PackageVersionNewAction() {
+        super("^/p/([^/]+)/new$", ActionSecurityType.LOGGED_IN);
+    }
 
-	@Override
-	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-	        throws IOException {
-		Pattern p = Pattern.compile(getURLRegExp());
-		Matcher m = p.matcher(req.getRequestURI());
-		m.matches();
-		String package_ = m.group(1);
-		return new PackageVersionPage(new PackageVersion(package_, "1"), true);
-	}
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        Pattern p = Pattern.compile(getURLRegExp());
+        Matcher m = p.matcher(req.getRequestURI());
+        m.matches();
+        String package_ = m.group(1);
+        return new PackageVersionPage(new PackageVersion(package_, "1"), true);
+    }
 }

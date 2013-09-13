@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
@@ -40,11 +41,11 @@ public class RepPage extends MyPage {
         b.e("a", "href", "/rep/recent-xml",
                 "20 recently modified package versions");
 
-        if (NWUtils.isEditorLoggedIn()) {
+        User u = UserServiceFactory.getUserService().getCurrentUser();
+        if (u != null) {
             b.e("br");
             b.t("This repository contains 20 last changed package versions changed by you and should be used for testing only: ");
-            String email = UserServiceFactory.getUserService().getCurrentUser()
-                    .getEmail();
+            String email = u.getEmail();
             b.e("a", "href", "/rep/recent-xml?user=" + email,
                     "20 recently modified package versions by " + email);
         }

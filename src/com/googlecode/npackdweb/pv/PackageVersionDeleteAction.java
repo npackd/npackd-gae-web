@@ -23,7 +23,7 @@ public class PackageVersionDeleteAction extends Action {
      * -
      */
     public PackageVersionDeleteAction() {
-        super("^/package-version/delete$", ActionSecurityType.EDITOR);
+        super("^/package-version/delete$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

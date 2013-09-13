@@ -25,7 +25,7 @@ public class PackageVersionComputeSHA1Action extends Action {
      * -
      */
     public PackageVersionComputeSHA1Action() {
-        super("^/package-version/compute-sha1$", ActionSecurityType.EDITOR);
+        super("^/package-version/compute-sha1$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

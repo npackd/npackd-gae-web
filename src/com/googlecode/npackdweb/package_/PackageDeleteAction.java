@@ -22,7 +22,7 @@ public class PackageDeleteAction extends Action {
      * -
      */
     public PackageDeleteAction() {
-        super("^/package/delete$", ActionSecurityType.EDITOR);
+        super("^/package/delete$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

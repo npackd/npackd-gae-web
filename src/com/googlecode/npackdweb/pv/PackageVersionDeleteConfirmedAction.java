@@ -24,7 +24,8 @@ public class PackageVersionDeleteConfirmedAction extends Action {
      * -
      */
     public PackageVersionDeleteConfirmedAction() {
-        super("^/package-version/delete-confirmed$", ActionSecurityType.EDITOR);
+        super("^/package-version/delete-confirmed$",
+                ActionSecurityType.LOGGED_IN);
     }
 
     @Override

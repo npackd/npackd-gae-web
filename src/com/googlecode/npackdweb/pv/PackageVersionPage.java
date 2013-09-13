@@ -561,7 +561,7 @@ public class PackageVersionPage extends MyPage {
      * @return true if the data should be editable
      */
     public boolean getEditable() {
-        return NWUtils.isEditorLoggedIn();
+        return UserServiceFactory.getUserService().getCurrentUser() != null;
     }
 
     /**

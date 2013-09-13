@@ -26,7 +26,7 @@ public class DontCheckDownloadAction extends Action {
      */
     public DontCheckDownloadAction() {
         super("^/package-version/dont-check-download$",
-                ActionSecurityType.EDITOR);
+                ActionSecurityType.LOGGED_IN);
     }
 
     @Override

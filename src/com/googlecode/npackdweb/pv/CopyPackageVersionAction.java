@@ -23,7 +23,7 @@ public class CopyPackageVersionAction extends Action {
      * -
      */
     public CopyPackageVersionAction() {
-        super("^/package-version/copy$", ActionSecurityType.EDITOR);
+        super("^/package-version/copy$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

@@ -125,21 +125,6 @@ public class DefaultServlet extends HttpServlet {
                     resp.getWriter().close();
                 }
                 break;
-            case EDITOR:
-                if (us.getCurrentUser() == null) {
-                    ok = false;
-                    resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
-                } else if (!NWUtils.isEditorLoggedIn()) {
-                    ok = false;
-                    resp.setContentType("text/plain");
-                    resp.getWriter()
-                            .write("Not an editor. "
-                                    + "Please file an issue at http://code.google.com/p/"
-                                    + "windows-package-manager/issues/entry "
-                                    + "to become one.");
-                    resp.getWriter().close();
-                }
-                break;
             default:
                 throw new InternalError("Unknown security type");
             }

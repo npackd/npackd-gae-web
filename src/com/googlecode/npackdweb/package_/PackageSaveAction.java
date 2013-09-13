@@ -24,7 +24,7 @@ public class PackageSaveAction extends Action {
      * -
      */
     public PackageSaveAction() {
-        super("^/package/save$", ActionSecurityType.EDITOR);
+        super("^/package/save$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

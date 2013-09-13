@@ -18,7 +18,7 @@ public class PackageNewAction extends Action {
      * -
      */
     public PackageNewAction() {
-        super("^/package/new$", ActionSecurityType.EDITOR);
+        super("^/package/new$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

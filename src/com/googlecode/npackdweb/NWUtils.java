@@ -59,7 +59,6 @@ import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
-import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Editor;
@@ -573,36 +572,6 @@ public class NWUtils {
     public static boolean isAdminLoggedIn() {
         UserService us = UserServiceFactory.getUserService();
         return us.isUserLoggedIn() && us.isUserAdmin();
-    }
-
-    /**
-     * @return true if a user is logged in that can edit packages
-     */
-    public static boolean isEditorLoggedIn() {
-        UserService us = UserServiceFactory.getUserService();
-        User u = us.getCurrentUser();
-        boolean r;
-        if (us.isUserLoggedIn()) {
-            if (us.isUserAdmin()) {
-                r = true;
-
-                // save the administrator as an editor
-                Objectify ofy = DefaultServlet.getObjectify();
-                Editor e = ofy
-                        .find(new Key<Editor>(Editor.class, u.getEmail()));
-                if (e == null) {
-                    ofy.put(new Editor(u));
-                }
-            } else {
-                Objectify ofy = DefaultServlet.getObjectify();
-                Editor e = ofy
-                        .find(new Key<Editor>(Editor.class, u.getEmail()));
-                r = e != null;
-            }
-        } else {
-            r = false;
-        }
-        return r;
     }
 
     /**

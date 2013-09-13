@@ -52,7 +52,7 @@ public class RepUploadAction extends Action {
      * -
      */
     public RepUploadAction() {
-        super("^/rep/upload$", ActionSecurityType.EDITOR);
+        super("^/rep/upload$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

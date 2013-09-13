@@ -7,8 +7,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
-import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -50,7 +51,8 @@ public class PackageVersionDetailAction extends Action {
 
         PackageVersionPage pvp = null;
         if (r == null) {
-            if (NWUtils.isEditorLoggedIn()) {
+            User u = UserServiceFactory.getUserService().getCurrentUser();
+            if (u != null) {
                 r = new PackageVersion(package_, version);
                 pvp = new PackageVersionPage(r, true);
             } else {

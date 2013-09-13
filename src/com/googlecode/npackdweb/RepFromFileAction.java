@@ -13,16 +13,16 @@ import com.googlecode.npackdweb.wlib.Page;
  * Form for a repository upload.
  */
 public class RepFromFileAction extends Action {
-	/**
-	 * -
-	 */
-	public RepFromFileAction() {
-		super("^/rep/from-file$", ActionSecurityType.EDITOR);
-	}
+    /**
+     * -
+     */
+    public RepFromFileAction() {
+        super("^/rep/from-file$", ActionSecurityType.LOGGED_IN);
+    }
 
-	@Override
-	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		return new RepFromFilePage();
-	}
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        return new RepFromFilePage();
+    }
 }

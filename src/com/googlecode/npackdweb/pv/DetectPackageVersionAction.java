@@ -30,7 +30,7 @@ public class DetectPackageVersionAction extends Action {
      * -
      */
     public DetectPackageVersionAction() {
-        super("^/p/([^/]+)/detect$", ActionSecurityType.EDITOR);
+        super("^/p/([^/]+)/detect$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

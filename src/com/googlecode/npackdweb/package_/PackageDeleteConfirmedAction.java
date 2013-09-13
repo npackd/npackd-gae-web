@@ -23,7 +23,7 @@ public class PackageDeleteConfirmedAction extends Action {
      * -
      */
     public PackageDeleteConfirmedAction() {
-        super("^/package/delete-confirmed$", ActionSecurityType.EDITOR);
+        super("^/package/delete-confirmed$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

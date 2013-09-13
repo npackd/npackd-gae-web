@@ -24,7 +24,7 @@ public class PackageVersionSaveAction extends Action {
      * -
      */
     public PackageVersionSaveAction() {
-        super("^/package-version/save$", ActionSecurityType.EDITOR);
+        super("^/package-version/save$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override

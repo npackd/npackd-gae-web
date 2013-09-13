@@ -25,7 +25,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
      * -
      */
     public CopyPackageVersionConfirmedAction() {
-        super("^/package-version/copy-confirmed$", ActionSecurityType.EDITOR);
+        super("^/package-version/copy-confirmed$", ActionSecurityType.LOGGED_IN);
     }
 
     @Override
