@@ -4,4 +4,10 @@
     <name>default</name>
     <rate>40/h</rate>
   </queue>
+  
+  <!-- for single-time updates to many entities -->
+  <queue>
+    <name>resave</name>
+    <rate>60/h</rate>
+  </queue>
 </queue-entries>
