@@ -284,11 +284,20 @@ public class PackageDetailPage extends MyPage {
             w.start("tr");
             w.e("td", "Permissions:");
             w.start("td");
-            Package p = Package.findByName(ofy, this.id);
-            for (int i = 0; i < p.permissions.size(); i++) {
-                if (i != 0)
-                    w.e("br");
-                w.t(p.permissions.get(i).getEmail());
+            User u = UserServiceFactory.getUserService().getCurrentUser();
+            if (mode != FormMode.CREATE) {
+                Package p = Package.findByName(ofy, this.id);
+                for (int i = 0; i < p.permissions.size(); i++) {
+                    if (i != 0)
+                        w.e("br");
+                    if (u.getEmail().equals(p.permissions.get(i).getEmail()))
+                        w.t(u.getEmail());
+                    else
+                        w.unencoded(NWUtils.obfuscateEmail(ofy, p.permissions
+                                .get(i).getEmail()));
+                }
+            } else {
+                w.t(u.getEmail());
             }
             w.end("td");
             w.end("tr");
