@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
@@ -42,7 +43,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
             err = "Error parsing the version number: " + e.getMessage();
         }
 
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         PackageVersion p = ofy.get(new Key<PackageVersion>(
                 PackageVersion.class, name));
         Package r = ofy.find(new Key<Package>(Package.class, p.package_));

@@ -1,7 +1,6 @@
 package com.googlecode.npackdweb.pv;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,15 +17,15 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 
 /**
- * Disable download check for a package version
+ * Marks a package version as reviewed.
  */
-public class DontCheckDownloadAction extends Action {
+public class MarkReviewedAction extends Action {
     /**
      * -
      */
-    public DontCheckDownloadAction() {
-        super("^/package-version/dont-check-download$",
-                ActionSecurityType.EDITOR);
+    public MarkReviewedAction() {
+        super("^/package-version/mark-reviewed$",
+                ActionSecurityType.ADMINISTRATOR);
     }
 
     @Override
@@ -43,11 +42,9 @@ public class DontCheckDownloadAction extends Action {
         else {
             PackageVersion p = ofy.get(new Key<PackageVersion>(
                     PackageVersion.class, package_ + "@" + version));
-            p.downloadCheckError = PackageVersion.DONT_CHECK_THIS_DOWNLOAD;
-            p.downloadCheckAt = new Date();
+            p.reviewed = true;
             NWUtils.savePackageVersion(ofy, p);
-            resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
-            page = null;
+            page = new PackageVersionPage(p, false);
         }
         return page;
     }

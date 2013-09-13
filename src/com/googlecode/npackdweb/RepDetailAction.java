@@ -16,21 +16,21 @@ import com.googlecode.objectify.Objectify;
  * Repository details
  */
 public class RepDetailAction extends Action {
-	/**
-	 * -
-	 */
-	public RepDetailAction() {
-		super("^/rep/(\\d+)$", ActionSecurityType.LOGGED_IN);
-	}
+    /**
+     * -
+     */
+    public RepDetailAction() {
+        super("^/rep/(\\d+)$", ActionSecurityType.LOGGED_IN);
+    }
 
-	@Override
-	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		long id = Long.parseLong(req.getRequestURI().substring(5));
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        long id = Long.parseLong(req.getRequestURI().substring(5));
 
-		Objectify ofy = NWUtils.getObjectify();
-		Repository r = ofy.get(new Key<Repository>(Repository.class, id));
+        Objectify ofy = DefaultServlet.getObjectify();
+        Repository r = ofy.get(new Key<Repository>(Repository.class, id));
 
-		return new RepDetailPage(r);
-	}
+        return new RepDetailPage(r);
+    }
 }

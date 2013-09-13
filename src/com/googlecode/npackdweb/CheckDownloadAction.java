@@ -46,7 +46,7 @@ public class CheckDownloadAction extends Action {
         // average download size
         long downloaded = 10 * 1024 * 1024;
 
-        Objectify ob = NWUtils.getObjectify();
+        Objectify ob = DefaultServlet.getObjectify();
         Query<PackageVersion> q = ob.query(PackageVersion.class);
         if (cursor != null)
             q.startCursor(Cursor.fromWebSafeString(cursor));

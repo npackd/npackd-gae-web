@@ -24,6 +24,7 @@ import com.googlecode.npackdweb.pv.CopyPackageVersionAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
 import com.googlecode.npackdweb.pv.DontCheckDownloadAction;
+import com.googlecode.npackdweb.pv.MarkReviewedAction;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
@@ -33,6 +34,8 @@ import com.googlecode.npackdweb.pv.PackageVersionSaveAction;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.npackdweb.wlib.SendStatusAction;
+import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.ObjectifyService;
 
 /**
  * Default servlet for HTML pages.
@@ -42,11 +45,44 @@ public class DefaultServlet extends HttpServlet {
     /** version of the data (versions, packages, licenses): 0, 1, ... */
     public static AtomicInteger dataVersion = new AtomicInteger();
 
+    private static ThreadLocal<Objectify> OBJS = new ThreadLocal<Objectify>() {
+        @Override
+        protected Objectify initialValue() {
+            return ObjectifyService.begin();
+        }
+    };
+
+    /**
+     * @param req
+     *            an HTTP request
+     * @return DefaultServlet instance
+     */
+    public static DefaultServlet getInstance(HttpServletRequest req) {
+        return (DefaultServlet) req
+                .getAttribute("com.googlecode.npackdweb.DefaultServlet");
+    }
+
+    /**
+     * @return Objectify instance associated with this request
+     */
+    public static Objectify getObjectify() {
+        return OBJS.get();
+    }
+
     private List<Pattern> urlPatterns = new ArrayList<Pattern>();
     private List<Action> actions = new ArrayList<Action>();
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        try {
+            doGet0(req, resp);
+        } finally {
+            OBJS.remove();
+        }
+    }
+
+    private void doGet0(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         req.setAttribute("com.googlecode.npackdweb.DefaultServlet", this);
 
@@ -155,6 +191,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new DetectPackageVersionAction());
         registerAction(new PackageVersionComputeSHA1Action());
         registerAction(new DontCheckDownloadAction());
+        registerAction(new MarkReviewedAction());
 
         registerAction(new HomeAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
@@ -169,6 +206,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new AddEditorConfirmedAction());
         registerAction(new InfoAction());
         registerAction(new DownloadFailedAction());
+        registerAction(new NotReviewedAction());
         registerAction(new ReCaptchaAnswerAction());
         registerAction(new ReCaptchaAction());
     }

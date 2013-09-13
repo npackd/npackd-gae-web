@@ -58,6 +58,8 @@ public class RepUploadAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        List<String> messages = new ArrayList<String>();
+
         Found f = null;
         String tag = "unknown";
         boolean overwrite = false;
@@ -97,14 +99,14 @@ public class RepUploadAction extends Action {
             f = process(new ByteArrayInputStream(rep.getBytes("UTF-8")));
         }
 
-        // NWUtils.LOG.warning("overwrite: " + overwrite);
-        String txt = "no data found";
         if (f != null) {
+            boolean isAdmin = NWUtils.isAdminLoggedIn();
+
             for (PackageVersion pv : f.pvs) {
                 pv.tags.add(tag);
             }
 
-            Objectify ofy = NWUtils.getObjectify();
+            Objectify ofy = DefaultServlet.getObjectify();
             List<Key<?>> keys = new ArrayList<Key<?>>();
             for (License lic : f.lics) {
                 keys.add(lic.createKey());
@@ -154,23 +156,29 @@ public class RepUploadAction extends Action {
             }
 
             for (PackageVersion pv : f.pvs) {
-                Package p = ofy
-                        .get(new Key<Package>(Package.class, pv.package_));
-                if (!p.isCurrentUserPermittedToModify())
-                    return new MessagePage(
-                            "You do not have permission to modify this package: "
-                                    + pv.package_);
+                Package p = ofy.find(new Key<Package>(Package.class,
+                        pv.package_));
+                if (p != null && !p.isCurrentUserPermittedToModify())
+                    messages.add("You do not have permission to modify this package: "
+                            + pv.package_);
+                if (isAdmin)
+                    pv.reviewed = true;
             }
 
             for (Package p : f.ps) {
-                Package p_ = ofy.get(new Key<Package>(Package.class, p.name));
-                if (!p_.isCurrentUserPermittedToModify())
-                    return new MessagePage(
-                            "You do not have permission to modify this package: "
-                                    + p.name);
+                Package p_ = ofy.find(new Key<Package>(Package.class, p.name));
+                if (p_ != null && !p_.isCurrentUserPermittedToModify())
+                    messages.add("You do not have permission to modify this package: "
+                            + p.name);
             }
 
-            ofy.put(f.lics);
+            if (f.lics.size() > 0) {
+                if (isAdmin)
+                    ofy.put(f.lics);
+                else
+                    messages.add("Only an administrator can change licenses");
+            }
+
             ofy.put(f.pvs);
 
             for (Package p : f.ps) {
@@ -189,15 +197,17 @@ public class RepUploadAction extends Action {
                 stats.pvAppended = f.pvs.size();
                 stats.licAppended = f.lics.size();
             }
-            txt = stats.pOverwritten + " packages overwritten, "
+            messages.add(stats.pOverwritten + " packages overwritten, "
                     + stats.pvOverwritten + " package versions overwritten, "
                     + stats.licOverwritten + " licenses overwritten, "
                     + stats.pAppended + " packages appended, "
                     + stats.pvAppended + " package versions appended, "
-                    + stats.licAppended + " licenses appended";
+                    + stats.licAppended + " licenses appended");
+        } else {
+            messages.add("No data found");
         }
 
-        return new MessagePage(txt);
+        return new MessagePage(messages);
     }
 
     private Found process(InputStream stream) throws IOException {

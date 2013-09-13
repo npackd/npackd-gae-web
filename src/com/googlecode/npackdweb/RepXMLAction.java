@@ -26,7 +26,8 @@ public class RepXMLAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String tag = req.getParameter("tag");
-        Objectify ofy = NWUtils.getObjectify();
+
+        Objectify ofy = DefaultServlet.getObjectify();
         Repository r = Repository.findByTag(ofy, tag);
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository "

@@ -10,17 +10,17 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
 
 /**
- * List of package versions with errors in downloading the binary.
+ * List of package versions that were not yet reviewed.
  */
-public class DownloadFailedPage extends MyPage {
+public class NotReviewedPage extends MyPage {
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter b = new HTMLWriter();
 
-        b.t("The download check failed for these package versions (showing only the first 20):");
+        b.t("These package versions were not yet reviewed and may be unsafe (showing only the first 20):");
         b.start("ul");
         Objectify ofy = DefaultServlet.getObjectify();
-        List<PackageVersion> pvs = PackageVersion.find20DownloadFailed(ofy);
+        List<PackageVersion> pvs = PackageVersion.find20NotReviewed(ofy);
         for (int i = 0; i < pvs.size(); i++) {
             PackageVersion pv = pvs.get(i);
 
@@ -36,6 +36,6 @@ public class DownloadFailedPage extends MyPage {
 
     @Override
     public String getTitle() {
-        return "Failed downloads";
+        return "Not reviewed";
     }
 }

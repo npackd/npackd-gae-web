@@ -16,19 +16,19 @@ import com.googlecode.objectify.Objectify;
  * Re-saves all packages.
  */
 public class ResavePackagesAction extends Action {
-	/**
-	 * -
-	 */
-	public ResavePackagesAction() {
-		super("^/resave-packages$", ActionSecurityType.ADMINISTRATOR);
-	}
+    /**
+     * -
+     */
+    public ResavePackagesAction() {
+        super("^/resave-packages$", ActionSecurityType.ADMINISTRATOR);
+    }
 
-	@Override
-	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-	        throws IOException {
-		Objectify ofy = NWUtils.getObjectify();
-		List<Package> q = ofy.query(Package.class).list();
-		ofy.put(q);
-		return new MessagePage("The packages were successfully re-saved");
-	}
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        Objectify ofy = DefaultServlet.getObjectify();
+        List<Package> q = ofy.query(Package.class).list();
+        ofy.put(q);
+        return new MessagePage("The packages were successfully re-saved");
+    }
 }

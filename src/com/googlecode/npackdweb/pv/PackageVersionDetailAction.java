@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -20,44 +21,44 @@ import com.googlecode.objectify.Objectify;
  * A package version.
  */
 public class PackageVersionDetailAction extends Action {
-	/**
-	 * -
-	 */
-	public PackageVersionDetailAction() {
-		super("^/p/([^/]+)/([\\d.]+)$", ActionSecurityType.ANONYMOUS);
-	}
+    /**
+     * -
+     */
+    public PackageVersionDetailAction() {
+        super("^/p/([^/]+)/([\\d.]+)$", ActionSecurityType.ANONYMOUS);
+    }
 
-	@Override
-	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-	        throws IOException {
-		Pattern p = Pattern.compile(getURLRegExp());
-		Matcher m = p.matcher(req.getRequestURI());
-		m.matches();
-		String package_ = m.group(1);
-		String version = m.group(2);
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        Pattern p = Pattern.compile(getURLRegExp());
+        Matcher m = p.matcher(req.getRequestURI());
+        m.matches();
+        String package_ = m.group(1);
+        String version = m.group(2);
 
-		Objectify ofy = NWUtils.getObjectify();
-		PackageVersion r = ofy.find(new Key<PackageVersion>(
-		        PackageVersion.class, package_ + "@" + version));
-		if (r == null) {
-			Version v = Version.parse(version);
-			if (!v.toString().equals(version)) {
-				resp.sendRedirect("/p/" + package_ + "/" + v.toString());
-				return null;
-			}
-		}
+        Objectify ofy = DefaultServlet.getObjectify();
+        PackageVersion r = ofy.find(new Key<PackageVersion>(
+                PackageVersion.class, package_ + "@" + version));
+        if (r == null) {
+            Version v = Version.parse(version);
+            if (!v.toString().equals(version)) {
+                resp.sendRedirect("/p/" + package_ + "/" + v.toString());
+                return null;
+            }
+        }
 
-		PackageVersionPage pvp = null;
-		if (r == null) {
-			if (NWUtils.isEditorLoggedIn()) {
-				r = new PackageVersion(package_, version);
-				pvp = new PackageVersionPage(r, true);
-			} else {
-				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-			}
-		} else {
-			pvp = new PackageVersionPage(r, false);
-		}
-		return pvp;
-	}
+        PackageVersionPage pvp = null;
+        if (r == null) {
+            if (NWUtils.isEditorLoggedIn()) {
+                r = new PackageVersion(package_, version);
+                pvp = new PackageVersionPage(r, true);
+            } else {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
+        } else {
+            pvp = new PackageVersionPage(r, false);
+        }
+        return pvp;
+    }
 }

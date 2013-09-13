@@ -48,7 +48,7 @@ public class RepXMLPage extends Page {
             throws IOException {
         resp.setContentType("application/xml");
 
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         Repository r = ExportRepsAction.export(ofy, tag, false);
         BlobstoreService blobstoreService = BlobstoreServiceFactory
                 .getBlobstoreService();
@@ -58,13 +58,15 @@ public class RepXMLPage extends Page {
     }
 
     /**
+     * @param ofy
+     *            Objectify
      * @param tag
      *            package versions tag or null for "everything"
+     * @param onlyReviewed
+     *            true = only export reviewed package versions
      * @return XML for the whole repository definition
      */
-    public static Document toXML(String tag) {
-        // getting data
-        Objectify ofy = NWUtils.getObjectify();
+    public static Document toXML(Objectify ofy, String tag, boolean onlyReviewed) {
         ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
         Query<PackageVersion> q = ofy.query(PackageVersion.class)
                 .chunkSize(500);
@@ -72,7 +74,7 @@ public class RepXMLPage extends Page {
             q.filter("tags =", tag);
         pvs.addAll(q.list());
 
-        return toXML(ofy, pvs);
+        return toXML(ofy, pvs, onlyReviewed);
     }
 
     /**
@@ -80,9 +82,12 @@ public class RepXMLPage extends Page {
      *            Objectify
      * @param pvs
      *            package versions
+     * @param onlyReviewed
+     *            true = only export reviewed package versions
      * @return XML for the specified package versions
      */
-    public static Document toXML(Objectify ofy, ArrayList<PackageVersion> pvs) {
+    public static Document toXML(Objectify ofy, ArrayList<PackageVersion> pvs,
+            boolean onlyReviewed) {
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             public int compare(PackageVersion a, PackageVersion b) {
                 int r = a.package_.compareToIgnoreCase(b.package_);
@@ -96,7 +101,8 @@ public class RepXMLPage extends Page {
         });
         Set<String> pns = new HashSet<String>();
         for (PackageVersion pv : pvs) {
-            pns.add(pv.package_);
+            if (pv.reviewed || !onlyReviewed)
+                pns.add(pv.package_);
         }
         Map<String, Package> ps_ = ofy.get(Package.class, pns);
         List<Package> ps = new ArrayList<Package>();
@@ -148,9 +154,11 @@ public class RepXMLPage extends Page {
                 NWUtils.t(root, "\n\n    ");
             }
 
-            Element version = pv.toXML(d);
+            if (pv.reviewed || !onlyReviewed) {
+                Element version = pv.toXML(d);
 
-            root.appendChild(version);
+                root.appendChild(version);
+            }
         }
 
         return d;

@@ -47,7 +47,7 @@ public class AddEditorPage extends MyPage {
         err = NWUtils.validateEmail(this.email);
 
         if (err == null) {
-            Objectify ofy = NWUtils.getObjectify();
+            Objectify ofy = DefaultServlet.getObjectify();
             Editor existing = ofy.find(new Key<Editor>(Editor.class, email));
             if (existing != null)
                 err = "An editor with the email " + email + " already exists";

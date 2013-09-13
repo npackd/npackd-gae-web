@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
@@ -43,7 +44,7 @@ public class DetectPackageVersionAction extends Action {
             throw new IOException("Invalid package name");
         }
 
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         Package p = ofy.get(new Key<Package>(Package.class, package_));
         if (!p.isCurrentUserPermittedToModify()) {
             return new MessagePage(

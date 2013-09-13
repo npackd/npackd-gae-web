@@ -187,8 +187,9 @@ public class Package {
             this.tags = new ArrayList<String>();
         if (permissions == null) {
             this.permissions = new ArrayList<User>();
-            this.permissions.add(this.createdBy);
         }
+        if (permissions.size() == 0)
+            this.permissions.add(this.createdBy);
     }
 
     @PrePersist

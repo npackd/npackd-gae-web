@@ -10,20 +10,19 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 
 /**
- * Creates XML for 20 recently changed package versions.
+ * Shows the list of package versions that are not yet reviewed.
  */
-public class RecentRepXMLAction extends Action {
+public class NotReviewedAction extends Action {
     /**
      * -
      */
-    public RecentRepXMLAction() {
-        super("^/rep/recent-xml$", ActionSecurityType.ANONYMOUS);
+    public NotReviewedAction() {
+        super("^/not-reviewed$", ActionSecurityType.ANONYMOUS);
     }
 
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        String user = req.getParameter("user");
-        return new RecentRepXMLPage(user);
+        return new NotReviewedPage();
     }
 }

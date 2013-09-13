@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaFactory;
+import net.tanesha.recaptcha.ReCaptchaImpl;
 
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
@@ -102,6 +103,10 @@ public class NWUtils {
             + "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
     private static Configuration cfg;
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    private static final String ID_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     private static boolean objectifyInitialized;
 
@@ -553,7 +558,7 @@ public class NWUtils {
                     "NumberOfPackages", 2);
             value = sc.getCount();
             if (sc.getCount() == 0) {
-                Objectify ofy = getObjectify();
+                Objectify ofy = DefaultServlet.getObjectify();
                 sc.increment(ofy.query(Package.class).count());
                 value = sc.getCount();
             }
@@ -581,15 +586,15 @@ public class NWUtils {
             if (us.isUserAdmin()) {
                 r = true;
 
-                // save the administrator as en editor
-                Objectify ofy = NWUtils.getObjectify();
+                // save the administrator as an editor
+                Objectify ofy = DefaultServlet.getObjectify();
                 Editor e = ofy
                         .find(new Key<Editor>(Editor.class, u.getEmail()));
                 if (e == null) {
                     ofy.put(new Editor(u));
                 }
             } else {
-                Objectify ofy = NWUtils.getObjectify();
+                Objectify ofy = DefaultServlet.getObjectify();
                 Editor e = ofy
                         .find(new Key<Editor>(Editor.class, u.getEmail()));
                 r = e != null;
@@ -598,13 +603,6 @@ public class NWUtils {
             r = false;
         }
         return r;
-    }
-
-    /**
-     * @return a new Objectify session
-     */
-    public static Objectify getObjectify() {
-        return ObjectifyService.begin();
     }
 
     /**
@@ -690,7 +688,7 @@ public class NWUtils {
      * Re-creates the index for packages
      */
     public static void recreateIndex() {
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         Query<Package> q = ofy.query(Package.class);
         Index index = getIndex();
         for (Package p : q) {
@@ -1109,9 +1107,25 @@ public class NWUtils {
      * @return ReCaptcha-object
      */
     public static ReCaptcha createReCaptcha(Objectify ofy) {
-        ReCaptcha c = ReCaptchaFactory.newReCaptcha(
-                getSetting(ofy, "ReCaptchaPublicKey", ""),
-                getSetting(ofy, "ReCaptchaPrivateKey", ""), false);
-        return c;
+        ReCaptchaImpl recaptcha = new ReCaptchaImpl();
+        recaptcha.setIncludeNoscript(true);
+        recaptcha.setPrivateKey(getSetting(ofy, "ReCaptchaPrivateKey", ""));
+        recaptcha.setPublicKey(getSetting(ofy, "ReCaptchaPublicKey", ""));
+        recaptcha.setRecaptchaServer("https://www.google.com/recaptcha/api");
+
+        return recaptcha;
+    }
+
+    /**
+     * @return secure ID
+     */
+    public static String generateSecureId() {
+        // 62^10 ~ 8E17
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            sb.append(ID_LETTERS.charAt(SECURE_RANDOM.nextInt(ID_LETTERS
+                    .length())));
+        }
+        return sb.toString();
     }
 }

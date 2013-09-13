@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
@@ -21,43 +22,55 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Query;
 
 public class RecentRepXMLPage extends Page {
-	@Override
-	public void create(HttpServletRequest request, HttpServletResponse resp)
-	        throws IOException {
+    private String user;
 
-		resp.setContentType("application/xml");
+    /**
+     * @param user
+     *            email address or null
+     */
+    public RecentRepXMLPage(String user) {
+        this.user = user;
+    }
 
-		final String key = this.getClass().getName() + "@"
-		        + NWUtils.getDataVersion();
-		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-		syncCache.setErrorHandler(ErrorHandlers
-		        .getConsistentLogAndContinue(Level.INFO));
-		byte[] value = (byte[]) syncCache.get(key); // read from cache
-		if (value == null) {
-			NWUtils.LOG.warning("Found no value in cache");
-			try {
-				Objectify ofy = ObjectifyService.begin();
-				ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
-				Query<PackageVersion> q = ofy.query(PackageVersion.class)
-				        .limit(20).order("-lastModifiedAt");
-				pvs.addAll(q.list());
-				Document d = RepXMLPage.toXML(ofy, pvs);
+    @Override
+    public void create(HttpServletRequest request, HttpServletResponse resp)
+            throws IOException {
+        resp.setContentType("application/xml");
 
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				NWUtils.serializeXML(d, baos);
-				value = baos.toByteArray();
-				syncCache.put(key, value); // populate cache
-			} catch (Exception e) {
-				throw (IOException) new IOException(e.getMessage())
-				        .initCause(e);
-			}
-		} else {
-			NWUtils.LOG.warning("Found value in cache " + value.length
-			        + " bytes");
-		}
+        final String key = this.getClass().getName() + "@"
+                + NWUtils.getDataVersion() + "@" + user;
+        MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+        syncCache.setErrorHandler(ErrorHandlers
+                .getConsistentLogAndContinue(Level.INFO));
+        byte[] value = (byte[]) syncCache.get(key); // read from cache
+        if (value == null) {
+            NWUtils.LOG.warning("Found no value in cache");
+            try {
+                Objectify ofy = ObjectifyService.begin();
+                ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
+                Query<PackageVersion> q = ofy.query(PackageVersion.class)
+                        .limit(20).order("-lastModifiedAt");
+                if (user != null)
+                    q = q.filter("lastModifiedBy =",
+                            new User(user, user.substring(user.indexOf('@'))));
+                pvs.addAll(q.list());
+                Document d = RepXMLPage.toXML(ofy, pvs, false);
 
-		ServletOutputStream ros = resp.getOutputStream();
-		ros.write(value);
-		ros.close();
-	}
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                NWUtils.serializeXML(d, baos);
+                value = baos.toByteArray();
+                syncCache.put(key, value); // populate cache
+            } catch (Exception e) {
+                throw (IOException) new IOException(e.getMessage())
+                        .initCause(e);
+            }
+        } else {
+            NWUtils.LOG.warning("Found value in cache " + value.length
+                    + " bytes");
+        }
+
+        ServletOutputStream ros = resp.getOutputStream();
+        ros.write(value);
+        ros.close();
+    }
 }

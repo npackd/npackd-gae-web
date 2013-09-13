@@ -31,7 +31,7 @@ public class ReCaptchaAnswerAction extends Action {
         int id = Integer.parseInt(req.getParameter("id"));
 
         String remoteAddr = req.getRemoteAddr();
-        Objectify ob = NWUtils.getObjectify();
+        Objectify ob = DefaultServlet.getObjectify();
         ReCaptcha reCaptcha = NWUtils.createReCaptcha(ob);
 
         String challenge = req.getParameter("recaptcha_challenge_field");

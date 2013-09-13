@@ -29,7 +29,7 @@ public class ReCaptchaPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
         w.start("form", "action", "/recaptcha-answer", "method", "post");
-        Objectify ob = NWUtils.getObjectify();
+        Objectify ob = DefaultServlet.getObjectify();
         ReCaptcha c = NWUtils.createReCaptcha(ob);
         w.unencoded(c.createRecaptchaHtml(null, null));
         w.e("input", "type", "hidden", "name", "id", "value",

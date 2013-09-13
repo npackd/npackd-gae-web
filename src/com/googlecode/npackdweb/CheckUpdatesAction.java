@@ -41,7 +41,7 @@ public class CheckUpdatesAction extends Action {
             throws IOException {
         String cursor = req.getParameter("cursor");
 
-        Objectify ob = NWUtils.getObjectify();
+        Objectify ob = DefaultServlet.getObjectify();
         Query<Package> q = ob.query(Package.class);
         if (cursor != null)
             q.startCursor(Cursor.fromWebSafeString(cursor));

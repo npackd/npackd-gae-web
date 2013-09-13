@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
@@ -17,23 +18,36 @@ public class RepPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter b = new HTMLWriter();
 
-        b.t("These repositories are re-created daily:");
-        b.start("ul");
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         List<Repository> reps = Repository.findAll(ofy);
-        for (int i = 0; i < reps.size(); i++) {
-            Repository r = reps.get(i);
+        if (reps.size() > 0) {
+            b.t("These repositories are re-created daily, the packages were reviewed and are safe to use:");
+            b.start("ul");
+            for (int i = 0; i < reps.size(); i++) {
+                Repository r = reps.get(i);
 
-            b.start("li");
-            b.e("a", "href", "/rep/xml?tag=" + r.name, r.name);
-            b.end("li");
+                b.start("li");
+                b.e("a", "href", "/rep/xml?tag=" + r.name, r.name);
+                b.end("li");
+            }
+            b.end("ul");
         }
-        b.end("ul");
 
-        b.e("br");
+        b.e("p", "class", "nw-error",
+                "Packages in the following repositories are not yet reviewed and may be unsafe");
+
         b.t("This repository contains 20 last changed package versions and should be used for testing only: ");
         b.e("a", "href", "/rep/recent-xml",
                 "20 recently modified package versions");
+
+        if (NWUtils.isEditorLoggedIn()) {
+            b.e("br");
+            b.t("This repository contains 20 last changed package versions changed by you and should be used for testing only: ");
+            String email = UserServiceFactory.getUserService().getCurrentUser()
+                    .getEmail();
+            b.e("a", "href", "/rep/recent-xml?user=" + email,
+                    "20 recently modified package versions by " + email);
+        }
 
         return b.toString();
     }

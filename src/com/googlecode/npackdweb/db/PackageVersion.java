@@ -12,6 +12,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -64,6 +67,12 @@ public class PackageVersion {
     /** last modification date */
     public Date lastModifiedAt = new Date();
 
+    /** user for the last modification */
+    public User lastModifiedBy;
+
+    /** true if this package version was reviewed by the admin and is secure */
+    public boolean reviewed;
+
     /**
      * For Objectify.
      */
@@ -80,6 +89,12 @@ public class PackageVersion {
         this.name = package_ + "@" + version;
         this.package_ = package_;
         this.version = version;
+        UserService us = UserServiceFactory.getUserService();
+        if (us.isUserLoggedIn())
+            this.lastModifiedBy = us.getCurrentUser();
+        else
+            this.lastModifiedBy = new User("tim.lebedkov@gmail.com",
+                    "gmail.com");
     }
 
     public String getName() {
@@ -142,6 +157,8 @@ public class PackageVersion {
         c.tags.addAll(this.tags);
         c.downloadCheckAt = this.downloadCheckAt;
         c.downloadCheckError = this.downloadCheckError;
+        c.reviewed = this.reviewed;
+        c.lastModifiedBy = this.lastModifiedBy;
         return c;
     }
 
@@ -228,12 +245,23 @@ public class PackageVersion {
 
         while (this.dependencyEnvVars.size() < this.dependencyPackages.size())
             this.dependencyEnvVars.add("");
+
+        if (lastModifiedBy == null) {
+            UserService us = UserServiceFactory.getUserService();
+            if (us.isUserLoggedIn())
+                this.lastModifiedBy = us.getCurrentUser();
+            else
+                this.lastModifiedBy = new User("tim.lebedkov@gmail.com",
+                        "gmail.com");
+        }
     }
 
     @PrePersist
     void onPersist() {
         NWUtils.incDataVersion();
         this.lastModifiedAt = new Date();
+        this.lastModifiedBy = UserServiceFactory.getUserService()
+                .getCurrentUser();
     }
 
     /**
@@ -314,6 +342,16 @@ public class PackageVersion {
                 .filter("downloadCheckError !=", null)
                 .filter("downloadCheckError !=", DONT_CHECK_THIS_DOWNLOAD)
                 .list();
+    }
+
+    /**
+     * @param ofy
+     *            Objectify instance
+     * @return first 20 package versions with errors downloading the binary
+     */
+    public static List<PackageVersion> find20NotReviewed(Objectify ofy) {
+        return ofy.query(PackageVersion.class).limit(20)
+                .filter("reviewed !=", true).list();
     }
 
     /**

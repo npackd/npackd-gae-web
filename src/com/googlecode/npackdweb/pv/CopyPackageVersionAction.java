@@ -5,8 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
-import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -31,7 +31,7 @@ public class CopyPackageVersionAction extends Action {
             throws IOException {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         Package r = ofy.find(new Key<Package>(Package.class, package_));
         Page page;
         if (!r.isCurrentUserPermittedToModify())

@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -36,7 +37,7 @@ public class PackageVersionSaveAction extends Action {
         if (error == null) {
             String package_ = pvp.getPackageName();
             final String version = pvp.getVersion();
-            Objectify ofy = NWUtils.getObjectify();
+            Objectify ofy = DefaultServlet.getObjectify();
             Package pa = ofy.get(new Key<Package>(Package.class, package_));
             if (!pa.isCurrentUserPermittedToModify())
                 page = new MessagePage(
@@ -57,6 +58,9 @@ public class PackageVersionSaveAction extends Action {
                         p.downloadCheckError = null;
                     }
                 }
+
+                if (NWUtils.isAdminLoggedIn())
+                    p.reviewed = true;
 
                 NWUtils.savePackageVersion(ofy, p);
 

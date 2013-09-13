@@ -37,7 +37,7 @@ public class ExportRepsAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         List<Repository> rs = Repository.findAll(ofy);
         for (Repository r : rs)
             export(ofy, r.name, true);
@@ -75,7 +75,7 @@ public class ExportRepsAction extends Action {
                 || fileService.getBlobKey(new AppEngineFile(r.blobFile)) == null) {
             blobToDelete = r.blobFile;
 
-            Document d = RepXMLPage.toXML(tag);
+            Document d = RepXMLPage.toXML(ob, tag, true);
 
             // Create a new Blob file with mime-type "text/plain"
             AppEngineFile file = fileService

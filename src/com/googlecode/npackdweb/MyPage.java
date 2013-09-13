@@ -97,6 +97,7 @@ public abstract class MyPage extends Page {
         mi(w, "/rep/edit-as-xml", "Upload as text");
         mi(w, "/package/new", "Create new package");
         mi(w, "/download-failed", "List of failed downloads");
+        mi(w, "/not-reviewed", "List of not reviewed versions");
 
         if (NWUtils.isAdminLoggedIn()) {
             mi(w, "/add-editor", "Add editor");

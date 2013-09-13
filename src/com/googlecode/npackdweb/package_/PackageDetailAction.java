@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -30,7 +31,7 @@ public class PackageDetailAction extends Action {
             throws IOException {
         String name = req.getRequestURI().substring(3);
 
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         Package r = ofy.find(new Key<Package>(Package.class, name));
         PackageDetailPage pdp = null;
         if (r == null) {

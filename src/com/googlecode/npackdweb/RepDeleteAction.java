@@ -15,22 +15,22 @@ import com.googlecode.objectify.Objectify;
  * Delete a repository.
  */
 public class RepDeleteAction extends Action {
-	/**
-	 * -
-	 */
-	public RepDeleteAction() {
-		super("^/rep/delete$");
-	}
+    /**
+     * -
+     */
+    public RepDeleteAction() {
+        super("^/rep/delete$");
+    }
 
-	@Override
-	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-	        throws IOException {
-		long id = Long.parseLong(req.getParameter("id"));
-		Objectify ofy = NWUtils.getObjectify();
-		ofy.delete(new Key<Repository>(Repository.class, id));
-		NWUtils.incDataVersion();
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        long id = Long.parseLong(req.getParameter("id"));
+        Objectify ofy = DefaultServlet.getObjectify();
+        ofy.delete(new Key<Repository>(Repository.class, id));
+        NWUtils.incDataVersion();
 
-		resp.sendRedirect("/rep");
-		return null;
-	}
+        resp.sendRedirect("/rep");
+        return null;
+    }
 }

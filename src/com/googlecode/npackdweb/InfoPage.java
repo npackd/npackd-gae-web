@@ -17,8 +17,7 @@ public class InfoPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
 
-        DefaultServlet ds = (DefaultServlet) request
-                .getAttribute("com.googlecode.npackdweb.DefaultServlet");
+        DefaultServlet ds = DefaultServlet.getInstance(request);
         List<Pattern> ups = ds.getUrlPatterns();
         List<Action> as = ds.getActions();
         w.start("ul");

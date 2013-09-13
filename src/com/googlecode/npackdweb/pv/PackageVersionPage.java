@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.markdown4j.Markdown4jProcessor;
 
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
@@ -43,6 +47,8 @@ public class PackageVersionPage extends MyPage {
     private String downloadCheckError;
     private Date downloadCheckAt;
     private Date lastModifiedAt;
+    private User lastModifiedBy;
+    private boolean reviewed;
 
     /** error message or null */
     private String error;
@@ -68,6 +74,14 @@ public class PackageVersionPage extends MyPage {
         this.downloadCheckAt = null;
         this.downloadCheckError = null;
         this.lastModifiedAt = null;
+        this.reviewed = false;
+
+        UserService us = UserServiceFactory.getUserService();
+        if (us.isUserLoggedIn())
+            this.lastModifiedBy = us.getCurrentUser();
+        else
+            this.lastModifiedBy = new User("tim.lebedkov@gmail.com",
+                    "gmail.com");
     }
 
     /**
@@ -112,6 +126,8 @@ public class PackageVersionPage extends MyPage {
         this.downloadCheckAt = pv.downloadCheckAt;
         this.downloadCheckError = pv.downloadCheckError;
         this.lastModifiedAt = pv.lastModifiedAt;
+        this.reviewed = pv.reviewed;
+        this.lastModifiedBy = pv.lastModifiedBy;
     }
 
     @Override
@@ -119,8 +135,13 @@ public class PackageVersionPage extends MyPage {
         HTMLWriter w = new HTMLWriter();
         w.unencoded("<iframe src=\"javascript:''\" id=\"__gwt_historyFrame\" tabIndex='-1' style=\"position:absolute;width:0;height:0;border:0\"></iframe>");
 
+        Objectify ofy = DefaultServlet.getObjectify();
         Package p = getPackage();
-        License lic = getLicense();
+        License lic = getLicense(ofy);
+
+        if (!reviewed)
+            w.e("p", "class", "nw-error",
+                    "This package version is not yet reviewed and may be unsafe");
 
         if (error != null) {
             w.e("p", "class", "nw-error", this.error);
@@ -204,7 +225,10 @@ public class PackageVersionPage extends MyPage {
                     "120", "id", "url", "title",
                     "http: or https: address of the package binary");
         } else {
-            w.e("a", "href", url, url);
+            if (reviewed)
+                w.e("a", "href", url, url);
+            else
+                w.t("Not yet reviewed");
         }
         w.end("td");
         w.end("tr");
@@ -291,7 +315,6 @@ public class PackageVersionPage extends MyPage {
             w.start("td");
             w.start("ul");
             for (int i = 0; i < dependencyPackages.size(); i++) {
-                Objectify ofy = NWUtils.getObjectify();
                 Package dp = ofy
                         .find(new com.googlecode.objectify.Key<Package>(
                                 Package.class, dependencyPackages.get(i)));
@@ -440,6 +463,14 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        w.start("tr");
+        w.e("td", "Last modified by:");
+        w.start("td");
+        w.unencoded(lastModifiedBy == null ? "" : NWUtils.obfuscateEmail(ofy,
+                lastModifiedBy.getEmail()));
+        w.end("td");
+        w.end("tr");
+
         if (editable) {
             w.start("tr");
             w.e("td", "Download check:");
@@ -498,6 +529,10 @@ public class PackageVersionPage extends MyPage {
                         "/package-version/dont-check-download?package="
                                 + packageName + "&version=" + version,
                         "Disables binary download check for this package version");
+                NWUtils.jsButton(w, "Mark as reviewed",
+                        "/package-version/mark-reviewed?package=" + packageName
+                                + "&version=" + version,
+                        "Marks this package version as reviewed and safe");
             }
             w.end("form");
         }
@@ -516,7 +551,7 @@ public class PackageVersionPage extends MyPage {
      */
     public Package getPackage() {
         if (this.package_ == null) {
-            Objectify objectify = NWUtils.getObjectify();
+            Objectify objectify = DefaultServlet.getObjectify();
             this.package_ = objectify.get(Package.class, packageName);
         }
         return this.package_;
@@ -530,13 +565,14 @@ public class PackageVersionPage extends MyPage {
     }
 
     /**
+     * @param ofy
+     *            Objectify
      * @return associated license or null
      */
-    public License getLicense() {
+    public License getLicense(Objectify ofy) {
         if (this.license == null) {
             Package p = getPackage();
             if (!p.license.isEmpty()) {
-                Objectify ofy = NWUtils.getObjectify();
                 this.license = ofy.get(License.class, p.license);
             }
         }
@@ -603,16 +639,26 @@ public class PackageVersionPage extends MyPage {
             }
         }
 
+        if (!NWUtils.isAdminLoggedIn())
+            this.reviewed = false;
+
         if (this.new_) {
             this.downloadCheckAt = null;
             this.downloadCheckError = null;
         } else {
-            Objectify ofy = NWUtils.getObjectify();
+            Objectify ofy = DefaultServlet.getObjectify();
             PackageVersion pv = PackageVersion.find(ofy, this.packageName,
                     this.version);
             this.downloadCheckAt = pv.downloadCheckAt;
             this.downloadCheckError = pv.downloadCheckError;
         }
+
+        UserService us = UserServiceFactory.getUserService();
+        if (us.isUserLoggedIn())
+            this.lastModifiedBy = us.getCurrentUser();
+        else
+            this.lastModifiedBy = new User("tim.lebedkov@gmail.com",
+                    "gmail.com");
     }
 
     @Override
@@ -638,7 +684,7 @@ public class PackageVersionPage extends MyPage {
             if (new_) {
                 Version v = Version.parse(version);
                 v.normalize();
-                Objectify ofy = NWUtils.getObjectify();
+                Objectify ofy = DefaultServlet.getObjectify();
                 PackageVersion p = ofy.find(new Key<PackageVersion>(
                         PackageVersion.class, packageName.trim() + "@"
                                 + v.toString()));
@@ -760,6 +806,11 @@ public class PackageVersionPage extends MyPage {
         for (int i = 0; i < this.filePaths.size(); i++) {
             pv.addFile(this.filePaths.get(i), this.fileContents.get(i));
         }
+
+        if (!this.reviewed)
+            pv.reviewed = false;
+
+        pv.lastModifiedBy = this.lastModifiedBy;
     }
 
     /**

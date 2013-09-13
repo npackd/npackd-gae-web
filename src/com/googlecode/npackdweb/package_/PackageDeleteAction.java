@@ -5,8 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
-import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -29,7 +29,7 @@ public class PackageDeleteAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String id = req.getParameter("id");
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         Package p = ofy.get(new Key<Package>(Package.class, id));
         Page page;
         if (!p.isCurrentUserPermittedToModify())

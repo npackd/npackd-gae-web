@@ -16,6 +16,7 @@ import org.markdown4j.Markdown4jProcessor;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
@@ -220,7 +221,7 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
 
         w.start("tr");
         w.e("td", "License:");
@@ -229,7 +230,7 @@ public class PackageDetailPage extends MyPage {
             w.start("select", "name", "license", "title",
                     "Package licensing terms");
             w.e("option", "value", "");
-            for (License lic : this.getLicenses()) {
+            for (License lic : this.getLicenses(ofy)) {
                 w.e("option", "value", lic.name, "selected",
                         lic.name.equals(license) ? "selected" : null, lic.title);
             }
@@ -279,10 +280,24 @@ public class PackageDetailPage extends MyPage {
             w.end("tr");
         }
 
+        if (mode.isEditable()) {
+            w.start("tr");
+            w.e("td", "Permissions:");
+            w.start("td");
+            Package p = Package.findByName(ofy, this.id);
+            for (int i = 0; i < p.permissions.size(); i++) {
+                if (i != 0)
+                    w.e("br");
+                w.t(p.permissions.get(i).getEmail());
+            }
+            w.end("td");
+            w.end("tr");
+        }
+
         w.start("tr");
         w.e("td", "Versions:");
         w.start("td");
-        List<PackageVersion> pvs = this.getVersions();
+        List<PackageVersion> pvs = this.getVersions(ofy);
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             public int compare(PackageVersion a, PackageVersion b) {
                 Version va = Version.parse(a.version);
@@ -398,10 +413,11 @@ public class PackageDetailPage extends MyPage {
     }
 
     /**
+     * @param ofy
+     *            Objectify
      * @return versions of this package
      */
-    public List<PackageVersion> getVersions() {
-        Objectify ofy = NWUtils.getObjectify();
+    public List<PackageVersion> getVersions(Objectify ofy) {
         ArrayList<PackageVersion> versions = new ArrayList<PackageVersion>();
         if (!id.isEmpty()) {
             for (PackageVersion pv : ofy.query(PackageVersion.class)
@@ -413,10 +429,11 @@ public class PackageDetailPage extends MyPage {
     }
 
     /**
+     * @param ofy
+     *            Objectify
      * @return list of all licenses
      */
-    private List<License> getLicenses() {
-        Objectify ofy = NWUtils.getObjectify();
+    private List<License> getLicenses(Objectify ofy) {
         List<License> licenses = new ArrayList<License>();
         String cacheSuffix = "@" + NWUtils.getDataVersion();
         Query<License> q = ofy.query(License.class).order("title");
@@ -453,7 +470,7 @@ public class PackageDetailPage extends MyPage {
             this.createdBy = UserServiceFactory.getUserService()
                     .getCurrentUser();
         } else {
-            Objectify ofy = NWUtils.getObjectify();
+            Objectify ofy = DefaultServlet.getObjectify();
             Package p = Package.findByName(ofy, this.id);
             this.createdAt = p.createdAt;
             this.createdBy = p.createdBy;
@@ -485,7 +502,7 @@ public class PackageDetailPage extends MyPage {
 
         if (msg == null) {
             if (mode == FormMode.CREATE) {
-                Objectify ofy = NWUtils.getObjectify();
+                Objectify ofy = DefaultServlet.getObjectify();
                 Package r = ofy.find(new Key<Package>(Package.class, this.id));
                 if (r != null)
                     msg = "A package with this ID already exists";

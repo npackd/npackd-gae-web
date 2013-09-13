@@ -79,7 +79,7 @@ public class PackagesPage extends MyPage {
         found = r.getNumberFound();
 
         packages = new ArrayList<Package>();
-        Objectify obj = NWUtils.getObjectify();
+        Objectify obj = DefaultServlet.getObjectify();
         for (ScoredDocument sd : r) {
             String id = sd.getId();
             Package p = obj.find(new Key<Package>(Package.class, id));
@@ -117,7 +117,7 @@ public class PackagesPage extends MyPage {
         w.end("form");
 
         w.start("div", "class", "nw-packages");
-        Objectify ofy = NWUtils.getObjectify();
+        Objectify ofy = DefaultServlet.getObjectify();
         Markdown4jProcessor mp = new Markdown4jProcessor();
         for (Package p : this.getPackages()) {
             License lic;
