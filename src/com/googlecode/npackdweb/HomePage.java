@@ -13,6 +13,9 @@ public class HomePage extends MyPage {
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
+
+        w.unencoded(PackagesPage.createSearchForm("", false));
+
         w.start("div");
         w.start("table");
         w.start("tr");

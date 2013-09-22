@@ -27,7 +27,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -108,37 +107,6 @@ public class NWUtils {
     private static final String ID_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     private static boolean objectifyInitialized;
-
-    /**
-     * Login/Logout-footer
-     * 
-     * @param request
-     *            HTTP request
-     * @return HTML
-     * @throws IOException
-     */
-    public static String getLoginFooter(HttpServletRequest request)
-            throws IOException {
-        UserService userService = UserServiceFactory.getUserService();
-
-        String thisURL = request.getRequestURI();
-        if (request.getQueryString() != null)
-            thisURL += "?" + request.getQueryString();
-        HTMLWriter res = new HTMLWriter();
-        if (request.getUserPrincipal() != null) {
-            res.start("p");
-            res.t("Hello, " + request.getUserPrincipal().getName()
-                    + "!  You can ");
-            res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
-            res.t(".");
-            res.end("p");
-        } else {
-            res.start("p");
-            res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
-            res.end("p");
-        }
-        return res.toString();
-    }
 
     /**
      * Initializes FreeMarker. This method can be called multiple times from

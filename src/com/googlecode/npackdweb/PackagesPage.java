@@ -97,24 +97,7 @@ public class PackagesPage extends MyPage {
     private String createContent2() {
         HTMLWriter w = new HTMLWriter();
 
-        w.start("form", "method", "get", "action", "/p");
-        w.t("Search: ");
-        w.e("input", "type", "text", "name", "q", "value", query, "size", "50");
-        w.t(" Sort: ");
-        w.start("select", "name", "sort");
-        w.e("option", "value", "title", "selected", !this.recent ? "selected"
-                : null, "By title");
-        w.e("option", "value", "created", "selected", this.recent ? "selected"
-                : null, "By creation date");
-        w.end("select");
-        w.t(" ");
-        w.e("input", "class", "input", "type", "submit", "value", "Search");
-        w.t(" ");
-        w.e("a",
-                "href",
-                "https://developers.google.com/appengine/docs/java/search/overview#Building_Queries",
-                "target", "_blank", "Help");
-        w.end("form");
+        w.unencoded(createSearchForm(this.query, this.recent));
 
         w.start("div", "class", "nw-packages");
         Objectify ofy = DefaultServlet.getObjectify();
@@ -159,6 +142,36 @@ public class PackagesPage extends MyPage {
         }
         w.end("div");
 
+        return w.toString();
+    }
+
+    /**
+     * @param query
+     *            search text
+     * @param recent
+     *            true = select "sort by creation date", false = "sort by title"
+     * @return HTML for the search form
+     */
+    public static String createSearchForm(String query, boolean recent) {
+        HTMLWriter w = new HTMLWriter();
+        w.start("form", "method", "get", "action", "/p");
+        w.t("Search: ");
+        w.e("input", "type", "text", "name", "q", "value", query, "size", "50");
+        w.t(" Sort: ");
+        w.start("select", "name", "sort");
+        w.e("option", "value", "title", "selected",
+                !recent ? "selected" : null, "By title");
+        w.e("option", "value", "created", "selected", recent ? "selected"
+                : null, "By creation date");
+        w.end("select");
+        w.t(" ");
+        w.e("input", "class", "input", "type", "submit", "value", "Search");
+        w.t(" ");
+        w.e("a",
+                "href",
+                "https://developers.google.com/appengine/docs/java/search/overview#Building_Queries",
+                "target", "_blank", "Help");
+        w.end("form");
         return w.toString();
     }
 

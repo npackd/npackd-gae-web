@@ -6,6 +6,8 @@ import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 
@@ -21,7 +23,7 @@ public abstract class MyPage extends Page {
 
         out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "content",
                 createContent(request), "login",
-                NWUtils.getLoginFooter(request), "head", getHeadPart(), "menu",
+                MyPage.getLoginHeader(request), "head", getHeadPart(), "menu",
                 createMenu()));
         out.close();
     }
@@ -71,6 +73,7 @@ public abstract class MyPage extends Page {
         w.start("li");
         w.e("a", "href", "/", "Home");
         w.end("li");
+
         w.start("li");
         w.e("a", "href", "/p", "Packages");
         w.start("ul");
@@ -81,15 +84,11 @@ public abstract class MyPage extends Page {
                 "Suggest a package*");
         w.end("ul");
         w.end("li");
+
         w.start("li");
         w.e("a", "href", "/rep", "Repositories");
         w.end("li");
-        w.start("li");
-        w.e("a",
-                "href",
-                "http://code.google.com/p/windows-package-manager/downloads/list",
-                "Download client*");
-        w.end("li");
+
         w.start("li");
         w.e("a", "href", "#", "Edit");
         w.start("ul");
@@ -107,6 +106,19 @@ public abstract class MyPage extends Page {
         }
         w.end("ul");
         w.end("li");
+
+        w.start("li");
+        w.e("a", "href", "http://code.google.com/p/windows-package-manager",
+                "About");
+        w.start("ul");
+        mi(w, "http://code.google.com/p/windows-package-manager",
+                "About Npackd");
+        mi(w,
+                "http://code.google.com/p/windows-package-manager/downloads/list",
+                "Download client*");
+        w.end("ul");
+        w.end("li");
+
         w.end("ul");
         return w.toString();
     }
@@ -115,5 +127,36 @@ public abstract class MyPage extends Page {
         w.start("li");
         w.e("a", "href", href, title);
         w.end("li");
+    }
+
+    /**
+     * Login/Logout-footer
+     * 
+     * @param request
+     *            HTTP request
+     * @return HTML
+     * @throws IOException
+     */
+    private static String getLoginHeader(HttpServletRequest request)
+            throws IOException {
+        UserService userService = UserServiceFactory.getUserService();
+
+        String thisURL = request.getRequestURI();
+        if (request.getQueryString() != null)
+            thisURL += "?" + request.getQueryString();
+        HTMLWriter res = new HTMLWriter();
+        if (request.getUserPrincipal() != null) {
+            res.start("p");
+            res.t("Hello, " + request.getUserPrincipal().getName()
+                    + "!  You can ");
+            res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
+            res.t(".");
+            res.end("p");
+        } else {
+            res.start("p");
+            res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
+            res.end("p");
+        }
+        return res.toString();
     }
 }
