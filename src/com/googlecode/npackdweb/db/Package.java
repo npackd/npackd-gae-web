@@ -355,6 +355,16 @@ public class Package {
             throw new IOException(
                     "Error detecting new version: the version number pattern was not found.");
 
+        // process version numbers like 2.0.6b
+        if (version.length() > 0) {
+            char c = Character
+                    .toLowerCase(version.charAt(version.length() - 1));
+            if (c >= 'a' && c <= 'z') {
+                version = version.substring(0, version.length() - 1) + "."
+                        + (c - 'a' + 1);
+            }
+        }
+
         Version v = null;
         try {
             v = Version.parse(version);

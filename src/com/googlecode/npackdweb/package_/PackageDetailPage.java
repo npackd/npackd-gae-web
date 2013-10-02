@@ -375,7 +375,8 @@ public class PackageDetailPage extends MyPage {
                     "size",
                     "80",
                     "title",
-                    "Regular expression to match the newest version number. This regular expression should contain a match group for the version number.\nExample: <h1>the newest version is ([\\d\\.]+)</h1>");
+                    "Regular expression to match the newest version number. This regular expression should contain a match group for the version number. A single letter at the end of the version number is allowed (2.0.6b will be interpreted as 2.0.6.2).\n"
+                            + "Example: <h1>the newest version is ([\\d\\.]+)</h1>");
             w.end("td");
             w.end("tr");
             /*
