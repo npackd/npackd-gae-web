@@ -355,6 +355,8 @@ public class Package {
             throw new IOException(
                     "Error detecting new version: the version number pattern was not found.");
 
+        version = version.replace('-', '.');
+
         // process version numbers like 2.0.6b
         if (version.length() > 0) {
             char c = Character

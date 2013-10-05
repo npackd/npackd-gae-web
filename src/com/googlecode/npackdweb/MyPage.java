@@ -82,6 +82,9 @@ public abstract class MyPage extends Page {
         mi(w,
                 "http://code.google.com/p/windows-package-manager/issues/entry?template=Defect%20report%20from%20user",
                 "Suggest a package*");
+        mi(w,
+                "https://code.google.com/p/windows-package-manager/wiki/RejectedSoftware",
+                "List of rejected packages*");
         w.end("ul");
         w.end("li");
 
