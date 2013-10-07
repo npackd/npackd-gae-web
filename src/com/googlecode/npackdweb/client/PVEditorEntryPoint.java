@@ -309,7 +309,7 @@ public class PVEditorEntryPoint implements EntryPoint {
     private void addInnoSetupFiles() {
         addFile(".Npackd\\Install.bat",
                 "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
-                        + "\"%setup%\" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /DIR=\"%CD%\" /SAVEINF=\"%CD%\\.Npackd\\InnoSetupInfo.ini\" /LOG=\"%CD%\\.Npackd\\InnoSetupInstall.log\"\r\n"
+                        + "\"%setup%\" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /DIR=\"%CD%\" /SAVEINF=\"%CD%\\.Npackd\\InnoSetupInfo.ini\" /LOG=\"%CD%\\.Npackd\\InnoSetupInstall.log\" && del /f /q \"%setup%\"\r\n"
                         + "set err=%errorlevel%\r\n"
                         + "type .Npackd\\InnoSetupInstall.log\r\n"
                         + "if %err% neq 0 exit %err%\r\n");
@@ -322,8 +322,7 @@ public class PVEditorEntryPoint implements EntryPoint {
 
     private void addMSIFiles() {
         addFile(".Npackd\\Install.bat",
-                "if \"%npackd_cl%\" equ \"\" set npackd_cl=..\\com.googlecode.windows-package-manager.NpackdCL-1\r\n"
-                        + "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=com.googlecode.windows-package-manager.NpackdInstallerHelper\" \"--versions=[1.1, 2)\"\r\n"
+                "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=com.googlecode.windows-package-manager.NpackdInstallerHelper\" \"--versions=[1.1, 2)\"\r\n"
                         + "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set npackdih=%%x\r\n"
                         + "call \"%npackdih%\\InstallMSI.bat\" INSTALLDIR yes\r\n");
     }
@@ -331,7 +330,7 @@ public class PVEditorEntryPoint implements EntryPoint {
     private void addNSISFiles() {
         addFile(".Npackd\\Install.bat",
                 "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
-                        + "\"%setup%\" /S /D=%CD%\r\n");
+                        + "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
         addFile(".Npackd\\Uninstall.bat", "uninst.exe /S _?=%CD%\r\n");
     }
 
