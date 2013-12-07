@@ -43,7 +43,7 @@ public class PackageSaveAction extends Action {
                 return new MessagePage(
                         "You do not have permission to modify this package");
             pdp.fillObject(p);
-            NWUtils.savePackage(ofy, p);
+            NWUtils.savePackage(ofy, p, true);
             pdp = null;
             resp.sendRedirect("/p");
         } else {

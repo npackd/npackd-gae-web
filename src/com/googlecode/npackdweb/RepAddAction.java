@@ -27,7 +27,7 @@ public class RepAddAction extends Action {
         Repository r = new Repository();
         r.name = req.getParameter("title");
         Objectify ofy = DefaultServlet.getObjectify();
-        ofy.put(r);
+        NWUtils.saveRepository(ofy, r);
 
         resp.sendRedirect("/rep");
         return null;

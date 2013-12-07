@@ -182,7 +182,7 @@ public class RepUploadAction extends Action {
             ofy.put(f.pvs);
 
             for (Package p : f.ps) {
-                NWUtils.savePackage(ofy, p);
+                NWUtils.savePackage(ofy, p, true);
             }
 
             if (overwrite) {

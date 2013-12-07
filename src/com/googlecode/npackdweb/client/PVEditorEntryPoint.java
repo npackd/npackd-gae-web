@@ -168,6 +168,16 @@ public class PVEditorEntryPoint implements EntryPoint {
                 }
             });
         }
+        Element addVimFiles_ = d.getElementById("addVimFiles");
+        if (addVimFiles_ != null) {
+            Button addVimFiles = Button.wrap(addVimFiles_);
+            addVimFiles.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    addVimFiles();
+                }
+            });
+        }
 
         rp = RootPanel.get();
         rp.sinkEvents(Event.KEYEVENTS);
@@ -325,6 +335,15 @@ public class PVEditorEntryPoint implements EntryPoint {
                 "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=com.googlecode.windows-package-manager.NpackdInstallerHelper\" \"--versions=[1.1, 2)\"\r\n"
                         + "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set npackdih=%%x\r\n"
                         + "call \"%npackdih%\\InstallMSI.bat\" INSTALLDIR yes\r\n");
+    }
+
+    private void addVimFiles() {
+        addFile(".Npackd\\Install.bat",
+                "mkdir \"%ALLUSERSPROFILE%/Npackd/VimPlugins/\"\r\n"
+                        + "mklink /D \"%ALLUSERSPROFILE%/Npackd/VimPlugins/%NPACKD_PACKAGE_NAME%\" \"%CD%\"\r\n");
+        addFile(".Npackd\\Uninstall.bat",
+                "rmdir \"%ALLUSERSPROFILE%/Npackd/VimPlugins/%NPACKD_PACKAGE_NAME%\"\r\n"
+                        + "verify\r\n");
     }
 
     private void addNSISFiles() {

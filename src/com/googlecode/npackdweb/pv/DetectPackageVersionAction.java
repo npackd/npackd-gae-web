@@ -77,29 +77,28 @@ public class DetectPackageVersionAction extends Action {
                 }
             });
 
-            if (versions.size() == 0) {
-                msg = "The package contains no versions. Found version "
-                        + v.toString();
+            PackageVersion pv;
+            if (versions.size() > 0)
+                pv = versions.get(versions.size() - 1);
+            else
+                pv = null;
+            Version vnewest = Version.parse(pv.version);
+            if (vnewest.compare(v) > 0) {
+                msg = "The newest defined version " + vnewest.toString()
+                        + " is bigger than the detected " + v.toString();
+            } else if (vnewest.compare(v) == 0) {
+                msg = "The newest version is already in the repository ("
+                        + vnewest + ")";
             } else {
-                PackageVersion pv = versions.get(versions.size() - 1);
-                Version vnewest = Version.parse(pv.version);
-                if (vnewest.compare(v) > 0) {
-                    msg = "The newest defined version " + vnewest.toString()
-                            + " is bigger than the detected " + v.toString();
-                } else if (vnewest.compare(v) == 0) {
-                    msg = "The newest version is already in the repository ("
-                            + vnewest + ")";
-                } else {
-                    PackageVersion copy = pv.copy();
-                    copy.name = copy.package_ + "@" + v.toString();
-                    copy.version = v.toString();
+                PackageVersion copy = pv.copy();
+                copy.name = copy.package_ + "@" + v.toString();
+                copy.version = v.toString();
 
-                    NWUtils.savePackageVersion(ofy, copy);
-                    msg = "Created version " + v.toString()
-                            + " (the newest available was " + vnewest + ")";
-                    resp.sendRedirect("/p/" + pv.package_ + "/" + copy.version);
-                    return null;
-                }
+                NWUtils.savePackageVersion(ofy, copy);
+                msg = "Created version " + v.toString()
+                        + " (the newest available was " + vnewest + ")";
+                resp.sendRedirect("/p/" + pv.package_ + "/" + copy.version);
+                return null;
             }
         }
         return new MessagePage(msg);

@@ -27,89 +27,89 @@ import com.googlecode.objectify.Objectify;
  * Exports default repositories to BLOBs.
  */
 public class ExportRepsAction extends Action {
-    /**
-     * -
-     */
-    public ExportRepsAction() {
-        super("^/cron/export-reps$", ActionSecurityType.ANONYMOUS);
-    }
+	/**
+	 * -
+	 */
+	public ExportRepsAction() {
+		super("^/cron/export-reps$", ActionSecurityType.ANONYMOUS);
+	}
 
-    @Override
-    public Page perform(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-        Objectify ofy = DefaultServlet.getObjectify();
-        List<Repository> rs = Repository.findAll(ofy);
-        for (Repository r : rs)
-            export(ofy, r.name, true);
-        resp.setStatus(200);
-        return null;
-    }
+	@Override
+	public Page perform(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		Objectify ofy = DefaultServlet.getObjectify();
+		List<Repository> rs = Repository.findAll(ofy);
+		for (Repository r : rs)
+			export(ofy, r.name, true);
+		resp.setStatus(200);
+		return null;
+	}
 
-    /**
-     * Exports a repository.
-     * 
-     * @param ob
-     *            Objectify instance
-     * @param tag
-     *            tag for package versions. Cannot be null.
-     * @param recreate
-     *            true = recreate the repository if it already exists
-     * @return the repository with blobFile != null
-     */
-    public static Repository export(Objectify ob, String tag, boolean recreate)
-            throws IOException {
-        Repository r = ob.find(new Key<Repository>(Repository.class, tag));
-        if (r == null) {
-            r = new Repository();
-            r.name = tag;
-            ob.put(r);
-        }
+	/**
+	 * Exports a repository.
+	 * 
+	 * @param ob
+	 *            Objectify instance
+	 * @param tag
+	 *            tag for package versions. Cannot be null.
+	 * @param recreate
+	 *            true = recreate the repository if it already exists
+	 * @return the repository with blobFile != null
+	 */
+	public static Repository export(Objectify ob, String tag, boolean recreate)
+			throws IOException {
+		Repository r = ob.find(new Key<Repository>(Repository.class, tag));
+		if (r == null) {
+			r = new Repository();
+			r.name = tag;
+			NWUtils.saveRepository(ob, r);
+		}
 
-        String blobToDelete = null;
+		String blobToDelete = null;
 
-        // Get a file service
-        FileService fileService = FileServiceFactory.getFileService();
+		// Get a file service
+		FileService fileService = FileServiceFactory.getFileService();
 
-        if (r.blobFile == null
-                || recreate
-                || fileService.getBlobKey(new AppEngineFile(r.blobFile)) == null) {
-            blobToDelete = r.blobFile;
+		if (r.blobFile == null
+				|| recreate
+				|| fileService.getBlobKey(new AppEngineFile(r.blobFile)) == null) {
+			blobToDelete = r.blobFile;
 
-            Document d = RepXMLPage.toXML(ob, tag, true);
+			Document d = RepXMLPage.toXML(ob, tag, true);
 
-            // Create a new Blob file with mime-type "text/plain"
-            AppEngineFile file = fileService
-                    .createNewBlobFile("application/xml");
+			// Create a new Blob file with mime-type "text/plain"
+			AppEngineFile file = fileService
+					.createNewBlobFile("application/xml");
 
-            // Open a channel to write to it
-            FileWriteChannel writeChannel = fileService.openWriteChannel(file,
-                    true);
+			// Open a channel to write to it
+			FileWriteChannel writeChannel = fileService.openWriteChannel(file,
+					true);
 
-            OutputStream os = Channels.newOutputStream(writeChannel);
-            NWUtils.serializeXML(d, os);
-            os.close();
+			OutputStream os = Channels.newOutputStream(writeChannel);
+			NWUtils.serializeXML(d, os);
+			os.close();
 
-            // Now finalize
-            writeChannel.closeFinally();
+			// Now finalize
+			writeChannel.closeFinally();
 
-            BlobKey blobKey = fileService.getBlobKey(file);
+			BlobKey blobKey = fileService.getBlobKey(file);
 
-            file = fileService.getBlobFile(blobKey);
+			file = fileService.getBlobFile(blobKey);
 
-            r.blobFile = file.getFullPath();
-            NWUtils.LOG.warning(file.getNamePart());
-            ob.put(r);
-        }
+			r.blobFile = file.getFullPath();
+			NWUtils.LOG.warning(file.getNamePart());
+			NWUtils.saveRepository(ob, r);
+		}
 
-        // delete the blob later after we recreated the repository
-        if (blobToDelete != null) {
-            try {
-                fileService.delete(new AppEngineFile(blobToDelete));
-            } catch (Exception e) {
-                NWUtils.LOG.log(Level.WARNING, "cannot delete a blob", e);
-            }
-        }
+		// delete the blob later after we recreated the repository
+		if (blobToDelete != null) {
+			try {
+				fileService.delete(new AppEngineFile(blobToDelete));
+			} catch (Exception e) {
+				NWUtils.LOG.log(Level.WARNING, "cannot delete a blob", e);
+			}
+		}
 
-        return r;
-    }
+		return r;
+	}
 }

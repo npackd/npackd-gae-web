@@ -430,6 +430,9 @@ public class PackageVersionPage extends MyPage {
                             + "uninstall an installation package (.msi) "
                             + "created for the Microsoft Installer",
                     "Add MSI files");
+            w.e("button", "type", "button", "id", "addVimFiles", "title",
+                    "Adds the files necessary to install and "
+                            + "uninstall a Vim plugin", "Add Vim plugin files");
             w.end("td");
             w.end("tr");
 
