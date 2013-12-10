@@ -66,7 +66,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 copy.name = copy.package_ + "@" + version;
                 copy.version = version;
 
-                NWUtils.savePackageVersion(ofy, copy);
+                NWUtils.savePackageVersion(ofy, copy, true);
                 resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
                 page = null;
             }

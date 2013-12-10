@@ -45,7 +45,7 @@ public class DontCheckDownloadAction extends Action {
                     PackageVersion.class, package_ + "@" + version));
             p.downloadCheckError = PackageVersion.DONT_CHECK_THIS_DOWNLOAD;
             p.downloadCheckAt = new Date();
-            NWUtils.savePackageVersion(ofy, p);
+            NWUtils.savePackageVersion(ofy, p, true);
             resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
             page = null;
         }

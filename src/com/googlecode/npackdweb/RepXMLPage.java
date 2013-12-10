@@ -33,134 +33,139 @@ import com.googlecode.objectify.Query;
  * XML for a repository.
  */
 public class RepXMLPage extends Page {
-    private String tag;
+	private final String tag;
 
-    /**
-     * @param tag
-     *            only package versions with this tag will be exported.
-     */
-    public RepXMLPage(String tag) {
-        this.tag = tag;
-    }
+	/**
+	 * @param tag
+	 *            only package versions with this tag will be exported.
+	 */
+	public RepXMLPage(String tag) {
+		this.tag = tag;
+	}
 
-    @Override
-    public void create(HttpServletRequest request, HttpServletResponse resp)
-            throws IOException {
-        resp.setContentType("application/xml");
+	@Override
+	public void create(HttpServletRequest request, HttpServletResponse resp)
+			throws IOException {
+		resp.setContentType("application/xml");
 
-        Objectify ofy = DefaultServlet.getObjectify();
-        Repository r = ExportRepsAction.export(ofy, tag, false);
-        BlobstoreService blobstoreService = BlobstoreServiceFactory
-                .getBlobstoreService();
-        FileService fileService = FileServiceFactory.getFileService();
-        BlobKey blobKey = fileService.getBlobKey(new AppEngineFile(r.blobFile));
-        blobstoreService.serve(blobKey, resp);
-    }
+		Objectify ofy = DefaultServlet.getObjectify();
+		Repository r = ExportRepsAction.export(ofy, tag, false);
+		BlobstoreService blobstoreService =
+				BlobstoreServiceFactory.getBlobstoreService();
+		FileService fileService = FileServiceFactory.getFileService();
+		AppEngineFile file = new AppEngineFile(r.blobFile);
+		BlobKey blobKey = fileService.getBlobKey(file);
 
-    /**
-     * @param ofy
-     *            Objectify
-     * @param tag
-     *            package versions tag or null for "everything"
-     * @param onlyReviewed
-     *            true = only export reviewed package versions
-     * @return XML for the whole repository definition
-     */
-    public static Document toXML(Objectify ofy, String tag, boolean onlyReviewed) {
-        ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
-        Query<PackageVersion> q = ofy.query(PackageVersion.class)
-                .chunkSize(500);
-        if (tag != null)
-            q.filter("tags =", tag);
-        pvs.addAll(q.list());
+		blobstoreService.serve(blobKey, resp);
+	}
 
-        return toXML(ofy, pvs, onlyReviewed);
-    }
+	/**
+	 * @param ofy
+	 *            Objectify
+	 * @param tag
+	 *            package versions tag or null for "everything"
+	 * @param onlyReviewed
+	 *            true = only export reviewed package versions
+	 * @return XML for the whole repository definition
+	 */
+	public static Document
+			toXML(Objectify ofy, String tag, boolean onlyReviewed) {
+		ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
+		Query<PackageVersion> q =
+				ofy.query(PackageVersion.class).chunkSize(500);
+		if (tag != null)
+			q.filter("tags =", tag);
+		pvs.addAll(q.list());
 
-    /**
-     * @param ofy
-     *            Objectify
-     * @param pvs
-     *            package versions
-     * @param onlyReviewed
-     *            true = only export reviewed package versions
-     * @return XML for the specified package versions
-     */
-    public static Document toXML(Objectify ofy, ArrayList<PackageVersion> pvs,
-            boolean onlyReviewed) {
-        Collections.sort(pvs, new Comparator<PackageVersion>() {
-            public int compare(PackageVersion a, PackageVersion b) {
-                int r = a.package_.compareToIgnoreCase(b.package_);
-                if (r == 0) {
-                    Version av = Version.parse(a.version);
-                    Version bv = Version.parse(b.version);
-                    r = av.compare(bv);
-                }
-                return r;
-            }
-        });
-        Set<String> pns = new HashSet<String>();
-        for (PackageVersion pv : pvs) {
-            if (pv.reviewed || !onlyReviewed)
-                pns.add(pv.package_);
-        }
-        Map<String, Package> ps_ = ofy.get(Package.class, pns);
-        List<Package> ps = new ArrayList<Package>();
-        ps.addAll(ps_.values());
-        Collections.sort(ps, new Comparator<Package>() {
-            public int compare(Package a, Package b) {
-                return a.name.compareToIgnoreCase(b.name);
-            }
-        });
-        Set<String> lns = new HashSet<String>();
-        for (Package p : ps) {
-            if (!p.license.isEmpty())
-                lns.add(p.license);
-        }
-        Map<String, License> ls = ofy.get(License.class, lns);
-        List<License> licenses = new ArrayList<License>();
-        licenses.addAll(ls.values());
-        Collections.sort(licenses, new Comparator<License>() {
-            @Override
-            public int compare(License a, License b) {
-                return a.name.compareToIgnoreCase(b.name);
-            }
-        });
+		return toXML(ofy, pvs, onlyReviewed);
+	}
 
-        Document d = NWUtils.newXMLRepository(true);
-        Element root = d.getDocumentElement();
+	/**
+	 * @param ofy
+	 *            Objectify
+	 * @param pvs
+	 *            package versions
+	 * @param onlyReviewed
+	 *            true = only export reviewed package versions
+	 * @return XML for the specified package versions
+	 */
+	public static Document toXML(Objectify ofy, ArrayList<PackageVersion> pvs,
+			boolean onlyReviewed) {
+		Collections.sort(pvs, new Comparator<PackageVersion>() {
+			@Override
+			public int compare(PackageVersion a, PackageVersion b) {
+				int r = a.package_.compareToIgnoreCase(b.package_);
+				if (r == 0) {
+					Version av = Version.parse(a.version);
+					Version bv = Version.parse(b.version);
+					r = av.compare(bv);
+				}
+				return r;
+			}
+		});
+		Set<String> pns = new HashSet<String>();
+		for (PackageVersion pv : pvs) {
+			if (pv.reviewed || !onlyReviewed)
+				pns.add(pv.package_);
+		}
+		Map<String, Package> ps_ = ofy.get(Package.class, pns);
+		List<Package> ps = new ArrayList<Package>();
+		ps.addAll(ps_.values());
+		Collections.sort(ps, new Comparator<Package>() {
+			@Override
+			public int compare(Package a, Package b) {
+				return a.name.compareToIgnoreCase(b.name);
+			}
+		});
+		Set<String> lns = new HashSet<String>();
+		for (Package p : ps) {
+			if (!p.license.isEmpty())
+				lns.add(p.license);
+		}
+		Map<String, License> ls = ofy.get(License.class, lns);
+		List<License> licenses = new ArrayList<License>();
+		licenses.addAll(ls.values());
+		Collections.sort(licenses, new Comparator<License>() {
+			@Override
+			public int compare(License a, License b) {
+				return a.name.compareToIgnoreCase(b.name);
+			}
+		});
 
-        for (License l : licenses) {
-            Element license = d.createElement("license");
-            license.setAttribute("name", l.name);
-            if (!l.title.isEmpty())
-                NWUtils.e(license, "title", l.title);
-            if (!l.url.isEmpty())
-                NWUtils.e(license, "url", l.url);
+		Document d = NWUtils.newXMLRepository(true);
+		Element root = d.getDocumentElement();
 
-            root.appendChild(license);
-        }
+		for (License l : licenses) {
+			Element license = d.createElement("license");
+			license.setAttribute("name", l.name);
+			if (!l.title.isEmpty())
+				NWUtils.e(license, "title", l.title);
+			if (!l.url.isEmpty())
+				NWUtils.e(license, "url", l.url);
 
-        for (Package p : ps) {
-            Element package_ = p.toXML(d);
+			root.appendChild(license);
+		}
 
-            root.appendChild(package_);
-        }
+		for (Package p : ps) {
+			Element package_ = p.toXML(d);
 
-        String lastPackage = "";
-        for (PackageVersion pv : pvs) {
-            if (!pv.package_.equals(lastPackage)) {
-                lastPackage = pv.package_;
-                NWUtils.t(root, "\n\n    ");
-            }
+			root.appendChild(package_);
+		}
 
-            if (pv.reviewed || !onlyReviewed) {
-                Element version = pv.toXML(d);
+		String lastPackage = "";
+		for (PackageVersion pv : pvs) {
+			if (!pv.package_.equals(lastPackage)) {
+				lastPackage = pv.package_;
+				NWUtils.t(root, "\n\n    ");
+			}
 
-                root.appendChild(version);
-            }
-        }
+			if (pv.reviewed || !onlyReviewed) {
+				Element version = pv.toXML(d);
 
-        return d;
-    }
+				root.appendChild(version);
+			}
+		}
+
+		return d;
+	}
 }

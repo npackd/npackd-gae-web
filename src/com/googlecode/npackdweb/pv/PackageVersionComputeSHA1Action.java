@@ -45,7 +45,7 @@ public class PackageVersionComputeSHA1Action extends Action {
             Info info = p.check(false);
             if (info != null)
                 p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-            NWUtils.savePackageVersion(ofy, p);
+            NWUtils.savePackageVersion(ofy, p, true);
             if (p.downloadCheckError != null)
                 page = new MessagePage("Cannot download the file: "
                         + p.downloadCheckError);

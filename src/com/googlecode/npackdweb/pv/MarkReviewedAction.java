@@ -43,7 +43,7 @@ public class MarkReviewedAction extends Action {
             PackageVersion p = ofy.get(new Key<PackageVersion>(
                     PackageVersion.class, package_ + "@" + version));
             p.reviewed = true;
-            NWUtils.savePackageVersion(ofy, p);
+            NWUtils.savePackageVersion(ofy, p, true);
             page = new PackageVersionPage(p, false);
         }
         return page;

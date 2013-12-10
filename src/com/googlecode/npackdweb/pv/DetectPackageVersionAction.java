@@ -94,7 +94,7 @@ public class DetectPackageVersionAction extends Action {
                 copy.name = copy.package_ + "@" + v.toString();
                 copy.version = v.toString();
 
-                NWUtils.savePackageVersion(ofy, copy);
+                NWUtils.savePackageVersion(ofy, copy, true);
                 msg = "Created version " + v.toString()
                         + " (the newest available was " + vnewest + ")";
                 resp.sendRedirect("/p/" + pv.package_ + "/" + copy.version);

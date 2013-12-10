@@ -86,26 +86,28 @@ public class NWUtils {
 	/** Application log */
 	public static final Logger LOG = Logger.getLogger(NWUtils.class.getName());
 
-	private static final String GPL_LICENSE = "\n    This file is part of Npackd.\n"
-			+ "    \n"
-			+ "    Npackd is free software: you can redistribute it and/or modify\n"
-			+ "    it under the terms of the GNU General Public License as published by\n"
-			+ "    the Free Software Foundation, either version 3 of the License, or\n"
-			+ "    (at your option) any later version.\n"
-			+ "    \n"
-			+ "    Npackd is distributed in the hope that it will be useful,\n"
-			+ "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-			+ "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-			+ "    GNU General Public License for more details.\n"
-			+ "    \n"
-			+ "    You should have received a copy of the GNU General Public License\n"
-			+ "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
+	private static final String GPL_LICENSE =
+			"\n    This file is part of Npackd.\n"
+					+ "    \n"
+					+ "    Npackd is free software: you can redistribute it and/or modify\n"
+					+ "    it under the terms of the GNU General Public License as published by\n"
+					+ "    the Free Software Foundation, either version 3 of the License, or\n"
+					+ "    (at your option) any later version.\n"
+					+ "    \n"
+					+ "    Npackd is distributed in the hope that it will be useful,\n"
+					+ "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+					+ "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+					+ "    GNU General Public License for more details.\n"
+					+ "    \n"
+					+ "    You should have received a copy of the GNU General Public License\n"
+					+ "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
 	private static Configuration cfg;
 
 	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-	private static final String ID_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	private static final String ID_LETTERS =
+			"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 	private static boolean objectifyInitialized;
 
@@ -310,7 +312,8 @@ public class NWUtils {
 	 *            this value is used if the sub-tag is missing
 	 * @return the content of the sub-tag
 	 */
-	public static String getSubTagContent(Element tag, String subtag, String def) {
+	public static String
+			getSubTagContent(Element tag, String subtag, String def) {
 		NodeList nl = tag.getElementsByTagName(subtag);
 		String r = def;
 		if (nl.getLength() > 0) {
@@ -515,15 +518,16 @@ public class NWUtils {
 	 * @return the number of packages
 	 */
 	public static int countPackages() {
-		final String key = NWUtils.class.getName() + ".countPackages@"
-				+ NWUtils.getDataVersion();
+		final String key =
+				NWUtils.class.getName() + ".countPackages@" +
+						NWUtils.getDataVersion();
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
 				.getConsistentLogAndContinue(Level.INFO));
 		Integer value = (Integer) syncCache.get(key); // read from cache
 		if (value == null) {
-			ShardedCounter sc = ShardedCounter.getOrCreateCounter(
-					"NumberOfPackages", 2);
+			ShardedCounter sc =
+					ShardedCounter.getOrCreateCounter("NumberOfPackages", 2);
 			value = sc.getCount();
 			if (sc.getCount() == 0) {
 				Objectify ofy = DefaultServlet.getObjectify();
@@ -597,8 +601,8 @@ public class NWUtils {
 	 * Increments the counter for the number of packages.
 	 */
 	public static void increasePackageNumber() {
-		ShardedCounter sc = ShardedCounter.getOrCreateCounter(
-				"NumberOfPackages", 2);
+		ShardedCounter sc =
+				ShardedCounter.getOrCreateCounter("NumberOfPackages", 2);
 		sc.increment();
 	}
 
@@ -606,8 +610,8 @@ public class NWUtils {
 	 * Decrements the counter for the number of packages.
 	 */
 	public static void decrementPackageNumber() {
-		ShardedCounter sc = ShardedCounter.getOrCreateCounter(
-				"NumberOfPackages", 2);
+		ShardedCounter sc =
+				ShardedCounter.getOrCreateCounter("NumberOfPackages", 2);
 		sc.decrement();
 		if (sc.getCount() < 0)
 			sc.increment(-sc.getCount());
@@ -710,8 +714,16 @@ public class NWUtils {
 	 *            Objectify
 	 * @param p
 	 *            package version
+	 * @param changeLastModified
+	 *            TODO
 	 */
-	public static void savePackageVersion(Objectify ofy, PackageVersion p) {
+	public static void savePackageVersion(Objectify ofy, PackageVersion p,
+			boolean changeLastModified) {
+		if (changeLastModified) {
+			p.lastModifiedAt = new Date();
+			p.lastModifiedBy =
+					UserServiceFactory.getUserService().getCurrentUser();
+		}
 		ofy.put(p);
 		NWUtils.incDataVersion();
 	}
@@ -760,9 +772,9 @@ public class NWUtils {
 	public static void deletePackage(Objectify ofy, String name) {
 		Package p = ofy.get(new Key<Package>(Package.class, name));
 		ofy.delete(p);
-		QueryResultIterable<Key<PackageVersion>> k = ofy
-				.query(PackageVersion.class).filter("package_ =", name)
-				.fetchKeys();
+		QueryResultIterable<Key<PackageVersion>> k =
+				ofy.query(PackageVersion.class).filter("package_ =", name)
+						.fetchKeys();
 		ofy.delete(k);
 		NWUtils.decrementPackageNumber();
 		Index index = NWUtils.getIndex();
@@ -806,8 +818,8 @@ public class NWUtils {
 			for (int i = 0; i < sha1.length(); i++) {
 				char c = sha1.charAt(i);
 				if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
-					return "Wrong character at position " + (i + 1) + " in "
-							+ sha1;
+					return "Wrong character at position " + (i + 1) + " in " +
+							sha1;
 				}
 			}
 		}
@@ -837,8 +849,9 @@ public class NWUtils {
 				} else if (i == 37) {
 					valid = c == '}';
 				} else {
-					valid = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
-							|| (c >= 'A' && c <= 'F');
+					valid =
+							(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
+									(c >= 'A' && c <= 'F');
 				}
 
 				if (!valid) {
@@ -951,8 +964,8 @@ public class NWUtils {
 			ht.setHeader(new HTTPHeader("User-Agent",
 					"NpackdWeb/1 (compatible; MSIE 9.0)"));
 			ht.getFetchOptions().setDeadline(10 * 60.0);
-			ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition + "-"
-					+ (startPosition + segment - 1)));
+			ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition +
+					"-" + (startPosition + segment - 1)));
 			HTTPResponse r = s.fetch(ht);
 			if (r.getResponseCode() == 416) {
 				if (startPosition == 0)
@@ -964,8 +977,8 @@ public class NWUtils {
 
 			byte[] content = r.getContent();
 			if (r.getResponseCode() != 206 && r.getResponseCode() != 200) {
-				throw new IOException("HTTP response code: "
-						+ r.getResponseCode());
+				throw new IOException("HTTP response code: " +
+						r.getResponseCode());
 			}
 			crypt.update(content);
 
@@ -1022,8 +1035,9 @@ public class NWUtils {
 	 */
 	public static String getSetting(Objectify ofy, String name,
 			String defaultValue) {
-		Setting st = ofy.find(new com.googlecode.objectify.Key<Setting>(
-				Setting.class, name));
+		Setting st =
+				ofy.find(new com.googlecode.objectify.Key<Setting>(
+						Setting.class, name));
 		String value;
 		if (st == null) {
 			st = new Setting();
@@ -1047,8 +1061,9 @@ public class NWUtils {
 	 *            new setting value
 	 */
 	public static void setSetting(Objectify ofy, String name, String value) {
-		Setting st = ofy.find(new com.googlecode.objectify.Key<Setting>(
-				Setting.class, name));
+		Setting st =
+				ofy.find(new com.googlecode.objectify.Key<Setting>(
+						Setting.class, name));
 		if (st == null) {
 			st = new Setting();
 			st.name = name;

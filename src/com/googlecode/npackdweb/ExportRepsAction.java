@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
@@ -70,20 +71,27 @@ public class ExportRepsAction extends Action {
 		// Get a file service
 		FileService fileService = FileServiceFactory.getFileService();
 
-		if (r.blobFile == null
-				|| recreate
-				|| fileService.getBlobKey(new AppEngineFile(r.blobFile)) == null) {
+		AppEngineFile f = new AppEngineFile(r.blobFile);
+		boolean exists = false;
+		try {
+			fileService.stat(f);
+			exists = true;
+		} catch (FileNotFoundException e) {
+			exists = false;
+		}
+		if (r.blobFile == null || recreate || !exists ||
+				fileService.getBlobKey(f) == null) {
 			blobToDelete = r.blobFile;
 
 			Document d = RepXMLPage.toXML(ob, tag, true);
 
 			// Create a new Blob file with mime-type "text/plain"
-			AppEngineFile file = fileService
-					.createNewBlobFile("application/xml");
+			AppEngineFile file =
+					fileService.createNewBlobFile("application/xml");
 
 			// Open a channel to write to it
-			FileWriteChannel writeChannel = fileService.openWriteChannel(file,
-					true);
+			FileWriteChannel writeChannel =
+					fileService.openWriteChannel(file, true);
 
 			OutputStream os = Channels.newOutputStream(writeChannel);
 			NWUtils.serializeXML(d, os);

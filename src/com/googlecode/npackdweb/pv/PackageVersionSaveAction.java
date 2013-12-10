@@ -62,7 +62,7 @@ public class PackageVersionSaveAction extends Action {
                 if (NWUtils.isAdminLoggedIn())
                     p.reviewed = true;
 
-                NWUtils.savePackageVersion(ofy, p);
+                NWUtils.savePackageVersion(ofy, p, true);
 
                 resp.sendRedirect("/p/" + p.package_);
                 page = null;
