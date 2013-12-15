@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <queue-entries>
-  <queue>
-    <name>default</name>
-    <rate>40/h</rate>
-  </queue>
-  
-  <!-- for single-time updates to many entities -->
-  <queue>
-    <name>resave</name>
-    <rate>60/h</rate>
-  </queue>
+	<queue>
+		<name>default</name>
+		<rate>40/h</rate>
+	</queue>
+
+	<queue>
+		<name>check-downloads</name>
+		<rate>40/h</rate>
+		<retry-parameters>
+			<task-retry-limit>1</task-retry-limit>
+		</retry-parameters>
+	</queue>
+
+	<!-- for single-time updates to many entities -->
+	<queue>
+		<name>resave</name>
+		<rate>60/h</rate>
+	</queue>
 </queue-entries>

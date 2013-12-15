@@ -75,7 +75,7 @@ public class CheckDownloadAction extends Action {
 			cursor = null;
 		}
 
-		Queue queue = QueueFactory.getDefaultQueue();
+		Queue queue = QueueFactory.getQueue("check-downloads");
 		try {
 			TaskOptions to = withUrl("/tasks/check-download");
 			if (cursor != null)
