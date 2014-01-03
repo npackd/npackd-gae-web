@@ -1,22 +1,21 @@
 package com.googlecode.npackdweb;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.util.List;
-import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Document;
 
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.files.AppEngineFile;
-import com.google.appengine.api.files.FileService;
-import com.google.appengine.api.files.FileServiceFactory;
-import com.google.appengine.api.files.FileWriteChannel;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -66,56 +65,30 @@ public class ExportRepsAction extends Action {
 			NWUtils.saveRepository(ob, r);
 		}
 
-		String blobToDelete = null;
+		final GcsService gcsService =
+				GcsServiceFactory.createGcsService(RetryParams
+						.getDefaultInstance());
 
-		// Get a file service
-		FileService fileService = FileServiceFactory.getFileService();
+		GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
 
-		AppEngineFile f = new AppEngineFile(r.blobFile);
-		boolean exists = false;
-		try {
-			fileService.stat(f);
-			exists = true;
-		} catch (FileNotFoundException e) {
-			exists = false;
-		}
-		if (r.blobFile == null || recreate || !exists ||
-				fileService.getBlobKey(f) == null) {
-			blobToDelete = r.blobFile;
+		boolean exists = gcsService.getMetadata(fileName) != null;
+
+		if (r.blobFile == null || recreate || !exists) {
+			GcsOutputChannel outputChannel =
+					gcsService.createOrReplace(fileName,
+							GcsFileOptions.getDefaultInstance());
 
 			Document d = RepXMLPage.toXML(ob, tag, true);
 
-			// Create a new Blob file with mime-type "text/plain"
-			AppEngineFile file =
-					fileService.createNewBlobFile("application/xml");
+			OutputStream oout = Channels.newOutputStream(outputChannel);
+			NWUtils.serializeXML(d, oout);
+			oout.close();
 
-			// Open a channel to write to it
-			FileWriteChannel writeChannel =
-					fileService.openWriteChannel(file, true);
+			r.blobFile =
+					"/gs/" + fileName.getBucketName() + "/" +
+							fileName.getObjectName();
 
-			OutputStream os = Channels.newOutputStream(writeChannel);
-			NWUtils.serializeXML(d, os);
-			os.close();
-
-			// Now finalize
-			writeChannel.closeFinally();
-
-			BlobKey blobKey = fileService.getBlobKey(file);
-
-			file = fileService.getBlobFile(blobKey);
-
-			r.blobFile = file.getFullPath();
-			NWUtils.LOG.warning(file.getNamePart());
 			NWUtils.saveRepository(ob, r);
-		}
-
-		// delete the blob later after we recreated the repository
-		if (blobToDelete != null) {
-			try {
-				fileService.delete(new AppEngineFile(blobToDelete));
-			} catch (Exception e) {
-				NWUtils.LOG.log(Level.WARNING, "cannot delete a blob", e);
-			}
 		}
 
 		return r;

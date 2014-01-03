@@ -1,9 +1,13 @@
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,13 +22,14 @@ import org.w3c.dom.Element;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.files.AppEngineFile;
-import com.google.appengine.api.files.FileService;
-import com.google.appengine.api.files.FileServiceFactory;
+import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.Query;
@@ -46,17 +51,54 @@ public class RepXMLPage extends Page {
 	@Override
 	public void create(HttpServletRequest request, HttpServletResponse resp)
 			throws IOException {
-		resp.setContentType("application/xml");
-
 		Objectify ofy = DefaultServlet.getObjectify();
-		Repository r = ExportRepsAction.export(ofy, tag, false);
+		ExportRepsAction.export(ofy, tag, false);
+
+		final GcsService gcsService =
+				GcsServiceFactory.createGcsService(RetryParams
+						.getDefaultInstance());
+
+		GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
+		GcsFileMetadata md = gcsService.getMetadata(fileName);
+
+		SimpleDateFormat httpDateFormat =
+				new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+
+		String ims = request.getHeader("If-Modified-Since");
+		boolean serve = true;
+		if (ims != null) {
+			Date lastSeen;
+			try {
+				lastSeen = httpDateFormat.parse(ims);
+				if (lastSeen.getTime() >= md.getLastModified().getTime())
+					serve = false;
+			} catch (ParseException e) {
+				// ignore
+			}
+		} else {
+			String inm = request.getHeader("If-None-Match");
+			if (inm != null) {
+				String[] split = inm.split(",");
+				if (Arrays.asList(split).contains(md.getEtag()))
+					serve = false;
+			}
+		}
+
+		resp.setContentType("application/xml");
+		resp.setHeader("ETag", md.getEtag());
+
+		resp.setHeader("Last-Modified",
+				httpDateFormat.format(md.getLastModified()));
+
 		BlobstoreService blobstoreService =
 				BlobstoreServiceFactory.getBlobstoreService();
-		FileService fileService = FileServiceFactory.getFileService();
-		AppEngineFile file = new AppEngineFile(r.blobFile);
-		BlobKey blobKey = fileService.getBlobKey(file);
+		BlobKey blobKey =
+				blobstoreService.createGsBlobKey("/gs/npackd/" + tag + ".xml");
 
-		blobstoreService.serve(blobKey, resp);
+		if (serve)
+			blobstoreService.serve(blobKey, resp);
+		else
+			resp.sendError(304);
 	}
 
 	/**

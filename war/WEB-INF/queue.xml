@@ -9,7 +9,7 @@
 		<name>check-downloads</name>
 		<rate>40/h</rate>
 		<retry-parameters>
-			<task-retry-limit>1</task-retry-limit>
+			<task-retry-limit>0</task-retry-limit>
 		</retry-parameters>
 	</queue>
 
