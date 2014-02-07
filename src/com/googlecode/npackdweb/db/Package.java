@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -138,6 +139,26 @@ public class Package {
 		return r;
 	}
 
+	/**
+	 * Checks whether the supplied user is permitted to modify this package.
+	 * WARNING: special administrator rights are not considered
+	 * 
+	 * @param u
+	 *            a user
+	 * @return true if the user may modify the package
+	 */
+	public boolean isUserPermittedToModify(User u) {
+		boolean r = false;
+		for (int i = 0; i < this.permissions.size(); i++) {
+			User cu = this.permissions.get(i);
+			if (cu.getEmail().equals(u.getEmail())) {
+				r = true;
+				break;
+			}
+		}
+		return r;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -218,6 +239,10 @@ public class Package {
 		return package_;
 	}
 
+	@PrePersist
+	void onPersist() {
+	}
+
 	/**
 	 * @return created Key for this object
 	 */
@@ -274,8 +299,8 @@ public class Package {
 
 				if (!part.isEmpty()) {
 					char c = part.charAt(0);
-					if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')
-							|| (c == '_') || (c >= 'a' && c <= 'z') || Character
+					if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+							(c == '_') || (c >= 'a' && c <= 'z') || Character
 								.isLetter(c)))
 						return MessageFormat.format(
 								"Wrong character at position 1 in {0}", part);
@@ -283,9 +308,9 @@ public class Package {
 
 				for (int i = 1; i < part.length() - 1; i++) {
 					char c = part.charAt(i);
-					if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')
-							|| (c == '_') || (c == '-')
-							|| (c >= 'a' && c <= 'z') || Character.isLetter(c)))
+					if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+							(c == '_') || (c == '-') || (c >= 'a' && c <= 'z') || Character
+								.isLetter(c)))
 						return MessageFormat.format(
 								"Wrong character at position {0} in {1}",
 								i + 1, part);
@@ -293,8 +318,8 @@ public class Package {
 
 				if (!part.isEmpty()) {
 					char c = part.charAt(part.length() - 1);
-					if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')
-							|| (c == '_') || (c >= 'a' && c <= 'z') || Character
+					if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+							(c == '_') || (c >= 'a' && c <= 'z') || Character
 								.isLetter(c)))
 						return MessageFormat.format(
 								"Wrong character at position {0} in {1}",
@@ -327,8 +352,9 @@ public class Package {
 		HTTPResponse r;
 		try {
 			r = s.fetch(new URL(discoveryPage));
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					new ByteArrayInputStream(r.getContent()), "UTF-8"));
+			BufferedReader br =
+					new BufferedReader(new InputStreamReader(
+							new ByteArrayInputStream(r.getContent()), "UTF-8"));
 			String line;
 			Pattern vp = Pattern.compile(discoveryRE);
 			while ((line = br.readLine()) != null) {
@@ -352,11 +378,12 @@ public class Package {
 
 		// process version numbers like 2.0.6b
 		if (version.length() > 0) {
-			char c = Character
-					.toLowerCase(version.charAt(version.length() - 1));
+			char c =
+					Character.toLowerCase(version.charAt(version.length() - 1));
 			if (c >= 'a' && c <= 'z') {
-				version = version.substring(0, version.length() - 1) + "."
-						+ (c - 'a' + 1);
+				version =
+						version.substring(0, version.length() - 1) + "." +
+								(c - 'a' + 1);
 			}
 		}
 

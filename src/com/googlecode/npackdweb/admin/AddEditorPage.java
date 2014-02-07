@@ -1,9 +1,12 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.admin;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.googlecode.npackdweb.DefaultServlet;
+import com.googlecode.npackdweb.MyPage;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;

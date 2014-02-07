@@ -1,10 +1,12 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.admin;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.googlecode.npackdweb.MessagePage;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;

@@ -57,9 +57,13 @@ public class CheckUpdatesAction extends Action {
 			NWUtils.LOG.warning("check-update for " + data.name);
 			Version v = null;
 			try {
+				if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount")))
+					throw new IOException("Retries are not allowed");
+
 				v = data.findNewestVersion();
-				List<PackageVersion> versions = ob.query(PackageVersion.class)
-						.filter("package_ =", data.name).list();
+				List<PackageVersion> versions =
+						ob.query(PackageVersion.class)
+								.filter("package_ =", data.name).list();
 				Collections.sort(versions, new Comparator<PackageVersion>() {
 					@Override
 					public int compare(PackageVersion a, PackageVersion b) {
@@ -93,15 +97,15 @@ public class CheckUpdatesAction extends Action {
 				}
 			}
 
-			NWUtils.LOG.warning("check-update noUpdatesCheck= "
-					+ data.noUpdatesCheck);
+			NWUtils.LOG.warning("check-update noUpdatesCheck= " +
+					data.noUpdatesCheck);
 
 			cursor = iterator.getCursor().toWebSafeString();
 		} else {
 			cursor = null;
 		}
 
-		Queue queue = QueueFactory.getDefaultQueue();
+		Queue queue = QueueFactory.getQueue("check-update");
 		try {
 			TaskOptions to = withUrl("/tasks/check-update");
 			if (cursor != null)

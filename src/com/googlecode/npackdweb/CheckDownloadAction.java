@@ -64,7 +64,11 @@ public class CheckDownloadAction extends Action {
 				NWUtils.LOG.warning("Checking " + data.package_ + "@" +
 						data.version);
 
-				NWUtils.Info info = data.check(true);
+				NWUtils.Info info;
+				if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount")))
+					info = null;
+				else
+					info = data.check(true);
 				if (info != null)
 					downloaded = info.size;
 				NWUtils.savePackageVersion(ob, data, false);

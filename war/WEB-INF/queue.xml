@@ -8,9 +8,11 @@
 	<queue>
 		<name>check-downloads</name>
 		<rate>40/h</rate>
-		<retry-parameters>
-			<task-retry-limit>0</task-retry-limit>
-		</retry-parameters>
+	</queue>
+
+	<queue>
+		<name>check-update</name>
+		<rate>40/h</rate>
 	</queue>
 
 	<!-- for single-time updates to many entities -->

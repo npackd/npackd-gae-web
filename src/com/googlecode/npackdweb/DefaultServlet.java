@@ -15,6 +15,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.admin.AddEditorAction;
+import com.googlecode.npackdweb.admin.AddEditorConfirmedAction;
+import com.googlecode.npackdweb.admin.AddPermissionsAction;
+import com.googlecode.npackdweb.admin.AddPermissionsConfirmedAction;
+import com.googlecode.npackdweb.admin.RecreateIndexAction;
+import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
+import com.googlecode.npackdweb.admin.ResavePackagesAction;
 import com.googlecode.npackdweb.package_.PackageDeleteAction;
 import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
@@ -42,189 +49,191 @@ import com.googlecode.objectify.ObjectifyService;
  */
 @SuppressWarnings("serial")
 public class DefaultServlet extends HttpServlet {
-    /** version of the data (versions, packages, licenses): 0, 1, ... */
-    public static AtomicInteger dataVersion = new AtomicInteger();
+	/** version of the data (versions, packages, licenses): 0, 1, ... */
+	public static AtomicInteger dataVersion = new AtomicInteger();
 
-    private static ThreadLocal<Objectify> OBJS = new ThreadLocal<Objectify>() {
-        @Override
-        protected Objectify initialValue() {
-            return ObjectifyService.begin();
-        }
-    };
+	private static ThreadLocal<Objectify> OBJS = new ThreadLocal<Objectify>() {
+		@Override
+		protected Objectify initialValue() {
+			return ObjectifyService.begin();
+		}
+	};
 
-    /**
-     * @param req
-     *            an HTTP request
-     * @return DefaultServlet instance
-     */
-    public static DefaultServlet getInstance(HttpServletRequest req) {
-        return (DefaultServlet) req
-                .getAttribute("com.googlecode.npackdweb.DefaultServlet");
-    }
+	/**
+	 * @param req
+	 *            an HTTP request
+	 * @return DefaultServlet instance
+	 */
+	public static DefaultServlet getInstance(HttpServletRequest req) {
+		return (DefaultServlet) req
+				.getAttribute("com.googlecode.npackdweb.DefaultServlet");
+	}
 
-    /**
-     * @return Objectify instance associated with this request
-     */
-    public static Objectify getObjectify() {
-        return OBJS.get();
-    }
+	/**
+	 * @return Objectify instance associated with this request
+	 */
+	public static Objectify getObjectify() {
+		return OBJS.get();
+	}
 
-    private List<Pattern> urlPatterns = new ArrayList<Pattern>();
-    private List<Action> actions = new ArrayList<Action>();
+	private List<Pattern> urlPatterns = new ArrayList<Pattern>();
+	private List<Action> actions = new ArrayList<Action>();
 
-    @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-        try {
-            doGet0(req, resp);
-        } finally {
-            OBJS.remove();
-        }
-    }
+	@Override
+	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		try {
+			doGet0(req, resp);
+		} finally {
+			OBJS.remove();
+		}
+	}
 
-    private void doGet0(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-        req.setAttribute("com.googlecode.npackdweb.DefaultServlet", this);
+	private void doGet0(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		req.setAttribute("com.googlecode.npackdweb.DefaultServlet", this);
 
-        String pi = req.getRequestURI();
-        // NWUtils.LOG.severe("getPathInfo(): " + pi);
-        if (pi == null) {
-            pi = "/";
-        }
+		String pi = req.getRequestURI();
+		// NWUtils.LOG.severe("getPathInfo(): " + pi);
+		if (pi == null) {
+			pi = "/";
+		}
 
-        Action found = null;
-        for (int i = 0; i < getUrlPatterns().size(); i++) {
-            Pattern p = getUrlPatterns().get(i);
-            Matcher m = p.matcher(pi);
-            if (m.matches()) {
-                found = getActions().get(i);
-                break;
-            }
-        }
+		Action found = null;
+		for (int i = 0; i < getUrlPatterns().size(); i++) {
+			Pattern p = getUrlPatterns().get(i);
+			Matcher m = p.matcher(pi);
+			if (m.matches()) {
+				found = getActions().get(i);
+				break;
+			}
+		}
 
-        if (found != null) {
-            UserService us = UserServiceFactory.getUserService();
-            boolean ok = true;
-            switch (found.getSecurityType()) {
-            case ANONYMOUS:
-                break;
-            case LOGGED_IN:
-                if (us.getCurrentUser() == null) {
-                    ok = false;
-                    resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
-                }
-                break;
-            case ADMINISTRATOR:
-                if (us.getCurrentUser() == null) {
-                    ok = false;
-                    resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
-                } else if (!us.isUserAdmin()) {
-                    ok = false;
-                    resp.setContentType("text/plain");
-                    resp.getWriter().write("Not an admin");
-                    resp.getWriter().close();
-                }
-                break;
-            default:
-                throw new InternalError("Unknown security type");
-            }
+		if (found != null) {
+			UserService us = UserServiceFactory.getUserService();
+			boolean ok = true;
+			switch (found.getSecurityType()) {
+			case ANONYMOUS:
+				break;
+			case LOGGED_IN:
+				if (us.getCurrentUser() == null) {
+					ok = false;
+					resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
+				}
+				break;
+			case ADMINISTRATOR:
+				if (us.getCurrentUser() == null) {
+					ok = false;
+					resp.sendRedirect(us.createLoginURL(req.getRequestURI()));
+				} else if (!us.isUserAdmin()) {
+					ok = false;
+					resp.setContentType("text/plain");
+					resp.getWriter().write("Not an admin");
+					resp.getWriter().close();
+				}
+				break;
+			default:
+				throw new InternalError("Unknown security type");
+			}
 
-            if (ok) {
-                Page p = found.perform(req, resp);
-                if (p != null) {
-                    p.create(req, resp);
-                }
-            }
-        } else {
-            resp.sendError(404, "Unknown command: " + pi);
-        }
-    }
+			if (ok) {
+				Page p = found.perform(req, resp);
+				if (p != null) {
+					p.create(req, resp);
+				}
+			}
+		} else {
+			resp.sendError(404, "Unknown command: " + pi);
+		}
+	}
 
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        NWUtils.initObjectify();
-        NWUtils.initFreeMarker(getServletContext());
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		NWUtils.initObjectify();
+		NWUtils.initFreeMarker(getServletContext());
 
-        /* repository */
-        registerAction(new RepDeleteAction());
-        registerAction(new RepAddAction());
-        registerAction(new RepUploadAction());
-        registerAction(new RepFromFileAction());
-        registerAction(new RepDetailAction());
-        registerAction(new RepAction());
-        registerAction(new RepXMLAction());
-        registerAction(new RecentRepXMLAction());
+		/* repository */
+		registerAction(new RepDeleteAction());
+		registerAction(new RepAddAction());
+		registerAction(new RepUploadAction());
+		registerAction(new RepFromFileAction());
+		registerAction(new RepDetailAction());
+		registerAction(new RepAction());
+		registerAction(new RepXMLAction());
+		registerAction(new RecentRepXMLAction());
 
-        /* package */
-        registerAction(new PackagesAction());
-        registerAction(new PackageDetailAction());
-        registerAction(new PackageNewAction());
-        registerAction(new PackageSaveAction());
-        registerAction(new PackageDeleteAction());
-        registerAction(new PackageDeleteConfirmedAction());
+		/* package */
+		registerAction(new PackagesAction());
+		registerAction(new PackageDetailAction());
+		registerAction(new PackageNewAction());
+		registerAction(new PackageSaveAction());
+		registerAction(new PackageDeleteAction());
+		registerAction(new PackageDeleteConfirmedAction());
 
-        /* package version */
-        registerAction(new PackageVersionDetailAction());
-        registerAction(new PackageVersionNewAction());
-        registerAction(new PackageVersionSaveAction());
-        registerAction(new PackageVersionDeleteAction());
-        registerAction(new PackageVersionDeleteConfirmedAction());
-        registerAction(new CopyPackageVersionAction());
-        registerAction(new CopyPackageVersionConfirmedAction());
-        registerAction(new EditAsXMLAction());
-        registerAction(new DetectPackageVersionAction());
-        registerAction(new PackageVersionComputeSHA1Action());
-        registerAction(new DontCheckDownloadAction());
-        registerAction(new MarkReviewedAction());
+		/* package version */
+		registerAction(new PackageVersionDetailAction());
+		registerAction(new PackageVersionNewAction());
+		registerAction(new PackageVersionSaveAction());
+		registerAction(new PackageVersionDeleteAction());
+		registerAction(new PackageVersionDeleteConfirmedAction());
+		registerAction(new CopyPackageVersionAction());
+		registerAction(new CopyPackageVersionConfirmedAction());
+		registerAction(new EditAsXMLAction());
+		registerAction(new DetectPackageVersionAction());
+		registerAction(new PackageVersionComputeSHA1Action());
+		registerAction(new DontCheckDownloadAction());
+		registerAction(new MarkReviewedAction());
 
-        registerAction(new HomeAction());
-        registerAction(new SendStatusAction("^/robots\\.txt$", 404));
-        registerAction(new CheckDownloadAction());
-        registerAction(new ResavePackageVersionsAction());
-        registerAction(new CheckUpdatesAction());
-        registerAction(new SendStatusAction("^/cron/tick$", 200));
-        registerAction(new ExportRepsAction());
-        // registerAction(new StoreDataAction());
-        registerAction(new RecreateIndexAction());
-        registerAction(new ResavePackagesAction());
-        registerAction(new AddEditorAction());
-        registerAction(new AddEditorConfirmedAction());
-        registerAction(new InfoAction());
-        registerAction(new DownloadFailedAction());
-        registerAction(new NotReviewedAction());
-        registerAction(new ReCaptchaAnswerAction());
-        registerAction(new ReCaptchaAction());
-    }
+		registerAction(new HomeAction());
+		registerAction(new SendStatusAction("^/robots\\.txt$", 404));
+		registerAction(new CheckDownloadAction());
+		registerAction(new ResavePackageVersionsAction());
+		registerAction(new CheckUpdatesAction());
+		registerAction(new SendStatusAction("^/cron/tick$", 200));
+		registerAction(new ExportRepsAction());
+		// registerAction(new StoreDataAction());
+		registerAction(new RecreateIndexAction());
+		registerAction(new ResavePackagesAction());
+		registerAction(new AddEditorAction());
+		registerAction(new AddEditorConfirmedAction());
+		registerAction(new InfoAction());
+		registerAction(new DownloadFailedAction());
+		registerAction(new NotReviewedAction());
+		registerAction(new ReCaptchaAnswerAction());
+		registerAction(new ReCaptchaAction());
+		registerAction(new AddPermissionsAction());
+		registerAction(new AddPermissionsConfirmedAction());
+	}
 
-    /**
-     * Registers an action
-     * 
-     * @param action
-     *            registered action
-     */
-    private void registerAction(Action action) {
-        getUrlPatterns().add(Pattern.compile(action.getURLRegExp()));
-        getActions().add(action);
-    }
+	/**
+	 * Registers an action
+	 * 
+	 * @param action
+	 *            registered action
+	 */
+	private void registerAction(Action action) {
+		getUrlPatterns().add(Pattern.compile(action.getURLRegExp()));
+		getActions().add(action);
+	}
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        doGet(req, resp);
-    }
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		doGet(req, resp);
+	}
 
-    /**
-     * @return list of registered URL patterns
-     */
-    public List<Pattern> getUrlPatterns() {
-        return urlPatterns;
-    }
+	/**
+	 * @return list of registered URL patterns
+	 */
+	public List<Pattern> getUrlPatterns() {
+		return urlPatterns;
+	}
 
-    /**
-     * @return list of registered actions
-     */
-    public List<Action> getActions() {
-        return actions;
-    }
+	/**
+	 * @return list of registered actions
+	 */
+	public List<Action> getActions() {
+		return actions;
+	}
 }

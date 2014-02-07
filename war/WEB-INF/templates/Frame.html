@@ -26,6 +26,11 @@ ${menu}
 
 <div class="content">
 <h1>${title?html}</h1>
+
+<#if error??>
+<p class="nw-error">${error?html}</p>
+</#if>
+
 ${content}
 </div>
 <div class="nw-footer">
