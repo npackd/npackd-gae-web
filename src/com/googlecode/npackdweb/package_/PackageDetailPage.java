@@ -250,7 +250,7 @@ public class PackageDetailPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "Tags:");
+		w.e("td", "Category:");
 		w.start("td");
 		if (mode.isEditable()) {
 			w.e("input", "type", "text", "name", "tags", "value", tags, "size",
