@@ -87,6 +87,7 @@ public class Package {
 	 */
 	public String discoveryURLPattern = "";
 
+	/** categories. Example: "Entertainment/Travel" */
 	public List<String> tags = new ArrayList<String>();
 
 	/** this package was created by this user */
