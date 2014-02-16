@@ -44,7 +44,9 @@ public class PackageVersion {
 	@AlsoLoad("package")
 	public String package_ = "";
 
+	/** only the version number */
 	public String version = "";
+
 	public boolean oneFile;
 	public String url = "";
 	public String sha1 = "";
