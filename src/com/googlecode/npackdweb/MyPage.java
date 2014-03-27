@@ -18,6 +18,9 @@ public abstract class MyPage extends Page {
 	/** error message shown at the top of the page or null */
 	public String error;
 
+	/** informational message or null */
+	public String info;
+
 	@Override
 	public final void create(HttpServletRequest request,
 			HttpServletResponse resp) throws IOException {
@@ -27,7 +30,7 @@ public abstract class MyPage extends Page {
 		out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "content",
 				createContent(request), "login",
 				MyPage.getLoginHeader(request), "head", getHeadPart(), "menu",
-				createMenu(), "error", error));
+				createMenu(), "error", error, "info", info));
 		out.close();
 	}
 

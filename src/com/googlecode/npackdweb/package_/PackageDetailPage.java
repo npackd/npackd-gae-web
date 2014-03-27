@@ -321,6 +321,12 @@ public class PackageDetailPage extends MyPage {
 				w.t(", ");
 			w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version, pv.version);
 		}
+		if (mode.isEditable() && error == null && id != null && !id.isEmpty() &&
+				pvs.size() == 0)
+			info =
+					"Click on \"New version\" to create a new version of this package";
+		else
+			info = null;
 		w.end("td");
 		w.end("tr");
 

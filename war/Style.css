@@ -89,6 +89,14 @@ div.content {
     padding: 1em;
 }
 
+/* small informational messages */
+.nw-info {
+    background-color: #00ee00;
+    color: black;
+    font-weight: bold;
+    padding: 1em;
+}
+
 
 .gwt-PopupPanel {
     border: 3px solid #C3D9FF;

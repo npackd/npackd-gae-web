@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -577,7 +578,11 @@ public class PackageVersionPage extends MyPage {
 		if (this.license == null) {
 			Package p = getPackage();
 			if (!p.license.isEmpty()) {
-				this.license = ofy.get(License.class, p.license);
+				this.license = ofy.find(License.class, p.license);
+				if (this.license == null)
+					NWUtils.LOG.log(Level.WARNING,
+							"License {0} not found for {1}", new Object[] {
+									p.license, p.name });
 			}
 		}
 		return license;

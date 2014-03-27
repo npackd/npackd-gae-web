@@ -79,11 +79,20 @@ public class CheckDownloadAction extends Action {
 			cursor = null;
 		}
 
+		String name;
+		if ("check-download0".equals(req.getHeader("X-AppEngine-TaskName")))
+			name = "check-download1";
+		else
+			name = "check-download0";
+
 		Queue queue = QueueFactory.getQueue("check-downloads");
 		try {
 			TaskOptions to = withUrl("/tasks/check-download");
 			if (cursor != null)
 				to.param("cursor", cursor);
+
+			to.taskName(name);
+
 			long delay = Math.round(downloaded / rate);
 			if (delay > DAY_IN_MS / 2)
 				delay = DAY_IN_MS / 2;
@@ -93,7 +102,7 @@ public class CheckDownloadAction extends Action {
 			// NWUtils.LOG.warning("adding task at cursor " + cursor);
 			queue.add(to);
 		} catch (TaskAlreadyExistsException e) {
-			NWUtils.LOG.warning("task check-download already exists");
+			NWUtils.LOG.warning("task " + name + " already exists");
 		}
 
 		resp.setStatus(200);
