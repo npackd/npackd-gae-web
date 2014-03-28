@@ -356,6 +356,30 @@ public class NWUtils {
 	}
 
 	/**
+	 * Adds a sub-tag with the specified text and an attribute.
+	 * 
+	 * @param parent
+	 *            parent tag
+	 * @param subtag
+	 *            sub-tag
+	 * @param attr
+	 *            attribute name
+	 * @param attrValue
+	 *            attribute value
+	 * @param content
+	 *            content of the sub-tag
+	 */
+	public static void e(Element parent, String subtag, String attr,
+			String attrValue, String content) {
+		Document d = parent.getOwnerDocument();
+		Element ch = d.createElement(subtag);
+		Text t = d.createTextNode(content);
+		ch.setAttribute(attr, attrValue);
+		ch.appendChild(t);
+		parent.appendChild(ch);
+	}
+
+	/**
 	 * Adds text to the specified tag.
 	 * 
 	 * @param tag
@@ -828,6 +852,29 @@ public class NWUtils {
 	}
 
 	/**
+	 * Validates an SHA-256 checksum.
+	 * 
+	 * @param sha
+	 *            text entered by the user
+	 * @return error message or null
+	 */
+	public static String validateSHA256(String sha) {
+		if (sha.length() != 64) {
+			return "Wrong length: " + sha;
+		} else {
+			for (int i = 0; i < sha.length(); i++) {
+				char c = sha.charAt(i);
+				if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+					return "Wrong character at position " + (i + 1) + " in " +
+							sha;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Validates a GUID
 	 * 
 	 * @param guid
@@ -940,16 +987,18 @@ public class NWUtils {
 	 * 
 	 * @param url
 	 *            http: or https: URL
+	 * @param algorithm
+	 *            SHA-1 or SHA-256
 	 * @return info about the downloaded file
 	 * @throws IOException
 	 *             file cannot be downloaded
 	 * @throws NoSuchAlgorithmException
 	 *             if SHA1 cannot be computed
 	 */
-	public static Info download(String url) throws IOException,
-			NoSuchAlgorithmException {
+	public static Info download(String url, String algorithm)
+			throws IOException, NoSuchAlgorithmException {
 		Info info = new Info();
-		MessageDigest crypt = MessageDigest.getInstance("SHA-1");
+		MessageDigest crypt = MessageDigest.getInstance(algorithm);
 
 		URL u = new URL(url);
 		URLFetchService s = URLFetchServiceFactory.getURLFetchService();

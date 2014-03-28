@@ -33,6 +33,7 @@ import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
 import com.googlecode.npackdweb.pv.DontCheckDownloadAction;
 import com.googlecode.npackdweb.pv.MarkReviewedAction;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
+import com.googlecode.npackdweb.pv.PackageVersionComputeSHA256Action;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
@@ -182,6 +183,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new EditAsXMLAction());
 		registerAction(new DetectPackageVersionAction());
 		registerAction(new PackageVersionComputeSHA1Action());
+		registerAction(new PackageVersionComputeSHA256Action());
 		registerAction(new DontCheckDownloadAction());
 		registerAction(new MarkReviewedAction());
 

@@ -194,8 +194,12 @@ public class PackageVersion {
 		}
 		if (!pv.url.isEmpty())
 			NWUtils.e(version, "url", pv.url);
-		if (!pv.sha1.isEmpty())
-			NWUtils.e(version, "sha1", pv.sha1);
+		if (!pv.sha1.isEmpty()) {
+			if (pv.sha1.length() == 40)
+				NWUtils.e(version, "sha1", pv.sha1);
+			else
+				NWUtils.e(version, "hash-sum", "type", "SHA-256", pv.sha1);
+		}
 		for (int i = 0; i < pv.dependencyPackages.size(); i++) {
 			Element dependency = d.createElement("dependency");
 			version.appendChild(dependency);
@@ -358,18 +362,20 @@ public class PackageVersion {
 	}
 
 	/**
-	 * @param checkSHA1
-	 *            true = also check SHA1
+	 * @param checkSum
+	 *            true = also check SHA-1 or SHA-256
+	 * @param algorithm
+	 *            SHA-256 or SHA-1
 	 * @return info about the download or null if the download failed
 	 */
-	public NWUtils.Info check(boolean checkSHA1) {
+	public NWUtils.Info check(boolean checkSum, String algorithm) {
 		NWUtils.Info info = null;
 		this.downloadCheckAt = new Date();
 		this.downloadCheckError = "Unknown error";
 		if (!this.url.isEmpty()) {
 			try {
-				info = NWUtils.download(this.url);
-				if (checkSHA1) {
+				info = NWUtils.download(this.url, algorithm);
+				if (checkSum) {
 					if (this.sha1.trim().isEmpty())
 						this.downloadCheckError = null;
 					else {

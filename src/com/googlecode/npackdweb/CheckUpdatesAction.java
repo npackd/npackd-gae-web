@@ -15,7 +15,6 @@ import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.appengine.api.taskqueue.TaskAlreadyExistsException;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -105,28 +104,16 @@ public class CheckUpdatesAction extends Action {
 			cursor = null;
 		}
 
-		String name;
-		if ("check-update0".equals(req.getHeader("X-AppEngine-TaskName")))
-			name = "check-update1";
-		else
-			name = "check-update0";
-
 		Queue queue = QueueFactory.getQueue("check-update");
-		try {
-			TaskOptions to = withUrl("/tasks/check-update");
-			if (cursor != null)
-				to.param("cursor", cursor);
+		TaskOptions to = withUrl("/tasks/check-update");
+		if (cursor != null)
+			to.param("cursor", cursor);
 
-			to.taskName(name);
+		// 2 minutes
+		to.countdownMillis(2 * 60 * 1000);
 
-			// 2 minutes
-			to.countdownMillis(2 * 60 * 1000);
-
-			// NWUtils.LOG.warning("adding task at cursor " + cursor);
-			queue.add(to);
-		} catch (TaskAlreadyExistsException e) {
-			NWUtils.LOG.warning("task " + name + " already exists");
-		}
+		// NWUtils.LOG.warning("adding task at cursor " + cursor);
+		queue.add(to);
 
 		resp.setStatus(200);
 		return null;

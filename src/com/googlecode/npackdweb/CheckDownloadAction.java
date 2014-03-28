@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,7 +12,6 @@ import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.appengine.api.taskqueue.TaskAlreadyExistsException;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -64,11 +64,15 @@ public class CheckDownloadAction extends Action {
 				NWUtils.LOG.warning("Checking " + data.package_ + "@" +
 						data.version);
 
-				NWUtils.Info info;
-				if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount")))
-					info = null;
-				else
-					info = data.check(true);
+				NWUtils.Info info = null;
+				if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
+					data.downloadCheckAt = new Date();
+					data.downloadCheckError = "Timeout";
+				} else
+					info =
+							data.check(true,
+									data.sha1.length() == 64 ? "SHA-256"
+											: "SHA-1");
 				if (info != null)
 					downloaded = info.size;
 				NWUtils.savePackageVersion(ob, data, false);
@@ -79,31 +83,20 @@ public class CheckDownloadAction extends Action {
 			cursor = null;
 		}
 
-		String name;
-		if ("check-download0".equals(req.getHeader("X-AppEngine-TaskName")))
-			name = "check-download1";
-		else
-			name = "check-download0";
-
 		Queue queue = QueueFactory.getQueue("check-downloads");
-		try {
-			TaskOptions to = withUrl("/tasks/check-download");
-			if (cursor != null)
-				to.param("cursor", cursor);
 
-			to.taskName(name);
+		TaskOptions to = withUrl("/tasks/check-download");
+		if (cursor != null)
+			to.param("cursor", cursor);
 
-			long delay = Math.round(downloaded / rate);
-			if (delay > DAY_IN_MS / 2)
-				delay = DAY_IN_MS / 2;
-			NWUtils.LOG.warning("delay in ms: " + delay);
-			to.countdownMillis(delay);
+		long delay = Math.round(downloaded / rate);
+		if (delay > DAY_IN_MS / 2)
+			delay = DAY_IN_MS / 2;
+		NWUtils.LOG.warning("delay in ms: " + delay);
+		to.countdownMillis(delay);
 
-			// NWUtils.LOG.warning("adding task at cursor " + cursor);
-			queue.add(to);
-		} catch (TaskAlreadyExistsException e) {
-			NWUtils.LOG.warning("task " + name + " already exists");
-		}
+		// NWUtils.LOG.warning("adding task at cursor " + cursor);
+		queue.add(to);
 
 		resp.setStatus(200);
 		return null;

@@ -35,7 +35,7 @@ public class PackageVersionPage extends MyPage {
 
 	private String packageName;
 	private String version;
-	private String url, sha1, detectMSI;
+	private String url, sha, detectMSI;
 	private List<String> dependencyPackages;
 	private List<String> dependencyVersionRanges;
 	private List<String> dependencyEnvVars;
@@ -61,7 +61,7 @@ public class PackageVersionPage extends MyPage {
 		this.packageName = "";
 		this.version = "";
 		this.url = "";
-		this.sha1 = "";
+		this.sha = "";
 		this.detectMSI = "";
 		this.dependencyPackages = new ArrayList<String>();
 		this.dependencyVersionRanges = new ArrayList<String>();
@@ -103,7 +103,7 @@ public class PackageVersionPage extends MyPage {
 		this.packageName = pv.package_;
 		this.version = pv.version.toString();
 		this.url = pv.url;
-		this.sha1 = pv.sha1;
+		this.sha = pv.sha1;
 		this.detectMSI = pv.detectMSI;
 		this.dependencyPackages = new ArrayList<String>();
 		this.dependencyPackages.addAll(pv.dependencyPackages);
@@ -236,7 +236,7 @@ public class PackageVersionPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "SHA1:");
+		w.e("td", "SHA-1 or SHA-256:");
 		w.start("td");
 		if (editable) {
 			w.e("input",
@@ -245,15 +245,15 @@ public class PackageVersionPage extends MyPage {
 					"name",
 					"sha1",
 					"value",
-					sha1,
+					sha,
 					"size",
 					"50",
 					"title",
-					"SHA1 check sum for the package binary. "
+					"SHA-1 or SHA-256 check sum for the package binary. "
 							+ "Leave this field empty if different binaries are "
 							+ "distributed from the same address.");
 		} else {
-			w.t(sha1);
+			w.t(sha);
 		}
 		w.end("td");
 		w.end("tr");
@@ -526,10 +526,14 @@ public class PackageVersionPage extends MyPage {
 						"Delete this package version", "value", "Delete",
 						"onclick",
 						"this.form.action='/package-version/delete'; this.form.submit()");
-				NWUtils.jsButton(w, "Compute SHA1",
+				NWUtils.jsButton(w, "Compute SHA-1",
 						"/package-version/compute-sha1?package=" + packageName +
 								"&version=" + version,
 						"Computes SHA1 for this package version");
+				NWUtils.jsButton(w, "Compute SHA-256",
+						"/package-version/compute-sha-256?package=" +
+								packageName + "&version=" + version,
+						"Computes SHA-256 for this package version");
 				NWUtils.jsButton(w, "Disable download check",
 						"/package-version/dont-check-download?package=" +
 								packageName + "&version=" + version,
@@ -599,7 +603,7 @@ public class PackageVersionPage extends MyPage {
 		version = req.getParameter("version");
 
 		url = req.getParameter("url");
-		sha1 = req.getParameter("sha1");
+		sha = req.getParameter("sha1");
 		detectMSI = req.getParameter("detectMSI");
 		oneFile = "one-file".equals(req.getParameter("type"));
 		tags = NWUtils.split(req.getParameter("tags"), ',');
@@ -709,8 +713,10 @@ public class PackageVersionPage extends MyPage {
 		}
 
 		if (r == null) {
-			if (!this.sha1.trim().isEmpty()) {
-				r = NWUtils.validateSHA1(this.sha1);
+			if (!this.sha.trim().isEmpty()) {
+				r = NWUtils.validateSHA1(this.sha);
+				if (r != null)
+					r = NWUtils.validateSHA256(this.sha);
 			}
 		}
 
@@ -794,7 +800,7 @@ public class PackageVersionPage extends MyPage {
 		pv.version = this.version;
 		pv.name = this.packageName + "@" + this.version;
 		pv.url = this.url;
-		pv.sha1 = this.sha1;
+		pv.sha1 = this.sha;
 		pv.detectMSI = this.detectMSI;
 		pv.dependencyPackages = new ArrayList<String>();
 		pv.dependencyPackages.addAll(this.dependencyPackages);

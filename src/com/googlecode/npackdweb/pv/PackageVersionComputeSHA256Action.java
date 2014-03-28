@@ -18,14 +18,15 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 
 /**
- * Compute SHA1 for a package version.
+ * Compute SHA-256 for a package version.
  */
-public class PackageVersionComputeSHA1Action extends Action {
+public class PackageVersionComputeSHA256Action extends Action {
 	/**
 	 * -
 	 */
-	public PackageVersionComputeSHA1Action() {
-		super("^/package-version/compute-sha1$", ActionSecurityType.LOGGED_IN);
+	public PackageVersionComputeSHA256Action() {
+		super("^/package-version/compute-sha-256$",
+				ActionSecurityType.LOGGED_IN);
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class PackageVersionComputeSHA1Action extends Action {
 			PackageVersion p =
 					ofy.get(new Key<PackageVersion>(PackageVersion.class,
 							package_ + "@" + version));
-			Info info = p.check(false, "SHA-1");
+			Info info = p.check(false, "SHA-256");
 			if (info != null)
 				p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
 			NWUtils.savePackageVersion(ofy, p, true);
