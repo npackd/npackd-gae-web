@@ -135,14 +135,18 @@ public class PackagesPage extends MyPage {
 				else
 					lic = null;
 
-				w.start("div");
-				w.start("h3");
+				w.start("div", "class", "media");
+				w.start("a", "class", "pull-left", "href", "/p/" + p.name);
 				if (p.icon.isEmpty()) {
-					w.e("img", "src", "/App.png");
+					w.e("img", "src", "/App.png", "alt", p.title);
 				} else {
 					w.e("img", "src", p.icon, "style",
-							"max-width: 32px; max-height: 32px");
+							"max-width: 32px; max-height: 32px", "alt", p.title);
 				}
+				w.end("a");
+
+				w.start("div", "class", "media-body");
+				w.start("h4", "class", "media-heading");
 				w.t(" ");
 				w.e("a", "href", "/p/" + p.name, p.title);
 				if (p.noUpdatesCheck != null &&
@@ -154,7 +158,7 @@ public class PackagesPage extends MyPage {
 							"This package was checked in the last 7 days and there were no updates",
 							"\u2713");
 				}
-				w.end("h3");
+				w.end("h4");
 				try {
 					w.unencoded(mp.process("Description: " + p.description));
 				} catch (IOException e) {
@@ -164,6 +168,7 @@ public class PackagesPage extends MyPage {
 									e.getMessage());
 				}
 				w.e("div", "License: " + (lic == null ? "unknown" : lic.title));
+				w.end("div");
 				w.end("div");
 			}
 			w.end("div");
