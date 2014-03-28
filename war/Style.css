@@ -1,52 +1,4 @@
-@import "Reset.css";
 @import "Menu.css";
-
-body {
-    font-family: 'Segoe UI', 'Trebuchet MS', Verdana, Helvetica, sans-serif;
-}
-
-h1 {
-    color: #666;
-    font-size: 20pt;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-h2 {
-    font-size: 14pt;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-h3 {
-    color: #666;
-    font-size: 14pt;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-p {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-li {
-    display: list-item;
-}
-
-ol {
-    margin: 5pt;
-    padding-left: 2em;
-    list-style: decimal;
-    list-style-type: decimal;
-}
-
-ul {
-    margin: 5pt;
-    padding-left: 2em;
-    list-style: disc;
-    list-style-type: disc;
-}
 
 .nw-login-header {
     padding: 5pt;
@@ -60,6 +12,14 @@ td {
 
 div.content {
     padding: 1em;
+}
+
+.bg-info {
+	padding: 15px;
+}
+
+.bg-danger {
+	padding: 15px;	
 }
 
 .nw-footer {
@@ -80,23 +40,6 @@ div.content {
     font-size: x-small;
     color: gray;
 }
-
-/* error messages */
-.nw-error {
-    background-color: #ffffaa;
-    color: black;
-    font-weight: bold;
-    padding: 1em;
-}
-
-/* small informational messages */
-.nw-info {
-    background-color: #00ee00;
-    color: black;
-    font-weight: bold;
-    padding: 1em;
-}
-
 
 .gwt-PopupPanel {
     border: 3px solid #C3D9FF;

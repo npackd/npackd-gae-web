@@ -110,7 +110,7 @@ public class PackageDetailPage extends MyPage {
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
 		if (error != null) {
-			w.e("p", "class", "nw-error", this.error);
+			w.e("p", "class", "bg-danger", this.error);
 		}
 		w.start("h3");
 		if (icon.isEmpty()) {
@@ -126,8 +126,8 @@ public class PackageDetailPage extends MyPage {
 		w.end("h3");
 
 		if (mode == FormMode.CREATE || mode == FormMode.EDIT) {
-			w.start("form", "method", "post", "action", "/package/save", "id",
-					"package-form");
+			w.start("form", "class", "form-horizontal", "method", "post",
+					"action", "/package/save", "id", "package-form");
 		}
 
 		if (mode == FormMode.EDIT)
@@ -143,8 +143,8 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", id);
 		else {
 			w.start("td");
-			w.e("input", "type", "text", "name", "name", "value", id, "size",
-					"80", "title",
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"name", "value", id, "size", "80", "title",
 					"Full package name including the reversed domain name");
 			w.start("p", "class", "nw-help");
 			w.t(" See ");
@@ -162,8 +162,9 @@ public class PackageDetailPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Title:");
 			w.start("td");
-			w.e("input", "type", "text", "name", "title", "value", title,
-					"size", "80", "title", "Name of the package");
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"title", "value", title, "size", "80", "title",
+					"Name of the package");
 			w.end("td");
 			w.end("tr");
 		}
@@ -172,8 +173,8 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Product home page:");
 		w.start("td");
 		if (mode.isEditable()) {
-			w.e("input", "type", "text", "name", "url", "value", url, "size",
-					"120", "title",
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"url", "value", url, "size", "120", "title",
 					"http: or https: address of the product home page");
 			w.start("a", "href", url, "target", "_blank");
 			w.e("img", "src", "/Link.png");
@@ -188,8 +189,8 @@ public class PackageDetailPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Icon:");
 			w.start("td");
-			w.e("input", "type", "text", "name", "icon", "value", icon, "size",
-					"120", "title",
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"icon", "value", icon, "size", "120", "title",
 					"http: or https: address of a 32x32 PNG icon representing this package");
 			w.end("td");
 			w.end("tr");
@@ -205,8 +206,9 @@ public class PackageDetailPage extends MyPage {
 					"target", "_blank", "Markdown syntax");
 			w.t(" can be used in the following text area");
 			w.end("p");
-			w.e("textarea", "rows", "10", "name", "description", "cols", "80",
-					"title", "Possibly long description of the package. "
+			w.e("textarea", "class", "form-control", "rows", "10", "name",
+					"description", "cols", "80", "title",
+					"Possibly long description of the package. "
 							+ "Try to not repeat the package name here and "
 							+ "keep it simple and informative.", description);
 		} else {
@@ -227,8 +229,8 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "License:");
 		w.start("td");
 		if (mode.isEditable()) {
-			w.start("select", "name", "license", "title",
-					"Package licensing terms");
+			w.start("select", "class", "form-control", "name", "license",
+					"title", "Package licensing terms");
 			w.e("option", "value", "");
 			for (License lic : this.getLicenses(ofy)) {
 				w.e("option", "value", lic.name, "selected",
@@ -253,8 +255,9 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Category:");
 		w.start("td");
 		if (mode.isEditable()) {
-			w.e("input", "type", "text", "name", "tags", "value", tags, "size",
-					"40", "id", "tags", "autocomplete", "off", "title",
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"tags", "value", tags, "size", "40", "id", "tags",
+					"autocomplete", "off", "title",
 					"list of tags associated with this package separated by commas");
 		} else {
 			w.t(tags);
@@ -267,6 +270,8 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Comment:");
 			w.start("td");
 			w.e("textarea",
+					"class",
+					"form-control",
 					"rows",
 					"5",
 					"name",
@@ -350,6 +355,8 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Discovery page (URL):");
 			w.start("td");
 			w.e("input",
+					"class",
+					"form-control",
 					"type",
 					"text",
 					"name",
@@ -373,6 +380,8 @@ public class PackageDetailPage extends MyPage {
 			w.e("td", "Discovery regular expression:");
 			w.start("td");
 			w.e("input",
+					"class",
+					"form-control",
 					"type",
 					"text",
 					"name",
@@ -404,7 +413,9 @@ public class PackageDetailPage extends MyPage {
 		w.end("table");
 
 		if (mode.isEditable()) {
-			w.e("input", "class", "input", "type", "submit", "value", "Save");
+			w.start("div", "class", "btn-group");
+			w.e("input", "class", "btn btn-default", "type", "submit", "value",
+					"Save");
 			if (mode != FormMode.CREATE) {
 				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
 						id, "Edit this package as repository XML");
@@ -418,6 +429,7 @@ public class PackageDetailPage extends MyPage {
 						"/p/" + id + "/detect",
 						"Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package");
 			}
+			w.end("div");
 			w.end("form");
 		}
 

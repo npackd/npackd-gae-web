@@ -141,11 +141,11 @@ public class PackageVersionPage extends MyPage {
 		License lic = getLicense(ofy);
 
 		if (!reviewed)
-			w.e("p", "class", "nw-error",
+			w.e("p", "class", "bg-danger",
 					"This package version is not yet reviewed and may be unsafe");
 
 		if (error != null) {
-			w.e("p", "class", "nw-error", this.error);
+			w.e("p", "class", "bg-danger", this.error);
 		}
 
 		w.start("h3");
@@ -161,7 +161,8 @@ public class PackageVersionPage extends MyPage {
 
 		boolean editable = getEditable();
 		if (editable) {
-			w.start("form", "method", "post", "action", "/package-version/save");
+			w.start("form", "class", "form-horizontal", "method", "post",
+					"action", "/package-version/save");
 			w.e("input", "type", "hidden", "name", "package", "value",
 					this.packageName);
 		}
@@ -223,8 +224,8 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Download:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "type", "text", "name", "url", "value", url, "size",
-					"120", "id", "url", "title",
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"url", "value", url, "size", "120", "id", "url", "title",
 					"http: or https: address of the package binary");
 		} else {
 			if (reviewed)
@@ -240,6 +241,8 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.e("input",
+					"class",
+					"form-control",
 					"type",
 					"text",
 					"name",
@@ -262,8 +265,9 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Detect MSI GUID:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "type", "text", "name", "detectMSI", "value",
-					detectMSI, "size", "43", "title", "MSI package ID like "
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"detectMSI", "value", detectMSI, "size", "43", "title",
+					"MSI package ID like "
 							+ "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. "
 							+ "Leave this field empty if the package does not "
 							+ "install itself using the Microsoft installer.");
@@ -277,10 +281,14 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Dependencies:");
 			w.start("td");
-			w.e("button", "type", "button", "id", "addDep", "title",
+			w.start("div", "class", "btn-group");
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"addDep", "title",
 					"Adds a dependency entry on another package", "More");
-			w.e("button", "type", "button", "id", "removeDep", "title",
-					"Removes the last dependency entry", "Less");
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"removeDep", "title", "Removes the last dependency entry",
+					"Less");
+			w.end("div");
 			w.start("table", "id", "deps");
 			w.start("tbody");
 			w.start("tr");
@@ -295,16 +303,16 @@ public class PackageVersionPage extends MyPage {
 
 				w.start("tr");
 				w.start("td");
-				w.e("input", "type", "text", "name", "depPackage." + i,
-						"value", dp, "size", "80");
+				w.e("input", "class", "form-control", "type", "text", "name",
+						"depPackage." + i, "value", dp, "size", "80");
 				w.end("td");
 				w.start("td");
-				w.e("input", "name", "depVersions." + i, "type", "text",
-						"size", "20", "value", dvr);
+				w.e("input", "class", "form-control", "name", "depVersions." +
+						i, "type", "text", "size", "20", "value", dvr);
 				w.end("td");
 				w.start("td");
-				w.e("input", "name", "depEnvVar." + i, "type", "text", "size",
-						"20", "value", v);
+				w.e("input", "class", "form-control", "name", "depEnvVar." + i,
+						"type", "text", "size", "20", "value", v);
 				w.end("td");
 				w.end("tr");
 			}
@@ -370,9 +378,9 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Tags:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "type", "text", "name", "tags", "id", "tags",
-					"autocomplete", "off", "value", NWUtils.join(", ", tags),
-					"size", "80", "title",
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"tags", "id", "tags", "autocomplete", "off", "value",
+					NWUtils.join(", ", tags), "size", "80", "title",
 					"Comma separated list of tags associated with "
 							+ "this package version. The default tags "
 							+ "'stable', 'stable64', 'libs' and 'unstable' "
@@ -389,6 +397,8 @@ public class PackageVersionPage extends MyPage {
 			w.e("td", "Important files:");
 			w.start("td");
 			w.start("textarea",
+					"class",
+					"form-control",
 					"rows",
 					"5",
 					"name",
@@ -414,27 +424,34 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Text files:");
 			w.start("td");
-			w.e("button", "type", "button", "id", "addFile", "title",
-					"Adds a file entry", "More");
-			w.e("button", "type", "button", "id", "removeFile", "title",
-					"Removes the last file entry", "Less");
-			w.e("button", "type", "button", "id", "addNSISFiles", "title",
+			w.start("div", "class", "btn-group");
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"addFile", "title", "Adds a file entry", "More");
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"removeFile", "title", "Removes the last file entry",
+					"Less");
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"addNSISFiles", "title",
 					"Adds the files necessary to install and "
 							+ "uninstall an installation package (.exe) "
 							+ "created using NSIS", "Add NSIS files");
-			w.e("button", "type", "button", "id", "addInnoSetupFiles", "title",
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"addInnoSetupFiles", "title",
 					"Adds the files necessary to install and "
 							+ "uninstall an installation package (.exe) "
 							+ "created using Inno Setup",
 					"Add Inno Setup files");
-			w.e("button", "type", "button", "id", "addMSIFiles", "title",
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"addMSIFiles", "title",
 					"Adds the files necessary to install and "
 							+ "uninstall an installation package (.msi) "
 							+ "created for the Microsoft Installer",
 					"Add MSI files");
-			w.e("button", "type", "button", "id", "addVimFiles", "title",
+			w.e("button", "class", "btn btn-default", "type", "button", "id",
+					"addVimFiles", "title",
 					"Adds the files necessary to install and "
 							+ "uninstall a Vim plugin", "Add Vim plugin files");
+			w.end("div");
 			w.end("td");
 			w.end("tr");
 
@@ -448,12 +465,13 @@ public class PackageVersionPage extends MyPage {
 
 				w.start("div");
 				w.e("div", "File path " + i + ":");
-				w.e("input", "type", "text", "name", "path." + i, "value",
-						path, "size", "80");
+				w.e("input", "class", "form-control", "type", "text", "name",
+						"path." + i, "value", path, "size", "80");
 
 				w.e("div", "File content " + i + ":");
-				w.e("textarea", "name", "content." + i, "rows", "20", "cols",
-						"80", "wrap", "off", content);
+				w.e("textarea", "class", "form-control", "name",
+						"content." + i, "rows", "20", "cols", "80", "wrap",
+						"off", content);
 				w.end("div");
 			}
 			w.end("div");
@@ -504,12 +522,13 @@ public class PackageVersionPage extends MyPage {
 		if (editable) {
 			w.e("p", "class", "nw-help",
 					"Press Ctrl-Alt-H for the list of available keyboard shortcuts");
-			w.e("input", "class", "input", "type", "submit", "title",
+			w.start("div", "class", "btn-group");
+			w.e("input", "class", "btn btn-default", "type", "submit", "title",
 					"Saves the changes", "value", "Save", "id", "save");
 			if (!new_) {
 				w.e("input",
 						"class",
-						"input",
+						"btn btn-default",
 						"type",
 						"button",
 						"value",
@@ -522,9 +541,9 @@ public class PackageVersionPage extends MyPage {
 				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
 						packageName + "&version=" + version,
 						"Edits this package version as repository XML");
-				w.e("input", "class", "input", "type", "button", "title",
-						"Delete this package version", "value", "Delete",
-						"onclick",
+				w.e("input", "class", "btn btn-default", "type", "button",
+						"title", "Delete this package version", "value",
+						"Delete", "onclick",
 						"this.form.action='/package-version/delete'; this.form.submit()");
 				NWUtils.jsButton(w, "Compute SHA-1",
 						"/package-version/compute-sha1?package=" + packageName +
@@ -543,6 +562,7 @@ public class PackageVersionPage extends MyPage {
 								packageName + "&version=" + version,
 						"Marks this package version as reviewed and safe");
 			}
+			w.end("div");
 			w.end("form");
 		}
 

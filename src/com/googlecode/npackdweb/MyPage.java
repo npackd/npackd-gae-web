@@ -123,7 +123,7 @@ public abstract class MyPage extends Page {
 				"About");
 		w.start("ul");
 		mi(w, "http://code.google.com/p/windows-package-manager",
-				"About Npackd");
+				"About Npackd*");
 		mi(w,
 				"http://code.google.com/p/windows-package-manager/downloads/list",
 				"Download client*");

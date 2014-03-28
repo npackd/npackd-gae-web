@@ -534,8 +534,9 @@ public class NWUtils {
 	 */
 	public static void jsButton(HTMLWriter w, String txt, String url,
 			String title) {
-		w.e("input", "class", "input", "type", "button", "value", txt,
-				"onclick", "window.location.href='" + url + "'", "title", title);
+		w.e("input", "class", "btn btn-default", "type", "button", "value",
+				txt, "onclick", "window.location.href='" + url + "'", "title",
+				title);
 	}
 
 	/**

@@ -38,7 +38,7 @@ public class CopyPackageVersionPage extends MyPage {
 	 *            new version
 	 */
 	public CopyPackageVersionPage(PackageVersion p, String error,
-	        String newVersion) {
+			String newVersion) {
 		this.pv = p;
 		this.error = error;
 		this.newVersion = newVersion;
@@ -48,19 +48,19 @@ public class CopyPackageVersionPage extends MyPage {
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
 		if (error != null) {
-			w.e("p", "class", "nw-error", this.error);
+			w.e("p", "class", "bg-danger", this.error);
 		}
 		w.start("form", "method", "post", "action",
-		        "/package-version/copy-confirmed");
+				"/package-version/copy-confirmed");
 		w.e("div", "Copy " + pv.package_ + " " + pv.version + "?");
 		w.e("input", "type", "hidden", "name", "name", "value", pv.name);
 		w.e("input", "type", "text", "name", "version", "value", newVersion,
-		        "size", "20");
+				"size", "20");
 		w.e("br");
 		w.e("input", "class", "input", "type", "submit", "value", "Create");
 		w.e("input", "class", "input", "type", "button", "value", "Cancel",
-		        "onclick", "window.location.href='/p/" + pv.package_ + "/"
-		                + pv.version + "'");
+				"onclick", "window.location.href='/p/" + pv.package_ + "/" +
+						pv.version + "'");
 		w.end("form");
 		return w.toString();
 	}
