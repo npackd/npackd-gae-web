@@ -27,13 +27,16 @@ public class PackageVersionDeletePage extends MyPage {
 		HTMLWriter w = new HTMLWriter();
 		w.start("form", "method", "post", "action",
 				"/package-version/delete-confirmed");
-		w.e("div", "Do you really want to delete " + pv.package_ + " "
-				+ pv.version + "?");
+		w.e("div", "Do you really want to delete " + pv.package_ + " " +
+				pv.version + "?");
 		w.e("input", "type", "hidden", "name", "name", "value", pv.name);
-		w.e("input", "class", "input", "type", "submit", "value", "Delete");
-		w.e("input", "class", "input", "type", "button", "value", "Cancel",
-				"onclick", "window.location.href='/p/" + pv.package_ + "/"
-						+ pv.version + "'");
+		w.start("div", "class", "btn-group");
+		w.e("input", "class", "btn btn-default", "type", "submit", "value",
+				"Delete");
+		w.e("input", "class", "btn btn-default", "type", "button", "value",
+				"Cancel", "onclick", "window.location.href='/p/" + pv.package_ +
+						"/" + pv.version + "'");
+		w.end("div");
 		w.end("form");
 		return w.toString();
 	}

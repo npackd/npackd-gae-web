@@ -16,12 +16,13 @@ public class RepFromFilePage extends MyPage {
 		w.start("form", "action", "/rep/upload", "enctype",
 				"multipart/form-data", "method", "POST");
 		w.t("Repository: ");
-		w.e("input", "type", "file", "name", "repository");
+		w.e("input", "class", "form-control", "type", "file", "name",
+				"repository");
 		w.e("br");
 		w.t("Please use one of these default tags to place the package versions in the right repository: stable, stable64, unstable, libs");
 		w.e("br");
 		w.t("Tag for package versions: ");
-		w.e("input", "type", "text", "name", "tag");
+		w.e("input", "class", "form-control", "type", "text", "name", "tag");
 		w.e("br");
 
 		w.t("Overwrite:");

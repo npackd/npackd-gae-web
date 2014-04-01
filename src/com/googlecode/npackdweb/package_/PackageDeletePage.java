@@ -25,14 +25,16 @@ public class PackageDeletePage extends MyPage {
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
-		w
-				.start("form", "method", "post", "action",
-						"/package/delete-confirmed");
+		w.start("form", "method", "post", "action", "/package/delete-confirmed");
 		w.e("div", "Do you really want to delete " + pv.name + " " + "?");
 		w.e("input", "type", "hidden", "name", "name", "value", pv.name);
-		w.e("input", "class", "input", "type", "submit", "value", "Delete");
-		w.e("input", "class", "input", "type", "button", "value", "Cancel",
-				"onclick", "window.location.href='/p/" + pv.name + "'");
+		w.start("div", "class", "btn-group");
+		w.e("input", "class", "btn btn-default", "type", "submit", "value",
+				"Delete");
+		w.e("input", "class", "btn btn-default", "type", "button", "value",
+				"Cancel", "onclick", "window.location.href='/p/" + pv.name +
+						"'");
+		w.end("div");
 		w.end("form");
 		return w.toString();
 	}

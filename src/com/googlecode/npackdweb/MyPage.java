@@ -30,8 +30,20 @@ public abstract class MyPage extends Page {
 		out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "content",
 				createContent(request), "login",
 				MyPage.getLoginHeader(request), "head", getHeadPart(), "menu",
-				createMenu(), "error", error, "info", info));
+				createMenu(), "error", error, "info", info, "generator", this
+						.getClass().getName(), "bodyBottom",
+				createBodyBottom(request)));
 		out.close();
+	}
+
+	/**
+	 * Creates HTML to be inserted before </body>
+	 * 
+	 * @return HTML
+	 */
+	public String createBodyBottom(HttpServletRequest request)
+			throws IOException {
+		return "";
 	}
 
 	/**

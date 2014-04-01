@@ -14,6 +14,10 @@ div.content {
     padding: 1em;
 }
 
+table {
+	margin: 10px;	
+}
+
 .bg-info {
 	padding: 15px;
 }
@@ -30,8 +34,12 @@ div.content {
     padding: 0.5em;
 }
 
+.nw-packages {
+	padding-top: 15px;	
+}
+
 .nw-packages > div {
-    border-bottom: 1px solid #cbcfd9;
+    border-top: 1px solid #cbcfd9;
     margin: 0.5em;
     padding-top: 0.5em;
 }

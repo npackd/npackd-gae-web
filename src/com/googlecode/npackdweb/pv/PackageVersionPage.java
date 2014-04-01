@@ -224,8 +224,9 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Download:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "class", "form-control", "type", "text", "name",
-					"url", "value", url, "size", "120", "id", "url", "title",
+			w.e("input", "style", "display: inline; width: 90%", "class",
+					"form-control", "type", "text", "name", "url", "value",
+					url, "size", "120", "id", "url", "title",
 					"http: or https: address of the package binary");
 		} else {
 			if (reviewed)
@@ -237,7 +238,7 @@ public class PackageVersionPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "SHA-1 or SHA-256:");
+		w.e("td", "SHA-1 or SHA-256*:");
 		w.start("td");
 		if (editable) {
 			w.e("input",
@@ -252,7 +253,7 @@ public class PackageVersionPage extends MyPage {
 					"size",
 					"50",
 					"title",
-					"SHA-1 or SHA-256 check sum for the package binary. "
+					"SHA-1 or SHA-256 (since Npackd 1.19) check sum for the package binary. "
 							+ "Leave this field empty if different binaries are "
 							+ "distributed from the same address.");
 		} else {

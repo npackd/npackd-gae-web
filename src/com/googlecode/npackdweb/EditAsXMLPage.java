@@ -34,8 +34,8 @@ public class EditAsXMLPage extends MyPage {
 		w.start("tr");
 		w.e("td", "Repository:");
 		w.start("td");
-		w.e("textarea", "rows", "20", "cols", "120", "name", "repository",
-				"wrap", "off", "style", "width: 100%",
+		w.e("textarea", "class", "form-control", "rows", "20", "cols", "120",
+				"name", "repository", "wrap", "off", "style", "width: 100%",
 				NWUtils.toString(this.xml));
 		w.end("td");
 		w.end("tr");
@@ -43,7 +43,8 @@ public class EditAsXMLPage extends MyPage {
 		w.start("tr");
 		w.e("td", "Tag for package versions:");
 		w.start("td");
-		w.e("input", "type", "text", "name", "tag", "value", tag);
+		w.e("input", "class", "form-control", "type", "text", "name", "tag",
+				"value", tag);
 		w.t("Please use one of these default tags to place the package versions in the right repository: stable, stable64, unstable, libs");
 		w.end("td");
 		w.end("tr");

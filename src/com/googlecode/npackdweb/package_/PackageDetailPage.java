@@ -101,9 +101,25 @@ public class PackageDetailPage extends MyPage {
 		tags = "";
 	}
 
+	/*
+	 * @Override public String getHeadPart() { return
+	 * "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.Editor/com.googlecode.npackdweb.Editor.nocache.js\"></script>\n"
+	 * ; }
+	 */
+
 	@Override
-	public String getHeadPart() {
-		return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.Editor/com.googlecode.npackdweb.Editor.nocache.js\"></script>\n";
+	public String createBodyBottom(HttpServletRequest request)
+			throws IOException {
+		HTMLWriter w = new HTMLWriter();
+		w.start("script");
+		w.t("$(document).ready(function() {\n");
+		w.t("    $('#url-link').click(function(event) {\n");
+		w.t("        window.open($('#url').val());\n");
+		w.t("        event.preventDefault();\n");
+		w.t("    });\n");
+		w.t("});\n");
+		w.end("script");
+		return w.toString();
 	}
 
 	@Override
@@ -173,12 +189,17 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Product home page:");
 		w.start("td");
 		if (mode.isEditable()) {
-			w.e("input", "class", "form-control", "type", "text", "name",
-					"url", "value", url, "size", "120", "title",
+			w.e("input", "id", "url", "style", "display: inline; width: 90%",
+					"class", "form-control", "type", "text", "name", "url",
+					"value", url, "size", "120", "title",
 					"http: or https: address of the product home page");
-			w.start("a", "href", url, "target", "_blank");
-			w.e("img", "src", "/Link.png");
-			w.end("a");
+			w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
+					"style",
+					"cursor: pointer; font-size: 20px; font-weight: bold");
+			/*
+			 * w.start("a", "id", "url-link", "href", "#", "target", "_blank");
+			 * w.e("img", "src", "/Link.png"); w.end("a");
+			 */
 		} else {
 			w.e("a", "href", url, url);
 		}
@@ -255,10 +276,18 @@ public class PackageDetailPage extends MyPage {
 		w.e("td", "Category:");
 		w.start("td");
 		if (mode.isEditable()) {
-			w.e("input", "class", "form-control", "type", "text", "name",
-					"tags", "value", tags, "size", "40", "id", "tags",
-					"autocomplete", "off", "title",
+			w.start("input", "list", "categories", "class", "form-control",
+					"type", "text", "name", "tags", "value", tags, "size",
+					"40", "id", "tags", "autocomplete", "off", "title",
 					"list of tags associated with this package separated by commas");
+			w.start("datalist", "id", "categories");
+			for (String s : new String[] { "Communications", "Development",
+					"Education", "Finance", "Games", "Music", "News", "Photo",
+					"Productivity", "Security", "Tools", "Video" }) {
+				w.e("option", "value", s);
+			}
+			w.end("datalist");
+			w.end("input");
 		} else {
 			w.t(tags);
 		}
@@ -371,15 +400,11 @@ public class PackageDetailPage extends MyPage {
 			w.end("tr");
 
 			w.start("tr");
-			w.start("td", "colspan", "2");
-			w.e("p", "class", "nw-help", "");
-			w.end("td");
-			w.end("tr");
-
-			w.start("tr");
 			w.e("td", "Discovery regular expression:");
 			w.start("td");
-			w.e("input",
+			w.start("input",
+					"list",
+					"discovery-res",
 					"class",
 					"form-control",
 					"type",
@@ -393,6 +418,11 @@ public class PackageDetailPage extends MyPage {
 					"title",
 					"Regular expression to match the newest version number. This regular expression should contain a match group for the version number. A single letter at the end of the version number is allowed (2.0.6b will be interpreted as 2.0.6.2). Minus sign will be interpreted as a dot.\n"
 							+ "Example: <h1>the newest version is ([\\d\\.]+)</h1>");
+			w.start("datalist", "id", "discovery-res");
+			w.e("option", "value", "The current version is ([\\d\\.]+)");
+			w.e("option", "value", ">v([\\d\\.]+)<");
+			w.end("datalist");
+			w.end("input");
 			w.end("td");
 			w.end("tr");
 			/*
