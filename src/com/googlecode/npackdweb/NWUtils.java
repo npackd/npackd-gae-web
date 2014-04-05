@@ -3,7 +3,10 @@ package com.googlecode.npackdweb;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -537,6 +540,27 @@ public class NWUtils {
 		w.e("input", "class", "btn btn-default", "type", "button", "value",
 				txt, "onclick", "window.location.href='" + url + "'", "title",
 				title);
+	}
+
+	/**
+	 * Creates an <input type="button"> that changes window.location.href
+	 * 
+	 * @param w
+	 *            HTML output
+	 * @param txt
+	 *            button title
+	 * @param url
+	 *            new URL
+	 * @param title
+	 *            tooltip
+	 * @param enabled
+	 *            true = the button is enabled
+	 */
+	public static void jsButton(HTMLWriter w, String txt, String url,
+			String title, boolean enabled) {
+		w.e("input", "class", "btn btn-default", "type", "button", "value",
+				txt, "onclick", "window.location.href='" + url + "'", "title",
+				title, "disabled", enabled ? null : "disabled");
 	}
 
 	/**
@@ -1160,5 +1184,37 @@ public class NWUtils {
 	 */
 	public static void saveEditor(Objectify ofy, Editor e) {
 		ofy.put(e);
+	}
+
+	/**
+	 * Reads a text file from the class path.
+	 * 
+	 * @param stream
+	 *            input. This stream will be closed.
+	 * @return contents of the text file
+	 */
+	public static String readUTF8Resource(InputStream stream) {
+		try {
+			StringBuilder builder = new StringBuilder();
+			try {
+				Reader reader =
+						new BufferedReader(new InputStreamReader(stream,
+								"UTF-8"));
+				char[] buffer = new char[8192];
+				int read;
+				while ((read = reader.read(buffer, 0, buffer.length)) > 0) {
+					builder.append(buffer, 0, read);
+				}
+			} finally {
+				// Potential issue here: if this throws an IOException,
+				// it will mask any others. Normally I'd use a utility
+				// method which would log exceptions and swallow them
+				stream.close();
+			}
+			return builder.toString();
+		} catch (IOException e) {
+			throw (InternalError) new InternalError(e.getMessage())
+					.initCause(e);
+		}
 	}
 }

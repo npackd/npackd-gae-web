@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb.pv;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -134,7 +135,6 @@ public class PackageVersionPage extends MyPage {
 	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
-		w.unencoded("<iframe src=\"javascript:''\" id=\"__gwt_historyFrame\" tabIndex='-1' style=\"position:absolute;width:0;height:0;border:0\"></iframe>");
 
 		Objectify ofy = DefaultServlet.getObjectify();
 		Package p = getPackage();
@@ -271,6 +271,9 @@ public class PackageVersionPage extends MyPage {
 					"form-control", "type", "text", "name", "url", "value",
 					url, "size", "120", "id", "url", "title",
 					"http: or https: address of the package binary");
+			w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
+					"style",
+					"cursor: pointer; font-size: 20px; font-weight: bold");
 		} else {
 			if (reviewed)
 				w.e("a", "href", url, url);
@@ -422,14 +425,22 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Tags:");
 		w.start("td");
 		if (editable) {
-			w.e("input", "class", "form-control", "type", "text", "name",
-					"tags", "id", "tags", "autocomplete", "off", "value",
-					NWUtils.join(", ", tags), "size", "80", "title",
+			w.start("input", "list", "allTags", "class", "form-control",
+					"type", "text", "name", "tags", "id", "tags",
+					"autocomplete", "off", "value", NWUtils.join(", ", tags),
+					"size", "80", "title",
 					"Comma separated list of tags associated with "
 							+ "this package version. The default tags "
 							+ "'stable', 'stable64', 'libs' and 'unstable' "
 							+ "can be used to include this package "
 							+ "version into one of the default repositories.");
+			w.start("datalist", "id", "allTags");
+			for (String s : new String[] { "stable", "stable64", "libs",
+					"unstable" }) {
+				w.e("option", "value", s);
+			}
+			w.end("datalist");
+			w.end("input");
 		} else {
 			w.t(NWUtils.join(", ", tags));
 		}
@@ -611,11 +622,6 @@ public class PackageVersionPage extends MyPage {
 			}
 		}
 		return license;
-	}
-
-	@Override
-	public String getHeadPart() {
-		return "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.Editor/com.googlecode.npackdweb.Editor.nocache.js\"></script>\n";
 	}
 
 	public void fillForm(HttpServletRequest req) {
@@ -856,5 +862,22 @@ public class PackageVersionPage extends MyPage {
 		Version v = Version.parse(this.version);
 		v.normalize();
 		this.version = v.toString();
+	}
+
+	@Override
+	public String createBodyBottom(HttpServletRequest request)
+			throws IOException {
+		HTMLWriter w = new HTMLWriter();
+		w.start("script");
+		InputStream stream =
+				DefaultServlet
+						.getInstance(request)
+						.getServletContext()
+						.getResourceAsStream(
+								"/WEB-INF/templates/PackageVersionDetail.js");
+		w.unencoded(NWUtils.readUTF8Resource(stream));
+		w.end("script");
+
+		return w.toString();
 	}
 }

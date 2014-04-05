@@ -4,7 +4,18 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/objectify-3.1.jar" sourcepath="C:/Users/t/libs/objectify-3.1/src.zip"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-fileupload-1.2.2.jar"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/ProgramFiles/GWT_SDK/gwt-user.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/ProgramFiles/GWT_SDK/doc/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/ProgramFiles/GWT_SDK/gwt-dev.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/ProgramFiles/GWT_SDK/doc/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/ProgramFiles/GWT_SDK/validation-api-1.0.0.GA-sources.jar"/>
+	<classpathentry kind="lib" path="C:/ProgramFiles/GWT_SDK/validation-api-1.0.0.GA.jar" sourcepath="C:/ProgramFiles/GWT_SDK/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/markdown4j-2.2.jar" sourcepath="C:/Users/t/libs/markdown4j-src-2.2/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>

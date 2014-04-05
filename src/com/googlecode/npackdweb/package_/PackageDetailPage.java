@@ -167,7 +167,8 @@ public class PackageDetailPage extends MyPage {
 						w,
 						"Detect new version",
 						"/p/" + id + "/detect",
-						"Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package");
+						"Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package",
+						this.isDetectionPossible());
 			}
 			w.end("div");
 		}
@@ -468,6 +469,32 @@ public class PackageDetailPage extends MyPage {
 		}
 
 		return w.toString();
+	}
+
+	private boolean isDetectionPossible() {
+		String msg = null;
+		if (msg == null) {
+			if (!this.discoveryURL.trim().isEmpty()) {
+				msg = NWUtils.validateURL(this.discoveryURL);
+			} else {
+				msg = "No discovery URL defined";
+			}
+		}
+
+		if (msg == null) {
+			if (!this.discoveryRE.trim().isEmpty()) {
+				try {
+					Pattern.compile(this.discoveryRE);
+				} catch (PatternSyntaxException e) {
+					msg =
+							"Cannot parse the regular expression: " +
+									e.getMessage();
+				}
+			} else {
+				msg = "No discovery regular expression defined";
+			}
+		}
+		return msg == null;
 	}
 
 	@Override
