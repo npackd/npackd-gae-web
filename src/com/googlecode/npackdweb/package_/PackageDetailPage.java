@@ -152,7 +152,28 @@ public class PackageDetailPage extends MyPage {
 		if (mode == FormMode.CREATE)
 			w.e("input", "type", "hidden", "name", "new", "value", "true");
 
+		if (mode.isEditable()) {
+			w.start("div", "class", "btn-group");
+			w.e("input", "class", "btn btn-default", "type", "submit", "value",
+					"Save");
+			if (mode != FormMode.CREATE) {
+				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
+						id, "Edit this package as repository XML");
+				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + id,
+						"Deletes this package and all associated versions");
+				NWUtils.jsButton(w, "New version", "/p/" + id + "/new",
+						"Creates new version");
+				NWUtils.jsButton(
+						w,
+						"Detect new version",
+						"/p/" + id + "/detect",
+						"Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package");
+			}
+			w.end("div");
+		}
+
 		w.start("table", "border", "0");
+
 		w.start("tr");
 		w.e("td", "ID:");
 		if (mode != FormMode.CREATE)
@@ -172,6 +193,35 @@ public class PackageDetailPage extends MyPage {
 			w.end("p");
 			w.end("td");
 		}
+		w.end("tr");
+
+		Objectify ofy = DefaultServlet.getObjectify();
+
+		w.start("tr");
+		w.e("td", "Versions:");
+		w.start("td");
+		List<PackageVersion> pvs = this.getVersions(ofy);
+		Collections.sort(pvs, new Comparator<PackageVersion>() {
+			@Override
+			public int compare(PackageVersion a, PackageVersion b) {
+				Version va = Version.parse(a.version);
+				Version vb = Version.parse(b.version);
+				return va.compare(vb);
+			}
+		});
+		for (int i = 0; i < pvs.size(); i++) {
+			PackageVersion pv = pvs.get(i);
+			if (i != 0)
+				w.t(" | ");
+			w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version, pv.version);
+		}
+		if (mode.isEditable() && error == null && id != null && !id.isEmpty() &&
+				pvs.size() == 0)
+			info =
+					"Click on \"New version\" to create a new version of this package";
+		else
+			info = null;
+		w.end("td");
 		w.end("tr");
 
 		if (mode != FormMode.VIEW) {
@@ -243,8 +293,6 @@ public class PackageDetailPage extends MyPage {
 		}
 		w.end("td");
 		w.end("tr");
-
-		Objectify ofy = DefaultServlet.getObjectify();
 
 		w.start("tr");
 		w.e("td", "License:");
@@ -338,33 +386,6 @@ public class PackageDetailPage extends MyPage {
 		}
 
 		w.start("tr");
-		w.e("td", "Versions:");
-		w.start("td");
-		List<PackageVersion> pvs = this.getVersions(ofy);
-		Collections.sort(pvs, new Comparator<PackageVersion>() {
-			@Override
-			public int compare(PackageVersion a, PackageVersion b) {
-				Version va = Version.parse(a.version);
-				Version vb = Version.parse(b.version);
-				return va.compare(vb);
-			}
-		});
-		for (int i = 0; i < pvs.size(); i++) {
-			PackageVersion pv = pvs.get(i);
-			if (i != 0)
-				w.t(", ");
-			w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version, pv.version);
-		}
-		if (mode.isEditable() && error == null && id != null && !id.isEmpty() &&
-				pvs.size() == 0)
-			info =
-					"Click on \"New version\" to create a new version of this package";
-		else
-			info = null;
-		w.end("td");
-		w.end("tr");
-
-		w.start("tr");
 		w.e("td", "Created:");
 		w.start("td");
 		w.t(createdAt == null ? "" : createdAt.toString());
@@ -443,23 +464,6 @@ public class PackageDetailPage extends MyPage {
 		w.end("table");
 
 		if (mode.isEditable()) {
-			w.start("div", "class", "btn-group");
-			w.e("input", "class", "btn btn-default", "type", "submit", "value",
-					"Save");
-			if (mode != FormMode.CREATE) {
-				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
-						id, "Edit this package as repository XML");
-				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + id,
-						"Deletes this package and all associated versions");
-				NWUtils.jsButton(w, "New version", "/p/" + id + "/new",
-						"Creates new version");
-				NWUtils.jsButton(
-						w,
-						"Detect new version",
-						"/p/" + id + "/detect",
-						"Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package");
-			}
-			w.end("div");
 			w.end("form");
 		}
 

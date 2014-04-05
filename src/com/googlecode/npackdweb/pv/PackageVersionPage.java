@@ -165,6 +165,49 @@ public class PackageVersionPage extends MyPage {
 					"action", "/package-version/save");
 			w.e("input", "type", "hidden", "name", "package", "value",
 					this.packageName);
+			w.e("p", "class", "nw-help",
+					"Press Ctrl-Alt-H for the list of available keyboard shortcuts");
+			w.start("div", "class", "btn-group");
+			w.e("input", "class", "btn btn-default", "type", "submit", "title",
+					"Saves the changes", "value", "Save", "id", "save");
+			if (!new_) {
+				w.e("input",
+						"class",
+						"btn btn-default",
+						"type",
+						"button",
+						"value",
+						"Copy",
+						"title",
+						"Create a copy of this package version",
+						"onclick",
+						"this.form.action='/package-version/copy'; this.form.submit()",
+						"id", "copy");
+				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
+						packageName + "&version=" + version,
+						"Edits this package version as repository XML");
+				w.e("input", "class", "btn btn-default", "type", "button",
+						"title", "Delete this package version", "value",
+						"Delete", "onclick",
+						"this.form.action='/package-version/delete'; this.form.submit()");
+				NWUtils.jsButton(w, "Compute SHA-1",
+						"/package-version/compute-sha1?package=" + packageName +
+								"&version=" + version,
+						"Computes SHA1 for this package version");
+				NWUtils.jsButton(w, "Compute SHA-256",
+						"/package-version/compute-sha-256?package=" +
+								packageName + "&version=" + version,
+						"Computes SHA-256 for this package version");
+				NWUtils.jsButton(w, "Disable download check",
+						"/package-version/dont-check-download?package=" +
+								packageName + "&version=" + version,
+						"Disables binary download check for this package version");
+				NWUtils.jsButton(w, "Mark as reviewed",
+						"/package-version/mark-reviewed?package=" +
+								packageName + "&version=" + version,
+						"Marks this package version as reviewed and safe");
+			}
+			w.end("div");
 		}
 
 		w.start("table", "id", "fields");
@@ -521,49 +564,6 @@ public class PackageVersionPage extends MyPage {
 		w.end("table");
 
 		if (editable) {
-			w.e("p", "class", "nw-help",
-					"Press Ctrl-Alt-H for the list of available keyboard shortcuts");
-			w.start("div", "class", "btn-group");
-			w.e("input", "class", "btn btn-default", "type", "submit", "title",
-					"Saves the changes", "value", "Save", "id", "save");
-			if (!new_) {
-				w.e("input",
-						"class",
-						"btn btn-default",
-						"type",
-						"button",
-						"value",
-						"Copy",
-						"title",
-						"Create a copy of this package version",
-						"onclick",
-						"this.form.action='/package-version/copy'; this.form.submit()",
-						"id", "copy");
-				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
-						packageName + "&version=" + version,
-						"Edits this package version as repository XML");
-				w.e("input", "class", "btn btn-default", "type", "button",
-						"title", "Delete this package version", "value",
-						"Delete", "onclick",
-						"this.form.action='/package-version/delete'; this.form.submit()");
-				NWUtils.jsButton(w, "Compute SHA-1",
-						"/package-version/compute-sha1?package=" + packageName +
-								"&version=" + version,
-						"Computes SHA1 for this package version");
-				NWUtils.jsButton(w, "Compute SHA-256",
-						"/package-version/compute-sha-256?package=" +
-								packageName + "&version=" + version,
-						"Computes SHA-256 for this package version");
-				NWUtils.jsButton(w, "Disable download check",
-						"/package-version/dont-check-download?package=" +
-								packageName + "&version=" + version,
-						"Disables binary download check for this package version");
-				NWUtils.jsButton(w, "Mark as reviewed",
-						"/package-version/mark-reviewed?package=" +
-								packageName + "&version=" + version,
-						"Marks this package version as reviewed and safe");
-			}
-			w.end("div");
 			w.end("form");
 		}
 
