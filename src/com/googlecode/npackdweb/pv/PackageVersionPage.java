@@ -391,30 +391,23 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Type:");
 		w.start("td");
 		if (editable) {
-			w.e("input",
-					"type",
-					"radio",
-					"name",
-					"type",
-					"value",
-					"one-file",
-					"checked",
-					oneFile ? "checked" : null,
-					"title",
-					"The file may have any format and will be downloaded as-is.",
-					"one file");
-			w.e("input",
-					"type",
-					"radio",
-					"name",
-					"type",
-					"value",
-					"zip",
-					"checked",
-					!oneFile ? "checked" : null,
-					"title",
-					"The file must be in ZIP format and will be unpacked automatically.",
-					"zip");
+			w.start("div", "class", "radio");
+			w.start("label");
+			w.e("input", "type", "radio", "name", "type", "value", "one-file",
+					"checked", oneFile ? "checked" : null, "title",
+					"The file may have any format and will be downloaded as-is.");
+			w.t("one file");
+			w.end("label");
+			w.end("div");
+
+			w.start("div", "class", "radio");
+			w.start("label");
+			w.e("input", "type", "radio", "name", "type", "value", "zip",
+					"checked", !oneFile ? "checked" : null, "title",
+					"The file must be in ZIP format and will be unpacked automatically.");
+			w.t("zip");
+			w.end("label");
+			w.end("div");
 		} else {
 			w.t(oneFile ? "one file" : "zip");
 		}
