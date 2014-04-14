@@ -165,8 +165,6 @@ public class PackageVersionPage extends MyPage {
 					"action", "/package-version/save");
 			w.e("input", "type", "hidden", "name", "package", "value",
 					this.packageName);
-			w.e("p", "class", "nw-help",
-					"Press Ctrl-Alt-H for the list of available keyboard shortcuts");
 			w.start("div", "class", "btn-group");
 			w.e("input", "class", "btn btn-default", "type", "submit", "title",
 					"Saves the changes", "value", "Save", "id", "save");
@@ -468,10 +466,10 @@ public class PackageVersionPage extends MyPage {
 			w.end("tr");
 		}
 
+		w.start("tr");
+		w.e("td", "Text files:");
+		w.start("td");
 		if (editable) {
-			w.start("tr");
-			w.e("td", "Text files:");
-			w.start("td");
 			w.start("div", "class", "btn-group");
 			w.e("button", "class", "btn btn-default", "type", "button", "id",
 					"addFile", "title", "Adds a file entry", "More");
@@ -523,9 +521,39 @@ public class PackageVersionPage extends MyPage {
 				w.end("div");
 			}
 			w.end("div");
-			w.end("td");
-			w.end("tr");
+		} else {
+			w.start("div", "class", "panel-group");
+			w.start("div", "class", "panel panel-default");
+
+			w.start("div", "class", "panel-heading");
+			w.start("h4", "class", "panel-title");
+			w.start("a", "data-toggle", "collapse", "data-parent",
+					"#accordion", "href", "#collapseOne");
+			w.t("Contents");
+			w.end("a");
+			w.end("h4");
+			w.end("div");
+
+			w.start("div", "id", "collapseOne", "class",
+					"panel-collapse collapse");
+			w.start("div", "class", "panel-body");
+			for (int i = 0; i < filePaths.size(); i++) {
+				String path = filePaths.get(i);
+				String content = fileContents.get(i);
+
+				w.start("div");
+				w.e("div", path + ":");
+				w.e("pre", content);
+				w.end("div");
+			}
+			w.end("div");
+			w.end("div");
+
+			w.end("div");
+			w.end("div");
 		}
+		w.end("td");
+		w.end("tr");
 
 		w.start("tr");
 		w.e("td", "Last modified:");

@@ -141,7 +141,7 @@ public class PackagesPage extends MyPage {
 					w.e("img", "src", "/App.png", "alt", p.title);
 				} else {
 					w.e("img", "src", p.icon, "style",
-							"max-width: 32px; max-height: 32px", "alt", p.title);
+							"width: 32px; max-height: 32px", "alt", p.title);
 				}
 				w.end("a");
 

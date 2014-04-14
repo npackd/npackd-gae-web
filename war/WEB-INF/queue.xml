@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <queue-entries>
 	<queue>
-		<name>default</name>
-		<rate>40/h</rate>
-	</queue>
-
-	<queue>
 		<name>check-downloads</name>
 		<rate>40/h</rate>
 	</queue>

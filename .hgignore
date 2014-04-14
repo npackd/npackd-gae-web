@@ -7,3 +7,4 @@ war/com.googlecode.npackdweb.pv.PVEditor/
 ^gwt\-unitCache/
 ^src/tags$
 ^war/com.googlecode.npackdweb.Editor/
+^backup/
