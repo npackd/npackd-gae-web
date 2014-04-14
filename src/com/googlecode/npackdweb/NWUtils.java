@@ -182,7 +182,7 @@ public class NWUtils {
 	 * Formats a template
 	 * 
 	 * @param templateName
-	 *            name of the template file
+	 *            name of the template file under WEB-INF/templates
 	 * @param keysAndValues
 	 *            key1, value1, key2, value2, ...
 	 * @return formatted text
