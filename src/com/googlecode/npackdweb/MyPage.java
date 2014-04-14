@@ -28,10 +28,9 @@ public abstract class MyPage extends Page {
 		Writer out = resp.getWriter();
 
 		out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "content",
-				createContent(request), "login",
-				MyPage.getLoginHeader(request), "head", getHeadPart(), "menu",
-				createMenu(), "error", error, "info", info, "generator", this
-						.getClass().getName(), "bodyBottom",
+				createContent(request), "head", getHeadPart(), "menu",
+				createMenu(request), "error", error, "info", info, "generator",
+				this.getClass().getName(), "bodyBottom",
 				createBodyBottom(request)));
 		out.close();
 	}
@@ -84,72 +83,23 @@ public abstract class MyPage extends Page {
 	public void fill(HttpServletRequest req) {
 	}
 
-	private String createMenu() {
-		// http://www.red-team-design.com/css3-dropdown-menu
-		HTMLWriter w = new HTMLWriter();
-		w.start("ul", "id", "menu");
-		w.start("li");
-		w.e("a", "href", "/", "Home");
-		w.end("li");
-
-		w.start("li");
-		w.e("a", "href", "/p", "Packages");
-		w.start("ul");
-		mi(w, "/p", "All packages");
-		mi(w, "/p?q=&sort=created", "All packages sorted by creation date");
-		mi(w,
-				"http://code.google.com/p/windows-package-manager/issues/entry?template=Defect%20report%20from%20user",
-				"Suggest a package*");
-		mi(w,
-				"https://code.google.com/p/windows-package-manager/wiki/RejectedSoftware",
-				"List of rejected packages*");
-		w.end("ul");
-		w.end("li");
-
-		w.start("li");
-		w.e("a", "href", "/rep", "Repositories");
-		w.end("li");
-
-		w.start("li");
-		w.e("a", "href", "#", "Edit");
-		w.start("ul");
-		mi(w, "/rep/from-file", "Upload from a file");
-		mi(w, "/rep/edit-as-xml", "Upload as text");
-		mi(w, "/package/new", "Create new package");
-		mi(w, "/download-failed", "List of failed downloads");
-		mi(w, "/not-reviewed", "List of not reviewed versions");
-
-		if (NWUtils.isAdminLoggedIn()) {
-			mi(w, "/add-editor", "Add editor");
-			mi(w, "/recreate-index", "Recreate index");
-			mi(w, "/resave-packages", "Re-save packages");
-			mi(w, "/info", "Show registered actions");
-			mi(w, "/add-permissions",
-					"Add permissions for a user to all packages");
-		}
-		w.end("ul");
-		w.end("li");
-
-		w.start("li");
-		w.e("a", "href", "http://code.google.com/p/windows-package-manager",
-				"About");
-		w.start("ul");
-		mi(w, "http://code.google.com/p/windows-package-manager",
-				"About Npackd*");
-		mi(w,
-				"http://code.google.com/p/windows-package-manager/downloads/list",
-				"Download client*");
-		w.end("ul");
-		w.end("li");
-
-		w.end("ul");
-		return w.toString();
+	/**
+	 * @return true = create the search form in the menu
+	 */
+	public boolean needsSearchFormInTheMenu() {
+		return true;
 	}
 
-	private void mi(HTMLWriter w, String href, String title) {
-		w.start("li");
-		w.e("a", "href", href, title);
-		w.end("li");
+	private String createMenu(HttpServletRequest request) {
+		try {
+			return NWUtils.tmpl("Menu.html", "admin",
+					NWUtils.isAdminLoggedIn() ? "true" : null, "login",
+					MyPage.getLoginHeader(request), "searchForm",
+					needsSearchFormInTheMenu() ? "true" : null);
+		} catch (IOException e) {
+			throw (InternalError) new InternalError(e.getMessage())
+					.initCause(e);
+		}
 	}
 
 	/**
@@ -169,16 +119,12 @@ public abstract class MyPage extends Page {
 			thisURL += "?" + request.getQueryString();
 		HTMLWriter res = new HTMLWriter();
 		if (request.getUserPrincipal() != null) {
-			res.start("p");
 			res.t("Hello, " + request.getUserPrincipal().getName() +
 					"!  You can ");
 			res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
 			res.t(".");
-			res.end("p");
 		} else {
-			res.start("p");
 			res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
-			res.end("p");
 		}
 		return res.toString();
 	}

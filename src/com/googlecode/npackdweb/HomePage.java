@@ -14,7 +14,7 @@ public class HomePage extends MyPage {
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
 
-		w.unencoded(PackagesPage.createSearchForm("", false));
+		// w.unencoded(PackagesPage.createSearchForm("", false));
 
 		w.unencoded(NWUtils.tmpl("Carousel.html"));
 

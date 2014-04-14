@@ -258,4 +258,9 @@ public class PackagesPage extends MyPage {
 	public List<Package> getPackages() {
 		return packages;
 	}
+
+	@Override
+	public boolean needsSearchFormInTheMenu() {
+		return false;
+	}
 }

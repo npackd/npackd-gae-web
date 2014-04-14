@@ -1,0 +1,62 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header" style="background-image: url(/Logo32.png); background-position-y: center; background-repeat: no-repeat; padding-left: 50px">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Npackd</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="/p">Packages</a></li>
+        <li><a href="/rep">Repositories</a></li>
+        <li><a href="https://groups.google.com/forum/#!forum/npackd">Forum*</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="https://code.google.com/p/windows-package-manager/source/checkout">Source code*</a></li>
+            <li><a href="https://code.google.com/p/windows-package-manager/issues/list">Issues*</a></li>
+            <li class="divider"></li>
+            <li><a href="/rep/from-file">Upload from a file</a></li>
+            <li><a href="/rep/edit-as-xml">Upload as text</a></li>
+            <li><a href="/package/new">Create new package</a></li>
+            <li class="divider"></li>
+            <li><a href="/download-failed">List of failed downloads</a></li>
+            <li><a href="/not-reviewed">List of not reviewed versions</a></li>
+<#if admin??>
+            <li class="divider"></li>
+            <li><a href="/add-editor">Add editor</a></li>
+            <li><a href="/recreate-index">Recreate index</a></li>
+            <li><a href="/resave-packages">Re-save packages</a></li>
+            <li><a href="/info">Show registered actions</a></li>
+            <li><a href="/add-permissions">Add permissions for a user to all packages</a></li>
+</#if>
+          </ul>
+        </li>
+      </ul>
+
+<#if searchForm??>
+      <form class="navbar-form navbar-left" role="search" action="/p">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+</#if>
+
+
+<span class="navbar-right" style="margin-top: 10px; margin-left: 10px"><a href="http://code.google.com/p/windows-package-manager/downloads/list" class="btn btn-success btn-md" role="button">
+<span class="glyphicon glyphicon-download"></span> 
+Download</a></span>
+
+ 	  <p class="navbar-text navbar-right">${login}</p>
+
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>

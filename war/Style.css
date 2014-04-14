@@ -11,7 +11,9 @@ td {
 }
 
 div.content {
-    padding: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
 }
 
 table {
@@ -27,7 +29,7 @@ table {
 }
 
 .nw-footer {
-    background-color: #ebeff9;
+	border-top: 1px solid #e5e5e5;
     text-align: center;
     font-size: 8pt;
     color: #666;
@@ -65,4 +67,7 @@ table {
   background: #b7d6f6;
 }
 
-
+ul.nav li.dropdown:hover ul.dropdown-menu{
+    display: block;
+    margin-top:0px
+}
