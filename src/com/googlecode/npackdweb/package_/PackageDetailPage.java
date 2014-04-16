@@ -119,6 +119,9 @@ public class PackageDetailPage extends MyPage {
 		w.t("    });\n");
 		w.t("});\n");
 		w.end("script");
+
+		w.unencoded(NWUtils.tmpl("GooglePlus.html"));
+
 		return w.toString();
 	}
 
@@ -135,9 +138,12 @@ public class PackageDetailPage extends MyPage {
 			w.e("img", "src", icon, "style",
 					"max-width: 32px; max-height: 32px");
 		}
-		if (mode != FormMode.CREATE)
+		if (mode != FormMode.CREATE) {
 			w.t(" " + title);
-		else
+
+			w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
+					"https://npackd.appspot.com/p/" + id + "'></div>");
+		} else
 			w.t(" New package");
 		w.end("h3");
 

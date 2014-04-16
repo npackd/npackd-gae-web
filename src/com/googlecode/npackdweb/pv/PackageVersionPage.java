@@ -157,6 +157,8 @@ public class PackageVersionPage extends MyPage {
 		}
 		w.t(" ");
 		w.e("a", "href", "/p/" + p.name, p.title);
+		w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
+				"https://npackd.appspot.com/p/" + p.name + "'></div>");
 		w.end("h3");
 
 		boolean editable = getEditable();
@@ -375,7 +377,8 @@ public class PackageVersionPage extends MyPage {
 								Package.class, dependencyPackages.get(i)));
 
 				w.start("li");
-				w.e("a", "href", "/p/" + dependencyPackages.get(i), dp.title);
+				w.e("a", "href", "/p/" + dependencyPackages.get(i),
+						dp == null ? dependencyPackages.get(i) : dp.title);
 				w.t(" ");
 				w.t(dependencyVersionRanges.get(i));
 				w.end("li");
@@ -898,6 +901,8 @@ public class PackageVersionPage extends MyPage {
 								"/WEB-INF/templates/PackageVersionDetail.js");
 		w.unencoded(NWUtils.readUTF8Resource(stream));
 		w.end("script");
+
+		w.unencoded(NWUtils.tmpl("GooglePlus.html"));
 
 		return w.toString();
 	}

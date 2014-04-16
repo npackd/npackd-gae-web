@@ -194,12 +194,15 @@ public class PackageVersion {
 		}
 		if (!pv.url.isEmpty())
 			NWUtils.e(version, "url", pv.url);
-		if (!pv.sha1.isEmpty()) {
-			if (pv.sha1.length() == 40)
-				NWUtils.e(version, "sha1", pv.sha1);
-			else
-				NWUtils.e(version, "hash-sum", "type", "SHA-256", pv.sha1);
+
+		String sha1 = pv.sha1.trim();
+		if (!sha1.isEmpty()) {
+			if (sha1.length() == 40)
+				NWUtils.e(version, "sha1", sha1);
+			else if (sha1.length() == 64)
+				NWUtils.e(version, "hash-sum", "type", "SHA-256", sha1);
 		}
+
 		for (int i = 0; i < pv.dependencyPackages.size(); i++) {
 			Element dependency = d.createElement("dependency");
 			version.appendChild(dependency);

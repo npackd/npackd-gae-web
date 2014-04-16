@@ -149,6 +149,11 @@ public class PackagesPage extends MyPage {
 				w.start("h4", "class", "media-heading");
 				w.t(" ");
 				w.e("a", "href", "/p/" + p.name, p.title);
+
+				// Google+
+				w.unencoded(" <div class='g-plusone' data-size='small' data-href='https://npackd.appspot.com/p/" +
+						p.name + "'></div>");
+
 				if (p.noUpdatesCheck != null &&
 						(System.currentTimeMillis() - p.noUpdatesCheck
 								.getTime()) < 7L * 24 * 60 * 60 * 1000) {
@@ -262,5 +267,12 @@ public class PackagesPage extends MyPage {
 	@Override
 	public boolean needsSearchFormInTheMenu() {
 		return false;
+	}
+
+	@Override
+	public String createBodyBottom(HttpServletRequest request)
+			throws IOException {
+		return super.createBodyBottom(request) +
+				NWUtils.tmpl("GooglePlus.html");
 	}
 }
