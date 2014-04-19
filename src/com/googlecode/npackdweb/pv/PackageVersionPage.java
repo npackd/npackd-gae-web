@@ -190,6 +190,10 @@ public class PackageVersionPage extends MyPage {
 						"title", "Delete this package version", "value",
 						"Delete", "onclick",
 						"this.form.action='/package-version/delete'; this.form.submit()");
+				w.end("div");
+				w.t(" ");
+
+				w.start("div", "class", "btn-group");
 				NWUtils.jsButton(w, "Compute SHA-1",
 						"/package-version/compute-sha1?package=" + packageName +
 								"&version=" + version,
@@ -197,15 +201,28 @@ public class PackageVersionPage extends MyPage {
 				NWUtils.jsButton(w, "Compute SHA-256",
 						"/package-version/compute-sha-256?package=" +
 								packageName + "&version=" + version,
-						"Computes SHA-256 for this package version");
-				NWUtils.jsButton(w, "Disable download check",
-						"/package-version/dont-check-download?package=" +
-								packageName + "&version=" + version,
-						"Disables binary download check for this package version");
-				NWUtils.jsButton(w, "Mark as reviewed",
-						"/package-version/mark-reviewed?package=" +
-								packageName + "&version=" + version,
-						"Marks this package version as reviewed and safe");
+						"Computes SHA-256 for this package version (Npackd 1.19)");
+				w.end("div");
+				w.t(" ");
+
+				w.start("div", "class", "btn-group");
+				NWUtils.jsButton(
+						w,
+						"Recognize the installer",
+						"/package-version/recognize?package=" + packageName +
+								"&version=" + version,
+						"downloads the binary and tries to recognize the used installer and create the necessary dependencies and scripts automatically");
+
+				if (NWUtils.isAdminLoggedIn()) {
+					NWUtils.jsButton(w, "Disable download check",
+							"/package-version/dont-check-download?package=" +
+									packageName + "&version=" + version,
+							"Disables binary download check for this package version");
+					NWUtils.jsButton(w, "Mark as reviewed",
+							"/package-version/mark-reviewed?package=" +
+									packageName + "&version=" + version,
+							"Marks this package version as reviewed and safe");
+				}
 			}
 			w.end("div");
 		}
@@ -284,7 +301,10 @@ public class PackageVersionPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "SHA-1 or SHA-256*:");
+		w.start("td");
+		w.t("SHA-1 or SHA-256 ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (editable) {
 			w.e("input",
@@ -309,7 +329,10 @@ public class PackageVersionPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "Detect MSI GUID:");
+		w.start("td");
+		w.t("Detect MSI GUID ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (editable) {
 			w.e("input", "class", "form-control", "type", "text", "name",
@@ -326,7 +349,10 @@ public class PackageVersionPage extends MyPage {
 
 		if (editable) {
 			w.start("tr");
-			w.e("td", "Dependencies:");
+			w.start("td");
+			w.t("Dependencies ");
+			w.e("small", "(optional):");
+			w.end("td");
 			w.start("td");
 			w.start("div", "class", "btn-group");
 			w.e("button", "class", "btn btn-default", "type", "button", "id",
@@ -393,18 +419,22 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.start("div", "class", "radio");
-			w.start("label");
-			w.e("input", "type", "radio", "name", "type", "value", "one-file",
-					"checked", oneFile ? "checked" : null, "title",
+			w.start("label",
+					"title",
+					"the file will be downloaded and placed in the package directory under the name derived from the download URL");
+			w.e("input", "type", "radio", "id", "oneFile", "name", "type",
+					"value", "one-file", "checked", oneFile ? "checked" : null,
+					"title",
 					"The file may have any format and will be downloaded as-is.");
 			w.t("one file");
 			w.end("label");
 			w.end("div");
 
 			w.start("div", "class", "radio");
-			w.start("label");
-			w.e("input", "type", "radio", "name", "type", "value", "zip",
-					"checked", !oneFile ? "checked" : null, "title",
+			w.start("label", "title",
+					"the file will be downloaded and unzipped in the package directory");
+			w.e("input", "type", "radio", "id", "zip", "name", "type", "value",
+					"zip", "checked", !oneFile ? "checked" : null, "title",
 					"The file must be in ZIP format and will be unpacked automatically.");
 			w.t("zip");
 			w.end("label");
@@ -416,7 +446,10 @@ public class PackageVersionPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "Tags:");
+		w.start("td");
+		w.t("Tags ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (editable) {
 			w.start("input", "list", "allTags", "class", "form-control",
@@ -443,7 +476,10 @@ public class PackageVersionPage extends MyPage {
 
 		if (editable) {
 			w.start("tr");
-			w.e("td", "Important files:");
+			w.start("td");
+			w.t("Important files ");
+			w.e("small", "(optional):");
+			w.end("td");
 			w.start("td");
 			w.start("textarea",
 					"class",
@@ -470,7 +506,10 @@ public class PackageVersionPage extends MyPage {
 		}
 
 		w.start("tr");
-		w.e("td", "Text files:");
+		w.start("td");
+		w.t("Text files ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (editable) {
 			w.start("div", "class", "btn-group");
@@ -479,27 +518,50 @@ public class PackageVersionPage extends MyPage {
 			w.e("button", "class", "btn btn-default", "type", "button", "id",
 					"removeFile", "title", "Removes the last file entry",
 					"Less");
-			w.e("button", "class", "btn btn-default", "type", "button", "id",
-					"addNSISFiles", "title",
+			w.end("div");
+			w.t(" ");
+
+			w.start("div", "class", "btn-group");
+			w.start("button", "class", "btn btn-default dropdown-toggle",
+					"type", "button", "data-toggle", "dropdown");
+			w.t("Add ");
+			w.e("span", "class", "caret");
+			w.end("button");
+			w.start("ul", "class", "dropdown-menu", "role", "menu");
+			w.start("li");
+			w.e("a", "href", "#", "title",
 					"Adds the files necessary to install and "
 							+ "uninstall an installation package (.exe) "
-							+ "created using NSIS", "Add NSIS files");
-			w.e("button", "class", "btn btn-default", "type", "button", "id",
-					"addInnoSetupFiles", "title",
+							+ "created using NSIS", "id", "addNSISFiles",
+					"Add NSIS files");
+			w.end("li");
+			w.start("li");
+			w.e("a", "href", "#", "title",
 					"Adds the files necessary to install and "
 							+ "uninstall an installation package (.exe) "
-							+ "created using Inno Setup",
-					"Add Inno Setup files");
-			w.e("button", "class", "btn btn-default", "type", "button", "id",
-					"addMSIFiles", "title",
+							+ "created using Inno Setup", "id",
+					"addInnoSetupFiles", "Add Inno Setup files");
+			w.end("li");
+			w.start("li");
+			w.e("a", "href", "#", "title",
 					"Adds the files necessary to install and "
 							+ "uninstall an installation package (.msi) "
-							+ "created for the Microsoft Installer",
-					"Add MSI files");
-			w.e("button", "class", "btn btn-default", "type", "button", "id",
-					"addVimFiles", "title",
+							+ "created for the Microsoft Installer", "id",
+					"addMSIFiles", "Add MSI files");
+			w.end("li");
+			w.start("li");
+			w.e("a", "href", "#", "title",
 					"Adds the files necessary to install and "
-							+ "uninstall a Vim plugin", "Add Vim plugin files");
+							+ "uninstall a .7z archive", "id",
+					"addSevenZIPFiles", "Add .7z files");
+			w.end("li");
+			w.start("li");
+			w.e("a", "href", "#", "title",
+					"Adds the files necessary to install and "
+							+ "uninstall a Vim plugin", "id", "addVimFiles",
+					"Add Vim plugin files");
+			w.end("li");
+			w.end("ul");
 			w.end("div");
 			w.end("td");
 			w.end("tr");
@@ -617,7 +679,9 @@ public class PackageVersionPage extends MyPage {
 	public Package getPackage() {
 		if (this.package_ == null) {
 			Objectify objectify = DefaultServlet.getObjectify();
-			this.package_ = objectify.get(Package.class, packageName);
+			this.package_ = objectify.find(Package.class, packageName);
+			if (this.package_ == null)
+				this.package_ = new Package("unknown");
 		}
 		return this.package_;
 	}

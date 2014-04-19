@@ -1,7 +1,13 @@
-function addDependency() {
+function addDependency(package_, versions, variable) {
 	var files = $('#deps');
     var n = files.children().first().children().size() - 1;
-    files.children().first().append('<tr><td><input class="form-control" type="text" name="depPackage.' + n + '" size="80"></td><td><input class="form-control" type="text" name="depVersions.' + n + '" size="20"></td><td><input class="form-control" type="text" name="depEnvVar.' + n + '" size="20"></td></tr>');
+    files.children().first().append(
+    		'<tr><td><input class="form-control" type="text" ' + 
+    		'name="depPackage.' + n + '" value="' + package_ + '" size="80"></td><td>' + 
+    		'<input class="form-control" type="text" ' + 
+    		'name="depVersions.' + n + '" value="' + versions + '" size="20"></td><td>' + 
+    		'<input class="form-control" type="text" ' + 
+    		'name="depEnvVar.' + n + '" value="' + variable + '" size="20"></td></tr>');
 }
 
 function addFile(name, content) {
@@ -31,6 +37,7 @@ $(document).ready(function() {
                 "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
                         + "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
         addFile(".Npackd\\Uninstall.bat", "uninst.exe /S _?=%CD%\r\n");
+        event.preventDefault();
     });
 
     $('#addInnoSetupFiles').click(function(event) {
@@ -45,6 +52,7 @@ $(document).ready(function() {
                         + "set err=%errorlevel%\r\n"
                         + "type .Npackd\\InnoSetupUninstall.log\r\n"
                         + "if %err% neq 0 exit %err%\r\n");
+        event.preventDefault();
     });
 
     $('#addMSIFiles').click(function(event) {
@@ -52,6 +60,7 @@ $(document).ready(function() {
                 "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=com.googlecode.windows-package-manager.NpackdInstallerHelper\" \"--versions=[1.1, 2)\"\r\n"
                         + "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set npackdih=%%x\r\n"
                         + "call \"%npackdih%\\InstallMSI.bat\" INSTALLDIR yes\r\n");
+        event.preventDefault();
     });
 
     $('#addVimFiles').click(function(event) {
@@ -61,10 +70,24 @@ $(document).ready(function() {
         addFile(".Npackd\\Uninstall.bat",
                 "rmdir \"%ALLUSERSPROFILE%/Npackd/VimPlugins/%NPACKD_PACKAGE_NAME%\"\r\n"
                         + "verify\r\n");
+        event.preventDefault();
+    });
+
+    $('#addSevenZIPFiles').click(function(event) {
+        addFile(".Npackd\\Install.bat",
+				"set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=org.7-zip.SevenZIPA\" \"--versions=[9.20, 10)\"\r\n"
+				+ "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set sevenzipa=%%x\r\n"
+				+ "for /f %%x in ('dir /b *.7z') do set setup=%%x\r\n"
+				+ "\"%sevenzipa%\\7za.exe\" x \"%setup%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%setup%\"\r\n");
+		addDependency("org.7-zip.SevenZIPA", "[9.20, 10)", "");
+		addDependency("com.googlecode.windows-package-manager.NpackdCL",
+				"[1.15.7, 2)", "");
+		$('#oneFile').prop('checked', true);
+        event.preventDefault();
     });
 
     $('#addDep').click(function(event) {
-    	addDependency();
+    	addDependency("", "", "");
     });
 
     $('#removeDep').click(function(event) {

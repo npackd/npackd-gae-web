@@ -404,4 +404,32 @@ public class PackageVersion {
 		}
 		return info;
 	}
+
+	/**
+	 * Adds a dependency
+	 * 
+	 * @param package_
+	 *            depends on this package
+	 * @param versions
+	 *            versions range like "[9, 10)"
+	 */
+	public void addDependency(String package_, String versions) {
+		addDependency(package_, versions, "");
+	}
+
+	/**
+	 * Adds a dependency
+	 * 
+	 * @param package_
+	 *            depends on this package
+	 * @param versions
+	 *            versions range like "[9, 10)"
+	 * @param envVar
+	 *            name of the environment variable or ""
+	 */
+	public void addDependency(String package_, String versions, String envVar) {
+		this.dependencyPackages.add(package_);
+		this.dependencyVersionRanges.add(versions);
+		this.dependencyEnvVars.add(envVar);
+	}
 }

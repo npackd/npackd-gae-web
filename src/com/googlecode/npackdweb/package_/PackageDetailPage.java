@@ -243,7 +243,10 @@ public class PackageDetailPage extends MyPage {
 		}
 
 		w.start("tr");
-		w.e("td", "Product home page:");
+		w.start("td");
+		w.t("Product home page ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (mode.isEditable()) {
 			w.e("input", "id", "url", "style", "display: inline; width: 90%",
@@ -265,7 +268,10 @@ public class PackageDetailPage extends MyPage {
 
 		if (mode.isEditable()) {
 			w.start("tr");
-			w.e("td", "Icon:");
+			w.start("td");
+			w.t("Icon ");
+			w.e("small", "(optional):");
+			w.end("td");
 			w.start("td");
 			w.e("input", "class", "form-control", "type", "text", "name",
 					"icon", "value", icon, "size", "120", "title",
@@ -275,7 +281,10 @@ public class PackageDetailPage extends MyPage {
 		}
 
 		w.start("tr");
-		w.e("td", "Description:");
+		w.start("td");
+		w.t("Description ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (mode.isEditable()) {
 			w.start("p", "class", "nw-help");
@@ -302,7 +311,10 @@ public class PackageDetailPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "License:");
+		w.start("td");
+		w.t("License ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (mode.isEditable()) {
 			w.start("select", "class", "form-control", "name", "license",
@@ -328,13 +340,31 @@ public class PackageDetailPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
-		w.e("td", "Category:");
+		w.start("td");
+		w.t("Category ");
+		w.e("small", "(optional):");
+		w.end("td");
 		w.start("td");
 		if (mode.isEditable()) {
-			w.start("input", "list", "categories", "class", "form-control",
-					"type", "text", "name", "tags", "value", tags, "size",
-					"40", "id", "tags", "autocomplete", "off", "title",
-					"list of tags associated with this package separated by commas");
+			w.start("input",
+					"list",
+					"categories",
+					"class",
+					"form-control",
+					"type",
+					"text",
+					"name",
+					"tags",
+					"value",
+					tags,
+					"size",
+					"40",
+					"id",
+					"tags",
+					"autocomplete",
+					"off",
+					"title",
+					"list of categories associated with this package separated by commas. Sub-categories can be defined using slashes as in Video/Encoders");
 			w.start("datalist", "id", "categories");
 			for (String s : new String[] { "Communications", "Development",
 					"Education", "Finance", "Games", "Music", "News", "Photo",
@@ -351,7 +381,10 @@ public class PackageDetailPage extends MyPage {
 
 		if (mode.isEditable()) {
 			w.start("tr");
-			w.e("td", "Comment:");
+			w.start("td");
+			w.t("Comment ");
+			w.e("small", "(optional):");
+			w.end("td");
 			w.start("td");
 			w.e("textarea",
 					"class",
@@ -365,6 +398,61 @@ public class PackageDetailPage extends MyPage {
 					"title",
 					"Internal comments normally only visible to the package editors",
 					comment);
+			w.end("td");
+			w.end("tr");
+		}
+
+		if (mode.isEditable()) {
+			w.start("tr");
+			w.start("td");
+			w.t("Discovery page (URL) ");
+			w.e("small", "(optional):");
+			w.end("td");
+			w.start("td");
+			w.e("input",
+					"class",
+					"form-control",
+					"type",
+					"text",
+					"name",
+					"discoveryPage",
+					"value",
+					discoveryURL,
+					"size",
+					"120",
+					"title",
+					"http: or https: URL of an HTML or text page that contains the newest version number as text");
+			w.end("td");
+			w.end("tr");
+
+			w.start("tr");
+			w.start("td");
+			w.t("Discovery regular expression ");
+			w.e("small", "(optional):");
+			w.end("td");
+			w.start("td");
+			w.start("input",
+					"list",
+					"discovery-res",
+					"class",
+					"form-control",
+					"type",
+					"text",
+					"name",
+					"discoveryRE",
+					"value",
+					discoveryRE,
+					"size",
+					"80",
+					"title",
+					"Regular expression to match the newest version number. This regular expression should contain a match group for the version number. A single letter at the end of the version number is allowed (2.0.6b will be interpreted as 2.0.6.2). Minus sign will be interpreted as a dot.\n"
+							+ "This regular expression will be applied to all lines in the file one-by-one until a match is found.\n"
+							+ "Example: <h1>the newest version is ([\\d\\.]+)</h1>");
+			w.start("datalist", "id", "discovery-res");
+			w.e("option", "value", "The current version is ([\\d\\.]+)");
+			w.e("option", "value", ">v([\\d\\.]+)<");
+			w.end("datalist");
+			w.end("input");
 			w.end("td");
 			w.end("tr");
 		}
@@ -406,67 +494,6 @@ public class PackageDetailPage extends MyPage {
 				createdBy.getEmail()) : "");
 		w.end("td");
 		w.end("tr");
-
-		if (mode.isEditable()) {
-			w.start("tr");
-			w.e("td", "Discovery page (URL):");
-			w.start("td");
-			w.e("input",
-					"class",
-					"form-control",
-					"type",
-					"text",
-					"name",
-					"discoveryPage",
-					"value",
-					discoveryURL,
-					"size",
-					"120",
-					"title",
-					"http: or https: URL of an HTML or text page that contains the newest version number as text");
-			w.end("td");
-			w.end("tr");
-
-			w.start("tr");
-			w.e("td", "Discovery regular expression:");
-			w.start("td");
-			w.start("input",
-					"list",
-					"discovery-res",
-					"class",
-					"form-control",
-					"type",
-					"text",
-					"name",
-					"discoveryRE",
-					"value",
-					discoveryRE,
-					"size",
-					"80",
-					"title",
-					"Regular expression to match the newest version number. This regular expression should contain a match group for the version number. A single letter at the end of the version number is allowed (2.0.6b will be interpreted as 2.0.6.2). Minus sign will be interpreted as a dot.\n"
-							+ "Example: <h1>the newest version is ([\\d\\.]+)</h1>");
-			w.start("datalist", "id", "discovery-res");
-			w.e("option", "value", "The current version is ([\\d\\.]+)");
-			w.e("option", "value", ">v([\\d\\.]+)<");
-			w.end("datalist");
-			w.end("input");
-			w.end("td");
-			w.end("tr");
-			/*
-			 * w.start("tr"); w.start("td", "colspan", "2"); w.e("p", "class",
-			 * "nw-help",
-			 * "The following field will help to define the download URL for a newly detected version in the future and is currently unused"
-			 * ); w.end("td"); w.end("tr");
-			 * 
-			 * w.start("tr"); w.e("td", "Discovery URL pattern:");
-			 * w.start("td"); w.e("input", "type", "text", "name",
-			 * "discoveryURLPattern", "value", discoveryURLPattern, "size",
-			 * "120", "title",
-			 * "Special URL pattern where ${{actualVersion}} and similar variables will be used to identify the binary of the new package version"
-			 * ); w.end("td"); w.end("tr");
-			 */
-		}
 
 		w.end("table");
 

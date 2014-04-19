@@ -38,6 +38,7 @@ import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.npackdweb.pv.PackageVersionNewAction;
+import com.googlecode.npackdweb.pv.PackageVersionRecognizeAction;
 import com.googlecode.npackdweb.pv.PackageVersionSaveAction;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
@@ -186,6 +187,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new PackageVersionComputeSHA256Action());
 		registerAction(new DontCheckDownloadAction());
 		registerAction(new MarkReviewedAction());
+		registerAction(new PackageVersionRecognizeAction());
 
 		registerAction(new HomeAction());
 		registerAction(new SendStatusAction("^/robots\\.txt$", 404));

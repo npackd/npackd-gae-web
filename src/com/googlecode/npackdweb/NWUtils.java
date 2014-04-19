@@ -764,7 +764,7 @@ public class NWUtils {
 	 * @param p
 	 *            package version
 	 * @param changeLastModified
-	 *            TODO
+	 *            last modified at/by will be changed, if true
 	 */
 	public static void savePackageVersion(Objectify ofy, PackageVersion p,
 			boolean changeLastModified) {

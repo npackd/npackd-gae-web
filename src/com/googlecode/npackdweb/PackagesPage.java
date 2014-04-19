@@ -150,10 +150,6 @@ public class PackagesPage extends MyPage {
 				w.t(" ");
 				w.e("a", "href", "/p/" + p.name, p.title);
 
-				// Google+
-				w.unencoded(" <div class='g-plusone' data-size='small' data-href='https://npackd.appspot.com/p/" +
-						p.name + "'></div>");
-
 				if (p.noUpdatesCheck != null &&
 						(System.currentTimeMillis() - p.noUpdatesCheck
 								.getTime()) < 7L * 24 * 60 * 60 * 1000) {
@@ -163,7 +159,15 @@ public class PackagesPage extends MyPage {
 							"This package was checked in the last 7 days and there were no updates",
 							"\u2713");
 				}
+
+				/*
+				 * // Google+ w.unencoded(
+				 * " <div class='g-plusone' data-size='small' data-href='https://npackd.appspot.com/p/"
+				 * + p.name + "'></div>");
+				 */
+
 				w.end("h4");
+
 				try {
 					w.unencoded(mp.process("Description: " + p.description));
 				} catch (IOException e) {
