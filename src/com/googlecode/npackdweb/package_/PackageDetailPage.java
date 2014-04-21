@@ -131,21 +131,6 @@ public class PackageDetailPage extends MyPage {
 		if (error != null) {
 			w.e("p", "class", "bg-danger", this.error);
 		}
-		w.start("h3");
-		if (icon.isEmpty()) {
-			w.e("img", "src", "/App.png");
-		} else {
-			w.e("img", "src", icon, "style",
-					"max-width: 32px; max-height: 32px");
-		}
-		if (mode != FormMode.CREATE) {
-			w.t(" " + title);
-
-			w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-					"https://npackd.appspot.com/p/" + id + "'></div>");
-		} else
-			w.t(" New package");
-		w.end("h3");
 
 		if (mode == FormMode.CREATE || mode == FormMode.EDIT) {
 			w.start("form", "class", "form-horizontal", "method", "post",
@@ -533,6 +518,25 @@ public class PackageDetailPage extends MyPage {
 	@Override
 	public String getTitle() {
 		return title.isEmpty() ? "Package" : title;
+	}
+
+	@Override
+	public String getTitleHTML() {
+		HTMLWriter w = new HTMLWriter();
+		if (icon.isEmpty()) {
+			w.e("img", "src", "/App.png");
+		} else {
+			w.e("img", "src", icon, "style",
+					"max-width: 32px; max-height: 32px");
+		}
+		if (mode != FormMode.CREATE) {
+			w.t(" " + title);
+
+			w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
+					"https://npackd.appspot.com/p/" + id + "'></div>");
+		} else
+			w.t(" New package");
+		return w.toString();
 	}
 
 	/**

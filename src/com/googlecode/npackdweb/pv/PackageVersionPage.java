@@ -133,6 +133,23 @@ public class PackageVersionPage extends MyPage {
 	}
 
 	@Override
+	public String getTitleHTML() {
+		HTMLWriter w = new HTMLWriter();
+		if (package_.icon.isEmpty()) {
+			w.e("img", "src", "/App.png");
+		} else {
+			w.e("img", "src", package_.icon, "style",
+					"max-width: 32px; max-height: 32px");
+		}
+		w.t(" ");
+		w.e("a", "href", "/p/" + package_.name, package_.title);
+		w.t(" " + version);
+		w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
+				"https://npackd.appspot.com/p/" + package_.name + "'></div>");
+		return w.toString();
+	}
+
+	@Override
 	public String createContent(HttpServletRequest request) throws IOException {
 		HTMLWriter w = new HTMLWriter();
 
@@ -147,19 +164,6 @@ public class PackageVersionPage extends MyPage {
 		if (error != null) {
 			w.e("p", "class", "bg-danger", this.error);
 		}
-
-		w.start("h3");
-		if (p.icon.isEmpty()) {
-			w.e("img", "src", "/App.png");
-		} else {
-			w.e("img", "src", p.icon, "style",
-					"max-width: 32px; max-height: 32px");
-		}
-		w.t(" ");
-		w.e("a", "href", "/p/" + p.name, p.title);
-		w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-				"https://npackd.appspot.com/p/" + p.name + "'></div>");
-		w.end("h3");
 
 		boolean editable = getEditable();
 		if (editable) {

@@ -27,11 +27,11 @@ public abstract class MyPage extends Page {
 		resp.setContentType("text/html; charset=UTF-8");
 		Writer out = resp.getWriter();
 
-		out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "content",
-				createContent(request), "head", getHeadPart(), "menu",
-				createMenu(request), "error", error, "info", info, "generator",
-				this.getClass().getName(), "bodyBottom",
-				createBodyBottom(request)));
+		out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "titleHTML",
+				getTitleHTML(), "content", createContent(request), "head",
+				getHeadPart(), "menu", createMenu(request), "error", error,
+				"info", info, "generator", this.getClass().getName(),
+				"bodyBottom", createBodyBottom(request)));
 		out.close();
 	}
 
@@ -57,6 +57,16 @@ public abstract class MyPage extends Page {
 	 * @return page title
 	 */
 	public abstract String getTitle();
+
+	/**
+	 * @return page title as HTML. The default implementation just converts the
+	 *         return value of {@link #getTitle()} to HTML
+	 */
+	public String getTitleHTML() {
+		HTMLWriter w = new HTMLWriter();
+		w.t(getTitle());
+		return w.toString();
+	}
 
 	/**
 	 * @return HTML code that should be inserted in <head>

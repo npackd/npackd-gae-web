@@ -76,17 +76,33 @@ public class HTMLWriter {
 	 * 
 	 * @param tagAndAttrs
 	 *            name of the tag and attributes separated by spaces. Example:
-	 *            "textarea wrap off"
+	 *            "textarea wrap=off"
 	 * @param content
 	 *            text content for the tag. null is treated as an empty string
 	 * @return this
 	 */
 	public HTMLWriter ew(final String tagAndAttrs, String content) {
 		List<String> p = NWUtils.split(tagAndAttrs, ' ');
-		String tag = p.remove(0);
-		p.add(content);
-		String[] p_ = p.toArray(new String[p.size()]);
-		e(tag, p_);
+
+		String tag = p.get(0);
+		b.append('<').append(tag);
+		for (int i = 1; i < p.size(); i++) {
+			String nameAndValue = p.get(i);
+			int pos = nameAndValue.indexOf('=');
+
+			b.append(' ');
+			b.append(nameAndValue, 0, pos);
+			b.append("=\"");
+			encodeHTML(b, nameAndValue.substring(pos + 1));
+			b.append('"');
+		}
+		b.append('>');
+		if (content != null)
+			encodeHTML(b, content);
+		b.append("</");
+		b.append(tag);
+		b.append('>');
+
 		return this;
 	}
 

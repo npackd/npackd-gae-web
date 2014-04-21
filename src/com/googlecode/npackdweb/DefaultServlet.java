@@ -22,6 +22,9 @@ import com.googlecode.npackdweb.admin.AddPermissionsConfirmedAction;
 import com.googlecode.npackdweb.admin.RecreateIndexAction;
 import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.ResavePackagesAction;
+import com.googlecode.npackdweb.license.LicenseAction;
+import com.googlecode.npackdweb.license.LicenseDeleteAction;
+import com.googlecode.npackdweb.license.LicenseSaveAction;
 import com.googlecode.npackdweb.package_.PackageDeleteAction;
 import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
@@ -188,6 +191,12 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new DontCheckDownloadAction());
 		registerAction(new MarkReviewedAction());
 		registerAction(new PackageVersionRecognizeAction());
+
+		/* license */
+		registerAction(new LicensesAction());
+		registerAction(new LicenseAction());
+		registerAction(new LicenseDeleteAction());
+		registerAction(new LicenseSaveAction());
 
 		registerAction(new HomeAction());
 		registerAction(new SendStatusAction("^/robots\\.txt$", 404));

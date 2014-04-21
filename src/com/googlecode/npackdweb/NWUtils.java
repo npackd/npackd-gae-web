@@ -728,7 +728,7 @@ public class NWUtils {
 	 * @param p
 	 *            package
 	 * @param changeLastModifiedAt
-	 *            TODO
+	 *            change the last modification time
 	 */
 	public static void savePackage(Objectify ofy, Package p,
 			boolean changeLastModifiedAt) {
@@ -1216,5 +1216,40 @@ public class NWUtils {
 			throw (InternalError) new InternalError(e.getMessage())
 					.initCause(e);
 		}
+	}
+
+	/**
+	 * Deletes a license
+	 * 
+	 * @param ofy
+	 *            Objectify
+	 * @param name
+	 *            license ID
+	 */
+	public static void deleteLicense(Objectify ofy, String name) {
+		License p = ofy.get(new Key<License>(License.class, name));
+		ofy.delete(p);
+		NWUtils.incDataVersion();
+	}
+
+	/**
+	 * Saves a license
+	 * 
+	 * @param ofy
+	 *            Objectify
+	 * @param p
+	 *            license
+	 * @param changeLastModifiedAt
+	 *            true = change the last modification time
+	 */
+	public static void saveLicense(Objectify ofy, License p,
+			boolean changeLastModifiedAt) {
+		if (ofy.find(p.createKey()) == null) {
+			NWUtils.increasePackageNumber();
+		}
+		if (changeLastModifiedAt)
+			p.lastModifiedAt = new Date();
+		ofy.put(p);
+		NWUtils.incDataVersion();
 	}
 }

@@ -6,8 +6,12 @@ import javax.persistence.Id;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
 
@@ -17,6 +21,17 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 @Cached
 public class License {
+	/**
+	 * Searches for a license with the given full license ID.
+	 * 
+	 * @param id
+	 *            full license ID
+	 * @return found license or null
+	 */
+	public static License findByName(Objectify ofy, String id) {
+		return ofy.find(new Key<License>(License.class, id));
+	}
+
 	@Id
 	public String name;
 	public String title;
@@ -54,5 +69,27 @@ public class License {
 	 */
 	public Key<License> createKey() {
 		return new Key<License>(License.class, name);
+	}
+
+	/**
+	 * @param d
+	 *            XML document
+	 * @return XML representation of this license
+	 */
+	public Element toXML(Document d) {
+		Element license = d.createElement("license");
+		license.setAttribute("name", name);
+		if (!title.isEmpty())
+			NWUtils.e(license, "title", title);
+		if (!url.isEmpty())
+			NWUtils.e(license, "url", url);
+		return license;
+	}
+
+	/**
+	 * @return true if the current user allowed to modify the license
+	 */
+	public boolean isCurrentUserPermittedToModify() {
+		return NWUtils.isAdminLoggedIn();
 	}
 }

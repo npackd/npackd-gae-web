@@ -178,12 +178,7 @@ public class RepXMLPage extends Page {
 		Element root = d.getDocumentElement();
 
 		for (License l : licenses) {
-			Element license = d.createElement("license");
-			license.setAttribute("name", l.name);
-			if (!l.title.isEmpty())
-				NWUtils.e(license, "title", l.title);
-			if (!l.url.isEmpty())
-				NWUtils.e(license, "url", l.url);
+			Element license = l.toXML(d);
 
 			root.appendChild(license);
 		}
