@@ -9,6 +9,7 @@ import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
+import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -46,15 +47,8 @@ public class LicensePage extends MyPage {
 	public String createBodyBottom(HttpServletRequest request)
 			throws IOException {
 		HTMLWriter w = new HTMLWriter();
-		w.start("script");
-		w.t("$(document).ready(function() {\n");
-		w.t("    $('#url-link').click(function(event) {\n");
-		w.t("        window.open($('#url').val());\n");
-		w.t("        event.preventDefault();\n");
-		w.t("    });\n");
-		w.t("});\n");
-		w.end("script");
 
+		w.unencoded(NWUtils.tmpl("LicensePage.html"));
 		w.unencoded(NWUtils.tmpl("GooglePlus.html"));
 
 		return w.toString();
@@ -75,18 +69,6 @@ public class LicensePage extends MyPage {
 		if (error != null) {
 			w.e("p", "class", "bg-danger", this.error);
 		}
-		w.start("h3");
-
-		w.e("img", "src", "/App.png");
-
-		if (exists) {
-			w.t(" " + title);
-
-			w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-					"https://npackd.appspot.com/p/" + id + "'></div>");
-		} else
-			w.t(" New license");
-		w.end("h3");
 
 		if (editable) {
 			w.start("form", "class", "form-horizontal", "method", "post",
@@ -192,6 +174,22 @@ public class LicensePage extends MyPage {
 		return title.isEmpty() ? "License" : title;
 	}
 
+	@Override
+	public String getTitleHTML() {
+		HTMLWriter w = new HTMLWriter();
+		w.e("img", "src", "/App.png");
+
+		if (this.id != null && this.id.trim().length() > 0) {
+			w.t(" " + title);
+
+			w.unencoded(" <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
+					"https://npackd.appspot.com/p/" + id + "'></div>");
+		} else
+			w.t(" New license");
+
+		return w.toString();
+	}
+
 	/**
 	 * Fills the values from an HTTP request.
 	 * 
@@ -227,7 +225,7 @@ public class LicensePage extends MyPage {
 	@Override
 	public String validate() {
 		String msg = null;
-		// TODO: msg = Package.checkName(this.id);
+		msg = Package.checkName(this.id);
 
 		if (msg == null) {
 			if (this.id == null || this.id.trim().length() == 0) {

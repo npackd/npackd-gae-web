@@ -112,12 +112,7 @@ public class PackageDetailPage extends MyPage {
 			throws IOException {
 		HTMLWriter w = new HTMLWriter();
 		w.start("script");
-		w.t("$(document).ready(function() {\n");
-		w.t("    $('#url-link').click(function(event) {\n");
-		w.t("        window.open($('#url').val());\n");
-		w.t("        event.preventDefault();\n");
-		w.t("    });\n");
-		w.t("});\n");
+		w.unencoded(NWUtils.tmpl("PackageDetail.js"));
 		w.end("script");
 
 		w.unencoded(NWUtils.tmpl("GooglePlus.html"));
@@ -166,6 +161,17 @@ public class PackageDetailPage extends MyPage {
 
 		w.start("table", "border", "0");
 
+		if (mode != FormMode.VIEW) {
+			w.start("tr");
+			w.e("td", "Title:");
+			w.start("td");
+			w.e("input", "class", "form-control", "type", "text", "name",
+					"title", "value", title, "size", "80", "title",
+					"Name of the package", "id", "title");
+			w.end("td");
+			w.end("tr");
+		}
+
 		w.start("tr");
 		w.e("td", "ID:");
 		if (mode != FormMode.CREATE)
@@ -173,7 +179,7 @@ public class PackageDetailPage extends MyPage {
 		else {
 			w.start("td");
 			w.e("input", "class", "form-control", "type", "text", "name",
-					"name", "value", id, "size", "80", "title",
+					"name", "value", id, "size", "80", "id", "id", "title",
 					"Full package name including the reversed domain name");
 			w.start("p", "class", "nw-help");
 			w.t(" See ");
@@ -215,17 +221,6 @@ public class PackageDetailPage extends MyPage {
 			info = null;
 		w.end("td");
 		w.end("tr");
-
-		if (mode != FormMode.VIEW) {
-			w.start("tr");
-			w.e("td", "Title:");
-			w.start("td");
-			w.e("input", "class", "form-control", "type", "text", "name",
-					"title", "value", title, "size", "80", "title",
-					"Name of the package");
-			w.end("td");
-			w.end("tr");
-		}
 
 		w.start("tr");
 		w.start("td");

@@ -53,7 +53,7 @@ public class CheckUpdatesAction extends Action {
 		else
 			data = null;
 		if (data != null) {
-			NWUtils.LOG.warning("check-update for " + data.name);
+			NWUtils.LOG.info("check-update for " + data.name);
 			Version v = null;
 			try {
 				if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount")))
@@ -96,7 +96,7 @@ public class CheckUpdatesAction extends Action {
 				}
 			}
 
-			NWUtils.LOG.warning("check-update noUpdatesCheck= " +
+			NWUtils.LOG.info("check-update noUpdatesCheck= " +
 					data.noUpdatesCheck);
 
 			cursor = iterator.getCursor().toWebSafeString();

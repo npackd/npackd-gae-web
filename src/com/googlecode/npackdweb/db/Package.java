@@ -234,8 +234,8 @@ public class Package {
 			NWUtils.e(package_, "icon", p.icon);
 		if (!p.license.isEmpty())
 			NWUtils.e(package_, "license", p.license);
-		if (tags.size() > 0)
-			NWUtils.e(package_, "category", NWUtils.join("|", tags));
+		for (String tag : tags)
+			NWUtils.e(package_, "category", tag);
 
 		return package_;
 	}
