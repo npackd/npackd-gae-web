@@ -182,7 +182,9 @@ public class PackageVersionRecognizeAction extends Action {
 		case "exe":
 			// NSIS is the most often used installer builder
 			if (contentLowerCase != null) {
-				if (Bytes.indexOf(contentLowerCase, "nsis.sf.net".getBytes()) >= 0)
+				if (Bytes.indexOf(contentLowerCase, "nsis.sf.net".getBytes()) >= 0 ||
+						Bytes.indexOf(contentLowerCase,
+								"nullsoft.nsis".getBytes()) >= 0)
 					t = BinaryType.NSIS;
 				else if (Bytes.indexOf(contentLowerCase,
 						"inno setup".getBytes()) >= 0)

@@ -180,7 +180,7 @@ public class PackageDetailPage extends MyPage {
 			w.start("td");
 			w.e("input", "class", "form-control", "type", "text", "name",
 					"name", "value", id, "size", "80", "id", "id", "title",
-					"Full package name including the reversed domain name");
+					"Package name");
 			w.start("p", "class", "nw-help");
 			w.t(" See ");
 			w.e("a",
