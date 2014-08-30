@@ -176,7 +176,11 @@ public class PackagesPage extends MyPage {
 									" Failed to parse the Markdown syntax: " +
 									e.getMessage());
 				}
-				w.e("div", "License: " + (lic == null ? "unknown" : lic.title));
+				w.e("div",
+						"Categories: " +
+								(p.tags.size() == 0 ? "-" : NWUtils.join(", ",
+										p.tags)) + "; License: " +
+								(lic == null ? "unknown" : lic.title));
 				w.end("div");
 				w.end("div");
 			}

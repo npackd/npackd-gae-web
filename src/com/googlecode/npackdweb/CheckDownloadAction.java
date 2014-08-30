@@ -60,21 +60,48 @@ public class CheckDownloadAction extends Action {
 			data = null;
 		if (data != null) {
 			if (!PackageVersion.DONT_CHECK_THIS_DOWNLOAD
-					.equals(data.downloadCheckError)) {
+					.equals(data.downloadCheckError) &&
+					data.tags.indexOf("download-failed-3") < 0) {
 				NWUtils.LOG.warning("Checking " + data.package_ + "@" +
 						data.version);
 
-				NWUtils.Info info = null;
+				int failed = 0;
+				if (data.tags.indexOf("download-failed-2") >= 0) {
+					failed = 2;
+				} else if (data.tags.indexOf("download-failed-1") >= 0) {
+					failed = 1;
+				}
 				if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
 					data.downloadCheckAt = new Date();
 					data.downloadCheckError = "Timeout";
-				} else
+				} else if (data.url.trim().length() == 0) {
+					failed = 0;
+					data.downloadCheckAt = new Date();
+					data.downloadCheckError = null;
+				} else {
+					NWUtils.Info info = null;
 					info =
 							data.check(true,
 									data.sha1.length() == 64 ? "SHA-256"
 											: "SHA-1");
-				if (info != null)
-					downloaded = info.size;
+					if (info != null) {
+						downloaded = info.size;
+						failed = 0;
+					} else {
+						failed++;
+					}
+				}
+
+				data.tags.remove("download-failed-3");
+				data.tags.remove("download-failed-2");
+				data.tags.remove("download-failed-1");
+
+				if (failed > 0) {
+					if (failed > 3)
+						failed = 3;
+					data.tags.add("download-failed-" + failed);
+				}
+
 				NWUtils.savePackageVersion(ob, data, false);
 			}
 

@@ -133,7 +133,8 @@ public class PackageDetailPage extends MyPage {
 		}
 
 		if (mode == FormMode.EDIT)
-			w.e("input", "type", "hidden", "name", "name", "value", id);
+			w.e("input", "type", "hidden", "id", "name", "name", "name",
+					"value", id);
 
 		if (mode == FormMode.CREATE)
 			w.e("input", "type", "hidden", "name", "new", "value", "true");
@@ -145,7 +146,7 @@ public class PackageDetailPage extends MyPage {
 			if (mode != FormMode.CREATE) {
 				NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
 						id, "Edit this package as repository XML");
-				NWUtils.jsButton(w, "Delete", "/package/delete?id=" + id,
+				NWUtils.jsButton_(w, "Delete", "deleteOnClick()",
 						"Deletes this package and all associated versions");
 				NWUtils.jsButton(w, "New version", "/p/" + id + "/new",
 						"Creates new version");
@@ -348,7 +349,7 @@ public class PackageDetailPage extends MyPage {
 			w.start("datalist", "id", "categories");
 			for (String s : new String[] { "Communications", "Development",
 					"Education", "Finance", "Games", "Music", "News", "Photo",
-					"Productivity", "Security", "Tools", "Video" }) {
+					"Productivity", "Security", "Text", "Tools", "Video" }) {
 				w.e("option", "value", s);
 			}
 			w.end("datalist");

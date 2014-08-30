@@ -549,6 +549,24 @@ public class NWUtils {
 	 *            HTML output
 	 * @param txt
 	 *            button title
+	 * @param onClick
+	 *            JavaScript for "onclick"
+	 * @param title
+	 *            tooltip
+	 */
+	public static void jsButton_(HTMLWriter w, String txt, String onClick,
+			String title) {
+		w.e("input", "class", "btn btn-default", "type", "button", "value",
+				txt, "onclick", onClick, "title", title);
+	}
+
+	/**
+	 * Creates an <input type="button"> that changes window.location.href
+	 * 
+	 * @param w
+	 *            HTML output
+	 * @param txt
+	 *            button title
 	 * @param url
 	 *            new URL
 	 * @param title
@@ -978,22 +996,33 @@ public class NWUtils {
 	 * 
 	 * @param string
 	 *            body of the email
+	 * @param to
+	 *            receiver email address
 	 */
-	public static void sendMailToAdmin(String string) {
+	public static void sendMailTo(String string, String to) {
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
 
 		try {
 			Message msg = new MimeMessage(session);
 			msg.setFrom(new InternetAddress("tim.lebedkov@gmail.com", "Admin"));
-			msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
-					"admins"));
+			msg.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 			msg.setSubject("http://npackd.appspot.com");
 			msg.setText(string);
 			Transport.send(msg);
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, "Cannot send a mail to the admin", e);
 		}
+	}
+
+	/**
+	 * Sends an email to the administrator.
+	 * 
+	 * @param string
+	 *            body of the email
+	 */
+	public static void sendMailToAdmin(String string) {
+		sendMailTo(string, "admins");
 	}
 
 	/**

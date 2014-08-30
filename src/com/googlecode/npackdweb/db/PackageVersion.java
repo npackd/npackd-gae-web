@@ -347,18 +347,6 @@ public class PackageVersion {
 	 *            Objectify instance
 	 * @return first 20 package versions with errors downloading the binary
 	 */
-	public static List<PackageVersion> find20DownloadFailed(Objectify ofy) {
-		return ofy.query(PackageVersion.class).limit(20)
-				.filter("downloadCheckError !=", null)
-				.filter("downloadCheckError !=", DONT_CHECK_THIS_DOWNLOAD)
-				.list();
-	}
-
-	/**
-	 * @param ofy
-	 *            Objectify instance
-	 * @return first 20 package versions with errors downloading the binary
-	 */
 	public static List<PackageVersion> find20NotReviewed(Objectify ofy) {
 		return ofy.query(PackageVersion.class).limit(20)
 				.filter("reviewed !=", true).list();

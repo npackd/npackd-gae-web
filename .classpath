@@ -10,11 +10,11 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/appengine-gcs-client.jar" sourcepath="C:/Users/t/libs/appengine-gcs-client-java-r127/appengine-gcs-client-0.3-sources.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-15.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/joda-time-2.3.jar"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
 		<attributes>
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/App Engine SDK"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

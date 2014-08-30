@@ -231,7 +231,7 @@ public class PackageVersionRecognizeAction extends Action {
 					".Npackd\\Install.bat",
 					"for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
 							+ "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
-			pv.addFile(".Npackd\\Uninstall.bat", "uninst.exe /S _?=%CD%\r\n");
+			pv.addFile(".Npackd\\Uninstall.bat", "uninstall.exe /S _?=%CD%\r\n");
 			break;
 		case SEVENZIP:
 			pv.oneFile = true;
