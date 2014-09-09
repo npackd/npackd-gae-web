@@ -8,3 +8,4 @@ war/com.googlecode.npackdweb.pv.PVEditor/
 ^src/tags$
 ^war/com.googlecode.npackdweb.Editor/
 ^backup/
+^target/
