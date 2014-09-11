@@ -17,8 +17,8 @@
     </pluginRepositories>
 
     <properties>
-        <appengine.app.version>1</appengine.app.version>
-        <appengine.target.version>1.9.10</appengine.target.version>
+        <appengine.app.version>16</appengine.app.version>
+        <appengine.target.version>1.9.8</appengine.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
