@@ -129,7 +129,7 @@ public abstract class MyPage extends Page {
 			thisURL += "?" + request.getQueryString();
 		HTMLWriter res = new HTMLWriter();
 		if (request.getUserPrincipal() != null) {
-			res.t("Hello, " + request.getUserPrincipal().getName() +
+			res.t("Hello, " + userService.getCurrentUser().getNickname() +
 					"!  You can ");
 			res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
 			res.t(".");

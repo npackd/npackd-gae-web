@@ -19,6 +19,7 @@ import com.googlecode.npackdweb.admin.AddEditorAction;
 import com.googlecode.npackdweb.admin.AddEditorConfirmedAction;
 import com.googlecode.npackdweb.admin.AddPermissionsAction;
 import com.googlecode.npackdweb.admin.AddPermissionsConfirmedAction;
+import com.googlecode.npackdweb.admin.CleanDependenciesAction;
 import com.googlecode.npackdweb.admin.RecreateIndexAction;
 import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.ResavePackagesAction;
@@ -217,6 +218,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new ReCaptchaAction());
 		registerAction(new AddPermissionsAction());
 		registerAction(new AddPermissionsConfirmedAction());
+		registerAction(new CleanDependenciesAction());
 	}
 
 	/**
