@@ -24,7 +24,7 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 
 /**
- * Exports default repositories to BLOBs.
+ * Exports repositories to the GCS.
  */
 public class ExportRepsAction extends Action {
 	/**

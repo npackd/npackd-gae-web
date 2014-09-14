@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +19,6 @@ import com.google.appengine.api.search.checkers.SearchApiLimits;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 
 /**
@@ -88,16 +88,22 @@ public class PackagesPage extends MyPage {
 		Results<ScoredDocument> r = index.search(qb.build(query));
 		found = r.getNumberFound();
 
-		packages = new ArrayList<Package>();
-		Objectify obj = DefaultServlet.getObjectify();
+		List<String> ids = new ArrayList<String>();
 		for (ScoredDocument sd : r) {
-			String id = sd.getId();
-			Package p = obj.find(new Key<Package>(Package.class, id));
-			if (p != null) {
-				packages.add(p);
-				if (packages.size() > PAGE_SIZE)
-					break;
-			}
+			ids.add(sd.getId());
+
+			if (ids.size() > PAGE_SIZE)
+				break;
+		}
+
+		Objectify obj = DefaultServlet.getObjectify();
+		Map<String, Package> map = obj.get(Package.class, ids);
+
+		packages = new ArrayList<Package>();
+
+		for (Map.Entry<String, Package> e : map.entrySet()) {
+			if (e.getValue() != null)
+				packages.add(e.getValue());
 		}
 
 		return createContent2() +

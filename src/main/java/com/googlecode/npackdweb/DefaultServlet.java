@@ -219,6 +219,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new AddPermissionsAction());
 		registerAction(new AddPermissionsConfirmedAction());
 		registerAction(new CleanDependenciesAction());
+		registerAction(new ExportDefaultVimRepAction());
 	}
 
 	/**

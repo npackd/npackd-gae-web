@@ -1,5 +1,7 @@
 package com.googlecode.npackdweb.admin;
 
+import java.util.List;
+
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
@@ -33,6 +35,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 		Version one = new Version();
 
 		PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+		boolean save = false;
 		for (int i = 0; i < pv.dependencyPackages.size(); i++) {
 			String p = pv.dependencyPackages.get(i);
 			String r = pv.dependencyVersionRanges.get(i);
@@ -52,10 +55,32 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 					pv.dependencyPackages.remove(i);
 					pv.dependencyVersionRanges.remove(i);
 					pv.dependencyEnvVars.remove(i);
-					NWUtils.savePackageVersion(ofy, pv, true);
+					save = true;
 					break;
 				}
 			}
+		}
+
+		for (int i = 0; i < pv.getFileCount(); i++) {
+			String s = pv.getFileContents(i);
+			List<String> lines = NWUtils.splitLines(s);
+			for (int j = 0; j < lines.size();) {
+				String line = lines.get(j);
+				if (line.trim()
+						.toLowerCase()
+						.equals("if \"%npackd_cl%\" equ \"\" set npackd_cl=..\\com.googlecode.windows-package-manager.npackdcl-1")) {
+					lines.remove(j);
+					pv.setFileContents(i, NWUtils.join("\r\n", lines));
+					save = true;
+				} else {
+					j++;
+				}
+			}
+		}
+
+		if (save) {
+			System.out.println("Saving " + pv.name);
+			NWUtils.savePackageVersion(ofy, pv, true);
 		}
 	}
 }

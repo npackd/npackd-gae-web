@@ -326,6 +326,13 @@ public class PackageVersion {
 	}
 
 	/**
+	 * @return the number of text files.
+	 */
+	public int getFileCount() {
+		return this.filePaths.size();
+	}
+
+	/**
 	 * Searches for a package version.
 	 * 
 	 * @param ofy
