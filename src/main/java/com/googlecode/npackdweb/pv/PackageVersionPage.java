@@ -246,6 +246,16 @@ public class PackageVersionPage extends MyPage {
 		w.end("tr");
 
 		w.start("tr");
+		w.e("td", "Change log:");
+		w.start("td");
+		if (p.changelog != null && p.changelog.trim().length() > 0)
+			w.e("a", "id", "changelog", "href", p.changelog, p.changelog);
+		else
+			w.t("n/a");
+		w.end("td");
+		w.end("tr");
+
+		w.start("tr");
 		w.e("td", "Description:");
 		Markdown4jProcessor mp = new Markdown4jProcessor();
 		w.start("td");

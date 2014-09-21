@@ -46,6 +46,9 @@ public class PackageDetailPage extends MyPage {
 	/** package home page */
 	public String url;
 
+	/** package change log URL */
+	public String changelog;
+
 	/** package icon */
 	public String icon;
 
@@ -91,6 +94,7 @@ public class PackageDetailPage extends MyPage {
 		id = "";
 		title = "";
 		url = "";
+		changelog = "";
 		icon = "";
 		description = "";
 		comment = "";
@@ -139,7 +143,7 @@ public class PackageDetailPage extends MyPage {
 		if (mode == FormMode.CREATE)
 			w.e("input", "type", "hidden", "name", "new", "value", "true");
 
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("div", "class", "btn-group");
 			w.e("input", "class", "btn btn-default", "type", "submit", "value",
 					"Save");
@@ -214,8 +218,8 @@ public class PackageDetailPage extends MyPage {
 				w.t(" | ");
 			w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version, pv.version);
 		}
-		if (mode.isEditable() && error == null && id != null && !id.isEmpty() &&
-				pvs.size() == 0)
+		if ((mode == FormMode.EDIT || mode == FormMode.CREATE) &&
+				error == null && id != null && !id.isEmpty() && pvs.size() == 0)
 			info =
 					"Click on \"New version\" to create a new version of this package";
 		else
@@ -229,7 +233,7 @@ public class PackageDetailPage extends MyPage {
 		w.e("small", "(optional):");
 		w.end("td");
 		w.start("td");
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.e("input", "id", "url", "style", "display: inline; width: 90%",
 					"class", "form-control", "type", "text", "name", "url",
 					"value", url, "size", "120", "title",
@@ -247,7 +251,28 @@ public class PackageDetailPage extends MyPage {
 		w.end("td");
 		w.end("tr");
 
-		if (mode.isEditable()) {
+		w.start("tr");
+		w.start("td");
+		w.t("Change log ");
+		w.e("small", "(optional):");
+		w.end("td");
+		w.start("td");
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
+			w.e("input", "id", "changelog", "style",
+					"display: inline; width: 90%", "class", "form-control",
+					"type", "text", "name", "changelog", "value", changelog,
+					"size", "120", "title",
+					"http: or https: address of the package change log");
+			w.e("div", "class", "glyphicon glyphicon-link", "id",
+					"changelog-link", "style",
+					"cursor: pointer; font-size: 20px; font-weight: bold");
+		} else {
+			w.e("a", "href", changelog, changelog);
+		}
+		w.end("td");
+		w.end("tr");
+
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("tr");
 			w.start("td");
 			w.t("Icon ");
@@ -267,7 +292,7 @@ public class PackageDetailPage extends MyPage {
 		w.e("small", "(optional):");
 		w.end("td");
 		w.start("td");
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("p", "class", "nw-help");
 			w.e("a", "href",
 					"http://daringfireball.net/projects/markdown/syntax",
@@ -297,7 +322,7 @@ public class PackageDetailPage extends MyPage {
 		w.e("small", "(optional):");
 		w.end("td");
 		w.start("td");
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("select", "class", "form-control", "name", "license",
 					"title", "Package licensing terms");
 			w.e("option", "value", "");
@@ -326,7 +351,7 @@ public class PackageDetailPage extends MyPage {
 		w.e("small", "(optional):");
 		w.end("td");
 		w.start("td");
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("input",
 					"list",
 					"categories",
@@ -360,7 +385,7 @@ public class PackageDetailPage extends MyPage {
 		w.end("td");
 		w.end("tr");
 
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("tr");
 			w.start("td");
 			w.t("Comment ");
@@ -383,7 +408,7 @@ public class PackageDetailPage extends MyPage {
 			w.end("tr");
 		}
 
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("tr");
 			w.start("td");
 			w.t("Discovery page (URL) ");
@@ -438,7 +463,7 @@ public class PackageDetailPage extends MyPage {
 			w.end("tr");
 		}
 
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.start("tr");
 			w.e("td", "Permissions:");
 			w.start("td");
@@ -478,7 +503,7 @@ public class PackageDetailPage extends MyPage {
 
 		w.end("table");
 
-		if (mode.isEditable()) {
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
 			w.end("form");
 		}
 
@@ -581,6 +606,7 @@ public class PackageDetailPage extends MyPage {
 		id = req.getParameter("name");
 		title = req.getParameter("title");
 		url = req.getParameter("url");
+		changelog = req.getParameter("changelog");
 		icon = req.getParameter("icon");
 		description = req.getParameter("description");
 		comment = req.getParameter("comment");
@@ -612,6 +638,7 @@ public class PackageDetailPage extends MyPage {
 		p.icon = icon.trim();
 		p.title = title.trim();
 		p.url = url.trim();
+		p.changelog = changelog.trim();
 		p.license = license.trim();
 		p.comment = comment.trim();
 		p.discoveryPage = discoveryURL.trim();
@@ -641,6 +668,11 @@ public class PackageDetailPage extends MyPage {
 		if (msg == null) {
 			if (!this.url.trim().isEmpty()) {
 				msg = NWUtils.validateURL(this.url);
+			}
+		}
+		if (msg == null) {
+			if (!this.changelog.trim().isEmpty()) {
+				msg = NWUtils.validateURL(this.changelog);
 			}
 		}
 		if (msg == null) {
@@ -684,6 +716,7 @@ public class PackageDetailPage extends MyPage {
 		icon = r.icon.trim();
 		title = r.title.trim();
 		url = r.url.trim();
+		changelog = r.changelog == null ? "" : r.changelog;
 		license = r.license.trim();
 		comment = r.comment.trim();
 		discoveryURL = r.discoveryPage.trim();

@@ -14,6 +14,11 @@ function initEvents() {
         event.preventDefault();
     });
     
+    $('#changelog-link').click(function(event) {
+        window.open($('#changelog').val());
+        event.preventDefault();
+    });
+    
     $('#title').on('input', function(event) {
     	var s = $.trim($(this).val());
     	s = s.toLowerCase().replace(/[^-0..9\w]/g, "-");

@@ -58,6 +58,10 @@ public class Package {
 
 	public String title = "";
 	public String url = "";
+
+	/** change log URL or null */
+	public String changelog;
+
 	public String description = "";
 	public String icon = "";
 	public String license = "";
@@ -236,6 +240,8 @@ public class Package {
 			NWUtils.e(package_, "license", p.license);
 		for (String tag : tags)
 			NWUtils.e(package_, "category", tag);
+		if (p.changelog != null && !p.changelog.trim().isEmpty())
+			NWUtils.e(package_, "changelog", p.changelog);
 
 		return package_;
 	}

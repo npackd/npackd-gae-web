@@ -11,12 +11,5 @@ public enum FormMode {
     EDIT,
 
     /** create new object */
-    CREATE;
-
-    /**
-     * @return true if this mode allows editing
-     */
-    public boolean isEditable() {
-        return this == EDIT || this == CREATE;
-    }
+    CREATE
 }
