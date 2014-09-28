@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,19 +73,31 @@ public class ExportRepsAction extends Action {
 						.getDefaultInstance());
 
 		GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
+		GcsFilename fileNameZIP = new GcsFilename("npackd", tag + ".zip");
 
-		boolean exists = gcsService.getMetadata(fileName) != null;
+		if (r.blobFile == null || recreate ||
+				gcsService.getMetadata(fileName) == null ||
+				gcsService.getMetadata(fileNameZIP) == null) {
+			Document d = RepXMLPage.toXML(ob, tag, true);
 
-		if (r.blobFile == null || recreate || !exists) {
 			GcsOutputChannel outputChannel =
 					gcsService.createOrReplace(fileName,
 							GcsFileOptions.getDefaultInstance());
-
-			Document d = RepXMLPage.toXML(ob, tag, true);
-
 			OutputStream oout = Channels.newOutputStream(outputChannel);
 			NWUtils.serializeXML(d, oout);
 			oout.close();
+
+			GcsOutputChannel outputChannelZIP =
+					gcsService.createOrReplace(fileNameZIP,
+							GcsFileOptions.getDefaultInstance());
+			OutputStream ooutZIP = Channels.newOutputStream(outputChannelZIP);
+			ZipOutputStream zos = new ZipOutputStream(ooutZIP);
+			zos.setLevel(Deflater.BEST_COMPRESSION);
+			ZipEntry e = new ZipEntry("Rep.xml");
+			zos.putNextEntry(e);
+			NWUtils.serializeXML(d, zos);
+			zos.closeEntry();
+			zos.close();
 
 			r.blobFile =
 					"/gs/" + fileName.getBucketName() + "/" +

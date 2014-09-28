@@ -167,6 +167,7 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new RepDetailAction());
 		registerAction(new RepAction());
 		registerAction(new RepXMLAction());
+		registerAction(new RepZIPAction());
 		registerAction(new RecentRepXMLAction());
 
 		/* package */

@@ -1,13 +1,9 @@
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,14 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -54,51 +42,7 @@ public class RepXMLPage extends Page {
 		Objectify ofy = DefaultServlet.getObjectify();
 		ExportRepsAction.export(ofy, tag, false);
 
-		final GcsService gcsService =
-				GcsServiceFactory.createGcsService(RetryParams
-						.getDefaultInstance());
-
-		GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
-		GcsFileMetadata md = gcsService.getMetadata(fileName);
-
-		SimpleDateFormat httpDateFormat =
-				new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
-
-		String ims = request.getHeader("If-Modified-Since");
-		boolean serve = true;
-		if (ims != null) {
-			Date lastSeen;
-			try {
-				lastSeen = httpDateFormat.parse(ims);
-				if (lastSeen.getTime() >= md.getLastModified().getTime())
-					serve = false;
-			} catch (ParseException e) {
-				// ignore
-			}
-		} else {
-			String inm = request.getHeader("If-None-Match");
-			if (inm != null) {
-				String[] split = inm.split(",");
-				if (Arrays.asList(split).contains(md.getEtag()))
-					serve = false;
-			}
-		}
-
-		resp.setContentType("application/xml");
-		resp.setHeader("ETag", md.getEtag());
-
-		resp.setHeader("Last-Modified",
-				httpDateFormat.format(md.getLastModified()));
-
-		BlobstoreService blobstoreService =
-				BlobstoreServiceFactory.getBlobstoreService();
-		BlobKey blobKey =
-				blobstoreService.createGsBlobKey("/gs/npackd/" + tag + ".xml");
-
-		if (serve)
-			blobstoreService.serve(blobKey, resp);
-		else
-			resp.sendError(304);
+		NWUtils.serveFileFromGCS(tag + ".xml", request, resp, "application/xml");
 	}
 
 	/**

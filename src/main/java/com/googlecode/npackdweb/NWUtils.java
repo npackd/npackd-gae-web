@@ -15,7 +15,10 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +34,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,6 +54,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
@@ -64,6 +71,11 @@ import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -1280,5 +1292,71 @@ public class NWUtils {
 			p.lastModifiedAt = new Date();
 		ofy.put(p);
 		NWUtils.incDataVersion();
+	}
+
+	/**
+	 * Serves an existing file from the Google Cloud Storage. This method uses
+	 * If-Modified-Since and similar HTTP headers and sends 304 if the file was
+	 * not changed.
+	 * 
+	 * @param filename
+	 *            name of the file in the bucket "npackd"
+	 * @param request
+	 *            HTTP request
+	 * @param resp
+	 *            HTTP response
+	 * @param contentType
+	 *            MIME type of the response
+	 * @throws IOException
+	 *             error reading or sending the file
+	 */
+	public static void serveFileFromGCS(String filename,
+			HttpServletRequest request, HttpServletResponse resp,
+			String contentType) throws IOException {
+		final GcsService gcsService =
+				GcsServiceFactory.createGcsService(RetryParams
+						.getDefaultInstance());
+
+		GcsFilename fileName = new GcsFilename("npackd", filename);
+		GcsFileMetadata md = gcsService.getMetadata(fileName);
+
+		SimpleDateFormat httpDateFormat =
+				new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+
+		String ims = request.getHeader("If-Modified-Since");
+		boolean serve = true;
+		if (ims != null) {
+			Date lastSeen;
+			try {
+				lastSeen = httpDateFormat.parse(ims);
+				if (lastSeen.getTime() >= md.getLastModified().getTime())
+					serve = false;
+			} catch (ParseException e) {
+				// ignore
+			}
+		} else {
+			String inm = request.getHeader("If-None-Match");
+			if (inm != null) {
+				String[] split = inm.split(",");
+				if (Arrays.asList(split).contains(md.getEtag()))
+					serve = false;
+			}
+		}
+
+		resp.setContentType(contentType);
+		resp.setHeader("ETag", md.getEtag());
+
+		resp.setHeader("Last-Modified",
+				httpDateFormat.format(md.getLastModified()));
+
+		BlobstoreService blobstoreService =
+				BlobstoreServiceFactory.getBlobstoreService();
+		BlobKey blobKey =
+				blobstoreService.createGsBlobKey("/gs/npackd/" + filename);
+
+		if (serve)
+			blobstoreService.serve(blobKey, resp);
+		else
+			resp.sendError(304);
 	}
 }
