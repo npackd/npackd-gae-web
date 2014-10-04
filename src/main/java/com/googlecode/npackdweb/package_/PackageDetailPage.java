@@ -82,6 +82,9 @@ public class PackageDetailPage extends MyPage {
 	/** list of tags separated by commas */
 	public String tags;
 
+	/** list of screenshot URLs one per line */
+	public String screenshots;
+
 	/**
 	 * @param p
 	 *            a package or null
@@ -103,6 +106,7 @@ public class PackageDetailPage extends MyPage {
 		discoveryURLPattern = "";
 		license = "";
 		tags = "";
+		screenshots = "";
 	}
 
 	/*
@@ -286,6 +290,37 @@ public class PackageDetailPage extends MyPage {
 			w.end("tr");
 		}
 
+		// screen shots
+		w.start("tr");
+		w.start("td");
+		w.t("Screen shots ");
+		w.e("small", "(optional):");
+		w.end("td");
+		w.start("td");
+		w.start("div", "class", "row");
+		for (String s : NWUtils.splitLines(this.screenshots)) {
+			if (!s.trim().isEmpty()) {
+				w.start("div", "class", "col-xs-6 col-md-3");
+				w.start("a", "target", "_blank", "href", s, "class",
+						"thumbnail");
+				w.e("img", "src", s, "alt", "Screen shot");
+				w.end("a");
+				w.end("div");
+			}
+		}
+		w.end("div");
+		if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
+			w.e("textarea", "class", "form-control", "rows", "4", "name",
+					"screenshots", "cols", "80", "title",
+					"List of screen shot URLs. "
+							+ "Each URL must be on a separate line. "
+							+ "Only https: and http: protocols are allowed. "
+							+ "Only PNG images are allowed.", screenshots);
+		}
+		w.end("td");
+		w.end("tr");
+
+		// description
 		w.start("tr");
 		w.start("td");
 		w.t("Description ");
@@ -614,6 +649,7 @@ public class PackageDetailPage extends MyPage {
 		discoveryRE = req.getParameter("discoveryRE");
 		license = req.getParameter("license");
 		tags = req.getParameter("tags");
+		screenshots = req.getParameter("screenshots");
 
 		if (this.mode == FormMode.CREATE) {
 			this.createdAt = new Date();
@@ -645,6 +681,13 @@ public class PackageDetailPage extends MyPage {
 		p.discoveryRE = discoveryRE.trim();
 		p.discoveryURLPattern = discoveryURLPattern.trim();
 		p.tags = NWUtils.split(tags, ',');
+
+		List<String> lines = NWUtils.splitLines(screenshots);
+		p.screenshots.clear();
+		for (String s : lines) {
+			if (!s.trim().isEmpty())
+				p.screenshots.add(s);
+		}
 	}
 
 	@Override
@@ -680,7 +723,16 @@ public class PackageDetailPage extends MyPage {
 				msg = NWUtils.validateURL(this.icon);
 			}
 		}
-
+		if (msg == null) {
+			List<String> lines = NWUtils.splitLines(this.screenshots);
+			for (String s : lines) {
+				if (!s.trim().isEmpty()) {
+					msg = NWUtils.validateURL(s);
+					if (msg != null)
+						break;
+				}
+			}
+		}
 		if (msg == null) {
 			Markdown4jProcessor mp = new Markdown4jProcessor();
 			try {
@@ -725,5 +777,6 @@ public class PackageDetailPage extends MyPage {
 		createdAt = r.createdAt;
 		createdBy = r.createdBy;
 		tags = NWUtils.join(", ", r.tags);
+		screenshots = NWUtils.join("\n", r.screenshots);
 	}
 }

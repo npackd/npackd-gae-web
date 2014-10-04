@@ -100,6 +100,9 @@ public class Package {
 	/** list of users allowed to edit this package and package versions */
 	public List<User> permissions = new ArrayList<User>();
 
+	/** list of screenshot URLs */
+	public List<String> screenshots = new ArrayList<String>();
+
 	/** last check performed which found no updates */
 	public Date noUpdatesCheck;
 
@@ -215,6 +218,8 @@ public class Package {
 		}
 		if (permissions.size() == 0)
 			this.permissions.add(this.createdBy);
+		if (this.screenshots == null)
+			this.screenshots = new ArrayList<>();
 	}
 
 	/**
@@ -242,6 +247,9 @@ public class Package {
 			NWUtils.e(package_, "category", tag);
 		if (p.changelog != null && !p.changelog.trim().isEmpty())
 			NWUtils.e(package_, "changelog", p.changelog);
+		for (String s : screenshots) {
+			NWUtils.e(package_, "screenshot", s);
+		}
 
 		return package_;
 	}
