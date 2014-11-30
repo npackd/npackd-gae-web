@@ -85,6 +85,9 @@ public class PackageDetailPage extends MyPage {
 	/** list of screenshot URLs one per line */
 	public String screenshots;
 
+	/** multi-line list emails */
+	public String permissions;
+
 	/**
 	 * @param p
 	 *            a package or null
@@ -107,6 +110,7 @@ public class PackageDetailPage extends MyPage {
 		license = "";
 		tags = "";
 		screenshots = "";
+		permissions = "";
 	}
 
 	/*
@@ -505,14 +509,30 @@ public class PackageDetailPage extends MyPage {
 			User u = UserServiceFactory.getUserService().getCurrentUser();
 			if (mode != FormMode.CREATE) {
 				Package p = Package.findByName(ofy, this.id);
-				for (int i = 0; i < p.permissions.size(); i++) {
-					if (i != 0)
-						w.unencoded("<br>");
-					if (u.getEmail().equals(p.permissions.get(i).getEmail()))
-						w.t(u.getEmail());
-					else
-						w.unencoded(NWUtils.obfuscateEmail(ofy, p.permissions
-								.get(i).getEmail()));
+				if (NWUtils.isAdminLoggedIn()) {
+					w.e("textarea",
+							"class",
+							"form-control",
+							"rows",
+							"4",
+							"name",
+							"permissions",
+							"cols",
+							"80",
+							"title",
+							"list of email addresses for people that are allowed to change this package and its versions",
+							permissions);
+				} else {
+					for (int i = 0; i < p.permissions.size(); i++) {
+						if (i != 0)
+							w.unencoded("<br>");
+						if (u.getEmail()
+								.equals(p.permissions.get(i).getEmail()))
+							w.t(u.getEmail());
+						else
+							w.unencoded(NWUtils.obfuscateEmail(ofy,
+									p.permissions.get(i).getEmail()));
+					}
 				}
 			} else {
 				w.t(u.getEmail());
@@ -650,6 +670,7 @@ public class PackageDetailPage extends MyPage {
 		license = req.getParameter("license");
 		tags = req.getParameter("tags");
 		screenshots = req.getParameter("screenshots");
+		permissions = req.getParameter("permissions");
 
 		if (this.mode == FormMode.CREATE) {
 			this.createdAt = new Date();
@@ -681,6 +702,17 @@ public class PackageDetailPage extends MyPage {
 		p.discoveryRE = discoveryRE.trim();
 		p.discoveryURLPattern = discoveryURLPattern.trim();
 		p.tags = NWUtils.split(tags, ',');
+
+		if (NWUtils.isAdminLoggedIn()) {
+			p.permissions.clear();
+			List<String> ps = NWUtils.splitLines(permissions);
+			for (String permission : ps) {
+				permission = permission.trim();
+				if (!permission.isEmpty()) {
+					p.permissions.add(NWUtils.email2user(permission));
+				}
+			}
+		}
 
 		List<String> lines = NWUtils.splitLines(screenshots);
 		p.screenshots.clear();
@@ -759,6 +791,25 @@ public class PackageDetailPage extends MyPage {
 				}
 			}
 		}
+
+		if (msg == null) {
+			if (NWUtils.isAdminLoggedIn()) {
+				if (permissions == null || permissions.trim().length() == 0) {
+					msg = "The list of permissions cannot be empty";
+				} else {
+					List<String> ps = NWUtils.splitLines(permissions.trim());
+					for (String s : ps) {
+						s = s.trim();
+						if (s.length() != 0) {
+							msg = NWUtils.validateEmail(s);
+							if (msg != null)
+								break;
+						}
+					}
+				}
+			}
+		}
+
 		return msg;
 	}
 
@@ -778,5 +829,13 @@ public class PackageDetailPage extends MyPage {
 		createdBy = r.createdBy;
 		tags = NWUtils.join(", ", r.tags);
 		screenshots = NWUtils.join("\n", r.screenshots);
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < r.permissions.size(); i++) {
+			if (i != 0)
+				sb.append("\n");
+			sb.append(r.permissions.get(i).getEmail());
+		}
+		this.permissions = sb.toString();
 	}
 }

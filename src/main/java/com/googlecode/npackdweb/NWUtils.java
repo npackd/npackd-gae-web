@@ -69,6 +69,7 @@ import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
@@ -1358,5 +1359,17 @@ public class NWUtils {
 			blobstoreService.serve(blobKey, resp);
 		else
 			resp.sendError(304);
+	}
+
+	/**
+	 * Creates a user object from an email.
+	 * 
+	 * @param email
+	 *            email
+	 * @return create user object
+	 */
+	public static User email2user(String email) {
+		User u = new User(email, email.substring(email.indexOf('@')));
+		return u;
 	}
 }
