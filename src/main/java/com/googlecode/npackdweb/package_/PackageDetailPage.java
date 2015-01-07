@@ -705,11 +705,13 @@ public class PackageDetailPage extends MyPage {
 
 		if (NWUtils.isAdminLoggedIn()) {
 			p.permissions.clear();
-			List<String> ps = NWUtils.splitLines(permissions);
-			for (String permission : ps) {
-				permission = permission.trim();
-				if (!permission.isEmpty()) {
-					p.permissions.add(NWUtils.email2user(permission));
+			if (permissions != null) {
+				List<String> ps = NWUtils.splitLines(permissions);
+				for (String permission : ps) {
+					permission = permission.trim();
+					if (!permission.isEmpty()) {
+						p.permissions.add(NWUtils.email2user(permission));
+					}
 				}
 			}
 		}
@@ -795,7 +797,9 @@ public class PackageDetailPage extends MyPage {
 		if (msg == null) {
 			if (NWUtils.isAdminLoggedIn()) {
 				if (permissions == null || permissions.trim().length() == 0) {
-					msg = "The list of permissions cannot be empty";
+					if (mode != FormMode.CREATE) {
+						msg = "The list of permissions cannot be empty";
+					}
 				} else {
 					List<String> ps = NWUtils.splitLines(permissions.trim());
 					for (String s : ps) {
