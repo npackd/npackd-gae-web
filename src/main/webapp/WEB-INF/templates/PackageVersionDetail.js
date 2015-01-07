@@ -97,3 +97,12 @@ $(document).ready(function() {
     });
 });
 
+$('#tags').tagEditor({
+    autocomplete: {
+        delay: 0, // show suggestions immediately
+        position: { collision: 'flip' }, // automatic menu position up/down
+        source: ["stable", "stable64", "libs",
+					"unstable", "untested"]
+    },
+    forceLowercase: false
+});
