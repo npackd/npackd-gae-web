@@ -97,3 +97,22 @@ $(document).ready(function() {
     });
 });
 
+var states = ["stable", "stable64", "libs", "unstable", "untested"];
+
+var states2 = new Bloodhound({
+	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+	  local: $.map(states, function(state) { return { name: state }; })
+	});
+	 
+// kicks off the loading/processing of `local` and `prefetch`
+states2.initialize();
+	
+$('#tags').tagsinput({
+	  typeaheadjs: {
+	    name: 'states2',
+	    displayKey: "name",
+	    valueKey: "name",
+	    source: states2.ttAdapter()
+	  }
+});

@@ -467,9 +467,9 @@ public class PackageVersionPage extends MyPage {
 		w.start("td");
 		if (editable) {
 			w.start("input", "list", "allTags", "class", "form-control",
-					"type", "text", "name", "tags", "id", "tags",
-					"autocomplete", "off", "value", NWUtils.join(", ", tags),
-					"size", "80", "title",
+					"type", "text", "name", "tags", "id", "tags", "data-role",
+					"tagsinput", "value", NWUtils.join(", ", tags), "size",
+					"80", "title",
 					"Comma separated list of tags associated with "
 							+ "this package version. The default tags "
 							+ "'stable', 'stable64', 'libs' and 'unstable' "
