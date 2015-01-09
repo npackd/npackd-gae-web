@@ -44,6 +44,11 @@ public class RepPage extends MyPage {
 		b.e("a", "href", "/rep/recent-xml",
 				"20 recently modified package versions");
 
+		b.e("br");
+		b.t("This repository contains 20 last changed package versions marked as untested and should be used for testing only: ");
+		b.e("a", "href", "/rep/recent-xml?tag=untested",
+				"20 recently modified untested package versions");
+
 		User u = UserServiceFactory.getUserService().getCurrentUser();
 		if (u != null) {
 			b.e("br");

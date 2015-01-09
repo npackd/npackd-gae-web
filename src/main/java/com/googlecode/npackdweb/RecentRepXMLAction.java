@@ -13,17 +13,18 @@ import com.googlecode.npackdweb.wlib.Page;
  * Creates XML for 20 recently changed package versions.
  */
 public class RecentRepXMLAction extends Action {
-    /**
-     * -
-     */
-    public RecentRepXMLAction() {
-        super("^/rep/recent-xml$", ActionSecurityType.ANONYMOUS);
-    }
+	/**
+	 * -
+	 */
+	public RecentRepXMLAction() {
+		super("^/rep/recent-xml$", ActionSecurityType.ANONYMOUS);
+	}
 
-    @Override
-    public Page perform(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-        String user = req.getParameter("user");
-        return new RecentRepXMLPage(user);
-    }
+	@Override
+	public Page perform(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		String user = req.getParameter("user");
+		String tag = req.getParameter("tag");
+		return new RecentRepXMLPage(user, tag);
+	}
 }

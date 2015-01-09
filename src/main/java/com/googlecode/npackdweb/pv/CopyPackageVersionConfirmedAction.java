@@ -69,6 +69,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
 				PackageVersion copy = p.copy();
 				copy.name = copy.package_ + "@" + version;
 				copy.version = version;
+				copy.addTag("untested");
 
 				NWUtils.savePackageVersion(ofy, copy, true, true);
 				resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);

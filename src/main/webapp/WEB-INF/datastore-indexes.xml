@@ -5,4 +5,13 @@
         <property name="lastModifiedBy" direction="asc"/>
         <property name="lastModifiedAt" direction="desc"/>
     </datastore-index>
+<datastore-index kind="PackageVersion" ancestor="false" source="manual">
+        <property name="tags" direction="asc"/>
+        <property name="lastModifiedAt" direction="desc"/>
+    </datastore-index>
+<datastore-index kind="PackageVersion" ancestor="false" source="manual">
+        <property name="lastModifiedBy" direction="asc"/>
+        <property name="tags" direction="asc"/>
+        <property name="lastModifiedAt" direction="desc"/>
+    </datastore-index>
 </datastore-indexes>

@@ -106,6 +106,7 @@ public class DetectPackageVersionAction extends Action {
 					copy = pv.copy();
 				copy.name = copy.package_ + "@" + v.toString();
 				copy.version = v.toString();
+				copy.addTag("untested");
 
 				NWUtils.savePackageVersion(ofy, copy, true, true);
 				msg =
