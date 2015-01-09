@@ -49,7 +49,7 @@ public class PackageVersionSaveAction extends Action {
 								package_ + "@" + version));
 				if (p == null) {
 					pvp.normalizeVersion();
-					p = new PackageVersion();
+					p = new PackageVersion(package_, version);
 				}
 				PackageVersion old = p.copy();
 				pvp.fillObject(p);
@@ -60,9 +60,6 @@ public class PackageVersionSaveAction extends Action {
 						p.downloadCheckError = null;
 					}
 				}
-
-				if (NWUtils.isAdminLoggedIn())
-					p.reviewed = true;
 
 				NWUtils.savePackageVersion(ofy, p, true);
 

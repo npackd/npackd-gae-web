@@ -50,7 +50,6 @@ public class PackageVersionPage extends MyPage {
 	private Date downloadCheckAt;
 	private Date lastModifiedAt;
 	private User lastModifiedBy;
-	private boolean reviewed;
 
 	/** error message or null */
 	private String error;
@@ -69,6 +68,7 @@ public class PackageVersionPage extends MyPage {
 		this.dependencyEnvVars = new ArrayList<String>();
 		this.oneFile = false;
 		this.tags = new ArrayList<String>();
+		this.tags.add("not-reviewed");
 		this.importantFilePaths = new ArrayList<String>();
 		this.importantFileTitles = new ArrayList<String>();
 		this.filePaths = new ArrayList<String>();
@@ -76,7 +76,6 @@ public class PackageVersionPage extends MyPage {
 		this.downloadCheckAt = null;
 		this.downloadCheckError = null;
 		this.lastModifiedAt = null;
-		this.reviewed = false;
 
 		UserService us = UserServiceFactory.getUserService();
 		if (us.isUserLoggedIn())
@@ -128,7 +127,6 @@ public class PackageVersionPage extends MyPage {
 		this.downloadCheckAt = pv.downloadCheckAt;
 		this.downloadCheckError = pv.downloadCheckError;
 		this.lastModifiedAt = pv.lastModifiedAt;
-		this.reviewed = pv.reviewed;
 		this.lastModifiedBy = pv.lastModifiedBy;
 	}
 
@@ -157,7 +155,7 @@ public class PackageVersionPage extends MyPage {
 		Package p = getPackage();
 		License lic = getLicense(ofy);
 
-		if (!reviewed)
+		if (tags.contains("not-reviewed"))
 			w.e("p", "class", "bg-danger",
 					"This package version is not yet reviewed and may be unsafe");
 
@@ -222,10 +220,6 @@ public class PackageVersionPage extends MyPage {
 							"/package-version/dont-check-download?package=" +
 									packageName + "&version=" + version,
 							"Disables binary download check for this package version");
-					NWUtils.jsButton(w, "Mark as reviewed",
-							"/package-version/mark-reviewed?package=" +
-									packageName + "&version=" + version,
-							"Marks this package version as reviewed and safe");
 				}
 			}
 			w.end("div");
@@ -306,7 +300,7 @@ public class PackageVersionPage extends MyPage {
 					"style",
 					"cursor: pointer; font-size: 20px; font-weight: bold");
 		} else {
-			if (reviewed)
+			if (!tags.contains("not-reviewed"))
 				w.e("a", "href", url, url);
 			else
 				w.t("Not yet reviewed");
@@ -471,13 +465,13 @@ public class PackageVersionPage extends MyPage {
 					"autocomplete", "off", "value", NWUtils.join(", ", tags),
 					"size", "80", "title",
 					"Comma separated list of tags associated with "
-							+ "this package version. The default tags "
-							+ "'stable', 'stable64', 'libs' and 'unstable' "
-							+ "can be used to include this package "
-							+ "version into one of the default repositories.");
+							+ "this package version. The repository "
+							+ "names can be used to include this package "
+							+ "version into them.");
 			w.start("datalist", "id", "allTags");
 			for (String s : new String[] { "stable", "stable64", "libs",
-					"unstable" }) {
+					"unstable", "untested", "disable-download-check",
+					"not-reviewed" }) {
 				w.e("option", "value", s);
 			}
 			w.end("datalist");
@@ -781,9 +775,6 @@ public class PackageVersionPage extends MyPage {
 			}
 		}
 
-		if (!NWUtils.isAdminLoggedIn())
-			this.reviewed = false;
-
 		if (this.new_) {
 			this.downloadCheckAt = null;
 			this.downloadCheckError = null;
@@ -950,9 +941,6 @@ public class PackageVersionPage extends MyPage {
 		for (int i = 0; i < this.filePaths.size(); i++) {
 			pv.addFile(this.filePaths.get(i), this.fileContents.get(i));
 		}
-
-		if (!this.reviewed)
-			pv.reviewed = false;
 
 		pv.lastModifiedBy = this.lastModifiedBy;
 	}

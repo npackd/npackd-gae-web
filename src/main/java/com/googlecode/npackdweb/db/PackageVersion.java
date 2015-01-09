@@ -59,7 +59,8 @@ public class PackageVersion {
 	public List<String> dependencyEnvVars = new ArrayList<String>();
 	public List<String> detectFilePaths = new ArrayList<String>();
 	public List<String> detectFileSHA1s = new ArrayList<String>();
-	public List<String> tags = new ArrayList<String>();
+
+	public List<String> tags;
 
 	/** can be null if the check was not yet performed */
 	public Date downloadCheckAt;
@@ -73,9 +74,6 @@ public class PackageVersion {
 	/** user for the last modification */
 	public User lastModifiedBy;
 
-	/** true if this package version was reviewed by the admin and is secure */
-	public boolean reviewed;
-
 	/**
 	 * For Objectify.
 	 */
@@ -83,6 +81,8 @@ public class PackageVersion {
 	}
 
 	/**
+	 * tags = "not-reviewed"
+	 * 
 	 * @param package_
 	 *            full internal package name
 	 * @param version
@@ -98,6 +98,8 @@ public class PackageVersion {
 		else
 			this.lastModifiedBy =
 					new User("tim.lebedkov@gmail.com", "gmail.com");
+		tags = new ArrayList<String>();
+		tags.add("not-reviewed");
 	}
 
 	public String getName() {
@@ -140,9 +142,7 @@ public class PackageVersion {
 	 * @return copy of this object
 	 */
 	public PackageVersion copy() {
-		PackageVersion c = new PackageVersion();
-		c.name = this.name;
-		c.package_ = this.package_;
+		PackageVersion c = new PackageVersion(this.package_, this.name);
 		c.version = this.version;
 		c.oneFile = this.oneFile;
 		c.url = this.url;
@@ -160,7 +160,6 @@ public class PackageVersion {
 		c.tags.addAll(this.tags);
 		c.downloadCheckAt = this.downloadCheckAt;
 		c.downloadCheckError = this.downloadCheckError;
-		c.reviewed = this.reviewed;
 		c.lastModifiedBy = this.lastModifiedBy;
 		return c;
 	}
@@ -426,5 +425,17 @@ public class PackageVersion {
 		this.dependencyPackages.add(package_);
 		this.dependencyVersionRanges.add(versions);
 		this.dependencyEnvVars.add(envVar);
+	}
+
+	/**
+	 * Adds a tag if it is not already available.
+	 * 
+	 * @param tag
+	 *            tag
+	 */
+	public void addTag(String tag) {
+		if (!tags.contains(tag))
+			tags.add(tag);
+
 	}
 }

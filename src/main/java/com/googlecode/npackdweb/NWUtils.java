@@ -804,6 +804,11 @@ public class NWUtils {
 			p.lastModifiedBy =
 					UserServiceFactory.getUserService().getCurrentUser();
 		}
+		if (isAdminLoggedIn()) {
+			p.tags.remove("not-reviewed");
+		} else {
+			p.addTag("not-reviewed");
+		}
 		ofy.put(p);
 		NWUtils.incDataVersion();
 	}

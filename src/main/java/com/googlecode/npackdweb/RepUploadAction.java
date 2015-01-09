@@ -162,8 +162,6 @@ public class RepUploadAction extends Action {
 				if (p != null && !p.isCurrentUserPermittedToModify())
 					messages.add("You do not have permission to modify this package: " +
 							pv.package_);
-				if (isAdmin)
-					pv.reviewed = true;
 			}
 
 			for (Package p : f.ps) {
@@ -289,9 +287,9 @@ public class RepUploadAction extends Action {
 	}
 
 	private PackageVersion createPackageVersion(Element e) {
-		PackageVersion p = new PackageVersion();
-		p.package_ = e.getAttribute("package");
-		p.version = e.getAttribute("name");
+		PackageVersion p =
+				new PackageVersion(e.getAttribute("package"),
+						e.getAttribute("name"));
 		p.name = p.package_ + "@" + p.version;
 		p.oneFile = e.getAttribute("type").equals("one-file");
 		p.url = NWUtils.getSubTagContent(e, "url", "");

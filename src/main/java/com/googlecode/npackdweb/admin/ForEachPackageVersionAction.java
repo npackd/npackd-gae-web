@@ -55,7 +55,6 @@ public abstract class ForEachPackageVersionAction extends Action {
 		List<PackageVersion> list = new ArrayList<PackageVersion>();
 		while (iterator.hasNext()) {
 			PackageVersion data = iterator.next();
-			data.reviewed = true;
 			list.add(data);
 			n++;
 		}

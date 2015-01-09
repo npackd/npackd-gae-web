@@ -19,7 +19,7 @@ public class RepFromFilePage extends MyPage {
 		w.e("input", "class", "form-control", "type", "file", "name",
 				"repository");
 		w.e("br");
-		w.t("Please use one of these default tags to place the package versions in the right repository: stable, stable64, unstable, libs");
+		w.t("Please use one of the repository names to place the package versions there");
 		w.e("br");
 		w.t("Tag for package versions: ");
 		w.e("input", "class", "form-control", "type", "text", "name", "tag");

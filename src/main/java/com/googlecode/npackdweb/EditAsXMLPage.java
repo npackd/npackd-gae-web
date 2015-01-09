@@ -45,7 +45,7 @@ public class EditAsXMLPage extends MyPage {
 		w.start("td");
 		w.e("input", "class", "form-control", "type", "text", "name", "tag",
 				"value", tag);
-		w.t("Please use one of these default tags to place the package versions in the right repository: stable, stable64, unstable, libs");
+		w.t("Please use one of the repository names to place the package versions in the right repository");
 		w.end("td");
 		w.end("tr");
 

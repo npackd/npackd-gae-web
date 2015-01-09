@@ -91,7 +91,7 @@ public class RepXMLPage extends Page {
 		});
 		Set<String> pns = new HashSet<String>();
 		for (PackageVersion pv : pvs) {
-			if (pv.reviewed || !onlyReviewed)
+			if (!pv.tags.contains("not-reviewed") || !onlyReviewed)
 				pns.add(pv.package_);
 		}
 		Map<String, Package> ps_ = ofy.get(Package.class, pns);
@@ -140,7 +140,7 @@ public class RepXMLPage extends Page {
 				NWUtils.t(root, "\n\n    ");
 			}
 
-			if (pv.reviewed || !onlyReviewed) {
+			if (!pv.tags.contains("not-reviewed") || !onlyReviewed) {
 				Element version = pv.toXML(d);
 
 				root.appendChild(version);
