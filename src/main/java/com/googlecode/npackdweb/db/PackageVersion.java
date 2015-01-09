@@ -355,7 +355,7 @@ public class PackageVersion {
 	 */
 	public static List<PackageVersion> find20NotReviewed(Objectify ofy) {
 		return ofy.query(PackageVersion.class).limit(20)
-				.filter("reviewed !=", true).list();
+				.filter("tags ==", "not-reviewed").list();
 	}
 
 	/**
