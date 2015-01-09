@@ -59,9 +59,8 @@ public class CheckDownloadAction extends Action {
 		else
 			data = null;
 		if (data != null) {
-			if (!PackageVersion.DONT_CHECK_THIS_DOWNLOAD
-					.equals(data.downloadCheckError) &&
-					data.tags.indexOf("download-failed-3") < 0) {
+			if (data.tags.indexOf("download-failed-3") < 0 &&
+					!data.tags.contains("disable-download-check")) {
 				NWUtils.LOG.warning("Checking " + data.package_ + "@" +
 						data.version);
 
@@ -102,7 +101,7 @@ public class CheckDownloadAction extends Action {
 					data.tags.add("download-failed-" + failed);
 				}
 
-				NWUtils.savePackageVersion(ob, data, false);
+				NWUtils.savePackageVersion(ob, data, false, false);
 			}
 
 			cursor = iterator.getCursor().toWebSafeString();

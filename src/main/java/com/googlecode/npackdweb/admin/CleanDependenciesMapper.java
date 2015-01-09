@@ -80,7 +80,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
 		if (save) {
 			System.out.println("Saving " + pv.name);
-			NWUtils.savePackageVersion(ofy, pv, true);
+			NWUtils.savePackageVersion(ofy, pv, true, false);
 		}
 	}
 }

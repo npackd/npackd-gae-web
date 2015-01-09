@@ -18,6 +18,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.Query;
 import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
@@ -28,13 +29,6 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 @Cached
 public class PackageVersion {
-	/**
-	 * this value can be stored in downloadCheckError to prevent the automatic
-	 * download check for the binary
-	 */
-	public static final String DONT_CHECK_THIS_DOWNLOAD =
-			"@@@Don't check this download@@@";
-
 	private List<Object> fileContents = new ArrayList<Object>();
 
 	/** abc@2.4 */
@@ -351,11 +345,16 @@ public class PackageVersion {
 	/**
 	 * @param ofy
 	 *            Objectify instance
+	 * @param tag
+	 *            a tag to filter the package versions or null
 	 * @return first 20 package versions with errors downloading the binary
 	 */
-	public static List<PackageVersion> find20NotReviewed(Objectify ofy) {
-		return ofy.query(PackageVersion.class).limit(20)
-				.filter("tags ==", "not-reviewed").list();
+	public static List<PackageVersion> find20PackageVersions(Objectify ofy,
+			String tag) {
+		Query<PackageVersion> q = ofy.query(PackageVersion.class).limit(20);
+		if (tag != null)
+			q.filter("tags ==", tag);
+		return q.list();
 	}
 
 	/**

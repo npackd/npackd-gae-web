@@ -54,14 +54,11 @@ public class PackageVersionSaveAction extends Action {
 				PackageVersion old = p.copy();
 				pvp.fillObject(p);
 				if (!p.url.equals(old.url) || !p.sha1.equals(old.sha1)) {
-					if (!PackageVersion.DONT_CHECK_THIS_DOWNLOAD
-							.equals(p.downloadCheckError)) {
-						p.downloadCheckAt = null;
-						p.downloadCheckError = null;
-					}
+					p.downloadCheckAt = null;
+					p.downloadCheckError = null;
 				}
 
-				NWUtils.savePackageVersion(ofy, p, true);
+				NWUtils.savePackageVersion(ofy, p, true, true);
 
 				resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
 				page = null;

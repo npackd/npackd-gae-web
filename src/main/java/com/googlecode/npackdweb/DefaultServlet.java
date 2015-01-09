@@ -34,7 +34,6 @@ import com.googlecode.npackdweb.package_.PackageSaveAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
-import com.googlecode.npackdweb.pv.DontCheckDownloadAction;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA256Action;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
@@ -189,7 +188,6 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new DetectPackageVersionAction());
 		registerAction(new PackageVersionComputeSHA1Action());
 		registerAction(new PackageVersionComputeSHA256Action());
-		registerAction(new DontCheckDownloadAction());
 		registerAction(new PackageVersionRecognizeAction());
 
 		/* license */
@@ -197,6 +195,8 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new LicenseAction());
 		registerAction(new LicenseDeleteAction());
 		registerAction(new LicenseSaveAction());
+
+		registerAction(new PackageVersionListAction());
 
 		registerAction(new HomeAction());
 		registerAction(new SendStatusAction("^/robots\\.txt$", 404));
@@ -211,8 +211,6 @@ public class DefaultServlet extends HttpServlet {
 		registerAction(new AddEditorAction());
 		registerAction(new AddEditorConfirmedAction());
 		registerAction(new InfoAction());
-		registerAction(new DownloadFailedAction());
-		registerAction(new NotReviewedAction());
 		registerAction(new ReCaptchaAnswerAction());
 		registerAction(new ReCaptchaAction());
 		registerAction(new AddPermissionsAction());

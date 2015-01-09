@@ -214,13 +214,6 @@ public class PackageVersionPage extends MyPage {
 						"/package-version/recognize?package=" + packageName +
 								"&version=" + version,
 						"downloads the binary and tries to recognize the used installer and create the necessary dependencies and scripts automatically");
-
-				if (NWUtils.isAdminLoggedIn()) {
-					NWUtils.jsButton(w, "Disable download check",
-							"/package-version/dont-check-download?package=" +
-									packageName + "&version=" + version,
-							"Disables binary download check for this package version");
-				}
 			}
 			w.end("div");
 		}
@@ -460,21 +453,21 @@ public class PackageVersionPage extends MyPage {
 		w.end("td");
 		w.start("td");
 		if (editable) {
-			w.start("input", "list", "allTags", "class", "form-control",
-					"type", "text", "name", "tags", "id", "tags",
-					"autocomplete", "off", "value", NWUtils.join(", ", tags),
-					"size", "80", "title",
+			for (String s : new String[] { "stable", "stable64", "libs",
+					"unstable", "untested", "disable-download-check",
+					"not-reviewed" }) {
+				w.start("label", "class", "checkbox-inline");
+				w.e("input", "type", "checkbox", "id", "tag-" + s, "value", s);
+				w.t(" " + s);
+				w.end("label");
+			}
+			w.start("input", "class", "form-control", "type", "text", "name",
+					"tags", "id", "tags", "autocomplete", "off", "value",
+					NWUtils.join(", ", tags), "size", "80", "title",
 					"Comma separated list of tags associated with "
 							+ "this package version. The repository "
 							+ "names can be used to include this package "
 							+ "version into them.");
-			w.start("datalist", "id", "allTags");
-			for (String s : new String[] { "stable", "stable64", "libs",
-					"unstable", "untested", "disable-download-check",
-					"not-reviewed" }) {
-				w.e("option", "value", s);
-			}
-			w.end("datalist");
 			w.end("input");
 		} else {
 			w.t(NWUtils.join(", ", tags));
@@ -648,8 +641,7 @@ public class PackageVersionPage extends MyPage {
 			w.e("td", "Download check:");
 			w.start("td");
 			if (downloadCheckAt != null) {
-				if (PackageVersion.DONT_CHECK_THIS_DOWNLOAD
-						.equals(downloadCheckError)) {
+				if (tags.contains("disable-download-check")) {
 					w.t("Download check disabled");
 				} else {
 					String s = "Checked at " + downloadCheckAt + ". ";

@@ -138,7 +138,7 @@ public class ExportDefaultVimRepAction extends Action {
 					JsonObject p2 = p_.getAsJsonObject();
 					String version = p2.get("version").getAsString();
 					try {
-						Version v = Version.parse(version);
+						Version.parse(version);
 					} catch (NumberFormatException e1) {
 						continue;
 					}

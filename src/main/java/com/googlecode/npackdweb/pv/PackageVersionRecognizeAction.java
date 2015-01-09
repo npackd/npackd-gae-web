@@ -66,7 +66,7 @@ public class PackageVersionRecognizeAction extends Action {
 			if (err != null)
 				page = new MessagePage(err);
 			else {
-				NWUtils.savePackageVersion(ofy, p, true);
+				NWUtils.savePackageVersion(ofy, p, true, true);
 				resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
 				page = null;
 			}

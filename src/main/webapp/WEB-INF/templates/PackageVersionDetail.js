@@ -16,6 +16,57 @@ function addFile(name, content) {
     files.append('<div><div>File path ' + n + ':</div><input class=\"form-control\" type=\"text\" name=\"path.' + n + '\" value=\"' + name + '\" size=\"80\"><div>File content ' + n + ':</div><textarea class=\"form-control\" name=\"content.' + n + '\" rows=\"20\" cols=\"80\" wrap=\"off\">' + content + '</textarea></div>');
 }
 
+var defaultTags = ["stable", "stable64", "libs",
+					"unstable", "untested", "disable-download-check",
+					"not-reviewed"];
+
+function updateTagCheckboxes() {
+	var allTags = defaultTags.slice();
+	var tags = $('#tags').val();
+	var tags_ = tags.split(",");
+	for (var i = 0; i < tags_.length; i++) {
+		var tag = $.trim(tags_[i]);
+		var index = $.inArray(tag, allTags);
+		if (index >= 0) {
+			$("#tag-" + tag).prop('checked', true);
+			allTags.splice(index, 1);
+		}
+	}
+	for (var i = 0; i < allTags.length; i++) {
+		$("#tag-" + allTags[i]).prop('checked', false);
+	}
+}
+
+/**
+ * Updates the input text field for the tags from the values of selected
+ * checkboxes.
+ */
+function updateTagInput() {
+	var allTags = defaultTags.slice();
+	
+	var tags = $('#tags').val();
+	var tags_ = tags.split(",");
+	for (var i = 0; i < tags_.length; i++) {
+		tags_[i] = $.trim(tags_[i]);
+	}
+	
+	for (var i = 0; i < allTags.length; i++) {
+		var tag = allTags[i];
+		var index = $.inArray(tag, tags_);
+		if ($("#tag-" + tag).prop('checked')) {
+			if (index < 0) {
+				tags_.push(tag);
+			}
+		} else {
+			if (index >= 0) {
+				tags_.splice(index, 1);
+			}
+		}
+	}
+	
+	$('#tags').val(tags_.join(", "));
+}
+
 $(document).ready(function() {
     $('#url-link').click(function(event) {
         window.open($('#url').val());
@@ -95,5 +146,17 @@ $(document).ready(function() {
     	if (ch.size() > 1)
     		ch.last().remove();
     });
+    
+    updateTagCheckboxes();
+    
+    $("#tags").on('input', function() {
+    	updateTagCheckboxes();
+    });
+    
+    for (var i = 0; i < defaultTags.length; i++) {
+    	$("#tag-" + defaultTags[i]).change(function() {
+    		updateTagInput();
+    	});
+    }
 });
 

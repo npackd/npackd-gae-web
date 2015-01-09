@@ -796,18 +796,22 @@ public class NWUtils {
 	 *            package version
 	 * @param changeLastModified
 	 *            last modified at/by will be changed, if true
+	 * @param changeNotReviewed
+	 *            not-reviewed tag will be changed, if true
 	 */
 	public static void savePackageVersion(Objectify ofy, PackageVersion p,
-			boolean changeLastModified) {
+			boolean changeLastModified, boolean changeNotReviewed) {
 		if (changeLastModified) {
 			p.lastModifiedAt = new Date();
 			p.lastModifiedBy =
 					UserServiceFactory.getUserService().getCurrentUser();
 		}
-		if (isAdminLoggedIn()) {
-			p.tags.remove("not-reviewed");
-		} else {
-			p.addTag("not-reviewed");
+		if (changeNotReviewed) {
+			if (isAdminLoggedIn()) {
+				p.tags.remove("not-reviewed");
+			} else {
+				p.addTag("not-reviewed");
+			}
 		}
 		ofy.put(p);
 		NWUtils.incDataVersion();
