@@ -43,7 +43,7 @@ public class RecentRepXMLPage extends Page {
 
 		final String key =
 				this.getClass().getName() + "@" + NWUtils.getDataVersion() +
-						"@" + user;
+						"@" + user + "@" + tag;
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
 		syncCache.setErrorHandler(ErrorHandlers
 				.getConsistentLogAndContinue(Level.INFO));

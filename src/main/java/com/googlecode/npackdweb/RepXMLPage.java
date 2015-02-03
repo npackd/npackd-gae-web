@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +63,14 @@ public class RepXMLPage extends Page {
 		if (tag != null)
 			q.filter("tags =", tag);
 		pvs.addAll(q.list());
+
+		// remove untested package versions
+		Iterator<PackageVersion> it = pvs.iterator();
+		while (it.hasNext()) {
+			PackageVersion pv = it.next();
+			if (pv.tags.contains("untested"))
+				it.remove();
+		}
 
 		return toXML(ofy, pvs, onlyReviewed);
 	}

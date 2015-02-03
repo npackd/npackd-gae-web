@@ -15,6 +15,7 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -260,6 +261,9 @@ public class PackageVersion {
 				this.lastModifiedBy =
 						new User("tim.lebedkov@gmail.com", "gmail.com");
 		}
+
+		if (this.tags == null)
+			this.tags = new ArrayList<>();
 	}
 
 	@PrePersist
@@ -436,5 +440,36 @@ public class PackageVersion {
 		if (!tags.contains(tag))
 			tags.add(tag);
 
+	}
+
+	/**
+	 * @param index
+	 *            index of the dependency
+	 * @return dependency
+	 */
+	public Dependency getDependency(int index) {
+		Dependency d = new Dependency();
+		d.package_ = this.dependencyPackages.get(index);
+		d.setVersions(this.dependencyVersionRanges.get(index));
+		return d;
+	}
+
+	/**
+	 * Searches for the specified dependency.
+	 * 
+	 * @param dep
+	 *            a dependency
+	 * @return the found index or -1
+	 */
+	public int findDependency(Dependency dep) {
+		int index = -1;
+		for (int i = 0; i < this.dependencyPackages.size(); i++) {
+			Dependency d = getDependency(i);
+			if (d.equals(dep)) {
+				index = i;
+				break;
+			}
+		}
+		return index;
 	}
 }
