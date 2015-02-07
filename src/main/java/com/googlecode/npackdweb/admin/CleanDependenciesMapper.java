@@ -8,7 +8,6 @@ import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -71,8 +70,6 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
 	public void removeNpackdCLCalls(Entity value) {
 		Objectify ofy = DefaultServlet.getObjectify();
-
-		Version one = new Version();
 
 		PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
 		boolean save = false;

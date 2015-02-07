@@ -19,6 +19,8 @@ import javax.persistence.PrePersist;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Field;
@@ -245,10 +247,12 @@ public class Package {
 			NWUtils.e(package_, "license", p.license);
 		for (String tag : tags)
 			NWUtils.e(package_, "category", tag);
-		if (p.changelog != null && !p.changelog.trim().isEmpty())
-			NWUtils.e(package_, "changelog", p.changelog);
+		if (p.changelog != null && !p.changelog.trim().isEmpty()) {
+			NWUtils.e(package_, "link", "rel", "changelog", "href",
+					p.changelog, "");
+		}
 		for (String s : screenshots) {
-			NWUtils.e(package_, "screenshot", s);
+			NWUtils.e(package_, "link", "rel", "screenshot", "href", s, "");
 		}
 
 		return package_;
@@ -411,5 +415,47 @@ public class Package {
 		v.normalize();
 
 		return v;
+	}
+
+	/**
+	 * Creates an instance of Package from XML.
+	 * 
+	 * @param e
+	 *            <package>
+	 * @return created object
+	 */
+	public static Package parse(Element e) {
+		Package p = new Package(e.getAttribute("name"));
+		p.title = NWUtils.getSubTagContent(e, "title", "");
+		p.url = NWUtils.getSubTagContent(e, "url", "");
+		p.description = NWUtils.getSubTagContent(e, "description", "");
+		p.license = NWUtils.getSubTagContent(e, "license", "");
+		String category = NWUtils.getSubTagContent(e, "category", null);
+		if (category != null)
+			p.tags.add(category);
+
+		NodeList children = e.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node ch = children.item(i);
+			if (ch.getNodeType() == Element.ELEMENT_NODE &&
+					ch.getNodeName().equals("link")) {
+				Element link = (Element) ch;
+				String rel = link.getAttribute("rel");
+				String href = link.getAttribute("href");
+				if (rel.equals("changelog") &&
+						(p.changelog == null || p.changelog.isEmpty())) {
+					p.changelog = href;
+				} else if (rel.equals("screenshot")) {
+					p.screenshots.add(href);
+				} else if (rel.equals("icon") && p.icon.isEmpty()) {
+					p.icon = href;
+				}
+			}
+		}
+
+		if (p.icon.isEmpty())
+			p.icon = NWUtils.getSubTagContent(e, "icon", "");
+
+		return p;
 	}
 }

@@ -383,15 +383,48 @@ public class NWUtils {
 	 * @param attrValue
 	 *            attribute value
 	 * @param content
-	 *            content of the sub-tag
+	 *            content of the sub-tag or null
 	 */
 	public static void e(Element parent, String subtag, String attr,
 			String attrValue, String content) {
 		Document d = parent.getOwnerDocument();
 		Element ch = d.createElement(subtag);
-		Text t = d.createTextNode(content);
 		ch.setAttribute(attr, attrValue);
-		ch.appendChild(t);
+		if (content != null) {
+			Text t = d.createTextNode(content);
+			ch.appendChild(t);
+		}
+		parent.appendChild(ch);
+	}
+
+	/**
+	 * Adds a sub-tag with the specified text and an attribute.
+	 * 
+	 * @param parent
+	 *            parent tag
+	 * @param subtag
+	 *            sub-tag
+	 * @param attr
+	 *            attribute name
+	 * @param attrValue
+	 *            attribute value
+	 * @param attr2
+	 *            second attribute name
+	 * @param attrValue2
+	 *            second attribute value
+	 * @param content
+	 *            content of the sub-tag or null
+	 */
+	public static void e(Element parent, String subtag, String attr,
+			String attrValue, String attr2, String attrValue2, String content) {
+		Document d = parent.getOwnerDocument();
+		Element ch = d.createElement(subtag);
+		ch.setAttribute(attr, attrValue);
+		ch.setAttribute(attr2, attrValue2);
+		if (content != null) {
+			Text t = d.createTextNode(content);
+			ch.appendChild(t);
+		}
 		parent.appendChild(ch);
 	}
 

@@ -257,15 +257,7 @@ public class RepUploadAction extends Action {
 			if (ch.getNodeType() == Element.ELEMENT_NODE &&
 					ch.getNodeName().equals("package")) {
 				Element e = (Element) ch;
-				Package p = new Package(e.getAttribute("name"));
-				p.title = NWUtils.getSubTagContent(e, "title", "");
-				p.url = NWUtils.getSubTagContent(e, "url", "");
-				p.description = NWUtils.getSubTagContent(e, "description", "");
-				p.icon = NWUtils.getSubTagContent(e, "icon", "");
-				p.license = NWUtils.getSubTagContent(e, "license", "");
-				String category = NWUtils.getSubTagContent(e, "category", null);
-				if (category != null)
-					p.tags.add(category);
+				Package p = Package.parse(e);
 				v.add(p);
 			}
 		}
