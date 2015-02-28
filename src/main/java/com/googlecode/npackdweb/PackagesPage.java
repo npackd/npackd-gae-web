@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.markdown4j.Markdown4jProcessor;
 
+import com.google.appengine.api.search.FacetOptions;
+import com.google.appengine.api.search.FacetOptions.Builder;
+import com.google.appengine.api.search.FacetRefinement;
+import com.google.appengine.api.search.FacetRequest;
+import com.google.appengine.api.search.FacetResult;
+import com.google.appengine.api.search.FacetResultValue;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.QueryOptions;
 import com.google.appengine.api.search.Results;
@@ -32,6 +39,8 @@ public class PackagesPage extends MyPage {
 	private String query = "";
 	private long found;
 	private String content;
+	private String category0;
+	private String category1;
 
 	/**
 	 * -
@@ -42,11 +51,22 @@ public class PackagesPage extends MyPage {
 	 *            true = sort by creation time, false = sort by title
 	 * @param start
 	 *            initial offset
+	 * @param category0
+	 *            filter for the top-level category or null or ""
+	 * @param category1
+	 *            filter for the second level level or null or ""
 	 */
-	public PackagesPage(String query, boolean recent, int start) {
+	public PackagesPage(String query, boolean recent, int start,
+			String category0, String category1) {
 		this.query = query;
 		this.recent = recent;
 		this.start = start;
+		this.category0 = category0;
+		if (this.category0 != null && this.category0.trim().isEmpty())
+			this.category0 = null;
+		this.category1 = category1;
+		if (this.category1 != null && this.category1.trim().isEmpty())
+			this.category1 = null;
 		this.content = internalCreateContent();
 	}
 
@@ -81,12 +101,39 @@ public class PackagesPage extends MyPage {
 		ob =
 				ob.setSortOptions(SortOptions.newBuilder()
 						.addSortExpression(se).setLimit(1000));
+
+		Builder fob = FacetOptions.newBuilder().setDiscoveryValueLimit(20);
+
+		FacetRequest.Builder fr0 =
+				FacetRequest.newBuilder().setName("category0");
+		FacetRequest.Builder fr1 =
+				FacetRequest.newBuilder().setName("category1");
+
 		com.google.appengine.api.search.Query.Builder qb =
-				com.google.appengine.api.search.Query.newBuilder().setOptions(
-						ob.build());
+				com.google.appengine.api.search.Query.newBuilder()
+						.addReturnFacet(fr0.build())
+						.addReturnFacet(fr1.build()).setOptions(ob.build())
+						.setFacetOptions(fob.build());
+
+		if (category0 != null)
+			qb.addFacetRefinement(FacetRefinement.withValue("category0",
+					category0));
+		if (category1 != null)
+			qb.addFacetRefinement(FacetRefinement.withValue("category1",
+					category1));
 
 		Results<ScoredDocument> r = index.search(qb.build(query));
 		found = r.getNumberFound();
+
+		// process facets
+		List<FacetResultValue> category0Values = null, category1Values = null;
+		for (FacetResult fi : r.getFacets()) {
+			if (fi.getName().equals("category0")) {
+				category0Values = fi.getValues();
+			} else if (fi.getName().equals("category1")) {
+				category1Values = fi.getValues();
+			}
+		}
 
 		List<String> ids = new ArrayList<String>();
 		for (ScoredDocument sd : r) {
@@ -106,14 +153,16 @@ public class PackagesPage extends MyPage {
 				packages.add(e.getValue());
 		}
 
-		return createContent2() +
+		return createContent2(category0Values, category1Values) +
 				createPager(start, packages.size() > PAGE_SIZE);
 	}
 
-	private String createContent2() {
+	private String createContent2(List<FacetResultValue> category0Values,
+			List<FacetResultValue> category1Values) {
 		HTMLWriter w = new HTMLWriter();
 
-		w.unencoded(createSearchForm(this.query, this.recent));
+		w.unencoded(createSearchForm(this.query, this.recent, category0Values,
+				category1Values));
 
 		if (this.getPackages().size() == 0) {
 			w.start("div", "style", "padding-top: 10px; padding-bottom: 10px");
@@ -201,21 +250,51 @@ public class PackagesPage extends MyPage {
 	 *            search text
 	 * @param recent
 	 *            true = select "sort by creation date", false = "sort by title"
+	 * @param category1Values
+	 * @param category0Values
 	 * @return HTML for the search form
 	 */
-	public static String createSearchForm(String query, boolean recent) {
+	public static String createSearchForm(String query, boolean recent,
+			List<FacetResultValue> category0Values,
+			List<FacetResultValue> category1Values) {
 		HTMLWriter w = new HTMLWriter();
-		w.start("form", "class", "form-inline", "method", "get", "action", "/p");
+		w.start("form", "class", "form-inline", "method", "get", "action",
+				"/p", "id", "searchForm");
 		w.t("Search: ");
 		w.e("input", "class", "form-control", "type", "text", "name", "q",
 				"value", query, "size", "50");
+
 		w.t(" Sort: ");
-		w.start("select", "class", "form-control", "name", "sort");
+		w.start("select", "class", "form-control", "name", "sort", "id", "sort");
 		w.e("option", "value", "title", "selected",
 				!recent ? "selected" : null, "By title");
 		w.e("option", "value", "created", "selected", recent ? "selected"
 				: null, "By creation date");
 		w.end("select");
+
+		w.t(" Category: ");
+		if (category0Values.size() > 1) {
+			w.start("select", "class", "form-control", "name", "category0",
+					"id", "category0");
+			w.e("option", "value", "", "Any");
+			for (FacetResultValue c0 : category0Values) {
+				w.e("option", "value", c0.getLabel(),
+						c0.getLabel() + " (" + c0.getCount() + ")");
+			}
+			w.end("select");
+		} else {
+			if (category0Values.size() > 0) {
+				w.e("input", "type", "hidden", "name", "category0", "value",
+						category0Values.get(0).getLabel(), "id", "category0");
+				w.start("a", "href", "javascript:removeCategory0Filter()",
+						"title", "Remove this filter");
+				w.t(category0Values.get(0).getLabel());
+				w.end("a");
+			} else {
+				w.t("-");
+			}
+		}
+
 		w.t(" ");
 		w.e("input", "class", "btn btn-default", "type", "submit", "value",
 				"Search");
@@ -231,13 +310,15 @@ public class PackagesPage extends MyPage {
 	private String createPager(int cur, boolean hasNextPage) {
 		HTMLWriter w = new HTMLWriter();
 		w.start("ul", "class", "pager");
+		String params =
+				(recent ? "&sort=created" : "") + "&q=" +
+						NWUtils.encode(this.query);
+		if (category0 != null)
+			params += "&category0=" + NWUtils.encode(this.category0);
 		if (cur >= PAGE_SIZE) {
 			w.start("li");
-			w.e("a",
-					"href",
-					"/p?start=" + (cur - PAGE_SIZE) +
-							(recent ? "&sort=created" : "") + "&q=" +
-							NWUtils.encode(this.query), "\u2190 Previous page");
+			w.e("a", "href", "/p?start=" + (cur - PAGE_SIZE) + params,
+					"\u2190 Previous page");
 			w.end("li");
 		} else {
 			w.start("li", "class", "disabled");
@@ -247,11 +328,8 @@ public class PackagesPage extends MyPage {
 
 		if (hasNextPage) {
 			w.start("li");
-			w.e("a",
-					"href",
-					"/p?start=" + (cur + PAGE_SIZE) +
-							(recent ? "&sort=created" : "") + "&q=" +
-							NWUtils.encode(this.query), "Next page \u2192");
+			w.e("a", "href", "/p?start=" + (cur + PAGE_SIZE) + params,
+					"Next page \u2192");
 			w.end("li");
 		} else {
 			w.start("li", "class", hasNextPage ? null : "disabled");
@@ -286,7 +364,16 @@ public class PackagesPage extends MyPage {
 	@Override
 	public String createBodyBottom(HttpServletRequest request)
 			throws IOException {
-		return super.createBodyBottom(request) +
-				NWUtils.tmpl("GooglePlus.html");
+		HTMLWriter w = new HTMLWriter();
+		w.start("script");
+		InputStream stream =
+				DefaultServlet.getInstance(request).getServletContext()
+						.getResourceAsStream("/WEB-INF/templates/Packages.js");
+		w.unencoded(NWUtils.readUTF8Resource(stream));
+		w.end("script");
+
+		w.unencoded(NWUtils.tmpl("GooglePlus.html"));
+
+		return w.toString();
 	}
 }

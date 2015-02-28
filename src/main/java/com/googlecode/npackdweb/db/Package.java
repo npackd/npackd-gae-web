@@ -23,6 +23,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.google.appengine.api.search.Document.Builder;
+import com.google.appengine.api.search.Facet;
 import com.google.appengine.api.search.Field;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
@@ -287,6 +288,21 @@ public class Package {
 				.addField(
 						Field.newBuilder().setName("category")
 								.setText(NWUtils.join(" ", tags)));
+
+		String category0 = null, category1 = null;
+		if (tags.size() > 0) {
+			String c = tags.get(0);
+			List<String> parts = NWUtils.split(c, '/');
+			if (parts.size() > 0)
+				category0 = parts.get(0);
+			if (parts.size() > 1)
+				category1 = parts.get(1);
+		}
+		b.addFacet(Facet.withAtom("category0", category0 != null ? category0
+				: "Uncategorized"));
+		b.addFacet(Facet.withAtom("category1", category1 != null ? category1
+				: "Uncategorized"));
+
 		com.google.appengine.api.search.Document d = b.build();
 		return d;
 	}
