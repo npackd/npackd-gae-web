@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+entitygen.DEFAULT_PACKAGE=model
+org.eclipse.jpt.core.platform=com.google.appengine.eclipse.wtp.jpa.GaePlatform
+org.eclipse.jpt.jpa.core.discoverAnnotatedClasses=false

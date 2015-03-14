@@ -134,6 +134,10 @@ public class PackagesPage extends MyPage {
 				category1Values = fi.getValues();
 			}
 		}
+		if (category0Values == null)
+			category0Values = new ArrayList<FacetResultValue>();
+		if (category1Values == null)
+			category1Values = new ArrayList<FacetResultValue>();
 
 		List<String> ids = new ArrayList<String>();
 		for (ScoredDocument sd : r) {

@@ -218,17 +218,30 @@ public class PackageVersionPage extends MyPage {
 			w.end("div");
 		}
 
-		w.start("table", "id", "fields");
+		w.start("table", "id", "fields", "itemscope", "itemscope", "itemtype",
+				"http://schema.org/SoftwareApplication");
 
 		w.start("tr");
 		w.e("td", "Full internal name:");
-		w.e("td", p.name);
+		w.start("td", "itemprop", "name");
+		w.t(p.name);
+		for (String s : p.screenshots) {
+			w.e("meta", "itemprop", "screenshot", "content", s);
+		}
+		if (!p.icon.isEmpty())
+			w.e("meta", "itemprop", "image", "content", p.icon);
+		w.e("meta", "itemprop", "operatingSystem", "content",
+				"Microsoft Windows");
+		w.e("meta", "itemprop", "applicationCategory", "content",
+				p.tags.size() > 0 ? NWUtils.join(", ", p.tags)
+						: "Uncategorized");
+		w.end("td");
 		w.end("tr");
 
 		w.start("tr");
 		w.e("td", "Project site:");
 		w.start("td");
-		w.e("a", "id", "packageURL", "href", p.url, p.url);
+		w.e("a", "itemprop", "sameAs", "id", "packageURL", "href", p.url, p.url);
 		w.end("td");
 		w.end("tr");
 
@@ -236,7 +249,8 @@ public class PackageVersionPage extends MyPage {
 		w.e("td", "Change log:");
 		w.start("td");
 		if (p.changelog != null && p.changelog.trim().length() > 0)
-			w.e("a", "id", "changelog", "href", p.changelog, p.changelog);
+			w.e("a", "itemprop", "releaseNotes", "id", "changelog", "href",
+					p.changelog, p.changelog);
 		else
 			w.t("n/a");
 		w.end("td");
@@ -245,7 +259,7 @@ public class PackageVersionPage extends MyPage {
 		w.start("tr");
 		w.e("td", "Description:");
 		Markdown4jProcessor mp = new Markdown4jProcessor();
-		w.start("td");
+		w.start("td", "itemprop", "description");
 		try {
 			w.unencoded(mp.process(p.description));
 		} catch (IOException e) {
@@ -267,7 +281,7 @@ public class PackageVersionPage extends MyPage {
 
 		w.start("tr");
 		w.e("td", "Version:");
-		w.start("td");
+		w.start("td", "itemprop", "softwareVersion");
 		if (new_) {
 			w.e("input", "type", "text", "name", "version", "value",
 					this.version, "size", "20");
@@ -294,7 +308,7 @@ public class PackageVersionPage extends MyPage {
 					"cursor: pointer; font-size: 20px; font-weight: bold");
 		} else {
 			if (!tags.contains("not-reviewed"))
-				w.e("a", "href", url, url);
+				w.e("a", "itemprop", "downloadUrl", "href", url, url);
 			else
 				w.t("Not yet reviewed");
 		}
@@ -397,7 +411,7 @@ public class PackageVersionPage extends MyPage {
 			w.start("tr");
 			w.e("td", "Dependencies:");
 			w.start("td");
-			w.start("ul");
+			w.start("ul", "itemprop", "requirements");
 			for (int i = 0; i < dependencyPackages.size(); i++) {
 				Package dp =
 						ofy.find(new com.googlecode.objectify.Key<Package>(
@@ -451,7 +465,7 @@ public class PackageVersionPage extends MyPage {
 		w.t("Tags ");
 		w.e("small", "(optional):");
 		w.end("td");
-		w.start("td");
+		w.start("td", "itemprop", "keywords");
 		if (editable) {
 			for (String s : new String[] { "stable", "stable64", "libs",
 					"unstable", "untested", "disable-download-check",
