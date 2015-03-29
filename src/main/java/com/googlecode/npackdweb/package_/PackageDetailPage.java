@@ -198,7 +198,7 @@ public class PackageDetailPage extends MyPage {
 			w.t(" See ");
 			w.e("a",
 					"href",
-					"http://code.google.com/p/windows-package-manager/wiki/RepositoryFormat#Package_naming_rules",
+					"https://github.com/tim-lebedkov/npackd/wiki/RepositoryFormat#package-naming-rules",
 					"target", "_blank", "Package naming rules");
 			w.t(" for more details");
 			w.end("p");

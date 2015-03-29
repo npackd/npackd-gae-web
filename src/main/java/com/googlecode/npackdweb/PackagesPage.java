@@ -175,12 +175,12 @@ public class PackagesPage extends MyPage {
 			w.t(" ");
 			w.e("a",
 					"href",
-					"https://code.google.com/p/windows-package-manager/wiki/RejectedSoftware",
+					"https://github.com/tim-lebedkov/npackd/wiki/RejectedSoftware",
 					"List of rejected packages*");
 			w.t(" ");
 			w.e("a",
 					"href",
-					"http://code.google.com/p/windows-package-manager/issues/entry?template=Defect%20report%20from%20user",
+					"https://github.com/tim-lebedkov/npackd/issues/new",
 					"Suggest " + this.query + " for inclusion*");
 			w.end("div");
 		} else {

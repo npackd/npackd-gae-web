@@ -1,6 +1,6 @@
 function deleteOnClick() {
 	var msg = prompt("Deleting the package. Please enter the explanations.", 
-			"See https://code.google.com/p/windows-package-manager/wiki/RejectedSoftware for more details.");
+			"See https://github.com/tim-lebedkov/npackd/wiki/RejectedSoftware for more details.");
 	if (msg != null) {
 		var id = $('#name').val();
 		window.location.href='/package/delete-confirmed?name=' + id + 
