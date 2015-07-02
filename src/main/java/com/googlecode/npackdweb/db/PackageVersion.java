@@ -472,4 +472,22 @@ public class PackageVersion {
 		}
 		return index;
 	}
+
+        /**
+         * Returns a human readable description for this object
+         * @return "a.b.c 27.1.3"
+         */
+    public String getTitle() {
+        return this.package_ + " " + this.version;
+    }
+    
+        /**
+         * Checks whether this package has the specified tag.
+         * 
+         * @param tag tag name
+         * @return true if this package has the specified tag
+         */
+    public boolean hasTag(String tag) {
+        return this.tags != null && this.tags.indexOf(tag) >= 0;
+    }
 }

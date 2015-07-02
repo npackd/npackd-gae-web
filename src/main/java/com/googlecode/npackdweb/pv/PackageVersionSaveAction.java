@@ -20,53 +20,56 @@ import com.googlecode.objectify.Objectify;
  * Save or create a package.
  */
 public class PackageVersionSaveAction extends Action {
-	/**
-	 * -
-	 */
-	public PackageVersionSaveAction() {
-		super("^/package-version/save$", ActionSecurityType.LOGGED_IN);
-	}
 
-	@Override
-	public Page perform(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		Page page;
-		PackageVersionPage pvp = new PackageVersionPage(null, false);
-		pvp.fillForm(req);
-		String error = pvp.validate();
-		if (error == null) {
-			String package_ = pvp.getPackageName();
-			final String version = pvp.getVersion();
-			Objectify ofy = DefaultServlet.getObjectify();
-			Package pa = ofy.get(new Key<Package>(Package.class, package_));
-			if (!pa.isCurrentUserPermittedToModify())
-				page =
-						new MessagePage(
-								"You do not have permission to modify this package");
-			else {
-				PackageVersion p =
-						ofy.find(new Key<PackageVersion>(PackageVersion.class,
-								package_ + "@" + version));
-				if (p == null) {
-					pvp.normalizeVersion();
-					p = new PackageVersion(package_, version);
-				}
-				PackageVersion old = p.copy();
-				pvp.fillObject(p);
-				if (!p.url.equals(old.url) || !p.sha1.equals(old.sha1)) {
-					p.downloadCheckAt = null;
-					p.downloadCheckError = null;
-				}
+    /**
+     * -
+     */
+    public PackageVersionSaveAction() {
+        super("^/package-version/save$", ActionSecurityType.LOGGED_IN);
+    }
 
-				NWUtils.savePackageVersion(ofy, p, true, true);
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        Page page;
+        PackageVersionPage pvp = new PackageVersionPage(null, false);
+        pvp.fillForm(req);
+        String error = pvp.validate();
+        if (error == null) {
+            String package_ = pvp.getPackageName();
+            final String version = pvp.getVersion();
+            Objectify ofy = DefaultServlet.getObjectify();
+            Package pa = ofy.get(new Key<Package>(Package.class, package_));
+            if (!pa.isCurrentUserPermittedToModify()) {
+                page
+                        = new MessagePage(
+                                "You do not have permission to modify this package");
+            } else {
+                PackageVersion p
+                        = ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                                        package_ + "@" + version));
+                boolean inDatabase = p != null;
+                if (p == null) {
+                    pvp.normalizeVersion();
+                    p = new PackageVersion(package_, version);
+                }
+                PackageVersion old = p.copy();
+                pvp.fillObject(p);
+                if (!p.url.equals(old.url) || !p.sha1.equals(old.sha1)) {
+                    p.downloadCheckAt = null;
+                    p.downloadCheckError = null;
+                }
 
-				resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
-				page = null;
-			}
-		} else {
-			pvp.setErrorMessage(error);
-			page = pvp;
-		}
-		return page;
-	}
+                NWUtils.savePackageVersion(ofy, p, true, true,
+                        inDatabase);
+
+                resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
+                page = null;
+            }
+        } else {
+            pvp.setErrorMessage(error);
+            page = pvp;
+        }
+        return page;
+    }
 }
