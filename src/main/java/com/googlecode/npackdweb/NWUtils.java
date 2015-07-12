@@ -1015,8 +1015,10 @@ public class NWUtils {
             msg.setSubject("http://npackd.appspot.com");
             msg.setText(body);
             Transport.send(msg);
+
+            LOG.log(Level.INFO, "Sent a mail to {0}, Body: {1}", new Object[]{to, body});
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Cannot send a mail to the admin", e);
+            LOG.log(Level.SEVERE, "Cannot send a mail to " + to, e);
         }
     }
 
