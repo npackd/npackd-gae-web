@@ -57,19 +57,19 @@ public class PackageVersionRecognizeAction extends Action {
         Package pa = ofy.get(new Key<Package>(Package.class, package_));
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
-            page
-                    = new MessagePage(
+            page =
+                     new MessagePage(
                             "You do not have permission to modify this package");
         } else {
-            PackageVersion p
-                    = ofy.get(new Key<PackageVersion>(PackageVersion.class,
+            PackageVersion p =
+                     ofy.get(new Key<PackageVersion>(PackageVersion.class,
                                     package_ + "@" + version));
             String err = recognize(p);
             if (err != null) {
                 page = new MessagePage(err);
             } else {
                 p.addTag("untested");
-                NWUtils.savePackageVersion(ofy, p, true, true, true);
+                NWUtils.savePackageVersion(ofy, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
             }
@@ -104,7 +104,7 @@ public class PackageVersionRecognizeAction extends Action {
         if (file.length() > 0) {
             p = file.lastIndexOf('.');
 
-			// String fileName;
+            // String fileName;
             if (file.length() - p <= 4) {
                 // fileName = file.substring(0, p);
                 fileExt = file.substring(p + 1);
@@ -120,11 +120,11 @@ public class PackageVersionRecognizeAction extends Action {
 
         long startPosition = 0;
 
-		// limit 32 MiB:
+        // limit 32 MiB:
         // https://developers.google.com/appengine/docs/java/urlfetch/
         long segment = 10 * 1024 * 1024;
 
-		// true if the complete file was downloaded, false if only the first
+        // true if the complete file was downloaded, false if only the first
         // part of the file was downloaded
         boolean completeDownload = false;
 
@@ -136,8 +136,8 @@ public class PackageVersionRecognizeAction extends Action {
             ht.setHeader(new HTTPHeader("User-Agent",
                     "NpackdWeb/1 (compatible; MSIE 9.0)"));
             ht.getFetchOptions().setDeadline(20.0);
-            ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition
-                    + "-" + (startPosition + segment - 1)));
+            ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition +
+                     "-" + (startPosition + segment - 1)));
             r = s.fetch(ht);
             if (r.getResponseCode() == 416) {
                 if (startPosition == 0) {
@@ -148,8 +148,8 @@ public class PackageVersionRecognizeAction extends Action {
 
             content = r.getContent();
             if (r.getResponseCode() != 206 && r.getResponseCode() != 200) {
-                throw new IOException("HTTP response code: "
-                        + r.getResponseCode());
+                throw new IOException("HTTP response code: " +
+                         r.getResponseCode());
             }
 
             if (content.length < segment) {
@@ -185,8 +185,10 @@ public class PackageVersionRecognizeAction extends Action {
             case "exe":
                 // NSIS is the most often used installer builder
                 if (contentLowerCase != null) {
-                    if (Bytes.indexOf(contentLowerCase, "nsis.sf.net".getBytes()) >= 0
-                            || Bytes.indexOf(contentLowerCase,
+                    if (Bytes.
+                            indexOf(contentLowerCase, "nsis.sf.net".getBytes()) >=
+                            0 ||
+                             Bytes.indexOf(contentLowerCase,
                                     "nullsoft.nsis".getBytes()) >= 0) {
                         t = BinaryType.NSIS;
                     } else if (Bytes.indexOf(contentLowerCase,
@@ -207,11 +209,11 @@ public class PackageVersionRecognizeAction extends Action {
                 break;
             default:
                 if (content != null) {
-                    if (content.length > 2 && content[0] == 'P'
-                            && content[1] == 'K') {
+                    if (content.length > 2 && content[0] == 'P' &&
+                             content[1] == 'K') {
                         t = BinaryType.ZIP;
-                    } else if (content.length > 2 && content[0] == 'M'
-                            && content[1] == 'Z') {
+                    } else if (content.length > 2 && content[0] == 'M' &&
+                             content[1] == 'Z') {
                         if (Bytes.indexOf(contentLowerCase,
                                 "nsis.sf.net".getBytes()) >= 0) {
                             t = BinaryType.NSIS;
@@ -221,8 +223,8 @@ public class PackageVersionRecognizeAction extends Action {
                         } else {
                             t = BinaryType.OTHER_EXE;
                         }
-                    } else if (content.length > 2 && content[0] == '7'
-                            && content[1] == 'Z') {
+                    } else if (content.length > 2 && content[0] == '7' &&
+                             content[1] == 'Z') {
                         t = BinaryType.SEVENZIP;
                     }
                 }
@@ -234,17 +236,20 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.oneFile = true;
                 pv.addFile(
                         ".Npackd\\Install.bat",
-                        "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
-                        + "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
-                pv.addFile(".Npackd\\Uninstall.bat", "uninstall.exe /S _?=%CD%\r\n");
+                        "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n" +
+                         "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
+                pv.addFile(".Npackd\\Uninstall.bat",
+                        "uninstall.exe /S _?=%CD%\r\n");
                 break;
             case SEVENZIP:
                 pv.oneFile = true;
                 pv.addFile(
                         ".Npackd\\Install.bat",
-                        "for /f %%x in ('dir /b *.7z') do set setup=%%x\r\n"
-                        + "\"%sevenzipa%\\7za.exe\" x \"%setup%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%setup%\"\r\n");
-                pv.addDependency("org.7-zip.SevenZIPA", "[9.20, 10)", "sevenzipa");
+                        "for /f %%x in ('dir /b *.7z') do set setup=%%x\r\n" +
+
+                        "\"%sevenzipa%\\7za.exe\" x \"%setup%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%setup%\"\r\n");
+                pv.addDependency("org.7-zip.SevenZIPA", "[9.20, 10)",
+                        "sevenzipa");
                 break;
             case ZIP:
                 pv.oneFile = false;
@@ -254,13 +259,14 @@ public class PackageVersionRecognizeAction extends Action {
                         if (d.length() != 0) {
                             pv.addFile(
                                     ".Npackd\\Install.bat",
-                                    "for /f \"delims=\" %%x in ('dir /b "
-                                    + d
-                                    + "*') do set name=%%x\r\n"
-                                    + "cd \"%name%\"\r\n"
-                                    + "for /f \"delims=\" %%a in ('dir /b') do (\r\n"
-                                    + "  move \"%%a\" ..\r\n" + ")\r\n"
-                                    + "cd ..\r\n" + "rmdir \"%name%\"\r\n");
+                                    "for /f \"delims=\" %%x in ('dir /b " +
+                                     d +
+                                     "*') do set name=%%x\r\n" +
+                                     "cd \"%name%\"\r\n" +
+
+                                    "for /f \"delims=\" %%a in ('dir /b') do (\r\n" +
+                                     "  move \"%%a\" ..\r\n" + ")\r\n" +
+                                     "cd ..\r\n" + "rmdir \"%name%\"\r\n");
                         }
                     } catch (IOException e1) {
                         NWUtils.LOG.log(Level.WARNING, e1.getMessage(), e1);
@@ -288,13 +294,14 @@ public class PackageVersionRecognizeAction extends Action {
             case OTHER_EXE:
                 pv.oneFile = true;
                 pv.addFile(".Npackd\\Install.bat",
-                        "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
-                        + "\"%setup%\" && del /f /q \"%setup%\"\r\n");
+                        "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n" +
+                         "\"%setup%\" && del /f /q \"%setup%\"\r\n");
                 pv.addFile(".Npackd\\Uninstall.bat",
-                        "\"%myun%\\myuninst.exe\" /uninstall \"" + pv.package_
-                        + "\"\r\n");
+                        "\"%myun%\\myuninst.exe\" /uninstall \"" + pv.package_ +
+                         "\"\r\n");
 
-                pv.addDependency("net.nirsoft.MyUninstaller", "[1.74, 2)", "myun");
+                pv.addDependency("net.nirsoft.MyUninstaller", "[1.74, 2)",
+                        "myun");
                 break;
             default:
                 pv.oneFile = true;
@@ -309,8 +316,8 @@ public class PackageVersionRecognizeAction extends Action {
     }
 
     private String getCommonZIPDir(byte[] content) throws IOException {
-        ZipInputStream zis
-                = new ZipInputStream(new ByteArrayInputStream(content));
+        ZipInputStream zis =
+                 new ZipInputStream(new ByteArrayInputStream(content));
         ZipEntry e;
 
         String commonPrefix = null;
@@ -326,7 +333,8 @@ public class PackageVersionRecognizeAction extends Action {
                 char[] commonPrefix_ = commonPrefix.toCharArray();
                 char[] n_ = n.toCharArray();
                 int count = 0;
-                for (int i = 0; i < Math.min(commonPrefix_.length, n_.length); i++) {
+                for (int i = 0; i < Math.min(commonPrefix_.length, n_.length);
+                        i++) {
                     if (commonPrefix_[i] == n_[i]) {
                         count++;
                     } else {

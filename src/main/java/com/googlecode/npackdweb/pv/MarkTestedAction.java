@@ -48,8 +48,8 @@ public class MarkTestedAction extends Action {
             return null;
         }
 
-        PackageVersion r
-                = ofy.find(new Key<PackageVersion>(PackageVersion.class,
+        PackageVersion r =
+                 ofy.find(new Key<PackageVersion>(PackageVersion.class,
                                 package_ + "@" + version));
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -57,7 +57,7 @@ public class MarkTestedAction extends Action {
         }
 
         r.tags.remove("untested");
-        NWUtils.savePackageVersion(ofy, r, false, false, true);
+        NWUtils.savePackageVersion(ofy, r, false, false);
 
         return null;
     }

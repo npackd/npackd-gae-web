@@ -224,12 +224,6 @@ public class PackagesPage extends MyPage {
                                 "This package was checked in the last 7 days and there were no updates",
                                 "up-to-date");
                     }
-                } else {
-                    w.t(" ");
-                    w.e("span", "class", "label label-success",
-                            "title",
-                            "This package was checked in the last 7 days and there were no updates",
-                            "up-to-date");
                 }
 
                 /*

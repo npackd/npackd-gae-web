@@ -45,27 +45,27 @@ public class CopyPackageVersionConfirmedAction extends Action {
         }
 
         Objectify ofy = DefaultServlet.getObjectify();
-        PackageVersion p
-                = ofy.get(new Key<PackageVersion>(PackageVersion.class, name));
+        PackageVersion p =
+                 ofy.get(new Key<PackageVersion>(PackageVersion.class, name));
         Package r = ofy.find(new Key<Package>(Package.class, p.package_));
         Page page;
         if (!r.isCurrentUserPermittedToModify()) {
-            page
-                    = new MessagePage(
+            page =
+                     new MessagePage(
                             "You do not have permission to modify this package");
         } else {
-            PackageVersion copyFound
-                    = ofy.find(new Key<PackageVersion>(PackageVersion.class,
+            PackageVersion copyFound =
+                     ofy.find(new Key<PackageVersion>(PackageVersion.class,
                                     p.package_ + "@" + version));
             if (copyFound != null) {
-                err
-                        = "This version already exists: " + p.package_ + " "
-                        + version;
+                err =
+                         "This version already exists: " + p.package_ + " " +
+                         version;
             }
 
             if (err != null) {
-                page
-                        = new CopyPackageVersionPage(p, err,
+                page =
+                         new CopyPackageVersionPage(p, err,
                                 req.getParameter("version"));
             } else {
                 PackageVersion copy = p.copy();
@@ -73,7 +73,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 copy.version = version;
                 copy.addTag("untested");
 
-                NWUtils.savePackageVersion(ofy, copy, true, true, false);
+                NWUtils.savePackageVersion(ofy, copy, true, true);
                 resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
                 page = null;
             }

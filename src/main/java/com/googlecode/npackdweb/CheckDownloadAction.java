@@ -62,10 +62,10 @@ public class CheckDownloadAction extends Action {
             data = null;
         }
         if (data != null) {
-            if (data.tags.indexOf("download-failed-3") < 0
-                    && !data.tags.contains("disable-download-check")) {
-                NWUtils.LOG.warning("Checking " + data.package_ + "@"
-                        + data.version);
+            if (data.tags.indexOf("download-failed-3") < 0 &&
+                     !data.tags.contains("disable-download-check")) {
+                NWUtils.LOG.warning("Checking " + data.package_ + "@" +
+                         data.version);
 
                 int failed = 0;
                 if (data.tags.indexOf("download-failed-2") >= 0) {
@@ -82,10 +82,10 @@ public class CheckDownloadAction extends Action {
                     data.downloadCheckError = null;
                 } else {
                     NWUtils.Info info = null;
-                    info
-                            = data.check(true,
-                                    data.sha1.length() == 64 ? "SHA-256"
-                                            : "SHA-1");
+                    info =
+                             data.check(true,
+                                    data.sha1.length() == 64 ? "SHA-256" :
+                                             "SHA-1");
                     if (info != null) {
                         downloaded = info.size;
                         failed = 0;
@@ -105,7 +105,7 @@ public class CheckDownloadAction extends Action {
                     data.tags.add("download-failed-" + failed);
                 }
 
-                NWUtils.savePackageVersion(ob, data, false, false, true);
+                NWUtils.savePackageVersion(ob, data, false, false);
             }
 
             cursor = iterator.getCursor().toWebSafeString();

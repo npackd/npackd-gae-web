@@ -88,8 +88,9 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
                     if (d.setVersions(npackdCLParams[1]) == null) {
                         d.package_ = npackdCLParams[0];
                         int index = pv.findDependency(d);
-                        if (index >= 0
-                                && (pv.dependencyEnvVars.get(index).isEmpty() || pv.dependencyEnvVars
+                        if (index >= 0 &&
+                                 (pv.dependencyEnvVars.get(index).isEmpty() ||
+                                pv.dependencyEnvVars
                                 .get(index).equals(npackdCLParams[2]))) {
                             lines.remove(j);
                             lines.remove(j);
@@ -109,18 +110,19 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name);
-            NWUtils.savePackageVersion(ofy, pv, true, false, true);
+            NWUtils.savePackageVersion(ofy, pv, true, false);
         }
     }
 
     private static String[] getNpackdCLParams(String line, String line2) {
-        final String prefix
-                = "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=";
-        final String prefix2
-                = "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set ";
+        final String prefix =
+
+                "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=";
+        final String prefix2 =
+                 "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set ";
         String[] result = null;
-        if (line.trim().toLowerCase().startsWith(prefix)
-                && line2.trim().toLowerCase().startsWith(prefix2)) {
+        if (line.trim().toLowerCase().startsWith(prefix) &&
+                 line2.trim().toLowerCase().startsWith(prefix2)) {
             String[] parts = line.substring(prefix.length()).split("\"");
             String[] parts2 = line2.substring(prefix2.length()).split("=");
             if (parts.length > 2 && parts2.length > 0) {

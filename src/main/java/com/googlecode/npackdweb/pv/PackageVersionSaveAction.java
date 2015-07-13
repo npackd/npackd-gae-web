@@ -41,14 +41,13 @@ public class PackageVersionSaveAction extends Action {
             Objectify ofy = DefaultServlet.getObjectify();
             Package pa = ofy.get(new Key<Package>(Package.class, package_));
             if (!pa.isCurrentUserPermittedToModify()) {
-                page
-                        = new MessagePage(
+                page =
+                         new MessagePage(
                                 "You do not have permission to modify this package");
             } else {
-                PackageVersion p
-                        = ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                PackageVersion p =
+                         ofy.find(new Key<PackageVersion>(PackageVersion.class,
                                         package_ + "@" + version));
-                boolean inDatabase = p != null;
                 if (p == null) {
                     pvp.normalizeVersion();
                     p = new PackageVersion(package_, version);
@@ -60,8 +59,7 @@ public class PackageVersionSaveAction extends Action {
                     p.downloadCheckError = null;
                 }
 
-                NWUtils.savePackageVersion(ofy, p, true, true,
-                        inDatabase);
+                NWUtils.savePackageVersion(ofy, p, true, true);
 
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;

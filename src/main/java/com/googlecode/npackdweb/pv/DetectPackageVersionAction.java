@@ -57,8 +57,9 @@ public class DetectPackageVersionAction extends Action {
         if (p.discoveryPage.trim().isEmpty()) {
             msg = "No discovery page (URL) is defined";
         } else if (p.discoveryRE.trim().isEmpty()) {
-            msg
-                    = "No discovery regular expression for a package version is defined";
+            msg =
+
+                    "No discovery regular expression for a package version is defined";
         }
 
         Version v = null;
@@ -69,8 +70,8 @@ public class DetectPackageVersionAction extends Action {
         }
 
         if (msg == null) {
-            List<PackageVersion> versions
-                    = ofy.query(PackageVersion.class)
+            List<PackageVersion> versions =
+                     ofy.query(PackageVersion.class)
                     .filter("package_ =", package_).list();
             Collections.sort(versions, new Comparator<PackageVersion>() {
                 @Override
@@ -87,14 +88,16 @@ public class DetectPackageVersionAction extends Action {
                 pv = versions.get(versions.size() - 1);
                 vnewest = Version.parse(pv.version);
                 if (vnewest.compare(v) > 0) {
-                    msg
-                            = "The newest defined version " + vnewest.toString()
-                            + " is bigger than the detected "
-                            + v.toString();
+                    msg =
+
+                            "The newest defined version " + vnewest.toString() +
+                             " is bigger than the detected " +
+                             v.toString();
                 } else if (vnewest.compare(v) == 0) {
-                    msg
-                            = "The newest version is already in the repository ("
-                            + vnewest + ")";
+                    msg =
+
+                            "The newest version is already in the repository (" +
+                             vnewest + ")";
                 }
             } else {
                 pv = null;
@@ -111,10 +114,10 @@ public class DetectPackageVersionAction extends Action {
                 copy.version = v.toString();
                 copy.addTag("untested");
 
-                NWUtils.savePackageVersion(ofy, copy, true, true, false);
-                msg
-                        = "Created version " + v.toString()
-                        + " (the newest available was " + vnewest + ")";
+                NWUtils.savePackageVersion(ofy, copy, true, true);
+                msg =
+                         "Created version " + v.toString() +
+                         " (the newest available was " + vnewest + ")";
                 resp.sendRedirect("/p/" + package_ + "/" + copy.version);
                 return null;
             }

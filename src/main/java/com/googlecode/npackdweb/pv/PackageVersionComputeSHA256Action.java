@@ -39,22 +39,22 @@ public class PackageVersionComputeSHA256Action extends Action {
         Package pa = ofy.get(new Key<Package>(Package.class, package_));
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
-            page
-                    = new MessagePage(
+            page =
+                     new MessagePage(
                             "You do not have permission to modify this package");
         } else {
-            PackageVersion p
-                    = ofy.get(new Key<PackageVersion>(PackageVersion.class,
+            PackageVersion p =
+                     ofy.get(new Key<PackageVersion>(PackageVersion.class,
                                     package_ + "@" + version));
             Info info = p.check(false, "SHA-256");
             if (info != null) {
                 p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
             }
-            NWUtils.savePackageVersion(ofy, p, true, true, true);
+            NWUtils.savePackageVersion(ofy, p, true, true);
             if (p.downloadCheckError != null) {
-                page
-                        = new MessagePage("Cannot download the file: "
-                                + p.downloadCheckError);
+                page =
+                         new MessagePage("Cannot download the file: " +
+                                 p.downloadCheckError);
             } else {
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;

@@ -81,7 +81,7 @@ public class RepUploadAction extends Action {
                         if (item.isFormField()) {
                             if (item.getFieldName().equals("tag")) {
                                 BufferedReader r =
-                                         new BufferedReader(
+                                        new BufferedReader(
                                                 new InputStreamReader(stream));
                                 tag = r.readLine();
                             } else if (item.getFieldName().equals("overwrite")) {
@@ -134,7 +134,7 @@ public class RepUploadAction extends Action {
             while (it.hasNext()) {
                 PackageVersion pv = it.next();
                 PackageVersion found =
-                         (PackageVersion) existing.get(pv.createKey());
+                        (PackageVersion) existing.get(pv.createKey());
                 if (found != null) {
                     stats.pvExisting++;
                     if (!overwrite) {
@@ -169,11 +169,13 @@ public class RepUploadAction extends Action {
 
             for (PackageVersion pv : f.pvs) {
                 Package p =
-                         ofy.find(new Key<Package>(Package.class, pv.package_));
+                        ofy.find(new Key<Package>(Package.class, pv.package_));
                 if (p != null && !p.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
-                             pv.package_);
+                            pv.package_);
+                } else {
+                    NWUtils.savePackageVersion(ofy, pv, true, true);
                 }
             }
 
@@ -182,7 +184,9 @@ public class RepUploadAction extends Action {
                 if (p_ != null && !p_.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
-                             p.name);
+                            p.name);
+                } else {
+                    NWUtils.savePackage(ofy, p, true);
                 }
             }
 
@@ -192,12 +196,6 @@ public class RepUploadAction extends Action {
                 } else {
                     messages.add("Only an administrator can change licenses");
                 }
-            }
-
-            ofy.put(f.pvs);
-
-            for (Package p : f.ps) {
-                NWUtils.savePackage(ofy, p, true);
             }
 
             if (overwrite) {
@@ -213,11 +211,11 @@ public class RepUploadAction extends Action {
                 stats.licAppended = f.lics.size();
             }
             messages.add(stats.pOverwritten + " packages overwritten, " +
-                     stats.pvOverwritten + " package versions overwritten, " +
-                     stats.licOverwritten + " licenses overwritten, " +
-                     stats.pAppended + " packages appended, " +
-                     stats.pvAppended + " package versions appended, " +
-                     stats.licAppended + " licenses appended");
+                    stats.pvOverwritten + " package versions overwritten, " +
+                    stats.licOverwritten + " licenses overwritten, " +
+                    stats.pAppended + " packages appended, " +
+                    stats.pvAppended + " package versions appended, " +
+                    stats.licAppended + " licenses appended");
         } else {
             messages.add("No data found");
         }
@@ -229,7 +227,7 @@ public class RepUploadAction extends Action {
         Found f = null;
         try {
             DocumentBuilder db =
-                     javax.xml.parsers.DocumentBuilderFactory.newInstance()
+                    javax.xml.parsers.DocumentBuilderFactory.newInstance()
                     .newDocumentBuilder();
             Document d = db.parse(stream);
             f = process(d);
@@ -257,7 +255,7 @@ public class RepUploadAction extends Action {
         for (int i = 0; i < children.getLength(); i++) {
             Node ch = children.item(i);
             if (ch.getNodeType() == Element.ELEMENT_NODE &&
-                     ch.getNodeName().equals("license")) {
+                    ch.getNodeName().equals("license")) {
                 Element license = (Element) ch;
                 License lic = new License();
                 lic.name = license.getAttribute("name");
@@ -274,7 +272,7 @@ public class RepUploadAction extends Action {
         for (int i = 0; i < children.getLength(); i++) {
             Node ch = children.item(i);
             if (ch.getNodeType() == Element.ELEMENT_NODE &&
-                     ch.getNodeName().equals("package")) {
+                    ch.getNodeName().equals("package")) {
                 Element e = (Element) ch;
                 Package p = Package.parse(e);
                 v.add(p);
@@ -288,7 +286,7 @@ public class RepUploadAction extends Action {
         for (int i = 0; i < children.getLength(); i++) {
             Node ch = children.item(i);
             if (ch.getNodeType() == Element.ELEMENT_NODE &&
-                     ch.getNodeName().equals("version")) {
+                    ch.getNodeName().equals("version")) {
                 Element e = (Element) ch;
                 PackageVersion pv = createPackageVersion(e);
                 v.add(pv);
@@ -299,7 +297,7 @@ public class RepUploadAction extends Action {
 
     private PackageVersion createPackageVersion(Element e) {
         PackageVersion p =
-                 new PackageVersion(e.getAttribute("package"),
+                new PackageVersion(e.getAttribute("package"),
                         e.getAttribute("name"));
         p.name = p.package_ + "@" + p.version;
         p.oneFile = e.getAttribute("type").equals("one-file");
