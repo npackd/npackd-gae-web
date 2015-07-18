@@ -1,28 +1,5 @@
 package com.googlecode.npackdweb;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -31,7 +8,23 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import org.xml.sax.SAXException;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
 /**
@@ -48,9 +41,9 @@ public class RepUploadAction extends Action {
 
     private static final class Stats {
 
-        public int pOverwritten, pAppended, pExisting;
-        public int pvOverwritten, pvAppended, pvExisting;
-        public int licOverwritten, licAppended, licExisting;
+        public int pOverwritten, pAppended;
+        public int pvOverwritten, pvAppended;
+        public int licOverwritten, licAppended;
     }
 
     /**
@@ -112,9 +105,10 @@ public class RepUploadAction extends Action {
             boolean isAdmin = NWUtils.isAdminLoggedIn();
 
             for (PackageVersion pv : f.pvs) {
-                pv.tags.add(tag);
+                pv.addTag(tag);
             }
 
+            // determine the keys for all objects
             Objectify ofy = DefaultServlet.getObjectify();
             List<Key<?>> keys = new ArrayList<Key<?>>();
             for (License lic : f.lics) {
@@ -127,58 +121,35 @@ public class RepUploadAction extends Action {
                 keys.add(p.createKey());
             }
 
-            Map<Key<Object>, Object> existing = ofy.get(keys);
+            // get all objects at once to fill the cache
+            ofy.get(keys);
 
             Stats stats = new Stats();
-            Iterator<PackageVersion> it = f.pvs.iterator();
-            while (it.hasNext()) {
-                PackageVersion pv = it.next();
-                PackageVersion found =
-                        (PackageVersion) existing.get(pv.createKey());
-                if (found != null) {
-                    stats.pvExisting++;
-                    if (!overwrite) {
-                        it.remove();
-                    }
-                }
-            }
 
-            Iterator<License> itLic = f.lics.iterator();
-            while (itLic.hasNext()) {
-                License pv = itLic.next();
-                License found = (License) existing.get(pv.createKey());
-                if (found != null) {
-                    stats.licExisting++;
-                    if (!overwrite) {
-                        itLic.remove();
+            // process licenses first. Only admins can change the license.
+            if (f.lics.size() > 0) {
+                if (isAdmin) {
+                    for (License lic : f.lics) {
+                        License existing = ofy.find(lic.createKey());
+                        if (existing != null) {
+                            if (overwrite) {
+                                NWUtils.saveLicense(ofy, lic, true);
+                                stats.licOverwritten++;
+                            } else {
+                                messages.add("The license " + lic.name +
+                                        " exists already. It will not be overwritten.");
+                            }
+                        } else {
+                            NWUtils.saveLicense(ofy, lic, true);
+                            stats.licAppended++;
+                        }
                     }
-                }
-            }
-
-            Iterator<Package> itP = f.ps.iterator();
-            while (itP.hasNext()) {
-                Package p = itP.next();
-                Package found = (Package) existing.get(p.createKey());
-                if (found != null) {
-                    stats.pExisting++;
-                    if (!overwrite) {
-                        itP.remove();
-                    }
-                }
-            }
-
-            for (PackageVersion pv : f.pvs) {
-                Package p =
-                        ofy.find(new Key<Package>(Package.class, pv.package_));
-                if (p != null && !p.isCurrentUserPermittedToModify()) {
-                    messages.add(
-                            "You do not have permission to modify this package: " +
-                            pv.package_);
                 } else {
-                    NWUtils.savePackageVersion(ofy, pv, true, true);
+                    messages.add("Only an administrator can change licenses");
                 }
             }
 
+            // process packages before the package versions
             for (Package p : f.ps) {
                 Package p_ = ofy.find(new Key<Package>(Package.class, p.name));
                 if (p_ != null && !p_.isCurrentUserPermittedToModify()) {
@@ -186,30 +157,61 @@ public class RepUploadAction extends Action {
                             "You do not have permission to modify this package: " +
                             p.name);
                 } else {
-                    NWUtils.savePackage(ofy, p, true);
+                    if (p_ != null) {
+                        if (overwrite) {
+                            // overwriting should not change the permissions
+                            p.permissions.clear();
+                            p.permissions.addAll(p_.permissions);
+
+                            NWUtils.savePackage(ofy, p, true);
+                            stats.pOverwritten++;
+                        } else {
+                            messages.add("The package " + p.name +
+                                    " exists already. It will not be overwritten.");
+                        }
+                    } else {
+                        NWUtils.savePackage(ofy, p, true);
+                        stats.pAppended++;
+                    }
                 }
             }
 
-            if (f.lics.size() > 0) {
-                if (isAdmin) {
-                    ofy.put(f.lics);
+            // process package versions
+            for (PackageVersion pv : f.pvs) {
+                Package p =
+                        ofy.find(new Key<Package>(Package.class, pv.package_));
+                PackageVersion existing =
+                        ofy.find(pv.createKey());
+                if (p != null && !p.isCurrentUserPermittedToModify()) {
+                    messages.add(
+                            "You do not have permission to modify this package: " +
+                            pv.package_);
                 } else {
-                    messages.add("Only an administrator can change licenses");
+                    if (p == null) {
+                        p = new Package(pv.package_);
+                        p.title = p.name;
+                        NWUtils.savePackage(ofy, p, true);
+                        stats.pAppended++;
+                    }
+
+                    NWUtils.savePackageVersion(ofy, pv, true, true);
+
+                    if (existing != null) {
+                        if (overwrite) {
+                            NWUtils.savePackageVersion(ofy, pv, true, true);
+                            stats.pvOverwritten++;
+                        } else {
+                            messages.add("The package version " + pv.package_ +
+                                    " " + pv.name +
+                                    " exists already. It will not be overwritten.");
+                        }
+                    } else {
+                        NWUtils.savePackageVersion(ofy, pv, true, true);
+                        stats.pvAppended++;
+                    }
                 }
             }
 
-            if (overwrite) {
-                stats.pOverwritten = stats.pExisting;
-                stats.pvOverwritten = stats.pvExisting;
-                stats.licOverwritten = stats.licExisting;
-                stats.pAppended = f.ps.size() - stats.pOverwritten;
-                stats.pvAppended = f.pvs.size() - stats.pvOverwritten;
-                stats.licAppended = f.lics.size() - stats.licOverwritten;
-            } else {
-                stats.pAppended = f.ps.size();
-                stats.pvAppended = f.pvs.size();
-                stats.licAppended = f.lics.size();
-            }
             messages.add(stats.pOverwritten + " packages overwritten, " +
                     stats.pvOverwritten + " package versions overwritten, " +
                     stats.licOverwritten + " licenses overwritten, " +
