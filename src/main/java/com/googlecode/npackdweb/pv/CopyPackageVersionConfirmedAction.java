@@ -71,7 +71,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 copy.version = version;
                 copy.addTag("untested");
 
-                NWUtils.savePackageVersion(ofy, p, copy, true, true);
+                NWUtils.savePackageVersion(ofy, null, copy, true, true);
                 resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
                 page = null;
             }

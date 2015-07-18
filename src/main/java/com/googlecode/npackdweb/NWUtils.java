@@ -769,7 +769,6 @@ public class NWUtils {
     public static void savePackageVersion(Objectify ofy, PackageVersion old,
             PackageVersion p,
             boolean changeLastModified, boolean changeNotReviewed) {
-        final User lastModifiedBy = p.lastModifiedBy;
         if (changeLastModified) {
             p.lastModifiedAt = new Date();
             p.lastModifiedBy =
@@ -781,10 +780,10 @@ public class NWUtils {
                     UserService us = UserServiceFactory.getUserService();
                     String currentEmail = us.getCurrentUser().getEmail();
 
-                    if (!currentEmail.equals(lastModifiedBy.getEmail())) {
+                    if (!currentEmail.equals(old.lastModifiedBy.getEmail())) {
                         NWUtils.sendMailTo("The package version " +
                                 p.getTitle() + " was marked as reviewed",
-                                lastModifiedBy.getEmail()
+                                old.lastModifiedBy.getEmail()
                         );
                     }
                 }
@@ -792,7 +791,7 @@ public class NWUtils {
                 // "p" and "old" may be the same object
                 p.tags.remove("not-reviewed");
             } else {
-                if (!p.hasTag("not-reviewed")) {
+                if (old == null || !old.hasTag("not-reviewed")) {
                     p.addTag("not-reviewed");
 
                     NWUtils.sendMailToAdmin("The package version " +
