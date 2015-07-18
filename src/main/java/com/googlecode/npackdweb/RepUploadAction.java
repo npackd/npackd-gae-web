@@ -178,6 +178,8 @@ public class RepUploadAction extends Action {
 
             // process package versions
             for (PackageVersion pv : f.pvs) {
+                pv.addTag("untested");
+
                 Package p =
                         ofy.find(new Key<Package>(Package.class, pv.package_));
                 PackageVersion existing =
