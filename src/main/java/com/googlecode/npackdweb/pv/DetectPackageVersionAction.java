@@ -1,15 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -21,6 +11,14 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Detects new version of a package.
@@ -58,7 +56,6 @@ public class DetectPackageVersionAction extends Action {
             msg = "No discovery page (URL) is defined";
         } else if (p.discoveryRE.trim().isEmpty()) {
             msg =
-
                     "No discovery regular expression for a package version is defined";
         }
 
@@ -71,7 +68,7 @@ public class DetectPackageVersionAction extends Action {
 
         if (msg == null) {
             List<PackageVersion> versions =
-                     ofy.query(PackageVersion.class)
+                    ofy.query(PackageVersion.class)
                     .filter("package_ =", package_).list();
             Collections.sort(versions, new Comparator<PackageVersion>() {
                 @Override
@@ -89,15 +86,13 @@ public class DetectPackageVersionAction extends Action {
                 vnewest = Version.parse(pv.version);
                 if (vnewest.compare(v) > 0) {
                     msg =
-
                             "The newest defined version " + vnewest.toString() +
-                             " is bigger than the detected " +
-                             v.toString();
+                            " is bigger than the detected " +
+                            v.toString();
                 } else if (vnewest.compare(v) == 0) {
                     msg =
-
                             "The newest version is already in the repository (" +
-                             vnewest + ")";
+                            vnewest + ")";
                 }
             } else {
                 pv = null;
@@ -114,10 +109,10 @@ public class DetectPackageVersionAction extends Action {
                 copy.version = v.toString();
                 copy.addTag("untested");
 
-                NWUtils.savePackageVersion(ofy, copy, true, true);
+                NWUtils.savePackageVersion(ofy, null, copy, true, true);
                 msg =
-                         "Created version " + v.toString() +
-                         " (the newest available was " + vnewest + ")";
+                        "Created version " + v.toString() +
+                        " (the newest available was " + vnewest + ")";
                 resp.sendRedirect("/p/" + package_ + "/" + copy.version);
                 return null;
             }

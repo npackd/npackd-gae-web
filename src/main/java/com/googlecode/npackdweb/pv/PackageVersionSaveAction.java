@@ -1,10 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -15,6 +10,9 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Save or create a package.
@@ -42,24 +40,28 @@ public class PackageVersionSaveAction extends Action {
             Package pa = ofy.get(new Key<Package>(Package.class, package_));
             if (!pa.isCurrentUserPermittedToModify()) {
                 page =
-                         new MessagePage(
+                        new MessagePage(
                                 "You do not have permission to modify this package");
             } else {
                 PackageVersion p =
-                         ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                        ofy.find(new Key<PackageVersion>(PackageVersion.class,
                                         package_ + "@" + version));
+                PackageVersion old;
                 if (p == null) {
+                    old = null;
                     pvp.normalizeVersion();
                     p = new PackageVersion(package_, version);
+                } else {
+                    old = p.copy();
                 }
-                PackageVersion old = p.copy();
                 pvp.fillObject(p);
-                if (!p.url.equals(old.url) || !p.sha1.equals(old.sha1)) {
+                if (old == null || !p.url.equals(old.url) || !p.sha1.equals(
+                        old.sha1)) {
                     p.downloadCheckAt = null;
                     p.downloadCheckError = null;
                 }
 
-                NWUtils.savePackageVersion(ofy, p, true, true);
+                NWUtils.savePackageVersion(ofy, old, p, true, true);
 
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;

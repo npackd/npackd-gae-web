@@ -194,11 +194,10 @@ public class RepUploadAction extends Action {
                         stats.pAppended++;
                     }
 
-                    NWUtils.savePackageVersion(ofy, pv, true, true);
-
                     if (existing != null) {
                         if (overwrite) {
-                            NWUtils.savePackageVersion(ofy, pv, true, true);
+                            NWUtils.savePackageVersion(ofy, existing, pv, true,
+                                    true);
                             stats.pvOverwritten++;
                         } else {
                             messages.add("The package version " + pv.package_ +
@@ -206,7 +205,7 @@ public class RepUploadAction extends Action {
                                     " exists already. It will not be overwritten.");
                         }
                     } else {
-                        NWUtils.savePackageVersion(ofy, pv, true, true);
+                        NWUtils.savePackageVersion(ofy, null, pv, true, true);
                         stats.pvAppended++;
                     }
                 }

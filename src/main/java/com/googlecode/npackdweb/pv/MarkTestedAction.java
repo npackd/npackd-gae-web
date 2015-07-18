@@ -1,10 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -14,6 +9,9 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Marks the specified package version as "tested".
@@ -49,15 +47,17 @@ public class MarkTestedAction extends Action {
         }
 
         PackageVersion r =
-                 ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                ofy.find(new Key<PackageVersion>(PackageVersion.class,
                                 package_ + "@" + version));
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
 
+        PackageVersion oldr = r.copy();
+
         r.tags.remove("untested");
-        NWUtils.savePackageVersion(ofy, r, false, false);
+        NWUtils.savePackageVersion(ofy, oldr, r, false, false);
 
         return null;
     }

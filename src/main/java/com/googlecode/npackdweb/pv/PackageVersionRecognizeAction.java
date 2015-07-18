@@ -1,18 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
@@ -30,6 +17,17 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Recognize the binary type and assign the scripts accordingly.
@@ -58,18 +56,19 @@ public class PackageVersionRecognizeAction extends Action {
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
             page =
-                     new MessagePage(
+                    new MessagePage(
                             "You do not have permission to modify this package");
         } else {
             PackageVersion p =
-                     ofy.get(new Key<PackageVersion>(PackageVersion.class,
+                    ofy.get(new Key<PackageVersion>(PackageVersion.class,
                                     package_ + "@" + version));
+            PackageVersion oldp = p.copy();
             String err = recognize(p);
             if (err != null) {
                 page = new MessagePage(err);
             } else {
                 p.addTag("untested");
-                NWUtils.savePackageVersion(ofy, p, true, true);
+                NWUtils.savePackageVersion(ofy, oldp, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
             }
@@ -137,7 +136,7 @@ public class PackageVersionRecognizeAction extends Action {
                     "NpackdWeb/1 (compatible; MSIE 9.0)"));
             ht.getFetchOptions().setDeadline(20.0);
             ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition +
-                     "-" + (startPosition + segment - 1)));
+                    "-" + (startPosition + segment - 1)));
             r = s.fetch(ht);
             if (r.getResponseCode() == 416) {
                 if (startPosition == 0) {
@@ -149,7 +148,7 @@ public class PackageVersionRecognizeAction extends Action {
             content = r.getContent();
             if (r.getResponseCode() != 206 && r.getResponseCode() != 200) {
                 throw new IOException("HTTP response code: " +
-                         r.getResponseCode());
+                        r.getResponseCode());
             }
 
             if (content.length < segment) {
@@ -188,7 +187,7 @@ public class PackageVersionRecognizeAction extends Action {
                     if (Bytes.
                             indexOf(contentLowerCase, "nsis.sf.net".getBytes()) >=
                             0 ||
-                             Bytes.indexOf(contentLowerCase,
+                            Bytes.indexOf(contentLowerCase,
                                     "nullsoft.nsis".getBytes()) >= 0) {
                         t = BinaryType.NSIS;
                     } else if (Bytes.indexOf(contentLowerCase,
@@ -210,10 +209,10 @@ public class PackageVersionRecognizeAction extends Action {
             default:
                 if (content != null) {
                     if (content.length > 2 && content[0] == 'P' &&
-                             content[1] == 'K') {
+                            content[1] == 'K') {
                         t = BinaryType.ZIP;
                     } else if (content.length > 2 && content[0] == 'M' &&
-                             content[1] == 'Z') {
+                            content[1] == 'Z') {
                         if (Bytes.indexOf(contentLowerCase,
                                 "nsis.sf.net".getBytes()) >= 0) {
                             t = BinaryType.NSIS;
@@ -224,7 +223,7 @@ public class PackageVersionRecognizeAction extends Action {
                             t = BinaryType.OTHER_EXE;
                         }
                     } else if (content.length > 2 && content[0] == '7' &&
-                             content[1] == 'Z') {
+                            content[1] == 'Z') {
                         t = BinaryType.SEVENZIP;
                     }
                 }
@@ -237,7 +236,7 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.addFile(
                         ".Npackd\\Install.bat",
                         "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n" +
-                         "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
+                        "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
                 pv.addFile(".Npackd\\Uninstall.bat",
                         "uninstall.exe /S _?=%CD%\r\n");
                 break;
@@ -246,7 +245,6 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.addFile(
                         ".Npackd\\Install.bat",
                         "for /f %%x in ('dir /b *.7z') do set setup=%%x\r\n" +
-
                         "\"%sevenzipa%\\7za.exe\" x \"%setup%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%setup%\"\r\n");
                 pv.addDependency("org.7-zip.SevenZIPA", "[9.20, 10)",
                         "sevenzipa");
@@ -260,13 +258,12 @@ public class PackageVersionRecognizeAction extends Action {
                             pv.addFile(
                                     ".Npackd\\Install.bat",
                                     "for /f \"delims=\" %%x in ('dir /b " +
-                                     d +
-                                     "*') do set name=%%x\r\n" +
-                                     "cd \"%name%\"\r\n" +
-
+                                    d +
+                                    "*') do set name=%%x\r\n" +
+                                    "cd \"%name%\"\r\n" +
                                     "for /f \"delims=\" %%a in ('dir /b') do (\r\n" +
-                                     "  move \"%%a\" ..\r\n" + ")\r\n" +
-                                     "cd ..\r\n" + "rmdir \"%name%\"\r\n");
+                                    "  move \"%%a\" ..\r\n" + ")\r\n" +
+                                    "cd ..\r\n" + "rmdir \"%name%\"\r\n");
                         }
                     } catch (IOException e1) {
                         NWUtils.LOG.log(Level.WARNING, e1.getMessage(), e1);
@@ -295,10 +292,10 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.oneFile = true;
                 pv.addFile(".Npackd\\Install.bat",
                         "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n" +
-                         "\"%setup%\" && del /f /q \"%setup%\"\r\n");
+                        "\"%setup%\" && del /f /q \"%setup%\"\r\n");
                 pv.addFile(".Npackd\\Uninstall.bat",
                         "\"%myun%\\myuninst.exe\" /uninstall \"" + pv.package_ +
-                         "\"\r\n");
+                        "\"\r\n");
 
                 pv.addDependency("net.nirsoft.MyUninstaller", "[1.74, 2)",
                         "myun");
@@ -317,7 +314,7 @@ public class PackageVersionRecognizeAction extends Action {
 
     private String getCommonZIPDir(byte[] content) throws IOException {
         ZipInputStream zis =
-                 new ZipInputStream(new ByteArrayInputStream(content));
+                new ZipInputStream(new ByteArrayInputStream(content));
         ZipEntry e;
 
         String commonPrefix = null;

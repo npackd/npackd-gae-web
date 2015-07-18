@@ -1,7 +1,5 @@
 package com.googlecode.npackdweb.admin;
 
-import java.util.List;
-
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
@@ -11,6 +9,7 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import java.util.List;
 
 public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
@@ -73,6 +72,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
         Objectify ofy = DefaultServlet.getObjectify();
 
         PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion oldpv = pv.copy();
         boolean save = false;
 
         for (int i = 0; i < pv.getFileCount(); i++) {
@@ -89,7 +89,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
                         d.package_ = npackdCLParams[0];
                         int index = pv.findDependency(d);
                         if (index >= 0 &&
-                                 (pv.dependencyEnvVars.get(index).isEmpty() ||
+                                (pv.dependencyEnvVars.get(index).isEmpty() ||
                                 pv.dependencyEnvVars
                                 .get(index).equals(npackdCLParams[2]))) {
                             lines.remove(j);
@@ -110,19 +110,18 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name);
-            NWUtils.savePackageVersion(ofy, pv, true, false);
+            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
         }
     }
 
     private static String[] getNpackdCLParams(String line, String line2) {
         final String prefix =
-
                 "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=";
         final String prefix2 =
-                 "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set ";
+                "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set ";
         String[] result = null;
         if (line.trim().toLowerCase().startsWith(prefix) &&
-                 line2.trim().toLowerCase().startsWith(prefix2)) {
+                line2.trim().toLowerCase().startsWith(prefix2)) {
             String[] parts = line.substring(prefix.length()).split("\"");
             String[] parts2 = line2.substring(prefix2.length()).split("=");
             if (parts.length > 2 && parts2.length > 0) {

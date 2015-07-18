@@ -1,24 +1,21 @@
 package com.googlecode.npackdweb;
 
-import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
-
-import java.io.IOException;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.Query;
+import java.io.IOException;
+import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Check a package version URL (download it).
@@ -62,10 +59,11 @@ public class CheckDownloadAction extends Action {
             data = null;
         }
         if (data != null) {
+            PackageVersion olddata = data.copy();
             if (data.tags.indexOf("download-failed-3") < 0 &&
-                     !data.tags.contains("disable-download-check")) {
+                    !data.tags.contains("disable-download-check")) {
                 NWUtils.LOG.warning("Checking " + data.package_ + "@" +
-                         data.version);
+                        data.version);
 
                 int failed = 0;
                 if (data.tags.indexOf("download-failed-2") >= 0) {
@@ -83,9 +81,9 @@ public class CheckDownloadAction extends Action {
                 } else {
                     NWUtils.Info info = null;
                     info =
-                             data.check(true,
+                            data.check(true,
                                     data.sha1.length() == 64 ? "SHA-256" :
-                                             "SHA-1");
+                                            "SHA-1");
                     if (info != null) {
                         downloaded = info.size;
                         failed = 0;
@@ -105,7 +103,7 @@ public class CheckDownloadAction extends Action {
                     data.tags.add("download-failed-" + failed);
                 }
 
-                NWUtils.savePackageVersion(ob, data, false, false);
+                NWUtils.savePackageVersion(ob, olddata, data, false, false);
             }
 
             cursor = iterator.getCursor().toWebSafeString();
