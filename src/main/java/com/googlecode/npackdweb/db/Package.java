@@ -1,27 +1,5 @@
 package com.googlecode.npackdweb.db;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Facet;
 import com.google.appengine.api.search.Field;
@@ -37,6 +15,25 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.persistence.Id;
+import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * A package.
@@ -333,9 +330,9 @@ public class Package {
             }
         }
         b.addFacet(Facet.withAtom("category0", category0 != null ? category0 :
-                 "Uncategorized"));
+                "Uncategorized"));
         b.addFacet(Facet.withAtom("category1", category1 != null ? category1 :
-                 "Uncategorized"));
+                "Uncategorized"));
 
         com.google.appengine.api.search.Document d = b.build();
         return d;
@@ -441,9 +438,10 @@ public class Package {
                 }
             }
         } catch (MalformedURLException e) {
-            throw (IOException) new IOException(e.getMessage()).initCause(e);
-        } catch (IOException e) {
-            throw (IOException) new IOException(e.getMessage()).initCause(e);
+            throw new IOException(e);
+        } catch (IOException |
+                com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
+            throw new IOException(e);
         }
 
         if (version == null) {
