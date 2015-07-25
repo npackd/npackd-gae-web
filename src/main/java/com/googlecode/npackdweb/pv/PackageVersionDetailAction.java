@@ -1,12 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
@@ -17,11 +10,17 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * A package version.
  */
 public class PackageVersionDetailAction extends Action {
+
     /**
      * -
      */
@@ -44,7 +43,12 @@ public class PackageVersionDetailAction extends Action {
         if (r == null) {
             Version v = Version.parse(version);
             if (!v.toString().equals(version)) {
+                // trailing zeros or similar
                 resp.sendRedirect("/p/" + package_ + "/" + v.toString());
+                return null;
+            } else {
+                // non-existent version
+                resp.sendRedirect("/p/" + package_);
                 return null;
             }
         }
