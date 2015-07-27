@@ -1,30 +1,26 @@
 package com.googlecode.npackdweb;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import java.io.IOException;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Information about registered actions
  */
 public class InfoPage extends MyPage {
+
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
 
         DefaultServlet ds = DefaultServlet.getInstance(request);
-        List<Pattern> ups = ds.getUrlPatterns();
         List<Action> as = ds.getActions();
         w.start("ul");
-        for (int i = 0; i < ups.size(); i++) {
-            Pattern p = ups.get(i);
+        for (int i = 0; i < as.size(); i++) {
             Action a = as.get(i);
-            w.e("li", p.pattern() + " -> " + a.getClass().getName());
+            w.e("li", a.pattern() + " -> " + a.getClass().getName());
         }
         w.end("ul");
         return w.toString();
