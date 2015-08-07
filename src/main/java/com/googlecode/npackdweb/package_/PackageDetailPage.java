@@ -1,19 +1,5 @@
 package com.googlecode.npackdweb.package_;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.markdown4j.Markdown4jProcessor;
-
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
@@ -29,6 +15,17 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.Query;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import javax.servlet.http.HttpServletRequest;
+import org.markdown4j.Markdown4jProcessor;
 
 /**
  * A package.
@@ -561,8 +558,7 @@ public class PackageDetailPage extends MyPage {
                         if (i != 0) {
                             w.unencoded("<br>");
                         }
-                        if (u.getEmail()
-                                .equals(p.permissions.get(i).getEmail())) {
+                        if (NWUtils.isEqual(u, p.permissions.get(i))) {
                             w.t(u.getEmail());
                         } else {
                             w.unencoded(NWUtils.obfuscateEmail(ofy,

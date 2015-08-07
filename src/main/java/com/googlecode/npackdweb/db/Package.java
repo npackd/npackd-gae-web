@@ -155,7 +155,7 @@ public class Package {
             } else {
                 for (int i = 0; i < this.permissions.size(); i++) {
                     User cu = this.permissions.get(i);
-                    if (cu.getEmail().equals(u.getEmail())) {
+                    if (NWUtils.isEqual(cu, u)) {
                         r = true;
                         break;
                     }
@@ -176,7 +176,7 @@ public class Package {
         boolean r = false;
         for (int i = 0; i < this.permissions.size(); i++) {
             User cu = this.permissions.get(i);
-            if (cu.getEmail().equals(u.getEmail())) {
+            if (NWUtils.isEqual(cu, u)) {
                 r = true;
                 break;
             }

@@ -758,6 +758,28 @@ public class NWUtils {
     }
 
     /**
+     * Compares 2 users.
+     *
+     * @param a first user
+     * @param b second user
+     * @return true if the users are equal
+     */
+    public static boolean isEqual(User a, User b) {
+        return isEmailEqual(a.getEmail(), b.getEmail());
+    }
+
+    /**
+     * Compares 2 email addresses.
+     *
+     * @param a first email address
+     * @param b second email address
+     * @return true if the addresses are equal
+     */
+    public static boolean isEmailEqual(String a, String b) {
+        return a.equalsIgnoreCase(b);
+    }
+
+    /**
      * Saves a package version.
      *
      * @param ofy Objectify
@@ -778,9 +800,8 @@ public class NWUtils {
             if (isAdminLoggedIn()) {
                 if (old != null && old.hasTag("not-reviewed")) {
                     UserService us = UserServiceFactory.getUserService();
-                    String currentEmail = us.getCurrentUser().getEmail();
 
-                    if (!currentEmail.equals(old.lastModifiedBy.getEmail())) {
+                    if (!isEqual(us.getCurrentUser(), old.lastModifiedBy)) {
                         NWUtils.sendMailTo("The package version " +
                                 p.getTitle() + " was marked as reviewed",
                                 old.lastModifiedBy.getEmail()
