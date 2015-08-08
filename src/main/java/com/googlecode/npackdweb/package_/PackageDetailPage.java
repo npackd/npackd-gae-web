@@ -165,6 +165,8 @@ public class PackageDetailPage extends MyPage {
 
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
+        boolean editable = mode == FormMode.EDIT || mode == FormMode.CREATE;
+
         HTMLWriter w = new HTMLWriter();
         if (error != null) {
             w.e("p", "class", "bg-danger", this.error);
@@ -272,8 +274,11 @@ public class PackageDetailPage extends MyPage {
 
         w.start("tr");
         w.start("td");
-        w.t("Product home page ");
-        w.e("small", "(optional):");
+        w.t("Product home page");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
@@ -296,8 +301,11 @@ public class PackageDetailPage extends MyPage {
 
         w.start("tr");
         w.start("td");
-        w.t("Change log ");
-        w.e("small", "(optional):");
+        w.t("Change log");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
@@ -318,8 +326,9 @@ public class PackageDetailPage extends MyPage {
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("tr");
             w.start("td");
-            w.t("Icon ");
-            w.e("small", "(optional):");
+            w.t("Icon");
+            w.e("small", " (optional)");
+            w.t(":");
             w.end("td");
             w.start("td");
             w.e("input", "class", "form-control", "type", "text", "name",
@@ -332,8 +341,11 @@ public class PackageDetailPage extends MyPage {
         // screen shots
         w.start("tr");
         w.start("td");
-        w.t("Screen shots ");
-        w.e("small", "(optional):");
+        w.t("Screen shots");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         w.start("div", "class", "row");
@@ -362,8 +374,11 @@ public class PackageDetailPage extends MyPage {
         // description
         w.start("tr");
         w.start("td");
-        w.t("Description ");
-        w.e("small", "(optional):");
+        w.t("Description");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
@@ -393,8 +408,11 @@ public class PackageDetailPage extends MyPage {
         // license
         w.start("tr");
         w.start("td");
-        w.t("License ");
-        w.e("small", "(optional):");
+        w.t("License");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
@@ -424,8 +442,11 @@ public class PackageDetailPage extends MyPage {
         // categories/tags
         w.start("tr");
         w.start("td");
-        w.t("Categories/tags ");
-        w.e("small", "(optional):");
+        w.t("Categories/tags");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
@@ -457,8 +478,9 @@ public class PackageDetailPage extends MyPage {
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("tr");
             w.start("td");
-            w.t("Comment ");
-            w.e("small", "(optional):");
+            w.t("Comment");
+            w.e("small", " (optional)");
+            w.t(":");
             w.end("td");
             w.start("td");
             w.e("textarea",
@@ -480,8 +502,9 @@ public class PackageDetailPage extends MyPage {
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("tr");
             w.start("td");
-            w.t("Discovery page (URL) ");
-            w.e("small", "(optional):");
+            w.t("Discovery page (URL)");
+            w.e("small", " (optional)");
+            w.t(":");
             w.end("td");
             w.start("td");
             w.e("input",
@@ -502,8 +525,9 @@ public class PackageDetailPage extends MyPage {
 
             w.start("tr");
             w.start("td");
-            w.t("Discovery regular expression ");
-            w.e("small", "(optional):");
+            w.t("Discovery regular expression");
+            w.e("small", " (optional)");
+            w.t(":");
             w.end("td");
             w.start("td");
             w.start("input",

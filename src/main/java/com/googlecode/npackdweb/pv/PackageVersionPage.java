@@ -1,16 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.markdown4j.Markdown4jProcessor;
-
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -25,6 +14,14 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import javax.servlet.http.HttpServletRequest;
+import org.markdown4j.Markdown4jProcessor;
 
 /**
  * Packages.
@@ -80,7 +77,7 @@ public class PackageVersionPage extends MyPage {
             this.lastModifiedBy = us.getCurrentUser();
         } else {
             this.lastModifiedBy =
-                     new User("tim.lebedkov@gmail.com", "gmail.com");
+                    new User("tim.lebedkov@gmail.com", "gmail.com");
         }
     }
 
@@ -142,7 +139,7 @@ public class PackageVersionPage extends MyPage {
         w.t(" " + version);
         w.unencoded(
                 " <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-                 "https://npackd.appspot.com/p/" + package_.name + "'></div>");
+                "https://npackd.appspot.com/p/" + package_.name + "'></div>");
         return w.toString();
     }
 
@@ -186,7 +183,7 @@ public class PackageVersionPage extends MyPage {
                         "this.form.action='/package-version/copy'; this.form.submit()",
                         "id", "copy");
                 NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
-                         packageName + "&version=" + version,
+                        packageName + "&version=" + version,
                         "Edits this package version as repository XML");
                 w.e("input", "class", "btn btn-default", "type", "button",
                         "title", "Delete this package version", "value",
@@ -198,11 +195,11 @@ public class PackageVersionPage extends MyPage {
                 w.start("div", "class", "btn-group");
                 NWUtils.jsButton(w, "Compute SHA-1",
                         "/package-version/compute-sha1?package=" + packageName +
-                         "&version=" + version,
+                        "&version=" + version,
                         "Computes SHA1 for this package version");
                 NWUtils.jsButton(w, "Compute SHA-256",
                         "/package-version/compute-sha-256?package=" +
-                         packageName + "&version=" + version,
+                        packageName + "&version=" + version,
                         "Computes SHA-256 for this package version (Npackd 1.19)");
                 w.end("div");
                 w.t(" ");
@@ -212,7 +209,7 @@ public class PackageVersionPage extends MyPage {
                         w,
                         "Recognize the installer",
                         "/package-version/recognize?package=" + packageName +
-                         "&version=" + version,
+                        "&version=" + version,
                         "downloads the binary and tries to recognize the used installer and create the necessary dependencies and scripts automatically");
             }
             w.end("div");
@@ -236,7 +233,7 @@ public class PackageVersionPage extends MyPage {
                 "Microsoft Windows");
         w.e("meta", "itemprop", "applicationCategory", "content",
                 p.tags.size() > 0 ? NWUtils.join(", ", p.tags) :
-                         "Uncategorized");
+                        "Uncategorized");
         w.end("td");
         w.end("tr");
 
@@ -270,7 +267,7 @@ public class PackageVersionPage extends MyPage {
             w.unencoded(mp.process(p.description));
         } catch (IOException e) {
             w.t(p.description + " Failed to parse the Markdown syntax: " +
-                     e.getMessage());
+                    e.getMessage());
         }
         w.end("td");
         w.end("tr");
@@ -336,8 +333,11 @@ public class PackageVersionPage extends MyPage {
 
         w.start("tr");
         w.start("td");
-        w.t("SHA-1 or SHA-256 ");
-        w.e("small", "(optional):");
+        w.t("SHA-1 or SHA-256");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (editable) {
@@ -354,8 +354,8 @@ public class PackageVersionPage extends MyPage {
                     "50",
                     "title",
                     "SHA-1 or SHA-256 (since Npackd 1.19) check sum for the package binary. " +
-                     "Leave this field empty if different binaries are " +
-                     "distributed from the same address.");
+                    "Leave this field empty if different binaries are " +
+                    "distributed from the same address.");
         } else {
             w.t(sha);
         }
@@ -364,17 +364,20 @@ public class PackageVersionPage extends MyPage {
 
         w.start("tr");
         w.start("td");
-        w.t("Detect MSI GUID ");
-        w.e("small", "(optional):");
+        w.t("Detect MSI GUID");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (editable) {
             w.e("input", "class", "form-control", "type", "text", "name",
                     "detectMSI", "value", detectMSI, "size", "43", "title",
                     "MSI package ID like " +
-                     "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. " +
-                     "Leave this field empty if the package does not " +
-                     "install itself using the Microsoft installer.");
+                    "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. " +
+                    "Leave this field empty if the package does not " +
+                    "install itself using the Microsoft installer.");
         } else {
             w.t(detectMSI);
         }
@@ -384,8 +387,9 @@ public class PackageVersionPage extends MyPage {
         if (editable) {
             w.start("tr");
             w.start("td");
-            w.t("Dependencies ");
-            w.e("small", "(optional):");
+            w.t("Dependencies");
+            w.e("small", " (optional)");
+            w.t(":");
             w.end("td");
             w.start("td");
             w.start("div", "class", "btn-group");
@@ -415,7 +419,7 @@ public class PackageVersionPage extends MyPage {
                 w.end("td");
                 w.start("td");
                 w.e("input", "class", "form-control", "name", "depVersions." +
-                         i, "type", "text", "size", "20", "value", dvr);
+                        i, "type", "text", "size", "20", "value", dvr);
                 w.end("td");
                 w.start("td");
                 w.e("input", "class", "form-control", "name", "depEnvVar." + i,
@@ -433,7 +437,7 @@ public class PackageVersionPage extends MyPage {
             w.start("ul", "itemprop", "requirements");
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Package dp =
-                         ofy.find(new com.googlecode.objectify.Key<Package>(
+                        ofy.find(new com.googlecode.objectify.Key<Package>(
                                         Package.class, dependencyPackages.get(i)));
 
                 w.start("li");
@@ -481,15 +485,18 @@ public class PackageVersionPage extends MyPage {
 
         w.start("tr");
         w.start("td");
-        w.t("Tags ");
-        w.e("small", "(optional):");
+        w.t("Tags");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td", "itemprop", "keywords");
         if (editable) {
-            for (String s : new String[]{"stable", "stable64", "libs",
-                "unstable", "untested", "disable-download-check",
-                "not-reviewed"}) {
-                w.start("label", "class", "checkbox-inline");
+            for (int i = 0; i < PackageVersion.TAGS.length; i++) {
+                String s = PackageVersion.TAGS[i];
+                String title = PackageVersion.TAG_TOOLTIPS[i];
+                w.start("label", "class", "checkbox-inline", "title", title);
                 w.e("input", "type", "checkbox", "id", "tag-" + s, "value", s);
                 w.t(" " + s);
                 w.end("label");
@@ -498,12 +505,19 @@ public class PackageVersionPage extends MyPage {
                     "tags", "id", "tags", "autocomplete", "off", "value",
                     NWUtils.join(", ", tags), "size", "80", "title",
                     "Comma separated list of tags associated with " +
-                     "this package version. The repository " +
-                     "names can be used to include this package " +
-                     "version into them.");
+                    "this package version. The repository " +
+                    "names can be used to include this package " +
+                    "version into them.");
             w.end("input");
         } else {
-            w.t(NWUtils.join(", ", tags));
+            for (int i = 0; i < tags.size(); i++) {
+                String tag = tags.get(i);
+                String title = PackageVersion.TAG_2_TOOLTIP.get(tag);
+                if (i != 0) {
+                    w.t(", ");
+                }
+                w.e("span", "title", title, tag);
+            }
         }
         w.end("td");
         w.end("tr");
@@ -511,8 +525,9 @@ public class PackageVersionPage extends MyPage {
         if (editable) {
             w.start("tr");
             w.start("td");
-            w.t("Important files ");
-            w.e("small", "(optional):");
+            w.t("Important files");
+            w.e("small", " (optional)");
+            w.t(":");
             w.end("td");
             w.start("td");
             w.start("textarea",
@@ -526,13 +541,13 @@ public class PackageVersionPage extends MyPage {
                     "80",
                     "title",
                     "List of important files inside of the package. " +
-                     "For each file mentioned here an entry in the Windows " +
-                     "start menu will be created. Each line should contain " +
-                     "one file name and the associated title separated by a " +
-                     "space character.");
+                    "For each file mentioned here an entry in the Windows " +
+                    "start menu will be created. Each line should contain " +
+                    "one file name and the associated title separated by a " +
+                    "space character.");
             for (int i = 0; i < importantFilePaths.size(); i++) {
                 w.t(importantFilePaths.get(i) + " " +
-                         importantFileTitles.get(i) + "\n");
+                        importantFileTitles.get(i) + "\n");
             }
             w.end("textarea");
             w.end("td");
@@ -541,8 +556,11 @@ public class PackageVersionPage extends MyPage {
 
         w.start("tr");
         w.start("td");
-        w.t("Text files ");
-        w.e("small", "(optional):");
+        w.t("Text files");
+        if (editable) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
         w.end("td");
         w.start("td");
         if (editable) {
@@ -565,34 +583,34 @@ public class PackageVersionPage extends MyPage {
             w.start("li");
             w.e("a", "href", "#", "title",
                     "Adds the files necessary to install and " +
-                     "uninstall an installation package (.exe) " +
-                     "created using NSIS", "id", "addNSISFiles",
+                    "uninstall an installation package (.exe) " +
+                    "created using NSIS", "id", "addNSISFiles",
                     "Add NSIS files");
             w.end("li");
             w.start("li");
             w.e("a", "href", "#", "title",
                     "Adds the files necessary to install and " +
-                     "uninstall an installation package (.exe) " +
-                     "created using Inno Setup", "id",
+                    "uninstall an installation package (.exe) " +
+                    "created using Inno Setup", "id",
                     "addInnoSetupFiles", "Add Inno Setup files");
             w.end("li");
             w.start("li");
             w.e("a", "href", "#", "title",
                     "Adds the files necessary to install and " +
-                     "uninstall an installation package (.msi) " +
-                     "created for the Microsoft Installer", "id",
+                    "uninstall an installation package (.msi) " +
+                    "created for the Microsoft Installer", "id",
                     "addMSIFiles", "Add MSI files");
             w.end("li");
             w.start("li");
             w.e("a", "href", "#", "title",
                     "Adds the files necessary to install and " +
-                     "uninstall a .7z archive", "id",
+                    "uninstall a .7z archive", "id",
                     "addSevenZIPFiles", "Add .7z files");
             w.end("li");
             w.start("li");
             w.e("a", "href", "#", "title",
                     "Adds the files necessary to install and " +
-                     "uninstall a Vim plugin", "id", "addVimFiles",
+                    "uninstall a Vim plugin", "id", "addVimFiles",
                     "Add Vim plugin files");
             w.end("li");
             w.end("ul");
@@ -758,7 +776,7 @@ public class PackageVersionPage extends MyPage {
         oneFile = "one-file".equals(req.getParameter("type"));
         tags = NWUtils.split(req.getParameter("tags"), ',');
         List<String> lines =
-                 NWUtils.splitLines(req.getParameter("importantFiles"));
+                NWUtils.splitLines(req.getParameter("importantFiles"));
         importantFilePaths.clear();
         importantFileTitles.clear();
         for (String line : lines) {
@@ -810,7 +828,7 @@ public class PackageVersionPage extends MyPage {
         } else {
             Objectify ofy = DefaultServlet.getObjectify();
             PackageVersion pv =
-                     PackageVersion.find(ofy, this.packageName, this.version);
+                    PackageVersion.find(ofy, this.packageName, this.version);
             this.downloadCheckAt = pv.downloadCheckAt;
             this.downloadCheckError = pv.downloadCheckError;
         }
@@ -820,7 +838,7 @@ public class PackageVersionPage extends MyPage {
             this.lastModifiedBy = us.getCurrentUser();
         } else {
             this.lastModifiedBy =
-                     new User("tim.lebedkov@gmail.com", "gmail.com");
+                    new User("tim.lebedkov@gmail.com", "gmail.com");
         }
     }
 
@@ -851,7 +869,7 @@ public class PackageVersionPage extends MyPage {
                 v.normalize();
                 Objectify ofy = DefaultServlet.getObjectify();
                 PackageVersion p =
-                         ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                        ofy.find(new Key<PackageVersion>(PackageVersion.class,
                                         packageName.trim() + "@" + v.toString()));
                 if (p != null) {
                     r = "Package version " + v + " already exists";
@@ -997,7 +1015,7 @@ public class PackageVersionPage extends MyPage {
         HTMLWriter w = new HTMLWriter();
         w.start("script");
         InputStream stream =
-                 DefaultServlet
+                DefaultServlet
                 .getInstance(request)
                 .getServletContext()
                 .getResourceAsStream(
