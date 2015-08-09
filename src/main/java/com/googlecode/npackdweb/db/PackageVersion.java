@@ -35,7 +35,7 @@ public class PackageVersion {
      */
     public static final String[] TAGS = {"stable", "stable64", "libs",
         "unstable", "untested", "disable-download-check",
-        "not-reviewed"};
+        "not-reviewed", "phishing", "malware", "unwanted"};
 
     /**
      * Help for the tags.
@@ -47,7 +47,10 @@ public class PackageVersion {
         "this package version should be included in the default repository for unstable software",
         "the installation and removal of this package version was not yet tested. This package will not be included in the default repositories.",
         "the binary is too big or there are other problems that would prevent the default download checks for this package version to work. Disable it.",
-        "this package version is not yet reviewed and may be unsafe. Only an administrator can change this tag."};
+        "this package version is not yet reviewed and may be unsafe. Only an administrator can change this tag.",
+        "Warning—Suspected phishing page. This page may be a forgery or imitation of another website, designed to trick users into sharing personal or financial information. Entering any personal information on this page may result in identity theft or other abuse. You can find out more about phishing from www.antiphishing.org.",
+        "Warning—Visiting this web site may harm your computer. This page appears to contain malicious code that could be downloaded to your computer without your consent. You can learn more about harmful web content including viruses and other malicious code and how to protect your computer at StopBadware.org.",
+        "Warning—The site ahead may contain harmful programs. Attackers might attempt to trick you into installing programs that harm your browsing experience (for example, by changing your homepage or showing extra ads on sites you visit). You can learn more about unwanted software at https://www.google.com/about/company/unwanted-software-policy.html.",};
 
     public static final Map<String, String> TAG_2_TOOLTIP = new HashMap<>();
 
@@ -472,7 +475,6 @@ public class PackageVersion {
         if (!tags.contains(tag)) {
             tags.add(tag);
         }
-
     }
 
     /**

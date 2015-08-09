@@ -10,6 +10,7 @@ import com.googlecode.npackdweb.admin.CleanDependenciesAction;
 import com.googlecode.npackdweb.admin.RecreateIndexAction;
 import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.ResavePackagesAction;
+import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
 import com.googlecode.npackdweb.license.LicenseSaveAction;
@@ -225,6 +226,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new AddPermissionsConfirmedAction());
         registerAction(new CleanDependenciesAction());
         registerAction(new ExportDefaultVimRepAction());
+        registerAction(new UpdateSafeBrowsingInfoAction());
     }
 
     /**
