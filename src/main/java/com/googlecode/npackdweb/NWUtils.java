@@ -1130,6 +1130,7 @@ public class NWUtils {
     /**
      * Changes an email address so it cannot be easily parsed.
      *
+     * @param ob Objectify
      * @param email an email address
      * @return HTML. abc dot def at bla dot com
      */
@@ -1138,17 +1139,18 @@ public class NWUtils {
         int index = email.indexOf('@');
         if (index > 0) {
             Editor e = ob.find(new Key<Editor>(Editor.class, email));
-            if (e != null) {
-                String before = email.substring(0, index);
-                if (before.length() > 10) {
-                    before = before.substring(0, 10) + "...";
-                }
-                w.start("a", "href", "/recaptcha?id=" + e.id);
-                w.t(before);
-                w.end("a");
-            } else {
-                w.t(email);
+            if (e == null) {
+                e = new Editor(email2user(email));
+                e.createId();
+                saveEditor(ob, e);
             }
+            String before = email.substring(0, index);
+            if (before.length() > 10) {
+                before = before.substring(0, 10) + "...";
+            }
+            w.start("a", "href", "/recaptcha?id=" + e.id);
+            w.t(before);
+            w.end("a");
         } else {
             w.t(email);
         }
