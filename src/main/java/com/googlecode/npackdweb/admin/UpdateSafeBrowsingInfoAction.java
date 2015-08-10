@@ -15,6 +15,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.Query;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,61 +42,83 @@ public class UpdateSafeBrowsingInfoAction extends Action {
         if (cursor != null) {
             q.startCursor(Cursor.fromWebSafeString(cursor));
         }
-        q.limit(1);
 
-        QueryResultIterator<PackageVersion> iterator = q.iterator();
-        PackageVersion data;
-        if (iterator.hasNext()) {
-            data = iterator.next();
-        } else {
-            data = null;
+        final int BATCH_SIZE = 100;
+
+        q.limit(BATCH_SIZE);
+
+        /*
+         if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
+         throw new IOException("Retries are not allowed");
+         }
+         */
+        final QueryResultIterator<PackageVersion> iterator = q.iterator();
+        int n = 0;
+        List<PackageVersion> list = new ArrayList<PackageVersion>();
+        while (iterator.hasNext()) {
+            PackageVersion data = iterator.next();
+            list.add(data);
+            n++;
         }
-        if (data != null) {
-            NWUtils.LOG.info("update-safe-browsing-info for " + data.
-                    getPackage() +
-                    " " + data.getVersion());
-            if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
-                throw new IOException("Retries are not allowed");
-            }
 
-            PackageVersion old = data.copy();
-
-            if (!data.url.trim().isEmpty()) {
-                try {
-                    String v = NWUtils.checkURL(ob, data.url);
-                    NWUtils.LOG.info("Google Safe Browsing API: got " + v);
-                    if (!v.isEmpty()) {
-                        NWUtils.sendMailToAdmin(
-                                "Google Safe Browsing API: got " + v + " for " +
-                                data.getPackage() + " " + data.getVersion());
-                    }
-                    List<String> parts = NWUtils.split(v, ',');
-                    for (String part : parts) {
-                        data.addTag(part);
-                    }
-                } catch (IOException e) {
-                    NWUtils.LOG.severe(e.getMessage());
-                }
-            } else {
-                data.tags.remove("phishing");
-                data.tags.remove("malware");
-                data.tags.remove("unwanted");
-            }
-
-            String oldStatus = old.hasTag("phishing") + " " + old.hasTag(
-                    "malware") + " " +
-                    old.hasTag("unwanted");
-            String status = data.hasTag("phishing") + " " + data.hasTag(
-                    "malware") + " " +
-                    data.hasTag("unwanted");
-
-            if (!oldStatus.equals(status)) {
-                NWUtils.savePackageVersion(ob, old, data, false, false);
-            }
-
+        if (n == BATCH_SIZE) {
             cursor = iterator.getCursor().toWebSafeString();
         } else {
             cursor = null;
+            NWUtils.sendMailToAdmin(
+                    "cursor == nul for /tasks/update-safe-browsing-info");
+        }
+
+        if (n > 0) {
+            NWUtils.LOG.info("Checking from " + list.get(0).getPackage() + " " +
+                    list.get(0).getVersion());
+
+            List<PackageVersion> toSave = new ArrayList<>();
+            String[] urls = new String[list.size()];
+            for (int i = 0; i < urls.length; i++) {
+                urls[i] = list.get(i).url;
+                if (urls[i].trim().isEmpty()) {
+                    urls[i] = "https://www.google.com";
+                }
+            }
+            String[] results = NWUtils.checkURLs(ob, urls);
+            for (int i = 0; i < results.length; i++) {
+                PackageVersion data = list.get(i);
+                PackageVersion old = data.copy();
+
+                data.tags.remove("phishing");
+                data.tags.remove("malware");
+                data.tags.remove("unwanted");
+                String v = results[i];
+                if (!data.url.trim().isEmpty()) {
+                    if (!v.isEmpty()) {
+                        List<String> parts = NWUtils.split(v, ',');
+                        for (String part : parts) {
+                            data.addTag(part);
+                        }
+                    }
+                }
+
+                String oldStatus = old.hasTag("phishing") + " " + old.hasTag(
+                        "malware") + " " +
+                        old.hasTag("unwanted");
+                String status = data.hasTag("phishing") + " " + data.hasTag(
+                        "malware") + " " +
+                        data.hasTag("unwanted");
+
+                if (!oldStatus.equals(status)) {
+                    NWUtils.sendMailToAdmin(
+                            "Google Safe Browsing API: got " + v +
+                            " for " +
+                            data.getPackage() + " " + data.getVersion());
+                    toSave.add(data);
+                }
+            }
+
+            if (toSave.size() > 0) {
+                ob.put(toSave);
+                NWUtils.incDataVersion();
+            }
         }
 
         Queue queue = QueueFactory.getQueue("update-safe-browsing-info");

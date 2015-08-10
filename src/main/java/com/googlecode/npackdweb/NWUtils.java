@@ -11,6 +11,7 @@ import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
 import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
@@ -18,7 +19,6 @@ import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.appengine.api.utils.SystemProperty;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
@@ -1389,7 +1389,6 @@ public class NWUtils {
      */
     public static String checkURL(Objectify ofy, String url) throws IOException {
         try {
-            SystemProperty.applicationVersion.get();
             URL u = new URL(
                     "https://sb-ssl.google.com/safebrowsing/api/lookup?client=npackdweb&key=" +
                     getSetting(ofy, "PublicAPIKey", "") +
@@ -1413,5 +1412,72 @@ public class NWUtils {
         } catch (MalformedURLException ex) {
             throw new IOException(ex);
         }
+    }
+
+    /**
+     * Checks URLs using the Google Safe Browsing Lookup API
+     *
+     * @param ofy Objectify
+     * @param urls this URLs will be checked. At most 500 URLs can be processed
+     * at once.
+     * @return GET_RESP_BODY = “phishing” | “malware” | "unwanted" |
+     * “phishing,malware” | "phishing,unwanted" | "malware,unwanted" |
+     * "phishing,malware,unwanted" | ""
+     * @throws java.io.IOException there was a communication problem, the server
+     * is unavailable, over quota or something different.
+     */
+    public static String[] checkURLs(Objectify ofy, String urls[]) throws
+            IOException {
+        String[] result = new String[urls.length];
+        Arrays.fill(result, "");
+        try {
+            URL u = new URL(
+                    "https://sb-ssl.google.com/safebrowsing/api/lookup?client=npackdweb&key=" +
+                    getSetting(ofy, "PublicAPIKey", "") +
+                    "&appver=1&pver=3.1");
+            URLFetchService s = URLFetchServiceFactory.getURLFetchService();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(urls.length);
+            for (String url : urls) {
+                sb.append('\n').append(new URL(url).toExternalForm());
+            }
+
+            //LOG.info("Google Safe Browsing API call:" + sb.toString());
+            HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);
+            ht.setPayload(sb.toString().getBytes("US-ASCII"));
+            HTTPResponse r = s.fetch(ht);
+            int rc = r.getResponseCode();
+            /*LOG.info("Google Safe Browsing API response code:" +
+             rc);*/
+            if (rc == 200) {
+                /*LOG.info("Google Safe Browsing API response:" +
+                 new String(r.
+                 getContent(), "US-ASCII"));*/
+                final BufferedReader br =
+                        new BufferedReader(new StringReader(new String(r.
+                                                getContent(), "US-ASCII")));
+                int i = 0;
+                String line;
+                while ((i < result.length) && (line = br.readLine()) != null) {
+                    if (line.equals("ok")) {
+                        result[i] = "";
+                    } else {
+                        result[i] = line;
+                    }
+                    i++;
+                }
+            } else if (rc == 204) {
+                // OK
+            } else if (rc == 400) {
+                throw new IOException(new String(r.getContent()));
+            } else {
+                throw new IOException(
+                        "Unknown exception from the Google Safe Browsing API");
+            }
+        } catch (MalformedURLException ex) {
+            throw new IOException(ex);
+        }
+        return result;
     }
 }
