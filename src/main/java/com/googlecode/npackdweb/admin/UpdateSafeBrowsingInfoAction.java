@@ -65,8 +65,6 @@ public class UpdateSafeBrowsingInfoAction extends Action {
             cursor = iterator.getCursor().toWebSafeString();
         } else {
             cursor = null;
-            NWUtils.sendMailToAdmin(
-                    "cursor == nul for /tasks/update-safe-browsing-info");
         }
 
         if (n > 0) {
