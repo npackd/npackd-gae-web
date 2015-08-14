@@ -16,25 +16,18 @@ function addFile(name, content) {
     files.append('<div><div>File path ' + n + ':</div><input class=\"form-control\" type=\"text\" name=\"path.' + n + '\" value=\"' + name + '\" size=\"80\"><div>File content ' + n + ':</div><textarea class=\"form-control\" name=\"content.' + n + '\" rows=\"20\" cols=\"80\" wrap=\"off\">' + content + '</textarea></div>');
 }
 
-var defaultTags = ["stable", "stable64", "libs",
-					"unstable", "untested", "disable-download-check",
-					"not-reviewed"];
-
 function updateTagCheckboxes() {
-	var allTags = defaultTags.slice();
 	var tags = $('#tags').val();
-	var tags_ = tags.split(",");
-	for (var i = 0; i < tags_.length; i++) {
-		var tag = $.trim(tags_[i]);
-		var index = $.inArray(tag, allTags);
-		if (index >= 0) {
-			$("#tag-" + tag).prop('checked', true);
-			allTags.splice(index, 1);
-		}
-	}
-	for (var i = 0; i < allTags.length; i++) {
-		$("#tag-" + allTags[i]).prop('checked', false);
-	}
+	var tags_ = tags.split(/[\s,]+/);
+        
+        // if (window.console) console.log(tags_);
+        
+        var checkboxes = $(".nw-tag-checkbox");
+        checkboxes.prop('checked', function() {
+            var r = $.inArray(this.value, tags_) >= 0;
+            // if (window.console) console.log(this.value + " " + r);
+            return r;
+        });
 }
 
 /**
@@ -42,29 +35,21 @@ function updateTagCheckboxes() {
  * checkboxes.
  */
 function updateTagInput() {
-	var allTags = defaultTags.slice();
-	
-	var tags = $('#tags').val();
-	var tags_ = tags.split(",");
-	for (var i = 0; i < tags_.length; i++) {
-		tags_[i] = $.trim(tags_[i]);
-	}
-	
-	for (var i = 0; i < allTags.length; i++) {
-		var tag = allTags[i];
-		var index = $.inArray(tag, tags_);
-		if ($("#tag-" + tag).prop('checked')) {
-			if (index < 0) {
-				tags_.push(tag);
-			}
-		} else {
-			if (index >= 0) {
-				tags_.splice(index, 1);
-			}
-		}
-	}
-	
-	$('#tags').val(tags_.join(", "));
+    var tags = $('#tags').val();
+    var tags_ = tags.split(/[\s,]+/);
+    
+    $(".nw-tag-checkbox").each(function() {
+        var p = $.inArray(this.value, tags_);
+        if ($(this).prop("checked")) {
+            if (p < 0)
+                tags_.push(this.value);
+        } else {
+            if (p >= 0)
+                tags_.splice(p, 1);
+        }
+    });
+
+    $('#tags').val(tags_.join(", "));
 }
 
 $(document).ready(function() {
@@ -153,10 +138,8 @@ $(document).ready(function() {
     	updateTagCheckboxes();
     });
     
-    for (var i = 0; i < defaultTags.length; i++) {
-    	$("#tag-" + defaultTags[i]).change(function() {
-    		updateTagInput();
-    	});
-    }
+    $(".nw-tag-checkbox").change(function() {
+        updateTagInput();
+    });
 });
 

@@ -497,7 +497,9 @@ public class PackageVersionPage extends MyPage {
                 String s = PackageVersion.TAGS[i];
                 String title = PackageVersion.TAG_TOOLTIPS[i];
                 w.start("label", "class", "checkbox-inline", "title", title);
-                w.e("input", "type", "checkbox", "id", "tag-" + s, "value", s);
+                w.e("input", "type", "checkbox", "class", "nw-tag-checkbox",
+                        "id", "tag-" +
+                        s, "value", s);
                 w.t(" " + s);
                 w.end("label");
             }
