@@ -251,7 +251,7 @@ public class PackageDetailPage extends MyPage {
             public int compare(PackageVersion a, PackageVersion b) {
                 Version va = Version.parse(a.version);
                 Version vb = Version.parse(b.version);
-                return va.compare(vb);
+                return -va.compare(vb);
             }
         });
         for (int i = 0; i < pvs.size(); i++) {
