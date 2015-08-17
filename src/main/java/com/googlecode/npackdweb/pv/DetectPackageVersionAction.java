@@ -14,7 +14,9 @@ import com.googlecode.objectify.Objectify;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -107,6 +109,20 @@ public class DetectPackageVersionAction extends Action {
                 }
                 copy.name = copy.package_ + "@" + v.toString();
                 copy.version = v.toString();
+                if (p.discoveryURLPattern.trim().length() > 0) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("${version}", v.toString());
+                    /*
+                     map.put("${{version2Parts}}", v.toString());
+                     map.put("${{version3Parts}}", v.toString());
+                     map.put("${{version2PartsWithoutDots}}", v.toString());
+                     map.put("${{actualVersion}}", v.toString());
+                     map.put("${{actualVersionWithoutDots}}", v.toString());
+                     map.put("${{actualVersionWithUnderscores}}", v.toString());
+                     map.put("${{match}}", v.toString());
+                     */
+                    copy.url = NWUtils.tmplString(p.discoveryURLPattern, map);
+                }
                 copy.addTag("untested");
 
                 NWUtils.savePackageVersion(ofy, null, copy, true, true);

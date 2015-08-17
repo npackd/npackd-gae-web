@@ -123,8 +123,7 @@ public class PackageDetailPage extends MyPage {
     public String permissions;
 
     /**
-     * @param p a package or null
-     * @param editable true if the data should be editable
+     * @param mode editing mode
      */
     public PackageDetailPage(FormMode mode) {
         this.mode = mode;
@@ -555,6 +554,45 @@ public class PackageDetailPage extends MyPage {
             w.end("input");
             w.end("td");
             w.end("tr");
+
+            w.start("tr");
+            w.start("td");
+            w.t("Discovery package download URL pattern");
+            w.e("small", " (optional)");
+            w.t(":");
+            w.end("td");
+            w.start("td");
+            w.start("input",
+                    "list",
+                    "discovery-url",
+                    "class",
+                    "form-control",
+                    "type",
+                    "text",
+                    "name",
+                    "discoveryURLPattern",
+                    "value",
+                    discoveryURLPattern,
+                    "size",
+                    "80",
+                    "title",
+                    "pattern for the download URL for the newly discovered package");
+            w.start("datalist", "id", "discovery-url");
+            w.e("option", "value",
+                    "http://www.example.com/downloads/example-${version}.zip");
+            /*
+             w.e("option", "value", "${{version2Parts}}");
+             w.e("option", "value", "${{version3Parts}}");
+             w.e("option", "value", "${{version2PartsWithoutDots}}");
+             w.e("option", "value", "${{actualVersion}}");
+             w.e("option", "value", "${{actualVersionWithoutDots}}");
+             w.e("option", "value", "${{actualVersionWithUnderscores}}");
+             w.e("option", "value", "${{match}}");
+             */
+            w.end("datalist");
+            w.end("input");
+            w.end("td");
+            w.end("tr");
         }
 
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
@@ -724,6 +762,7 @@ public class PackageDetailPage extends MyPage {
         comment = req.getParameter("comment");
         discoveryURL = req.getParameter("discoveryPage");
         discoveryRE = req.getParameter("discoveryRE");
+        discoveryURLPattern = req.getParameter("discoveryURLPattern");
         license = req.getParameter("license");
         tags = NWUtils.split(req.getParameter("tags"), ',');
         screenshots = req.getParameter("screenshots");
