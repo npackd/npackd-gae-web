@@ -123,6 +123,8 @@ public class NWUtils {
 
     private static Configuration cfg;
 
+    private static Configuration safeCfg;
+
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private static final String ID_LETTERS =
@@ -138,6 +140,7 @@ public class NWUtils {
      * @return FreeMarker configuration
      */
     public static synchronized Configuration initFreeMarker(ServletContext ctx) {
+    public static synchronized void initFreeMarker(ServletContext ctx) {
         if (cfg == null) {
             // Initialize the FreeMarker configuration;
             // - Create a configuration instance
@@ -148,7 +151,26 @@ public class NWUtils {
             // app.
             cfg.setServletContextForTemplateLoading(ctx, "WEB-INF/templates");
         }
-        return cfg;
+        if (safeCfg == null) {
+            // Initialize the FreeMarker configuration;
+            // - Create a configuration instance
+            safeCfg = new Configuration();
+        }
+    }
+
+    /**
+     * Formats a template.
+     *
+     * @param template content of the template
+     * @param values keys and values for the template
+     * @return formatted text
+     */
+    public static String tmplString(String template, Map<String, String> values) {
+        String r = template;
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            r = r.replace(entry.getKey(), entry.getValue());
+        }
+        return r;
     }
 
     /**
