@@ -12,7 +12,7 @@
 
 	<queue>
 		<name>update-safe-browsing-info</name>
-		<rate>40/h</rate>
+		<rate>4/h</rate>
 	</queue>
 
 	<!-- for single-time updates to many entities -->
