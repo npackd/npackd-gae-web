@@ -10,7 +10,6 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
-import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
@@ -84,6 +83,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaImpl;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1082,49 +1087,45 @@ public class NWUtils {
     public static Info download(String url, String algorithm)
             throws IOException, NoSuchAlgorithmException {
         Info info = new Info();
-        MessageDigest crypt = MessageDigest.getInstance(algorithm);
 
-        URL u = new URL(url);
-        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("User-Agent",
+                "NpackdWeb/1 (compatible; MSIE 9.0)");
+        CloseableHttpResponse response1 = httpclient.execute(httpGet);
 
-        long startPosition = 0;
-
-        // limit 32 MiB:
-        // https://developers.google.com/appengine/docs/java/urlfetch/
-        long segment = 30 * 1024 * 1024;
-        while (true) {
-            HTTPRequest ht = new HTTPRequest(u);
-            ht.setHeader(new HTTPHeader("User-Agent",
-                    "NpackdWeb/1 (compatible; MSIE 9.0)"));
-            ht.getFetchOptions().setDeadline(10 * 60.0);
-            ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition +
-                    "-" + (startPosition + segment - 1)));
-            HTTPResponse r = s.fetch(ht);
-            if (r.getResponseCode() == 416) {
-                if (startPosition == 0) {
-                    throw new IOException(
-                            "Empty response with HTTP error code 416");
-                } else {
-                    break;
-                }
-            }
-
-            byte[] content = r.getContent();
-            if (r.getResponseCode() != 206 && r.getResponseCode() != 200) {
+        // The underlying HTTP connection is still held by the response object
+        // to allow the response content to be streamed directly from the
+        // network socket.
+        // In order to ensure correct deallocation of system resources
+        // the user MUST call CloseableHttpResponse#close() from a finally clause.
+        // Please note that if response content is not fully consumed the underlying
+        // connection cannot be safely re-used and will be shut down and discarded
+        // by the connection manager.
+        try {
+            final int statusCode = response1.getStatusLine().getStatusCode();
+            HttpEntity entity1 = response1.getEntity();
+            if (statusCode != 200) {
+                EntityUtils.consume(entity1);
                 throw new IOException("HTTP response code: " +
-                        r.getResponseCode());
+                        statusCode);
             }
-            crypt.update(content);
 
-            startPosition += segment;
-            info.size += content.length;
+            // do something useful with the response body
+            // and ensure it is fully consumed
+            final InputStream is = entity1.getContent();
+            MessageDigest crypt = MessageDigest.getInstance(algorithm);
+            byte[] content = new byte[1024];
+            int len;
+            while ((len = is.read(content)) >= 0) {
+                crypt.update(content, 0, len);
 
-            if (content.length < segment || r.getResponseCode() == 200) {
-                break;
+                info.size += len;
             }
+            info.sha1 = crypt.digest();
+        } finally {
+            response1.close();
         }
-
-        info.sha1 = crypt.digest();
         return info;
     }
 
