@@ -1,70 +1,39 @@
-  <div style="margin-bottom: 10px">
-Npackd (pronounced "unpacked") is an application store/package manager/marketplace for applications for 
-Windows. It helps you to find and install software, 
+  <p>
+      Npackd (pronounced "unpacked") is an <b>installer/application store/package manager/marketplace</b> for applications for 
+Windows. It helps you to find and install <a href="/p">software</a>, 
 				keep your system up-to-date and uninstall it if no longer 
 				necessary. The process of installing and 
 				uninstalling applications is completely automated 
 				(silent or unattended installation and un-installation). 
-				There is also a command line based version of Npackd.
+  </p>
 
-  </div>
+<h2>Find and install software in minutes</h2>
+<p>The default repository contains <a href="/p">over 900 packages</a> free for personal use. You can also easily <a href="https://github.com/tim-lebedkov/npackd/wiki/RepositoryHosting">host your own repository</a>.</p>
 
-<div id="carousel-example-generic" class="carousel slide" data-ride="carousel"
-style="width: 600px; height: 380px; float: left; margin-right: 20px">
-  <!-- Indicators -->
-  <ol class="carousel-indicators">
-    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-    <li data-target="#carousel-example-generic" data-slide-to="3"></li>
-  </ol>
+<h2>Easy and fast installation from the command line</h2>
+<p>Run the following command as administrator in cmd.exe:</p>
 
-  <!-- Wrapper for slides -->
-  <div class="carousel-inner">
-    <div class="item active" style="text-align: center; padding: 20px">
-    	<div>
-      <img src="/Npackd.png" alt="Npackd" width="500">
-      </div>
-      <div class="carousel-caption">
-        <h3>Npackd 1.18 main window</h3>
-      </div>
-    </div>
-    <div class="item" style="text-align: center; padding: 20px">
-    	<iframe width="480" height="340" frameborder="0" src="https://www.youtube.com/embed/ZLJ8sv6siKQ">
+<pre>msiexec.exe /qb- /i http://bit.ly/npackdcl-1_20_5</pre>
+
+<h2>Some useful commands</h2>
+<pre>ncl add -p Firefox
+ncl search -q java
+ncl help</pre>
+
+<h2>Demo</h2>
+<p>A simple but powerful user interface is also <a href="https://github.com/tim-lebedkov/npackd/wiki/Downloads">available</a>.</p>
+    	<iframe width="480" height="360" frameborder="0" src="https://www.youtube.com/embed/ZLJ8sv6siKQ">
 		</iframe>
-      <div class="carousel-caption">
-        <h3>Npackd 1.18 functionality</h3>
-      </div>
-    </div>
-    <div class="item" style="text-align: center; padding: 20px">
-<iframe width="480" height="340" frameborder="0" src="https://www.youtube.com/embed/4o-PMVP8BKE">
-</iframe>
-      <div class="carousel-caption">
-        <h3>Install and remove Eclipse Java IDE from the command line via NpackdCL</h3>
-      </div>
-    </div>
-    <div class="item" style="text-align: center; padding: 20px">
-<iframe width="480" height="340" frameborder="0" src="https://www.youtube.com/embed/rNl-lhZFNdA">
-</iframe>
-      <div class="carousel-caption">
-        <h3>review by nO toOL ruSh</h3>
-      </div>
-    </div>
-  </div>
+                <!--
+<img alt="Npackd user interface" src="/Npackd.png"/>
+                -->
 
-  <!-- Controls -->
-  <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
-    <span class="glyphicon glyphicon-chevron-left"></span>
-  </a>
-  <a class="right carousel-control" href="#carousel-example-generic" data-slide="next">
-    <span class="glyphicon glyphicon-chevron-right"></span>
-  </a>
-</div>
-
-<div style="float: left">
+<h2>News</h2>
+<div>
 <a width="300" height="380" class="twitter-timeline" href="https://twitter.com/Npackd" 
 data-widget-id="259268267359731712">Tweets von @Npackd</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 </div>
 
-<div style="clear: both"></div>
+<h2>Source code</h2>
+The source code is licensed under GPLv3 and is available on Github: <a href="https://github.com/tim-lebedkov/npackd-cpp">https://github.com/tim-lebedkov/npackd-cpp</a>
