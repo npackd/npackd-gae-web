@@ -29,43 +29,28 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
     @Override
     public void map(Entity value) {
-        removeNpackdCLCalls(value);
-        return;
-        /*
-         * Objectify ofy = DefaultServlet.getObjectify();
-         *
-         * Version one = new Version();
-         *
-         * PackageVersion pv = ofy.find(new
-         * Key<PackageVersion>(value.getKey())); boolean save = false; for (int
-         * i = 0; i < pv.dependencyPackages.size(); i++) { String p =
-         * pv.dependencyPackages.get(i); String r =
-         * pv.dependencyVersionRanges.get(i); String var =
-         * pv.dependencyEnvVars.get(i);
-         *
-         * if (p.equals("com.googlecode.windows-package-manager.NpackdCL") &&
-         * var.trim().equals("")) { Dependency d = new Dependency(); String err
-         * = d.setVersions(r); if (err != null) break;
-         *
-         * if (d.min.equals(one) && d.max.equals(one)) {
-         * System.out.println(pv.package_ + " " + pv.version + " " + p + " " +
-         * r);
-         *
-         * pv.dependencyPackages.remove(i);
-         * pv.dependencyVersionRanges.remove(i); pv.dependencyEnvVars.remove(i);
-         * save = true; break; } } }
-         *
-         * for (int i = 0; i < pv.getFileCount(); i++) { String s =
-         * pv.getFileContents(i); List<String> lines = NWUtils.splitLines(s);
-         * for (int j = 0; j < lines.size();) { String line = lines.get(j); if
-         * (line.trim() .toLowerCase() .equals(
-         * "if \"%npackd_cl%\" equ \"\" set npackd_cl=..\\com.googlecode.windows-package-manager.npackdcl-1"
-         * )) { lines.remove(j); pv.setFileContents(i, NWUtils.join("\r\n",
-         * lines)); save = true; } else { j++; } } }
-         *
-         * if (save) { System.out.println("Saving " + pv.name);
-         * NWUtils.savePackageVersion(ofy, pv, true, false); }
-         */
+        moveToFilesNpackdOrg(value);
+    }
+
+    private void moveToFilesNpackdOrg(Entity value) {
+        Objectify ofy = DefaultServlet.getObjectify();
+
+        PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion oldpv = pv.copy();
+        boolean save = false;
+
+        final String PREFIX = "https://dl.dropboxusercontent.com/u/176999101/";
+
+        if (pv.url.startsWith(PREFIX)) {
+            pv.url = "http://files.npackd.org/" + pv.url.substring(PREFIX.
+                    length());
+            save = true;
+        }
+
+        if (save) {
+            System.out.println("Saving " + pv.name);
+            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
+        }
     }
 
     public void removeNpackdCLCalls(Entity value) {
