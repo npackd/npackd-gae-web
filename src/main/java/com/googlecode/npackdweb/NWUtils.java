@@ -750,10 +750,11 @@ public class NWUtils {
      * total number of packages and the index will be automatically updated.
      *
      * @param ofy Objectify
+     * @param old old version of the package object or null
      * @param p package
      * @param changeLastModifiedAt change the last modification time
      */
-    public static void savePackage(Objectify ofy, Package p,
+    public static void savePackage(Objectify ofy, Package old, Package p,
             boolean changeLastModifiedAt) {
         if (ofy.find(p.createKey()) == null) {
             NWUtils.increasePackageNumber();
@@ -761,6 +762,7 @@ public class NWUtils {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = new Date();
         }
+
         ofy.put(p);
         NWUtils.incDataVersion();
         Index index = NWUtils.getIndex();
@@ -1095,11 +1097,14 @@ public class NWUtils {
      *
      * @param url http: or https: URL
      * @param algorithm SHA-1 or SHA-256
+     * @param maxSize maximum size of the file or 0 for "unlimited". If the file
+     * is bigger than the specified size, the download will be cancelled and an
+     * IOException will be thrown
      * @return info about the downloaded file
      * @throws IOException file cannot be downloaded
      * @throws NoSuchAlgorithmException if SHA1 cannot be computed
      */
-    public static Info download(String url, String algorithm)
+    public static Info download(String url, String algorithm, long maxSize)
             throws IOException, NoSuchAlgorithmException {
         Info info = new Info();
         MessageDigest crypt = MessageDigest.getInstance(algorithm);
@@ -1138,6 +1143,11 @@ public class NWUtils {
 
             startPosition += segment;
             info.size += content.length;
+
+            if (maxSize > 0 && info.size > maxSize) {
+                throw new IOException("Maximum download size of " + maxSize +
+                        " exceeded");
+            }
 
             if (content.length < segment || r.getResponseCode() == 200) {
                 break;

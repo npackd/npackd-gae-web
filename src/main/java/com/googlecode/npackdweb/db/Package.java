@@ -21,10 +21,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Id;
@@ -41,6 +47,14 @@ import org.w3c.dom.NodeList;
 @Entity
 @Cached
 public class Package {
+
+    /**
+     * Default tags.
+     */
+    public static final String[] TAGS = {"Communications", "Development",
+        "Education", "Finance", "Games", "Music", "News", "Photo",
+        "Productivity", "Security", "Text", "Tools", "Video",
+        "auto-create-versions"};
 
     /**
      * Searches for a package with the given full package ID.
@@ -515,5 +529,121 @@ public class Package {
         }
 
         return p;
+    }
+
+    /**
+     * @return copy of this object
+     */
+    public Package copy() {
+        Package p = new Package(this.name);
+        p.title = this.title;
+        p.url = this.url;
+        p.changelog = this.changelog;
+        p.description = this.description;
+        p.icon = this.icon;
+        p.license = this.license;
+        p.comment = this.comment;
+        p.lastModifiedAt = this.lastModifiedAt;
+        p.createdAt = this.createdAt;
+        p.discoveryPage = this.discoveryPage;
+        p.discoveryRE = this.discoveryRE;
+        p.discoveryURLPattern = this.discoveryURLPattern;
+        p.tags.clear();
+        p.tags.addAll(this.tags);
+        p.createdBy = this.createdBy;
+        p.permissions.clear();
+        p.permissions.addAll(this.permissions);
+        p.screenshots.clear();
+        p.screenshots.addAll(this.screenshots);
+        p.noUpdatesCheck = this.noUpdatesCheck;
+        return p;
+    }
+
+    /**
+     * Checks whether this package has the specified tag.
+     *
+     * @param tag tag name
+     * @return true if this package has the specified tag
+     */
+    public boolean hasTag(String tag) {
+        return this.tags != null && this.tags.indexOf(tag) >= 0;
+    }
+
+    /**
+     * Adds a tag if it is not already available.
+     *
+     * @param tag tag
+     */
+    public void addTag(String tag) {
+        if (!tags.contains(tag)) {
+            tags.add(tag);
+        }
+    }
+
+    /**
+     * @param ofy Objectify
+     * @return sorted versions (1.1, 1.2, 1.3) for this package
+     */
+    public List<PackageVersion> getSortedVersions(Objectify ofy) {
+        List<PackageVersion> versions = ofy.query(PackageVersion.class)
+                .filter("package_ =", this.name).list();
+        Collections.sort(versions, new Comparator<PackageVersion>() {
+            @Override
+            public int compare(PackageVersion a, PackageVersion b) {
+                Version va = Version.parse(a.version);
+                Version vb = Version.parse(b.version);
+                return va.compare(vb);
+            }
+        });
+        return versions;
+    }
+
+    /**
+     * Creates a new version of this package using the newest available version
+     * as a template.
+     *
+     * @param ofy Objectify
+     * @param version new version number
+     * @return created package version or null if the creation is not possible
+     */
+    public PackageVersion createDetectedVersion(Objectify ofy, Version version) {
+        List<PackageVersion> versions = getSortedVersions(ofy);
+
+        PackageVersion copy = null;
+        if (versions.size() > 0) {
+            PackageVersion pv = versions.get(versions.size() - 1);
+
+            copy = pv.copy();
+            copy.name = copy.package_ + "@" + version.toString();
+            copy.version = version.toString();
+            if (this.discoveryURLPattern.trim().length() > 0) {
+                Map<String, String> map = new HashMap<>();
+                map.put("${version}", version.toString());
+                /*
+                 map.put("${{version2Parts}}", v.toString());
+                 map.put("${{version3Parts}}", v.toString());
+                 map.put("${{version2PartsWithoutDots}}", v.toString());
+                 map.put("${{actualVersion}}", v.toString());
+                 map.put("${{actualVersionWithoutDots}}", v.toString());
+                 map.put("${{actualVersionWithUnderscores}}", v.toString());
+                 map.put("${{match}}", v.toString());
+                 */
+                copy.url = NWUtils.tmplString(this.discoveryURLPattern, map);
+                if (!copy.sha1.isEmpty()) {
+                    try {
+                        final NWUtils.Info info =
+                                NWUtils.download(copy.url, "SHA-1",
+                                        100L * 1024 * 1024);
+                        copy.sha1 = NWUtils.byteArrayToHexString(info.sha1);
+                    } catch (IOException |
+                            NoSuchAlgorithmException ex) {
+                        NWUtils.LOG.
+                                log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+            copy.addTag("untested");
+        }
+        return copy;
     }
 }

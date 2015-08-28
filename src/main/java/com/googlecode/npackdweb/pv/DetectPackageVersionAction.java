@@ -12,8 +12,6 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,17 +67,7 @@ public class DetectPackageVersionAction extends Action {
         }
 
         if (msg == null) {
-            List<PackageVersion> versions =
-                    ofy.query(PackageVersion.class)
-                    .filter("package_ =", package_).list();
-            Collections.sort(versions, new Comparator<PackageVersion>() {
-                @Override
-                public int compare(PackageVersion a, PackageVersion b) {
-                    Version va = Version.parse(a.version);
-                    Version vb = Version.parse(b.version);
-                    return va.compare(vb);
-                }
-            });
+            List<PackageVersion> versions = p.getSortedVersions(ofy);
 
             PackageVersion pv;
             Version vnewest = null;

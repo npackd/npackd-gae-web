@@ -163,14 +163,14 @@ public class RepUploadAction extends Action {
                             p.permissions.clear();
                             p.permissions.addAll(p_.permissions);
 
-                            NWUtils.savePackage(ofy, p, true);
+                            NWUtils.savePackage(ofy, p_, p, true);
                             stats.pOverwritten++;
                         } else {
                             messages.add("The package " + p.name +
                                     " exists already. It will not be overwritten.");
                         }
                     } else {
-                        NWUtils.savePackage(ofy, p, true);
+                        NWUtils.savePackage(ofy, null, p, true);
                         stats.pAppended++;
                     }
                 }
@@ -192,7 +192,7 @@ public class RepUploadAction extends Action {
                     if (p == null) {
                         p = new Package(pv.package_);
                         p.title = p.name;
-                        NWUtils.savePackage(ofy, p, true);
+                        NWUtils.savePackage(ofy, null, p, true);
                         stats.pAppended++;
                     }
 

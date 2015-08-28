@@ -451,9 +451,7 @@ public class PackageDetailPage extends MyPage {
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             // PackageDetail.js should also be updated if the list of
             // default categories/tags changes
-            for (String s : new String[]{"Communications", "Development",
-                "Education", "Finance", "Games", "Music", "News", "Photo",
-                "Productivity", "Security", "Text", "Tools", "Video"}) {
+            for (String s : Package.TAGS) {
                 w.start("label", "class", "checkbox-inline");
                 w.e("input", "type", "checkbox", "id", "tag-" + s, "value", s);
                 w.t(" " + s);

@@ -415,7 +415,7 @@ public class PackageVersion {
         this.downloadCheckError = "Unknown error";
         if (!this.url.isEmpty()) {
             try {
-                info = NWUtils.download(this.url, algorithm);
+                info = NWUtils.download(this.url, algorithm, 0);
                 if (checkSum) {
                     if (this.sha1.trim().isEmpty()) {
                         this.downloadCheckError = null;
