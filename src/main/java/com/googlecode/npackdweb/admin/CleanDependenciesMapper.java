@@ -39,7 +39,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
-        final String PREFIX = "https://dl.dropboxusercontent.com/u/176999101/";
+        final String PREFIX = "http://dl.dropbox.com/u/17046326/files/";
 
         if (pv.url.startsWith(PREFIX)) {
             pv.url = "http://files.npackd.org/" + pv.url.substring(PREFIX.
