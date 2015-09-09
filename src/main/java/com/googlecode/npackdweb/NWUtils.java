@@ -835,9 +835,9 @@ public class NWUtils {
                 // "p" and "old" may be the same object
                 p.tags.remove("not-reviewed");
             } else {
-                if (old == null || !old.hasTag("not-reviewed")) {
-                    p.addTag("not-reviewed");
+                p.addTag("not-reviewed");
 
+                if (old == null || !old.hasTag("not-reviewed")) {
                     NWUtils.sendMailToAdmin("The package version " +
                             p.getTitle() + " was marked as not reviewed"
                     );
