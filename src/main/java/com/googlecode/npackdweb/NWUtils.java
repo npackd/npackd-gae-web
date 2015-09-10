@@ -31,6 +31,7 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.db.Setting;
 import com.googlecode.npackdweb.db.ShardedCounter;
+import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
@@ -826,7 +827,9 @@ public class NWUtils {
 
                     if (!isEqual(us.getCurrentUser(), old.lastModifiedBy)) {
                         NWUtils.sendMailTo("The package version " +
-                                p.getTitle() + " was marked as reviewed",
+                                p.getTitle() + " (" +
+                                PackageVersionDetailAction.getURL(p) +
+                                ") was marked as reviewed",
                                 old.lastModifiedBy.getEmail()
                         );
                     }
@@ -839,7 +842,9 @@ public class NWUtils {
 
                 if (old == null || !old.hasTag("not-reviewed")) {
                     NWUtils.sendMailToAdmin("The package version " +
-                            p.getTitle() + " was marked as not reviewed"
+                            p.getTitle() + " (" +
+                            PackageVersionDetailAction.getURL(p) +
+                            ") was marked as not reviewed"
                     );
                 }
             }

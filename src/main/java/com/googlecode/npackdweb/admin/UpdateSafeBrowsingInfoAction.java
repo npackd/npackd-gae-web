@@ -9,6 +9,7 @@ import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -108,7 +109,10 @@ public class UpdateSafeBrowsingInfoAction extends Action {
                     NWUtils.sendMailToAdmin(
                             "Google Safe Browsing API: got " + v +
                             " for " +
-                            data.getPackage() + " " + data.getVersion());
+                            data.getPackage() + " " + data.getVersion() +
+                            " (" +
+                            PackageVersionDetailAction.getURL(data) +
+                            ")");
                     toSave.add(data);
                 }
             }

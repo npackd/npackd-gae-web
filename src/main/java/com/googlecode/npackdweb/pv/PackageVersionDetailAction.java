@@ -22,6 +22,16 @@ import javax.servlet.http.HttpServletResponse;
 public class PackageVersionDetailAction extends Action {
 
     /**
+     * Returns the URL of the page presenting the specified version.
+     *
+     * @param pv package version
+     * @return URL for the page
+     */
+    public static String getURL(PackageVersion pv) {
+        return "https:/npackd.appspot.com/p/" + pv.package_ + "/" + pv.name;
+    }
+
+    /**
      * -
      */
     public PackageVersionDetailAction() {
