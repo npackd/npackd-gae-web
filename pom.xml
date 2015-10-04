@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>war</packaging>
         
-	<version>18</version>
+	<version>19</version>
 
 	<groupId>com.npackd</groupId>
 	<artifactId>npackd-web</artifactId>

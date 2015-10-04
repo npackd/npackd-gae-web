@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <queue-entries>
-	<queue>
-		<name>check-downloads</name>
-		<rate>40/h</rate>
-	</queue>
+    <queue>
+        <name>check-downloads</name>
+        <rate>40/h</rate>
+        <retry-parameters>
+            <task-retry-limit>10</task-retry-limit>
+            <task-age-limit>1d</task-age-limit>
+        </retry-parameters>
+    </queue>
 
-	<queue>
-		<name>check-update</name>
-		<rate>40/h</rate>
-	</queue>
+    <queue>
+        <name>check-update</name>
+        <rate>40/h</rate>
+        <retry-parameters>
+            <task-retry-limit>10</task-retry-limit>
+            <task-age-limit>1d</task-age-limit>
+        </retry-parameters>
+    </queue>
 
-	<queue>
-		<name>update-safe-browsing-info</name>
-		<rate>4/h</rate>
-	</queue>
+    <queue>
+        <name>update-safe-browsing-info</name>
+        <rate>4/h</rate>
+        <retry-parameters>
+            <task-retry-limit>10</task-retry-limit>
+            <task-age-limit>1d</task-age-limit>
+        </retry-parameters>
+    </queue>
 
-	<!-- for single-time updates to many entities -->
-	<queue>
-		<name>resave</name>
-		<rate>60/h</rate>
-	</queue>
+    <!-- for single-time updates to many entities -->
+    <queue>
+        <name>resave</name>
+        <rate>60/h</rate>
+    </queue>
 </queue-entries>

@@ -16,6 +16,7 @@ import com.googlecode.objectify.Query;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,33 +53,32 @@ public class CheckUpdatesAction extends Action {
         }
         if (data != null) {
             Package old = data.copy();
-            NWUtils.LOG.info("check-update for " + data.name);
+            NWUtils.LOG.log(Level.INFO, "check-update for {0}", data.name);
             Date noUpdatesCheck = null;
             if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
-                throw new IOException("Retries are not allowed");
-            }
-
-            try {
-                Version v = data.findNewestVersion();
-                List<PackageVersion> versions = data.getSortedVersions(ob);
-                if (versions.size() > 0) {
-                    PackageVersion pv = versions.get(versions.size() - 1);
-                    int r = v.compare(Version.parse(pv.version));
-                    if (r == 0) {
-                        noUpdatesCheck = new Date();
-                    } else if (r > 0) {
-                        if (old.hasTag("auto-create-versions")) {
-                            final PackageVersion d =
-                                    data.createDetectedVersion(ob, v);
-                            if (d != null) {
-                                NWUtils.savePackageVersion(ob, null, d, true,
-                                        true);
+                try {
+                    Version v = data.findNewestVersion();
+                    List<PackageVersion> versions = data.getSortedVersions(ob);
+                    if (versions.size() > 0) {
+                        PackageVersion pv = versions.get(versions.size() - 1);
+                        int r = v.compare(Version.parse(pv.version));
+                        if (r == 0) {
+                            noUpdatesCheck = new Date();
+                        } else if (r > 0) {
+                            if (old.hasTag("auto-create-versions")) {
+                                final PackageVersion d =
+                                         data.createDetectedVersion(ob, v);
+                                if (d != null) {
+                                    NWUtils.
+                                            savePackageVersion(ob, null, d, true,
+                                                    true);
+                                }
                             }
                         }
                     }
+                } catch (IOException e) {
+                    // ignore
                 }
-            } catch (IOException e) {
-                // ignore
             }
 
             if (noUpdatesCheck != null || data.noUpdatesCheck != null) {
@@ -86,7 +86,7 @@ public class CheckUpdatesAction extends Action {
                 NWUtils.savePackage(ob, old, data, false);
             }
 
-            NWUtils.LOG.info("check-update noUpdatesCheck= " +
+            NWUtils.LOG.log(Level.INFO, "check-update noUpdatesCheck= {0}",
                     data.noUpdatesCheck);
 
             cursor = iterator.getCursor().toWebSafeString();
