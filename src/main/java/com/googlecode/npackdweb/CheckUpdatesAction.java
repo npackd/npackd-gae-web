@@ -55,7 +55,7 @@ public class CheckUpdatesAction extends Action {
             Package old = data.copy();
             NWUtils.LOG.log(Level.INFO, "check-update for {0}", data.name);
             Date noUpdatesCheck = null;
-            if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
+            if ("0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
                 try {
                     Version v = data.findNewestVersion();
                     List<PackageVersion> versions = data.getSortedVersions(ob);
@@ -67,7 +67,7 @@ public class CheckUpdatesAction extends Action {
                         } else if (r > 0) {
                             if (old.hasTag("auto-create-versions")) {
                                 final PackageVersion d =
-                                         data.createDetectedVersion(ob, v);
+                                        data.createDetectedVersion(ob, v);
                                 if (d != null) {
                                     NWUtils.
                                             savePackageVersion(ob, null, d, true,

@@ -33,6 +33,7 @@
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 
 <LINK REL="stylesheet" TYPE="text/css" HREF="/Style.css" MEDIA="all" />
+<link rel="stylesheet" type="text/css" href="/jquery.cookiebar.css" />
 </HEAD>
 <BODY>
 
@@ -54,8 +55,9 @@ ${content}
 <div class="nw-footer">
 <a href="https://github.com/tim-lebedkov/npackd">Npackd</a> itself and also all data about packages (but not the package binaries or associated icons) is licensed under <a href="http://www.gnu.org/licenses/gpl.html">GPLv3</a><br>
 Windows is a registered trademark of Microsoft Corporation in the United States and other countries.<br>
-<a href="http://www.glyphicons.com">GLYPHICONS FREE</a> were used and are released under the Creative Commons Attribution 3.0 Unported (CC BY 3.0)<br>
-<a href="http://getbootstrap.com/">Bootstrap</a> was used and is released under MIT License
+<a href="http://www.glyphicons.com">GLYPHICONS FREE</a> were used and are released under the Creative Commons Attribution 3.0 Unported License (CC BY 3.0)<br>
+<a href="http://getbootstrap.com/">Bootstrap</a> was used and is released under MIT License<br>
+<a href="http://www.primebox.co.uk/projects/jquery-cookiebar/">jQuery CookieBar Plugin</a> was used and is released under the Creative Commons Attribution 3.0 Unported License (CC BY 3.0)
 </div>
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -63,6 +65,14 @@ Windows is a registered trademark of Microsoft Corporation in the United States 
     <!-- Latest compiled and minified JavaScript -->
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>${head}
 
+    <script type="text/javascript" src="/jquery.cookiebar.js"></script>
+                
 	${bodyBottom}
+    <script type="text/javascript">
+        $(document).ready(function(){
+                $.cookieBar({
+                });
+        });
+    </script>
 </BODY>
 </HTML>
