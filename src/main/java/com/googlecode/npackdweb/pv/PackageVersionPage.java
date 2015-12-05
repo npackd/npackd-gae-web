@@ -48,6 +48,7 @@ public class PackageVersionPage extends MyPage {
     private Date downloadCheckAt;
     private Date lastModifiedAt;
     private User lastModifiedBy;
+    private int installSucceeded, installFailed, uninstallSucceeded, uninstallFailed;
 
     /**
      * -
@@ -123,6 +124,10 @@ public class PackageVersionPage extends MyPage {
         this.downloadCheckError = pv.downloadCheckError;
         this.lastModifiedAt = pv.lastModifiedAt;
         this.lastModifiedBy = pv.lastModifiedBy;
+        this.installSucceeded = pv.installSucceeded;
+        this.installFailed = pv.installFailed;
+        this.uninstallSucceeded = pv.uninstallSucceeded;
+        this.uninstallFailed = pv.uninstallFailed;
     }
 
     @Override
@@ -686,6 +691,20 @@ public class PackageVersionPage extends MyPage {
         w.start("td");
         w.unencoded(lastModifiedBy == null ? "" : NWUtils.obfuscateEmail(ofy,
                 lastModifiedBy.getEmail()));
+        w.end("td");
+        w.end("tr");
+
+        w.start("tr");
+        w.e("td", "Installations:");
+        w.start("td");
+        w.t(installSucceeded + " succeeded, " + installFailed + " failed");
+        w.end("td");
+        w.end("tr");
+
+        w.start("tr");
+        w.e("td", "Un-installations:");
+        w.start("td");
+        w.t(uninstallSucceeded + " succeeded, " + uninstallFailed + " failed");
         w.end("td");
         w.end("tr");
 

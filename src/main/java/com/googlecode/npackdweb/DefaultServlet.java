@@ -11,6 +11,8 @@ import com.googlecode.npackdweb.admin.RecreateIndexAction;
 import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.ResavePackagesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
+import com.googlecode.npackdweb.api.MarkTestedAction;
+import com.googlecode.npackdweb.api.NotifyAction;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
 import com.googlecode.npackdweb.license.LicenseSaveAction;
@@ -22,7 +24,6 @@ import com.googlecode.npackdweb.package_.PackageSaveAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
-import com.googlecode.npackdweb.pv.MarkTestedAction;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA256Action;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
@@ -197,7 +198,6 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new PackageVersionComputeSHA1Action());
         registerAction(new PackageVersionComputeSHA256Action());
         registerAction(new PackageVersionRecognizeAction());
-        registerAction(new MarkTestedAction());
 
         /* license */
         registerAction(new LicensesAction());
@@ -227,6 +227,10 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new CleanDependenciesAction());
         registerAction(new ExportDefaultVimRepAction());
         registerAction(new UpdateSafeBrowsingInfoAction());
+
+        /* API */
+        registerAction(new MarkTestedAction());
+        registerAction(new NotifyAction());
     }
 
     /**

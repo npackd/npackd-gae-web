@@ -112,6 +112,26 @@ public class PackageVersion {
     public User lastModifiedBy;
 
     /**
+     * number of installations that succeeded
+     */
+    public int installSucceeded;
+
+    /**
+     * number of installations that failed
+     */
+    public int installFailed;
+
+    /**
+     * number of un-installations that succeeded
+     */
+    public int uninstallSucceeded;
+
+    /**
+     * number of un-installations that failed
+     */
+    public int uninstallFailed;
+
+    /**
      * For Objectify.
      */
     public PackageVersion() {
