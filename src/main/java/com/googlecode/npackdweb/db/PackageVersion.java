@@ -413,13 +413,17 @@ public class PackageVersion {
     /**
      * @param ofy Objectify instance
      * @param tag a tag to filter the package versions or null
+     * @param order how to order the query (e.g. "-lastModifiedAt") or null
      * @return first 20 package versions with errors downloading the binary
      */
     public static List<PackageVersion> find20PackageVersions(Objectify ofy,
-            String tag) {
+            String tag, String order) {
         Query<PackageVersion> q = ofy.query(PackageVersion.class).limit(20);
         if (tag != null) {
             q.filter("tags ==", tag);
+        }
+        if (order != null) {
+            q.order(order);
         }
         return q.list();
     }

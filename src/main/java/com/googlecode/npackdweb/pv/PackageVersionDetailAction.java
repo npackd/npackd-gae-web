@@ -28,7 +28,7 @@ public class PackageVersionDetailAction extends Action {
      * @return URL for the page
      */
     public static String getURL(PackageVersion pv) {
-        return "https:/npackd.appspot.com/p/" + pv.package_ + "/" + pv.name;
+        return "https:/npackd.appspot.com/p/" + pv.package_ + "/" + pv.version;
     }
 
     /**
