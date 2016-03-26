@@ -169,7 +169,9 @@ public class PackageVersionPage extends MyPage {
         if (editable) {
             w.start("form", "class", "form-horizontal", "method", "post",
                     "action", "/package-version/save");
-            w.e("input", "type", "hidden", "name", "package", "value",
+            w.e("input", "type", "hidden", "name", "package",
+                    "id", "package",
+                    "value",
                     this.packageName);
             w.start("div", "class", "btn-group");
             w.e("input", "class", "btn btn-default", "type", "submit", "title",
@@ -190,10 +192,8 @@ public class PackageVersionPage extends MyPage {
                 NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
                         packageName + "&version=" + version,
                         "Edits this package version as repository XML");
-                w.e("input", "class", "btn btn-default", "type", "button",
-                        "title", "Delete this package version", "value",
-                        "Delete", "onclick",
-                        "this.form.action='/package-version/delete'; this.form.submit()");
+                NWUtils.jsButton_(w, "Delete", "deleteOnClick()",
+                        "Deletes this package version");
                 w.end("div");
                 w.t(" ");
 
@@ -298,7 +298,9 @@ public class PackageVersionPage extends MyPage {
                     this.version, "size", "20");
             w.e("input", "type", "hidden", "name", "new", "value", "true");
         } else if (editable) {
-            w.e("input", "type", "hidden", "name", "version", "value", version);
+            w.e("input", "type", "hidden", "name", "version",
+                    "id", "version",
+                    "value", version);
             w.t(version);
         } else {
             w.t(version);
@@ -318,20 +320,18 @@ public class PackageVersionPage extends MyPage {
             w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
                     "style",
                     "cursor: pointer; font-size: 20px; font-weight: bold");
+        } else if (!tags.contains("not-reviewed")) {
+            w.start("a", "href",
+                    url,
+                    "class", "btn btn-primary btn-md",
+                    "role", "button");
+            w.e("span", "class", "glyphicon glyphicon-download");
+            w.t(" Download " + p.title + " " + version);
+            w.end("a");
+            w.unencoded("<br><br>");
+            w.e("a", "itemprop", "downloadUrl", "href", url, url);
         } else {
-            if (!tags.contains("not-reviewed")) {
-                w.start("a", "href",
-                        url,
-                        "class", "btn btn-primary btn-md",
-                        "role", "button");
-                w.e("span", "class", "glyphicon glyphicon-download");
-                w.t(" Download " + p.title + " " + version);
-                w.end("a");
-                w.unencoded("<br><br>");
-                w.e("a", "itemprop", "downloadUrl", "href", url, url);
-            } else {
-                w.t("Not yet reviewed");
-            }
+            w.t("Not yet reviewed");
         }
         w.end("td");
         w.end("tr");
@@ -443,7 +443,7 @@ public class PackageVersionPage extends MyPage {
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Package dp =
                         ofy.find(new com.googlecode.objectify.Key<Package>(
-                                        Package.class, dependencyPackages.get(i)));
+                                Package.class, dependencyPackages.get(i)));
 
                 w.start("li");
                 w.e("a", "href", "/p/" + dependencyPackages.get(i),
@@ -891,7 +891,7 @@ public class PackageVersionPage extends MyPage {
                 Objectify ofy = DefaultServlet.getObjectify();
                 PackageVersion p =
                         ofy.find(new Key<PackageVersion>(PackageVersion.class,
-                                        packageName.trim() + "@" + v.toString()));
+                                packageName.trim() + "@" + v.toString()));
                 if (p != null) {
                     r = "Package version " + v + " already exists";
                 }

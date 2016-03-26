@@ -10,6 +10,13 @@ function addDependency(package_, versions, variable) {
     		'name="depEnvVar.' + n + '" value="' + variable + '" size="20"></td></tr>');
 }
 
+function deleteOnClick() {
+	if (confirm("Do you really want to delete this package version?")) {
+		window.location.href='/package-version/delete-confirmed?name=' + 
+                        $('#package').val() + "@" + $('#version').val();
+	}
+}
+
 function addFile(name, content) {
 	var files = $('#files');
     var n = files.children().size();

@@ -49,11 +49,11 @@ function updateTagInput() {
 	
 	$('#tags').val(tags_.join(", "));
 }
-                                    
+
 function deleteOnClick() {
 	var msg = prompt("Deleting the package. Please enter the explanations.", 
 			"See https://github.com/tim-lebedkov/npackd/wiki/RejectedSoftware for more details.");
-	if (msg != null) {
+	if (msg !== null) {
 		var id = $('#name').val();
 		window.location.href='/package/delete-confirmed?name=' + id + 
 				"&message=" + encodeURIComponent(msg);

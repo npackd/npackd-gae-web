@@ -16,7 +16,6 @@ import com.googlecode.npackdweb.api.NotifyAction;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
 import com.googlecode.npackdweb.license.LicenseSaveAction;
-import com.googlecode.npackdweb.package_.PackageDeleteAction;
 import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
 import com.googlecode.npackdweb.package_.PackageNewAction;
@@ -26,7 +25,6 @@ import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA256Action;
-import com.googlecode.npackdweb.pv.PackageVersionDeleteAction;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.npackdweb.pv.PackageVersionNewAction;
@@ -182,14 +180,12 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new PackageDetailAction());
         registerAction(new PackageNewAction());
         registerAction(new PackageSaveAction());
-        registerAction(new PackageDeleteAction());
         registerAction(new PackageDeleteConfirmedAction());
 
         /* package version */
         registerAction(new PackageVersionDetailAction());
         registerAction(new PackageVersionNewAction());
         registerAction(new PackageVersionSaveAction());
-        registerAction(new PackageVersionDeleteAction());
         registerAction(new PackageVersionDeleteConfirmedAction());
         registerAction(new CopyPackageVersionAction());
         registerAction(new CopyPackageVersionConfirmedAction());
