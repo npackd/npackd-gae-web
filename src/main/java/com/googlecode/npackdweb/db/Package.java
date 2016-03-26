@@ -167,13 +167,7 @@ public class Package {
             if (us.isUserAdmin()) {
                 r = true;
             } else {
-                for (int i = 0; i < this.permissions.size(); i++) {
-                    User cu = this.permissions.get(i);
-                    if (NWUtils.isEqual(cu, u)) {
-                        r = true;
-                        break;
-                    }
-                }
+                r = isUserPermittedToModify(u);
             }
         }
         return r;
@@ -188,8 +182,7 @@ public class Package {
      */
     public boolean isUserPermittedToModify(User u) {
         boolean r = false;
-        for (int i = 0; i < this.permissions.size(); i++) {
-            User cu = this.permissions.get(i);
+        for (User cu : this.permissions) {
             if (NWUtils.isEqual(cu, u)) {
                 r = true;
                 break;

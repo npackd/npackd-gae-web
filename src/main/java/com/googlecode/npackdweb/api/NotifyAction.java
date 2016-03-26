@@ -1,5 +1,9 @@
 package com.googlecode.npackdweb.api;
 
+import com.google.appengine.api.oauth.OAuthRequestException;
+import com.google.appengine.api.oauth.OAuthService;
+import com.google.appengine.api.oauth.OAuthServiceFactory;
+import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -10,6 +14,9 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,6 +36,7 @@ public class NotifyAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         Objectify ofy = DefaultServlet.getObjectify();
+
         String pw = NWUtils.getSetting(ofy, "MarkTestedPassword", "");
         if (pw == null) {
             pw = "";
@@ -43,7 +51,29 @@ public class NotifyAction extends Action {
         boolean install = "1".equals(req.getParameter("install"));
         boolean success = "1".equals(req.getParameter("success"));
 
-        if (!pw.equals(password)) {
+        com.googlecode.npackdweb.db.Package pa = ofy.get(
+                new Key<com.googlecode.npackdweb.db.Package>(
+                        com.googlecode.npackdweb.db.Package.class, package_));
+        boolean ok = pa.isCurrentUserPermittedToModify();
+
+        if (!ok) {
+            ok = pw.equals(password);
+        }
+
+        if (!ok) {
+            try {
+                getOAuthUser();
+
+                // any authenticated user is allowed to do this
+                ok = true;
+
+                NWUtils.LOG.log(Level.SEVERE, "Got user via OAuth");
+            } catch (OAuthRequestException ex) {
+                NWUtils.LOG.log(Level.SEVERE, null, ex);
+            }
+        }
+
+        if (!ok) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;
         }
@@ -75,5 +105,33 @@ public class NotifyAction extends Action {
         NWUtils.savePackageVersion(ofy, oldr, r, false, false);
 
         return null;
+    }
+
+    /**
+     * @return a non-null User object if somebody is authenticated
+     */
+    private User getOAuthUser() throws OAuthRequestException {
+        OAuthService oauth = OAuthServiceFactory.getOAuthService();
+        String scope = "https://www.googleapis.com/auth/userinfo.email";
+        Set<String> allowedClients = new HashSet<>();
+
+        // see https://console.developers.google.com/apis/credentials?project=npackd
+        // for more details about client IDs.
+        // Npackd client 1.21
+        allowedClients.add(
+                "222041139141-vqv00o07p54ql0saefqkq59nupcgamih.apps.googleusercontent.com");
+
+        User user = oauth.getCurrentUser(scope);
+        if (user == null) {
+            throw new OAuthRequestException("getCurrentUser() returned null");
+        }
+
+        String tokenAudience = oauth.getClientId(scope);
+        if (!allowedClients.contains(tokenAudience)) {
+            throw new OAuthRequestException("audience of token '" +
+                    tokenAudience +
+                    "' is not in allowed list " + allowedClients);
+        }
+        return user;
     }
 }

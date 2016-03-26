@@ -41,16 +41,19 @@ public class MarkTestedAction extends Action {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
 
-        if (!pw.equals(password)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return null;
-        }
-
         PackageVersion r =
                 ofy.find(new Key<PackageVersion>(PackageVersion.class,
                                 package_ + "@" + version));
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        }
+
+        com.googlecode.npackdweb.db.Package pa = ofy.get(
+                new Key<com.googlecode.npackdweb.db.Package>(
+                        com.googlecode.npackdweb.db.Package.class, package_));
+        if (!pa.isCurrentUserPermittedToModify() && !pw.equals(password)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;
         }
 
