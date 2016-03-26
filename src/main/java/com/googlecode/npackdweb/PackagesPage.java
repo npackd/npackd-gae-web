@@ -1,15 +1,5 @@
 package com.googlecode.npackdweb;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.markdown4j.Markdown4jProcessor;
-
 import com.google.appengine.api.search.FacetOptions;
 import com.google.appengine.api.search.FacetOptions.Builder;
 import com.google.appengine.api.search.FacetRefinement;
@@ -27,6 +17,13 @@ import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import org.markdown4j.Markdown4jProcessor;
 
 /**
  * Packages.
@@ -173,7 +170,7 @@ public class PackagesPage extends MyPage {
         w.unencoded(createSearchForm(this.query, this.recent, category0Values,
                 category1Values));
 
-        if (this.getPackages().size() == 0) {
+        if (this.getPackages().isEmpty()) {
             w.start("div", "style", "padding-top: 10px; padding-bottom: 10px");
             NWUtils.jsButton(w, "Create package " + this.query, "/package/new",
                     "Creates a new package");
@@ -291,17 +288,15 @@ public class PackagesPage extends MyPage {
                         c0.getLabel() + " (" + c0.getCount() + ")");
             }
             w.end("select");
+        } else if (category0Values.size() > 0) {
+            w.e("input", "type", "hidden", "name", "category0", "value",
+                    category0Values.get(0).getLabel(), "id", "category0");
+            w.start("a", "href", "javascript:removeCategory0Filter()",
+                    "title", "Remove this filter");
+            w.t(category0Values.get(0).getLabel());
+            w.end("a");
         } else {
-            if (category0Values.size() > 0) {
-                w.e("input", "type", "hidden", "name", "category0", "value",
-                        category0Values.get(0).getLabel(), "id", "category0");
-                w.start("a", "href", "javascript:removeCategory0Filter()",
-                        "title", "Remove this filter");
-                w.t(category0Values.get(0).getLabel());
-                w.end("a");
-            } else {
-                w.t("-");
-            }
+            w.t("-");
         }
 
         w.t(" ");

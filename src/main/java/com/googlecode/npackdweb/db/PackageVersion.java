@@ -52,6 +52,9 @@ public class PackageVersion {
         "Warning—Visiting this web site may harm your computer. This page appears to contain malicious code that could be downloaded to your computer without your consent. You can learn more about harmful web content including viruses and other malicious code and how to protect your computer at StopBadware.org.",
         "Warning—The site ahead may contain harmful programs. Attackers might attempt to trick you into installing programs that harm your browsing experience (for example, by changing your homepage or showing extra ads on sites you visit). You can learn more about unwanted software at https://www.google.com/about/company/unwanted-software-policy.html.",};
 
+    /**
+     * TAG -&gt; TOOLTIP
+     */
     public static final Map<String, String> TAG_2_TOOLTIP = new HashMap<>();
 
     static {
@@ -221,10 +224,10 @@ public class PackageVersion {
     }
 
     /**
-     * Creates <version>
+     * Creates &lt;version&gt;
      *
      * @param d XML document
-     * @return <version>
+     * @return &lt;version&gt;
      */
     public Element toXML(Document d) {
         PackageVersion pv = this;
@@ -284,7 +287,7 @@ public class PackageVersion {
 
     /**
      * @param i index of the file
-     * @return file contents <file>
+     * @return file contents &lt;file&gt;
      */
     public String getFileContents(int i) {
         Object obj = fileContents.get(i);
@@ -354,7 +357,7 @@ public class PackageVersion {
     }
 
     /**
-     * Changes the content of the specified <file>
+     * Changes the content of the specified &lt;file&gt;
      *
      * @param index index of the file
      * @param content file content
@@ -364,7 +367,7 @@ public class PackageVersion {
     }
 
     /**
-     * Adds a new <file>
+     * Adds a new &lt;file&gt;
      *
      * @param path file path
      * @param content file content

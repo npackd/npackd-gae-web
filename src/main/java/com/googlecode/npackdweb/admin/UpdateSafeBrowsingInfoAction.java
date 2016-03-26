@@ -18,6 +18,7 @@ import com.googlecode.objectify.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -69,8 +70,9 @@ public class UpdateSafeBrowsingInfoAction extends Action {
         }
 
         if (n > 0) {
-            NWUtils.LOG.info("Checking from " + list.get(0).getPackage() + " " +
-                    list.get(0).getVersion());
+            NWUtils.LOG.log(Level.INFO, "Checking from {0} {1}", new Object[]{
+                list.get(0).getPackage(),
+                list.get(0).getVersion()});
 
             List<PackageVersion> toSave = new ArrayList<>();
             String[] urls = new String[list.size()];

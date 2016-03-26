@@ -1,10 +1,5 @@
 package com.googlecode.npackdweb.admin;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -13,6 +8,9 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Adds an editor.
@@ -29,7 +27,7 @@ public class AddEditorConfirmedAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Page res = null;
+        Page res;
 
         AddEditorPage p = new AddEditorPage();
         p.fill(req);
@@ -40,7 +38,7 @@ public class AddEditorConfirmedAction extends Action {
             e.createId();
             NWUtils.saveEditor(ofy, e);
             res = new MessagePage("Editor " + p.email +
-                     " was added successfully");
+                    " was added successfully");
         } else {
             p.error = err;
             res = p;

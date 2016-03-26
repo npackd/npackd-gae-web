@@ -1,141 +1,146 @@
 package com.googlecode.npackdweb;
 
-import java.io.IOException;
-import java.io.Writer;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
+import java.io.IOException;
+import java.io.Writer;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * A page with a frame.
  */
 public abstract class MyPage extends Page {
-	/** error message shown at the top of the page or null */
-	public String error;
 
-	/** informational message or null */
-	public String info;
+    /**
+     * error message shown at the top of the page or null
+     */
+    public String error;
 
-	@Override
-	public final void create(HttpServletRequest request,
-			HttpServletResponse resp) throws IOException {
-		resp.setContentType("text/html; charset=UTF-8");
-		Writer out = resp.getWriter();
+    /**
+     * informational message or null
+     */
+    public String info;
 
-		out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "titleHTML",
-				getTitleHTML(), "content", createContent(request), "head",
-				getHeadPart(), "menu", createMenu(request), "error", error,
-				"info", info, "generator", this.getClass().getName(),
-				"bodyBottom", createBodyBottom(request)));
-		out.close();
-	}
+    @Override
+    public final void create(HttpServletRequest request,
+            HttpServletResponse resp) throws IOException {
+        resp.setContentType("text/html; charset=UTF-8");
+        Writer out = resp.getWriter();
 
-	/**
-	 * Creates HTML to be inserted before </body>
-	 * 
-	 * @return HTML
-	 */
-	public String createBodyBottom(HttpServletRequest request)
-			throws IOException {
-		return "";
-	}
+        out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "titleHTML",
+                getTitleHTML(), "content", createContent(request), "head",
+                getHeadPart(), "menu", createMenu(request), "error", error,
+                "info", info, "generator", this.getClass().getName(),
+                "bodyBottom", createBodyBottom(request)));
+        out.close();
+    }
 
-	/**
-	 * Creates HTML without the header and the footer.
-	 * 
-	 * @return HTML
-	 */
-	public abstract String createContent(HttpServletRequest request)
-			throws IOException;
+    /**
+     * Creates HTML to be inserted before &lt;/body&gt;
+     *
+     * @param request request
+     * @return HTML
+     * @throws java.io.IOException any error
+     */
+    public String createBodyBottom(HttpServletRequest request)
+            throws IOException {
+        return "";
+    }
 
-	/**
-	 * @return page title
-	 */
-	public abstract String getTitle();
+    /**
+     * Creates HTML without the header and the footer.
+     *
+     * @param request request
+     * @return HTML
+     * @throws java.io.IOException any error
+     */
+    public abstract String createContent(HttpServletRequest request)
+            throws IOException;
 
-	/**
-	 * @return page title as HTML. The default implementation just converts the
-	 *         return value of {@link #getTitle()} to HTML
-	 */
-	public String getTitleHTML() {
-		HTMLWriter w = new HTMLWriter();
-		w.t(getTitle());
-		return w.toString();
-	}
+    /**
+     * @return page title
+     */
+    public abstract String getTitle();
 
-	/**
-	 * @return HTML code that should be inserted in <head>
-	 */
-	public String getHeadPart() {
-		return "";
-	}
+    /**
+     * @return page title as HTML. The default implementation just converts the
+     * return value of {@link #getTitle()} to HTML
+     */
+    public String getTitleHTML() {
+        HTMLWriter w = new HTMLWriter();
+        w.t(getTitle());
+        return w.toString();
+    }
 
-	/**
-	 * Validates the data.
-	 * 
-	 * @return error message or null
-	 */
-	public String validate() {
-		return null;
-	}
+    /**
+     * @return HTML code that should be inserted in &lt;head&gt;
+     */
+    public String getHeadPart() {
+        return "";
+    }
 
-	/**
-	 * Fills the fields from HTTP parameters (e.g. a <form>).
-	 * 
-	 * @param req
-	 *            HTTP request
-	 */
-	public void fill(HttpServletRequest req) {
-	}
+    /**
+     * Validates the data.
+     *
+     * @return error message or null
+     */
+    public String validate() {
+        return null;
+    }
 
-	/**
-	 * @return true = create the search form in the menu
-	 */
-	public boolean needsSearchFormInTheMenu() {
-		return true;
-	}
+    /**
+     * Fills the fields from HTTP parameters (e.g. a &lt;form&gt;).
+     *
+     * @param req HTTP request
+     */
+    public void fill(HttpServletRequest req) {
+    }
 
-	private String createMenu(HttpServletRequest request) {
-		try {
-			return NWUtils.tmpl("Menu.html", "admin",
-					NWUtils.isAdminLoggedIn() ? "true" : null, "login",
-					MyPage.getLoginHeader(request), "searchForm",
-					needsSearchFormInTheMenu() ? "true" : null);
-		} catch (IOException e) {
-			throw (InternalError) new InternalError(e.getMessage())
-					.initCause(e);
-		}
-	}
+    /**
+     * @return true = create the search form in the menu
+     */
+    public boolean needsSearchFormInTheMenu() {
+        return true;
+    }
 
-	/**
-	 * Login/Logout-footer
-	 * 
-	 * @param request
-	 *            HTTP request
-	 * @return HTML
-	 * @throws IOException
-	 */
-	private static String getLoginHeader(HttpServletRequest request)
-			throws IOException {
-		UserService userService = UserServiceFactory.getUserService();
+    private String createMenu(HttpServletRequest request) {
+        try {
+            return NWUtils.tmpl("Menu.html", "admin",
+                    NWUtils.isAdminLoggedIn() ? "true" : null, "login",
+                    MyPage.getLoginHeader(request), "searchForm",
+                    needsSearchFormInTheMenu() ? "true" : null);
+        } catch (IOException e) {
+            throw new InternalError(e);
+        }
+    }
 
-		String thisURL = request.getRequestURI();
-		if (request.getQueryString() != null)
-			thisURL += "?" + request.getQueryString();
-		HTMLWriter res = new HTMLWriter();
-		if (request.getUserPrincipal() != null) {
-			res.t("Hello, " + userService.getCurrentUser().getNickname() +
-					"!  You can ");
-			res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
-			res.t(".");
-		} else {
-			res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
-		}
-		return res.toString();
-	}
+    /**
+     * Login/Logout-footer
+     *
+     * @param request HTTP request
+     * @return HTML
+     * @throws IOException
+     */
+    private static String getLoginHeader(HttpServletRequest request)
+            throws IOException {
+        UserService userService = UserServiceFactory.getUserService();
+
+        String thisURL = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            thisURL += "?" + request.getQueryString();
+        }
+        HTMLWriter res = new HTMLWriter();
+        if (request.getUserPrincipal() != null) {
+            res.t("Hello, " + userService.getCurrentUser().getNickname() +
+                    "!  You can ");
+            res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
+            res.t(".");
+        } else {
+            res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
+        }
+        return res.toString();
+    }
 }

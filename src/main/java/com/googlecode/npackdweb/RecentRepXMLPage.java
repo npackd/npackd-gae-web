@@ -1,16 +1,5 @@
 package com.googlecode.npackdweb;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.logging.Level;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.w3c.dom.Document;
-
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -19,6 +8,14 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.Query;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.w3c.dom.Document;
 
 public class RecentRepXMLPage extends Page {
 
@@ -72,12 +69,11 @@ public class RecentRepXMLPage extends Page {
                 value = baos.toByteArray();
                 syncCache.put(key, value); // populate cache
             } catch (Exception e) {
-                throw (IOException) new IOException(e.getMessage())
-                        .initCause(e);
+                throw new IOException(e);
             }
         } else {
-            NWUtils.LOG.warning("Found value in cache " + value.length +
-                    " bytes");
+            NWUtils.LOG.log(Level.WARNING, "Found value in cache {0} bytes",
+                    value.length);
         }
 
         ServletOutputStream ros = resp.getOutputStream();

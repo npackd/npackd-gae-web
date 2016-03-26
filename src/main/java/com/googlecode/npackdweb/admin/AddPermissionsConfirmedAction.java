@@ -30,7 +30,7 @@ public class AddPermissionsConfirmedAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Page res = null;
+        Page res;
 
         AddPermissionsPage p = new AddPermissionsPage();
         p.fill(req);

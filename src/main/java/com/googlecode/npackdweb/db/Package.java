@@ -73,6 +73,7 @@ public class Package {
     /**
      * Searches for a package with the given full package ID.
      *
+     * @param ofy Objectify
      * @param id full package ID
      * @return found package or null
      */
@@ -271,10 +272,10 @@ public class Package {
     }
 
     /**
-     * <package>
+     * &lt;package&gt;
      *
      * @param d XML document
-     * @return <package>
+     * @return &lt;package&gt;
      */
     public Element toXML(Document d) {
         Package p = this;
@@ -487,7 +488,7 @@ public class Package {
         try {
             v = Version.parse(version);
         } catch (NumberFormatException e) {
-            throw (IOException) new IOException(e.getMessage()).initCause(e);
+            throw new IOException(e);
         }
         v.normalize();
 
@@ -497,8 +498,7 @@ public class Package {
     /**
      * Creates an instance of Package from XML.
      *
-     * @param e
-     * <package>
+     * @param e &lt;package&gt;
      * @return created object
      */
     public static Package parse(Element e) {

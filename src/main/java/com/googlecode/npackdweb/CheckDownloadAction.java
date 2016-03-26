@@ -14,6 +14,7 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.Query;
 import java.io.IOException;
 import java.util.Date;
+import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,7 +36,7 @@ public class CheckDownloadAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String cursor = req.getParameter("cursor");
-		// NWUtils.LOG.warning("checking download at cursor " + cursor);
+        // NWUtils.LOG.warning("checking download at cursor " + cursor);
 
         // download rate in bytes per millisecond
         // 4 GiB per day
@@ -62,8 +63,9 @@ public class CheckDownloadAction extends Action {
             PackageVersion olddata = data.copy();
             if (data.tags.indexOf("download-failed-3") < 0 &&
                     !data.tags.contains("disable-download-check")) {
-                NWUtils.LOG.warning("Checking " + data.package_ + "@" +
-                        data.version);
+                NWUtils.LOG.log(Level.WARNING, "Checking {0}@{1}", new Object[]{
+                    data.package_,
+                    data.version});
 
                 int failed = 0;
                 if (data.tags.indexOf("download-failed-2") >= 0) {
@@ -79,8 +81,7 @@ public class CheckDownloadAction extends Action {
                     data.downloadCheckAt = new Date();
                     data.downloadCheckError = null;
                 } else {
-                    NWUtils.Info info = null;
-                    info =
+                    NWUtils.Info info =
                             data.check(true,
                                     data.sha1.length() == 64 ? "SHA-256" :
                                             "SHA-1");
@@ -122,7 +123,7 @@ public class CheckDownloadAction extends Action {
         if (delay > DAY_IN_MS / 2) {
             delay = DAY_IN_MS / 2;
         }
-        NWUtils.LOG.warning("delay in ms: " + delay);
+        NWUtils.LOG.log(Level.WARNING, "delay in ms: {0}", delay);
         to.countdownMillis(delay);
 
         // NWUtils.LOG.warning("adding task at cursor " + cursor);
