@@ -128,7 +128,7 @@ public class DefaultServlet extends HttpServlet {
                         ok = false;
                         resp.
                                 sendRedirect(us.createLoginURL(req.
-                                                getRequestURI()));
+                                        getRequestURI()));
                     }
                     break;
                 case ADMINISTRATOR:
@@ -136,7 +136,7 @@ public class DefaultServlet extends HttpServlet {
                         ok = false;
                         resp.
                                 sendRedirect(us.createLoginURL(req.
-                                                getRequestURI()));
+                                        getRequestURI()));
                     } else if (!us.isUserAdmin()) {
                         ok = false;
                         resp.setContentType("text/plain");

@@ -50,11 +50,25 @@ public class Package {
 
     /**
      * Default tags.
+     *
+     * WARNING: also update PackageDetail.js
      */
     public static final String[] TAGS = {"Communications", "Development",
         "Education", "Finance", "Games", "Music", "News", "Photo",
         "Productivity", "Security", "Text", "Tools", "Video",
         "auto-create-versions"};
+
+    /**
+     * Help for the tags.
+     */
+    public static final String[] TAG_TOOLTIPS = {
+        "tools for communication", "software development tools",
+        "educational programs", "finance related programs", "games",
+        "music related software", "news", "image processing",
+        "productivity", "security related software",
+        "text related software (text editors, etc.)",
+        "other tools", "video",
+        "automatically create new versions of this package using the detection for the newest available version"};
 
     /**
      * Searches for a package with the given full package ID.
@@ -433,8 +447,8 @@ public class Package {
             r = s.fetch(new URL(discoveryPage));
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(
-                                    new ByteArrayInputStream(r.getContent()),
-                                    "UTF-8"));
+                            new ByteArrayInputStream(r.getContent()),
+                            "UTF-8"));
             String line;
             Pattern vp = Pattern.compile(discoveryRE);
             while ((line = br.readLine()) != null) {
