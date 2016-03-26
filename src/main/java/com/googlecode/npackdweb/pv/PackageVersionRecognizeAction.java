@@ -61,7 +61,7 @@ public class PackageVersionRecognizeAction extends Action {
         } else {
             PackageVersion p =
                     ofy.get(new Key<PackageVersion>(PackageVersion.class,
-                                    package_ + "@" + version));
+                            package_ + "@" + version));
             PackageVersion oldp = p.copy();
             String err = recognize(p);
             if (err != null) {
@@ -164,7 +164,7 @@ public class PackageVersionRecognizeAction extends Action {
         } catch (ResponseTooLargeException e) {
             NWUtils.LOG.log(Level.WARNING, e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
-            NWUtils.throwInternal(e);
+            throw new InternalError(e);
         }
 
         byte[] contentLowerCase = null;
