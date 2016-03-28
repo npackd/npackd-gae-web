@@ -77,32 +77,26 @@ $(document).ready(function() {
 
     $('#addNSISFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
-                "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
-                        + "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
+                        "\"%npackd_package_binary%\" /S /D=%CD% && del /f /q \"%npackd_package_binary%\"\r\n");
         addFile(".Npackd\\Uninstall.bat", "uninst.exe /S _?=%CD%\r\n");
         event.preventDefault();
     });
 
     $('#addInnoSetupFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
-                "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n"
-                        + "\"%setup%\" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /DIR=\"%CD%\" /SAVEINF=\"%CD%\\.Npackd\\InnoSetupInfo.ini\" /LOG=\"%CD%\\.Npackd\\InnoSetupInstall.log\" && del /f /q \"%setup%\"\r\n"
-                        + "set err=%errorlevel%\r\n"
-                        + "type .Npackd\\InnoSetupInstall.log\r\n"
-                        + "if %err% neq 0 exit %err%\r\n");
+                "call \"%nih%\\InstallInnoSetup.bat\"\r\n");
         addFile(".Npackd\\Uninstall.bat",
-                "unins000.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LOG=\"%CD%\\.Npackd\\InnoSetupUninstall.log\"\r\n"
-                        + "set err=%errorlevel%\r\n"
-                        + "type .Npackd\\InnoSetupUninstall.log\r\n"
-                        + "if %err% neq 0 exit %err%\r\n");
+                "call \"%nih%\\UninstallInnoSetup.bat\" unins000.exe\r\n");
+        addDependency("com.googlecode.windows-package-manager.NpackdInstallerHelper", 
+                "[1.3, 2)", "nih");
         event.preventDefault();
     });
 
     $('#addMSIFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
-                "set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=com.googlecode.windows-package-manager.NpackdInstallerHelper\" \"--versions=[1.1, 2)\"\r\n"
-                        + "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set npackdih=%%x\r\n"
-                        + "call \"%npackdih%\\InstallMSI.bat\" INSTALLDIR yes\r\n");
+                "call \"%nih%\\InstallMSI.bat\" INSTALLDIR yes\r\n");
+        addDependency("com.googlecode.windows-package-manager.NpackdInstallerHelper", 
+                "[1.1, 2)", "nih");
         event.preventDefault();
     });
 
@@ -118,14 +112,9 @@ $(document).ready(function() {
 
     $('#addSevenZIPFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
-				"set onecmd=\"%npackd_cl%\\npackdcl.exe\" \"path\" \"--package=org.7-zip.SevenZIPA\" \"--versions=[9.20, 10)\"\r\n"
-				+ "for /f \"usebackq delims=\" %%x in (`%%onecmd%%`) do set sevenzipa=%%x\r\n"
-				+ "for /f %%x in ('dir /b *.7z') do set setup=%%x\r\n"
-				+ "\"%sevenzipa%\\7za.exe\" x \"%setup%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%setup%\"\r\n");
-		addDependency("org.7-zip.SevenZIPA", "[9.20, 10)", "");
-		addDependency("com.googlecode.windows-package-manager.NpackdCL",
-				"[1.15.7, 2)", "");
-		$('#oneFile').prop('checked', true);
+		"\"%sevenzipa%\\7za.exe\" x \"%npackd_package_binary%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%npackd_package_binary%\"\r\n");
+        addDependency("org.7-zip.SevenZIPA", "[9.20, 20)", "sevenzipa");
+        $('#oneFile').prop('checked', true);
         event.preventDefault();
     });
 
