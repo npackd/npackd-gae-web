@@ -235,8 +235,7 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.oneFile = true;
                 pv.addFile(
                         ".Npackd\\Install.bat",
-                        "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n" +
-                        "\"%setup%\" /S /D=%CD% && del /f /q \"%setup%\"\r\n");
+                        "\"%npackd_package_binary%\" /S /D=%CD% && del /f /q \"%npackd_package_binary%\"\r\n");
                 pv.addFile(".Npackd\\Uninstall.bat",
                         "uninstall.exe /S _?=%CD%\r\n");
                 break;
@@ -244,9 +243,8 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.oneFile = true;
                 pv.addFile(
                         ".Npackd\\Install.bat",
-                        "for /f %%x in ('dir /b *.7z') do set setup=%%x\r\n" +
-                        "\"%sevenzipa%\\7za.exe\" x \"%setup%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%setup%\"\r\n");
-                pv.addDependency("org.7-zip.SevenZIPA", "[9.20, 10)",
+                        "\"%sevenzipa%\\7za.exe\" x \"%npackd_package_binary%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%setup%\"\r\n");
+                pv.addDependency("org.7-zip.SevenZIPA", "[9.20, 20)",
                         "sevenzipa");
                 break;
             case ZIP:
@@ -291,8 +289,7 @@ public class PackageVersionRecognizeAction extends Action {
             case OTHER_EXE:
                 pv.oneFile = true;
                 pv.addFile(".Npackd\\Install.bat",
-                        "for /f \"delims=\" %%x in ('dir /b *.exe') do set setup=%%x\r\n" +
-                        "\"%setup%\" && del /f /q \"%setup%\"\r\n");
+                        "\"%npackd_package_binary%\" && del /f /q \"%npackd_package_binary%\"\r\n");
                 pv.addFile(".Npackd\\Uninstall.bat",
                         "\"%myun%\\myuninst.exe\" /uninstall \"" + pv.package_ +
                         "\"\r\n");
