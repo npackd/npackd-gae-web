@@ -54,7 +54,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
         } else {
             PackageVersion copyFound =
                     ofy.find(new Key<PackageVersion>(PackageVersion.class,
-                                    p.package_ + "@" + version));
+                            p.package_ + "@" + version));
             if (copyFound != null) {
                 err =
                         "This version already exists: " + p.package_ + " " +
@@ -63,8 +63,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
 
             if (err != null) {
                 page =
-                        new CopyPackageVersionPage(p, err,
-                                req.getParameter("version"));
+                        new MessagePage(err);
             } else {
                 PackageVersion copy = p.copy();
                 copy.name = copy.package_ + "@" + version;
