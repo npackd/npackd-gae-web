@@ -17,6 +17,17 @@ function deleteOnClick() {
 	}
 }
 
+function copyOnClick() {
+        var id = $('#version').val();
+	var msg = prompt("Please enter the new version number for the copy.", 
+                id);
+	if (msg !== null) {
+            window.location.href='/package-version/copy-confirmed?version=' + 
+                    msg + 
+                    "&name=" + $('#package').val() + "@" + id;
+	}
+}
+
 function addFile(name, content) {
 	var files = $('#files');
     var n = files.children().size();

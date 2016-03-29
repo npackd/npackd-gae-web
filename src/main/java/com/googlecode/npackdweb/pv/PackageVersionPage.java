@@ -177,18 +177,8 @@ public class PackageVersionPage extends MyPage {
             w.e("input", "class", "btn btn-default", "type", "submit", "title",
                     "Saves the changes", "value", "Save", "id", "save");
             if (!new_) {
-                w.e("input",
-                        "class",
-                        "btn btn-default",
-                        "type",
-                        "button",
-                        "value",
-                        "Copy",
-                        "title",
-                        "Create a copy of this package version",
-                        "onclick",
-                        "this.form.action='/package-version/copy'; this.form.submit()",
-                        "id", "copy");
+                NWUtils.jsButton_(w, "Copy", "copyOnClick()",
+                        "Create a copy of this package version");
                 NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
                         packageName + "&version=" + version,
                         "Edits this package version as repository XML");
