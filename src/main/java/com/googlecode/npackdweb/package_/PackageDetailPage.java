@@ -33,11 +33,6 @@ import org.markdown4j.Markdown4jProcessor;
 public class PackageDetailPage extends MyPage {
 
     /**
-     * error message or null
-     */
-    public String error;
-
-    /**
      * full package id
      */
     public String id;

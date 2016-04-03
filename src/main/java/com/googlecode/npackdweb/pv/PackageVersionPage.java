@@ -240,6 +240,51 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // screenshots
+        w.start("tr");
+        w.e("td", "Screen shots:");
+        w.start("td");
+        for (String s : p.screenshots) {
+            if (!s.trim().isEmpty()) {
+                w.start("div", "class", "col-xs-6 col-md-3");
+                w.start("a", "target", "_blank", "href", s, "class",
+                        "thumbnail");
+                w.e("img", "src", s, "alt", "Screen shot");
+                w.end("a");
+                w.end("div");
+            }
+        }
+        w.end("td");
+        w.end("tr");
+
+        // download
+        w.start("tr");
+        w.e("td", "Download:");
+        w.start("td");
+        if (editable) {
+            w.e("input", "style", "display: inline; width: 90%", "class",
+                    "form-control", "type", "text", "name", "url", "value",
+                    url, "size", "120", "id", "url", "title",
+                    "http: or https: address of the package binary");
+            w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
+                    "style",
+                    "cursor: pointer; font-size: 20px; font-weight: bold");
+        } else if (!tags.contains("not-reviewed")) {
+            w.start("a", "href",
+                    url,
+                    "class", "btn btn-primary btn-md",
+                    "role", "button");
+            w.e("span", "class", "glyphicon glyphicon-download");
+            w.t(" Download " + p.title + " " + version);
+            w.end("a");
+            w.unencoded("<br><br>");
+            w.e("a", "itemprop", "downloadUrl", "href", url, url);
+        } else {
+            w.t("Not yet reviewed");
+        }
+        w.end("td");
+        w.end("tr");
+
         // change log
         w.start("tr");
         w.e("td", "Change log:");
@@ -294,34 +339,6 @@ public class PackageVersionPage extends MyPage {
             w.t(version);
         } else {
             w.t(version);
-        }
-        w.end("td");
-        w.end("tr");
-
-        // download
-        w.start("tr");
-        w.e("td", "Download:");
-        w.start("td");
-        if (editable) {
-            w.e("input", "style", "display: inline; width: 90%", "class",
-                    "form-control", "type", "text", "name", "url", "value",
-                    url, "size", "120", "id", "url", "title",
-                    "http: or https: address of the package binary");
-            w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
-                    "style",
-                    "cursor: pointer; font-size: 20px; font-weight: bold");
-        } else if (!tags.contains("not-reviewed")) {
-            w.start("a", "href",
-                    url,
-                    "class", "btn btn-primary btn-md",
-                    "role", "button");
-            w.e("span", "class", "glyphicon glyphicon-download");
-            w.t(" Download " + p.title + " " + version);
-            w.end("a");
-            w.unencoded("<br><br>");
-            w.e("a", "itemprop", "downloadUrl", "href", url, url);
-        } else {
-            w.t("Not yet reviewed");
         }
         w.end("td");
         w.end("tr");
@@ -684,17 +701,14 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // automated tests
         w.start("tr");
-        w.e("td", "Installations:");
+        w.e("td", "Automated tests:");
         w.start("td");
-        w.t(installSucceeded + " succeeded, " + installFailed + " failed");
-        w.end("td");
-        w.end("tr");
-
-        w.start("tr");
-        w.e("td", "Un-installations:");
-        w.start("td");
-        w.t(uninstallSucceeded + " succeeded, " + uninstallFailed + " failed");
+        w.t(installSucceeded + " of " + (installSucceeded + installFailed) +
+                " installations succeeded, ");
+        w.t(uninstallSucceeded + " of " + (uninstallSucceeded +
+                uninstallFailed) + " removals succeeded");
         w.end("td");
         w.end("tr");
 

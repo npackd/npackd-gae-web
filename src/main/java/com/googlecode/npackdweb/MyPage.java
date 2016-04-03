@@ -6,6 +6,8 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,6 +15,11 @@ import javax.servlet.http.HttpServletResponse;
  * A page with a frame.
  */
 public abstract class MyPage extends Page {
+
+    /**
+     * HTTP parameters
+     */
+    protected Map<String, String> params = new HashMap<>();
 
     /**
      * error message shown at the top of the page or null
@@ -27,6 +34,9 @@ public abstract class MyPage extends Page {
     @Override
     public final void create(HttpServletRequest request,
             HttpServletResponse resp) throws IOException {
+        params.clear();
+        params.putAll(request.getParameterMap());
+
         resp.setContentType("text/html; charset=UTF-8");
         Writer out = resp.getWriter();
 
