@@ -343,6 +343,7 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // SHA1
         w.start("tr");
         w.start("td");
         w.t("SHA-1 or SHA-256");
@@ -464,6 +465,7 @@ public class PackageVersionPage extends MyPage {
             w.end("tr");
         }
 
+        // type
         w.start("tr");
         w.e("td", "Type:");
         w.start("td");
@@ -546,7 +548,7 @@ public class PackageVersionPage extends MyPage {
             w.start("td");
             w.start("textarea",
                     "class",
-                    "form-control",
+                    "form-control nw-autosize",
                     "rows",
                     "5",
                     "name",
@@ -645,9 +647,10 @@ public class PackageVersionPage extends MyPage {
                 w.e("input", "class", "form-control", "type", "text", "name",
                         "path." + i, "value", path, "size", "80");
 
+                // don't forget to update PackageVersionDetail.js!
                 w.e("div", "File content " + i + ":");
-                w.e("textarea", "class", "form-control", "name",
-                        "content." + i, "rows", "20", "cols", "80", "wrap",
+                w.e("textarea", "class", "form-control nw-autosize", "name",
+                        "content." + i, "rows", "5", "cols", "80", "wrap",
                         "off", content);
                 w.end("div");
             }
@@ -833,15 +836,15 @@ public class PackageVersionPage extends MyPage {
         dependencyVersionRanges.clear();
         dependencyEnvVars.clear();
         for (int i = 0;; i++) {
-            String package_ = req.getParameter("depPackage." + i);
-            if (package_ == null) {
+            String pp = req.getParameter("depPackage." + i);
+            if (pp == null) {
                 break;
             }
 
-            if (!package_.trim().isEmpty()) {
+            if (!pp.trim().isEmpty()) {
                 String versions = req.getParameter("depVersions." + i);
                 String envVar = req.getParameter("depEnvVar." + i);
-                dependencyPackages.add(package_);
+                dependencyPackages.add(pp);
                 dependencyVersionRanges.add(versions);
                 dependencyEnvVars.add(envVar);
             }
@@ -1047,6 +1050,8 @@ public class PackageVersionPage extends MyPage {
                         "/WEB-INF/templates/PackageVersionDetail.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
+
+        NWUtils.linkScript(w, "/autosize.min.js");
 
         w.unencoded(NWUtils.tmpl("GooglePlus.html"));
 

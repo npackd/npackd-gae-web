@@ -31,7 +31,7 @@ function copyOnClick() {
 function addFile(name, content) {
 	var files = $('#files');
     var n = files.children().size();
-    files.append('<div><div>File path ' + n + ':</div><input class=\"form-control\" type=\"text\" name=\"path.' + n + '\" value=\"' + name + '\" size=\"80\"><div>File content ' + n + ':</div><textarea class=\"form-control\" name=\"content.' + n + '\" rows=\"20\" cols=\"80\" wrap=\"off\">' + content + '</textarea></div>');
+    files.append('<div><div>File path ' + n + ':</div><input class=\"form-control\" type=\"text\" name=\"path.' + n + '\" value=\"' + name + '\" size=\"80\"><div>File content ' + n + ':</div><textarea class=\"form-control nw-autosize\" name=\"content.' + n + '\" rows=\"5\" cols=\"80\" wrap=\"off\">' + content + '</textarea></div>');
 }
 
 function updateTagCheckboxes() {
@@ -148,5 +148,7 @@ $(document).ready(function() {
     $(".nw-tag-checkbox").change(function() {
         updateTagInput();
     });
+    
+    autosize($(".nw-autosize"));
 });
 

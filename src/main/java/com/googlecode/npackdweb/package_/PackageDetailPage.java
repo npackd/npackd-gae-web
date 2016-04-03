@@ -152,6 +152,8 @@ public class PackageDetailPage extends MyPage {
         w.unencoded(NWUtils.tmpl("PackageDetail.js"));
         w.end("script");
 
+        NWUtils.linkScript(w, "/autosize.min.js");
+
         w.unencoded(NWUtils.tmpl("GooglePlus.html"));
 
         return w.toString();
@@ -361,7 +363,8 @@ public class PackageDetailPage extends MyPage {
         }
         w.end("div");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("textarea", "class", "form-control", "rows", "4", "name",
+            w.e("textarea", "class", "form-control nw-autosize", "rows", "4",
+                    "name",
                     "screenshots", "cols", "80", "title",
                     "List of screen shot URLs. " +
                     "Each URL must be on a separate line. " +
@@ -388,7 +391,8 @@ public class PackageDetailPage extends MyPage {
                     "target", "_blank", "Markdown syntax");
             w.t(" can be used in the following text area");
             w.end("p");
-            w.e("textarea", "class", "form-control", "rows", "10", "name",
+            w.e("textarea", "class", "form-control nw-autosize", "rows", "5",
+                    "name",
                     "description", "cols", "80", "title",
                     "Possibly long description of the package. " +
                     "Try to not repeat the package name here and " +
@@ -485,7 +489,7 @@ public class PackageDetailPage extends MyPage {
             w.start("td");
             w.e("textarea",
                     "class",
-                    "form-control",
+                    "form-control nw-autosize",
                     "rows",
                     "5",
                     "name",
@@ -607,7 +611,7 @@ public class PackageDetailPage extends MyPage {
                 if (NWUtils.isAdminLoggedIn()) {
                     w.e("textarea",
                             "class",
-                            "form-control",
+                            "form-control nw-autosize",
                             "rows",
                             "4",
                             "name",

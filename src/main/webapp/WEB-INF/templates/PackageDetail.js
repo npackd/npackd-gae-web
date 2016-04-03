@@ -93,6 +93,8 @@ function initEvents() {
     		updateTagInput();
     	});
     }
+
+    autosize($(".nw-autosize"));
 }
 
 $(document).ready(initEvents);

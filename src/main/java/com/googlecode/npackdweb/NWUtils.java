@@ -1440,6 +1440,17 @@ public class NWUtils {
     }
 
     /**
+     * Creates a &lt;script&gt; tag
+     *
+     * @param w output
+     * @param src value of the "src" attribute
+     * @return the same writer
+     */
+    public static HTMLWriter linkScript(HTMLWriter w, final String src) {
+        return w.e("script", "type", "text/javascript", "src", src);
+    }
+
+    /**
      * Checks URLs using the Google Safe Browsing Lookup API
      *
      * @param ofy Objectify
