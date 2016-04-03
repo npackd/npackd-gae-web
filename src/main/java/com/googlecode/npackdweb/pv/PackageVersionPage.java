@@ -137,7 +137,7 @@ public class PackageVersionPage extends MyPage {
             w.e("img", "src", "/App.png");
         } else {
             w.e("img", "src", package_.icon, "style",
-                    "max-width: 32px; max-height: 32px");
+                    "width: 32px; max-height: 32px");
         }
         w.t(" ");
         w.e("a", "href", "/p/" + package_.name, package_.title);
@@ -263,7 +263,7 @@ public class PackageVersionPage extends MyPage {
         w.start("td");
         if (editable) {
             w.e("input", "style", "display: inline; width: 90%", "class",
-                    "form-control", "type", "text", "name", "url", "value",
+                    "form-control", "type", "url", "name", "url", "value",
                     url, "size", "120", "id", "url", "title",
                     "http: or https: address of the package binary");
             w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",

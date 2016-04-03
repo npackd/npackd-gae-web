@@ -203,6 +203,7 @@ public class PackageDetailPage extends MyPage {
 
         w.start("table", "border", "0");
 
+        // title
         if (mode != FormMode.VIEW) {
             w.start("tr");
             w.e("td", "Title:");
@@ -214,6 +215,7 @@ public class PackageDetailPage extends MyPage {
             w.end("tr");
         }
 
+        // package name
         w.start("tr");
         w.e("td", "ID:");
         if (mode != FormMode.CREATE) {
@@ -237,6 +239,7 @@ public class PackageDetailPage extends MyPage {
 
         Objectify ofy = DefaultServlet.getObjectify();
 
+        // versions
         w.start("tr");
         w.e("td", "Versions:");
         w.start("td");
@@ -266,6 +269,7 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // home page
         w.start("tr");
         w.start("td");
         w.t("Product home page");
@@ -277,7 +281,7 @@ public class PackageDetailPage extends MyPage {
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("input", "id", "url", "style", "display: inline; width: 90%",
-                    "class", "form-control", "type", "text", "name", "url",
+                    "class", "form-control", "type", "url", "name", "url",
                     "value", url, "size", "120", "title",
                     "http: or https: address of the product home page");
             w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
@@ -293,6 +297,7 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // change log
         w.start("tr");
         w.start("td");
         w.t("Change log");
@@ -305,7 +310,7 @@ public class PackageDetailPage extends MyPage {
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("input", "id", "changelog", "style",
                     "display: inline; width: 90%", "class", "form-control",
-                    "type", "text", "name", "changelog", "value", changelog,
+                    "type", "url", "name", "changelog", "value", changelog,
                     "size", "120", "title",
                     "http: or https: address of the package change log");
             w.e("div", "class", "glyphicon glyphicon-link", "id",
@@ -317,6 +322,7 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // icon
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("tr");
             w.start("td");
@@ -325,7 +331,7 @@ public class PackageDetailPage extends MyPage {
             w.t(":");
             w.end("td");
             w.start("td");
-            w.e("input", "class", "form-control", "type", "text", "name",
+            w.e("input", "class", "form-control", "type", "url", "name",
                     "icon", "value", icon, "size", "120", "title",
                     "http: or https: address of a 32x32 PNG icon representing this package");
             w.end("td");
@@ -493,6 +499,7 @@ public class PackageDetailPage extends MyPage {
             w.end("tr");
         }
 
+        // discovery page
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("tr");
             w.start("td");
@@ -505,7 +512,7 @@ public class PackageDetailPage extends MyPage {
                     "class",
                     "form-control",
                     "type",
-                    "text",
+                    "url",
                     "name",
                     "discoveryPage",
                     "value",
@@ -563,7 +570,7 @@ public class PackageDetailPage extends MyPage {
                     "class",
                     "form-control",
                     "type",
-                    "text",
+                    "url",
                     "name",
                     "discoveryURLPattern",
                     "value",
@@ -692,7 +699,7 @@ public class PackageDetailPage extends MyPage {
             w.e("img", "src", "/App.png");
         } else {
             w.e("img", "src", icon, "style",
-                    "max-width: 32px; max-height: 32px");
+                    "width: 32px; max-height: 32px");
         }
         if (mode != FormMode.CREATE) {
             w.t(" " + title);

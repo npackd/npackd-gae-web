@@ -108,6 +108,7 @@ public class LicensePage extends MyPage {
 
         w.start("table", "border", "0");
 
+        // internal name
         w.start("tr");
         w.e("td", "ID:");
         if (exists) {
@@ -129,6 +130,7 @@ public class LicensePage extends MyPage {
         }
         w.end("tr");
 
+        // title
         if (editable) {
             w.start("tr");
             w.e("td", "Title:");
@@ -148,7 +150,7 @@ public class LicensePage extends MyPage {
         w.start("td");
         if (editable) {
             w.e("input", "id", "url", "style", "display: inline; width: 90%",
-                    "class", "form-control", "type", "text", "name", "url",
+                    "class", "form-control", "type", "url", "name", "url",
                     "value", url, "size", "120", "title",
                     "http: or https: address of the product home page");
             w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
