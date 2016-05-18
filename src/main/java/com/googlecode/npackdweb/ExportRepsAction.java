@@ -38,10 +38,14 @@ public class ExportRepsAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        final GcsService gcsService =
+                GcsServiceFactory.createGcsService(RetryParams
+                        .getDefaultInstance());
+
         Objectify ofy = DefaultServlet.getObjectify();
         List<Repository> rs = Repository.findAll(ofy);
         for (Repository r : rs) {
-            export(ofy, r.name, true);
+            export(gcsService, ofy, r.name, true);
         }
         resp.setStatus(200);
         return null;
@@ -50,13 +54,15 @@ public class ExportRepsAction extends Action {
     /**
      * Exports a repository.
      *
+     * @param gcsService GCS
      * @param ob Objectify instance
      * @param tag tag for package versions. Cannot be null.
      * @param recreate true = recreate the repository if it already exists
      * @return the repository with blobFile != null
      * @throws java.io.IOException any error
      */
-    public static Repository export(Objectify ob, String tag, boolean recreate)
+    public static Repository export(GcsService gcsService, Objectify ob,
+            String tag, boolean recreate)
             throws IOException {
         Repository r = ob.find(new Key<Repository>(Repository.class, tag));
         if (r == null) {
@@ -64,10 +70,6 @@ public class ExportRepsAction extends Action {
             r.name = tag;
             NWUtils.saveRepository(ob, r);
         }
-
-        final GcsService gcsService =
-                GcsServiceFactory.createGcsService(RetryParams
-                        .getDefaultInstance());
 
         GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
         GcsFilename fileNameZIP = new GcsFilename("npackd", tag + ".zip");

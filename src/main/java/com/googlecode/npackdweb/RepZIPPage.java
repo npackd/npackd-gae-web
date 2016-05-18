@@ -1,33 +1,47 @@
 package com.googlecode.npackdweb;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * ZIP for a repository.
  */
 public class RepZIPPage extends Page {
-	private final String tag;
 
-	/**
-	 * @param tag
-	 *            only package versions with this tag will be exported.
-	 */
-	public RepZIPPage(String tag) {
-		this.tag = tag;
-	}
+    private final String tag;
 
-	@Override
-	public void create(HttpServletRequest request, HttpServletResponse resp)
-			throws IOException {
-		Objectify ofy = DefaultServlet.getObjectify();
-		ExportRepsAction.export(ofy, tag, false);
+    /**
+     * @param tag only package versions with this tag will be exported.
+     */
+    public RepZIPPage(String tag) {
+        this.tag = tag;
+    }
 
-		NWUtils.serveFileFromGCS(tag + ".zip", request, resp, "application/zip");
-	}
+    @Override
+    public void create(HttpServletRequest request, HttpServletResponse resp)
+            throws IOException {
+        Objectify ofy = DefaultServlet.getObjectify();
+        final GcsService gcsService =
+                GcsServiceFactory.createGcsService(RetryParams
+                        .getDefaultInstance());
+
+        GcsFilename fileName = new GcsFilename("npackd", tag + ".zip");
+        GcsFileMetadata md = gcsService.getMetadata(fileName);
+
+        if (md == null) {
+            ExportRepsAction.export(gcsService, ofy, tag, false);
+            md = gcsService.getMetadata(fileName);
+        }
+
+        NWUtils.serveFileFromGCS(gcsService, md, request, resp,
+                "application/zip");
+    }
 }

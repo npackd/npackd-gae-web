@@ -22,8 +22,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -1331,22 +1329,17 @@ public class NWUtils {
      * If-Modified-Since and similar HTTP headers and sends 304 if the file was
      * not changed.
      *
-     * @param filename name of the file in the bucket "npackd"
+     * @param gcsService GCS
+     * @param md GCS file meta data
      * @param request HTTP request
      * @param resp HTTP response
      * @param contentType MIME type of the response
      * @throws IOException error reading or sending the file
      */
-    public static void serveFileFromGCS(String filename,
+    public static void serveFileFromGCS(GcsService gcsService,
+            GcsFileMetadata md,
             HttpServletRequest request, HttpServletResponse resp,
             String contentType) throws IOException {
-        final GcsService gcsService =
-                GcsServiceFactory.createGcsService(RetryParams
-                        .getDefaultInstance());
-
-        GcsFilename fileName = new GcsFilename("npackd", filename);
-        GcsFileMetadata md = gcsService.getMetadata(fileName);
-
         SimpleDateFormat httpDateFormat =
                 new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 
@@ -1380,8 +1373,10 @@ public class NWUtils {
 
         BlobstoreService blobstoreService =
                 BlobstoreServiceFactory.getBlobstoreService();
+        GcsFilename f = md.getFilename();
         BlobKey blobKey =
-                blobstoreService.createGsBlobKey("/gs/npackd/" + filename);
+                blobstoreService.createGsBlobKey("/gs/" + f.getBucketName() +
+                        "/" + f.getObjectName());
 
         if (serve) {
             blobstoreService.serve(blobKey, resp);
