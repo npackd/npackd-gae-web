@@ -42,6 +42,7 @@ public class PackageVersionPage extends MyPage {
     private List<String> tags;
     private List<String> importantFilePaths;
     private List<String> importantFileTitles;
+    private List<String> cmdFilePaths;
     private List<String> filePaths;
     private List<String> fileContents;
     private String downloadCheckError;
@@ -67,6 +68,7 @@ public class PackageVersionPage extends MyPage {
         this.tags.add("not-reviewed");
         this.importantFilePaths = new ArrayList<String>();
         this.importantFileTitles = new ArrayList<String>();
+        this.cmdFilePaths = new ArrayList<String>();
         this.filePaths = new ArrayList<String>();
         this.fileContents = new ArrayList<String>();
         this.downloadCheckAt = null;
@@ -114,6 +116,8 @@ public class PackageVersionPage extends MyPage {
         this.importantFilePaths.addAll(pv.importantFilePaths);
         this.importantFileTitles = new ArrayList<String>();
         this.importantFileTitles.addAll(pv.importantFileTitles);
+        this.cmdFilePaths = new ArrayList<String>();
+        this.cmdFilePaths.addAll(pv.cmdFilePaths);
         this.filePaths = new ArrayList<String>();
         this.filePaths.addAll(pv.filePaths);
         this.fileContents = new ArrayList<String>();
@@ -538,6 +542,7 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // <important-file>
         if (editable) {
             w.start("tr");
             w.start("td");
@@ -564,6 +569,38 @@ public class PackageVersionPage extends MyPage {
             for (int i = 0; i < importantFilePaths.size(); i++) {
                 w.t(importantFilePaths.get(i) + " " +
                         importantFileTitles.get(i) + "\n");
+            }
+            w.end("textarea");
+            w.end("td");
+            w.end("tr");
+        }
+
+        // <cmd-file>
+        if (editable) {
+            w.start("tr");
+            w.start("td");
+            w.t("Command line tools");
+            w.e("small", " (optional)");
+            w.t(":");
+            w.end("td");
+            w.start("td");
+            w.start("textarea",
+                    "class",
+                    "form-control nw-autosize",
+                    "rows",
+                    "5",
+                    "name",
+                    "cmdFiles",
+                    "cols",
+                    "80",
+                    "title",
+                    "List of command line tools inside of the package. " +
+                    "For each file mentioned here a link in the directory " +
+                    "%allusersprofile%\\Npackd\\Commands will be created. " +
+                    "Each line should contain " +
+                    "one path relative to the package root.");
+            for (int i = 0; i < cmdFilePaths.size(); i++) {
+                w.t(cmdFilePaths.get(i) + "\n");
             }
             w.end("textarea");
             w.end("td");
@@ -803,6 +840,8 @@ public class PackageVersionPage extends MyPage {
         detectMSI = req.getParameter("detectMSI");
         oneFile = "one-file".equals(req.getParameter("type"));
         tags = NWUtils.split(req.getParameter("tags"), ',');
+
+        // <important-file>
         List<String> lines =
                 NWUtils.splitLines(req.getParameter("importantFiles"));
         importantFilePaths.clear();
@@ -816,6 +855,12 @@ public class PackageVersionPage extends MyPage {
                 importantFileTitles.add(title);
             }
         }
+
+        // <cmd-file>
+        lines =
+                NWUtils.splitLines(req.getParameter("cmdFiles").trim());
+        cmdFilePaths.clear();
+        cmdFilePaths.addAll(lines);
 
         this.filePaths.clear();
         this.fileContents.clear();
@@ -1018,6 +1063,8 @@ public class PackageVersionPage extends MyPage {
         pv.importantFilePaths.addAll(this.importantFilePaths);
         pv.importantFileTitles = new ArrayList<String>();
         pv.importantFileTitles.addAll(this.importantFileTitles);
+        pv.cmdFilePaths = new ArrayList<String>();
+        pv.cmdFilePaths.addAll(this.cmdFilePaths);
         pv.filePaths = new ArrayList<String>();
         pv.filePaths.addAll(this.filePaths);
         pv.clearFiles();

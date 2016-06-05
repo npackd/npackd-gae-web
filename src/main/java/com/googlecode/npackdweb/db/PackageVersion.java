@@ -85,6 +85,12 @@ public class PackageVersion {
     public String detectMSI = "";
     public List<String> importantFileTitles = new ArrayList<String>();
     public List<String> importantFilePaths = new ArrayList<String>();
+
+    /**
+     * <cmd-file>
+     */
+    public List<String> cmdFilePaths = new ArrayList<String>();
+
     public List<String> filePaths = new ArrayList<String>();
     public List<String> dependencyPackages = new ArrayList<String>();
     public List<String> dependencyVersionRanges = new ArrayList<String>();
@@ -209,6 +215,7 @@ public class PackageVersion {
         c.detectMSI = this.detectMSI;
         c.importantFileTitles.addAll(this.importantFileTitles);
         c.importantFilePaths.addAll(this.importantFilePaths);
+        c.cmdFilePaths.addAll(this.cmdFilePaths);
         c.filePaths.addAll(this.filePaths);
         c.fileContents.addAll(this.fileContents);
         c.dependencyPackages.addAll(this.dependencyPackages);
@@ -243,6 +250,11 @@ public class PackageVersion {
             version.appendChild(importantFile);
             importantFile.setAttribute("path", pv.importantFilePaths.get(i));
             importantFile.setAttribute("title", pv.importantFileTitles.get(i));
+        }
+        for (int i = 0; i < pv.cmdFilePaths.size(); i++) {
+            Element cmdFile = d.createElement("cmd-file");
+            version.appendChild(cmdFile);
+            cmdFile.setAttribute("path", pv.cmdFilePaths.get(i));
         }
         for (int i = 0; i < pv.filePaths.size(); i++) {
             Element file = d.createElement("file");

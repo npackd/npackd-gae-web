@@ -156,23 +156,21 @@ public class RepUploadAction extends Action {
                     messages.add(
                             "You do not have permission to modify this package: " +
                             p.name);
-                } else {
-                    if (p_ != null) {
-                        if (overwrite) {
-                            // overwriting should not change the permissions
-                            p.permissions.clear();
-                            p.permissions.addAll(p_.permissions);
+                } else if (p_ != null) {
+                    if (overwrite) {
+                        // overwriting should not change the permissions
+                        p.permissions.clear();
+                        p.permissions.addAll(p_.permissions);
 
-                            NWUtils.savePackage(ofy, p_, p, true);
-                            stats.pOverwritten++;
-                        } else {
-                            messages.add("The package " + p.name +
-                                    " exists already. It will not be overwritten.");
-                        }
+                        NWUtils.savePackage(ofy, p_, p, true);
+                        stats.pOverwritten++;
                     } else {
-                        NWUtils.savePackage(ofy, null, p, true);
-                        stats.pAppended++;
+                        messages.add("The package " + p.name +
+                                " exists already. It will not be overwritten.");
                     }
+                } else {
+                    NWUtils.savePackage(ofy, null, p, true);
+                    stats.pAppended++;
                 }
             }
 
@@ -316,6 +314,8 @@ public class RepUploadAction extends Action {
                 if (che.getNodeName().equals("important-file")) {
                     p.importantFilePaths.add(che.getAttribute("path"));
                     p.importantFileTitles.add(che.getAttribute("title"));
+                } else if (che.getNodeName().equals("cmd-file")) {
+                    p.cmdFilePaths.add(che.getAttribute("path"));
                 } else if (che.getNodeName().equals("file")) {
                     p.addFile(che.getAttribute("path"),
                             NWUtils.getTagContent_(che));
