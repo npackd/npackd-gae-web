@@ -14,15 +14,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Marks the specified package version as "tested".
+ * Adds or removes a tag for a package version.
  */
-public class MarkTestedAction extends Action {
+public class TagPackageVersionAction extends Action {
 
     /**
      * -
      */
-    public MarkTestedAction() {
-        super("^/package-version/mark-tested$", ActionSecurityType.ANONYMOUS);
+    public TagPackageVersionAction() {
+        super("^/api/tag$", ActionSecurityType.ANONYMOUS);
     }
 
     @Override
@@ -40,10 +40,12 @@ public class MarkTestedAction extends Action {
         String password = req.getParameter("password");
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
+        String name = req.getParameter("name");
+        String value = req.getParameter("value");
 
         PackageVersion r =
                 ofy.find(new Key<PackageVersion>(PackageVersion.class,
-                                package_ + "@" + version));
+                        package_ + "@" + version));
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -59,7 +61,11 @@ public class MarkTestedAction extends Action {
 
         PackageVersion oldr = r.copy();
 
-        r.tags.remove("untested");
+        if ("1".equals(value)) {
+            r.addTag(name);
+        } else {
+            r.tags.remove(name);
+        }
         NWUtils.savePackageVersion(ofy, oldr, r, false, false);
 
         return null;

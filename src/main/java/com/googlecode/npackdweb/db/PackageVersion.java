@@ -12,6 +12,7 @@ import com.googlecode.objectify.Query;
 import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,9 +33,11 @@ public class PackageVersion {
 
     /**
      * Default tags.
+     *
+     * WARNING: update TAG_TOOLTIPS!
      */
     public static final String[] TAGS = {"stable", "stable64", "libs",
-        "unstable", "untested", "disable-download-check",
+        "unstable", "untested", "test-failed",
         "not-reviewed", "phishing", "malware", "unwanted"};
 
     /**
@@ -46,7 +49,7 @@ public class PackageVersion {
         "this package version should be included in the default repository for software libraries",
         "this package version should be included in the default repository for unstable software",
         "the installation and removal of this package version was not yet tested. This package will not be included in the default repositories.",
-        "the binary is too big or there are other problems that would prevent the default download checks for this package version to work. Disable it.",
+        "the automatic testing for this package version failed. This package will still be included in the default repositories.",
         "this package version is not yet reviewed and may be unsafe. Only an administrator can change this tag.",
         "Warning—Suspected phishing page. This page may be a forgery or imitation of another website, designed to trick users into sharing personal or financial information. Entering any personal information on this page may result in identity theft or other abuse. You can find out more about phishing from www.antiphishing.org.",
         "Warning—Visiting this web site may harm your computer. This page appears to contain malicious code that could be downloaded to your computer without your consent. You can learn more about harmful web content including viruses and other malicious code and how to protect your computer at StopBadware.org.",
@@ -99,16 +102,6 @@ public class PackageVersion {
     public List<String> detectFileSHA1s = new ArrayList<String>();
 
     public List<String> tags;
-
-    /**
-     * can be null if the check was not yet performed
-     */
-    public Date downloadCheckAt;
-
-    /**
-     * error message or null if none
-     */
-    public String downloadCheckError;
 
     /**
      * last modification date
@@ -224,8 +217,6 @@ public class PackageVersion {
         c.detectFilePaths.addAll(this.detectFilePaths);
         c.detectFileSHA1s.addAll(this.detectFileSHA1s);
         c.tags.addAll(this.tags);
-        c.downloadCheckAt = this.downloadCheckAt;
-        c.downloadCheckError = this.downloadCheckError;
         c.lastModifiedBy = this.lastModifiedBy;
         return c;
     }
@@ -447,38 +438,44 @@ public class PackageVersion {
      * @param checkSum true = also check SHA-1 or SHA-256
      * @param algorithm SHA-256 or SHA-1
      * @return info about the download or null if the download failed
+     * @throws java.io.IOException error during the download
      */
-    public NWUtils.Info check(boolean checkSum, String algorithm) {
+    public NWUtils.Info check(boolean checkSum, String algorithm) throws
+            IOException {
         NWUtils.Info info = null;
-        this.downloadCheckAt = new Date();
-        this.downloadCheckError = "Unknown error";
+        String downloadCheckError;
         if (!this.url.isEmpty()) {
             try {
                 info = NWUtils.download(this.url, algorithm, 0);
                 if (checkSum) {
                     if (this.sha1.trim().isEmpty()) {
-                        this.downloadCheckError = null;
+                        downloadCheckError = null;
                     } else {
                         String sha1_ = NWUtils.byteArrayToHexString(info.sha1);
                         if (sha1_.equalsIgnoreCase(this.sha1.trim())) {
-                            this.downloadCheckError = null;
+                            downloadCheckError = null;
                         } else {
-                            this.downloadCheckError =
+                            downloadCheckError =
                                     "Wrong SHA1: " + this.sha1 +
                                     " was expected, but " + sha1_ +
                                     " was found";
                         }
                     }
                 } else {
-                    this.downloadCheckError = null;
+                    downloadCheckError = null;
                 }
             } catch (Exception e) {
-                this.downloadCheckError =
+                downloadCheckError =
                         "Error downloading: " + e.getMessage();
             }
         } else {
-            this.downloadCheckError = null;
+            downloadCheckError = null;
         }
+
+        if (downloadCheckError != null) {
+            throw new IOException(downloadCheckError);
+        }
+
         return info;
     }
 

@@ -45,7 +45,7 @@ public class PackageVersionSaveAction extends Action {
             } else {
                 PackageVersion p =
                         ofy.find(new Key<PackageVersion>(PackageVersion.class,
-                                        package_ + "@" + version));
+                                package_ + "@" + version));
                 PackageVersion old;
                 if (p == null) {
                     old = null;
@@ -55,11 +55,6 @@ public class PackageVersionSaveAction extends Action {
                     old = p.copy();
                 }
                 pvp.fillObject(p);
-                if (old == null || !p.url.equals(old.url) || !p.sha1.equals(
-                        old.sha1)) {
-                    p.downloadCheckAt = null;
-                    p.downloadCheckError = null;
-                }
 
                 NWUtils.savePackageVersion(ofy, old, p, true, true);
 

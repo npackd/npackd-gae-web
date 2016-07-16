@@ -43,20 +43,18 @@ public class PackageVersionComputeSHA256Action extends Action {
         } else {
             PackageVersion p =
                     ofy.get(new Key<PackageVersion>(PackageVersion.class,
-                                    package_ + "@" + version));
+                            package_ + "@" + version));
             PackageVersion oldp = p.copy();
-            Info info = p.check(false, "SHA-256");
-            if (info != null) {
+            try {
+                Info info = p.check(false, "SHA-256");
                 p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-            }
-            NWUtils.savePackageVersion(ofy, oldp, p, true, true);
-            if (p.downloadCheckError != null) {
-                page =
-                        new MessagePage("Cannot download the file: " +
-                                p.downloadCheckError);
-            } else {
+                NWUtils.savePackageVersion(ofy, oldp, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
+            } catch (IOException e) {
+                page =
+                        new MessagePage("Cannot download the file: " +
+                                e.getMessage());
             }
         }
         return page;

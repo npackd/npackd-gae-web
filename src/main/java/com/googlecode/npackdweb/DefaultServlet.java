@@ -11,7 +11,7 @@ import com.googlecode.npackdweb.admin.RecreateIndexAction;
 import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.ResavePackagesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
-import com.googlecode.npackdweb.api.MarkTestedAction;
+import com.googlecode.npackdweb.api.TagPackageVersionAction;
 import com.googlecode.npackdweb.api.NotifyAction;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
@@ -203,7 +203,6 @@ public class DefaultServlet extends HttpServlet {
 
         registerAction(new HomeAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
-        registerAction(new CheckDownloadAction());
         registerAction(new ResavePackageVersionsAction());
         registerAction(new CheckUpdatesAction());
         registerAction(new SendStatusAction("^/cron/tick$", 200));
@@ -223,7 +222,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new UpdateSafeBrowsingInfoAction());
 
         /* API */
-        registerAction(new MarkTestedAction());
+        registerAction(new TagPackageVersionAction());
         registerAction(new NotifyAction());
     }
 

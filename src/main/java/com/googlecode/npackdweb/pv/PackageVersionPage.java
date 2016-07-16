@@ -45,8 +45,6 @@ public class PackageVersionPage extends MyPage {
     private List<String> cmdFilePaths;
     private List<String> filePaths;
     private List<String> fileContents;
-    private String downloadCheckError;
-    private Date downloadCheckAt;
     private Date lastModifiedAt;
     private User lastModifiedBy;
     private int installSucceeded, installFailed, uninstallSucceeded, uninstallFailed;
@@ -71,8 +69,6 @@ public class PackageVersionPage extends MyPage {
         this.cmdFilePaths = new ArrayList<String>();
         this.filePaths = new ArrayList<String>();
         this.fileContents = new ArrayList<String>();
-        this.downloadCheckAt = null;
-        this.downloadCheckError = null;
         this.lastModifiedAt = null;
 
         UserService us = UserServiceFactory.getUserService();
@@ -124,8 +120,6 @@ public class PackageVersionPage extends MyPage {
         for (int i = 0; i < this.filePaths.size(); i++) {
             this.fileContents.add(pv.getFileContents(i));
         }
-        this.downloadCheckAt = pv.downloadCheckAt;
-        this.downloadCheckError = pv.downloadCheckError;
         this.lastModifiedAt = pv.lastModifiedAt;
         this.lastModifiedBy = pv.lastModifiedBy;
         this.installSucceeded = pv.installSucceeded;
@@ -752,29 +746,6 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
-        if (editable) {
-            w.start("tr");
-            w.e("td", "Download check:");
-            w.start("td");
-            if (downloadCheckAt != null) {
-                if (tags.contains("disable-download-check")) {
-                    w.t("Download check disabled");
-                } else {
-                    String s = "Checked at " + downloadCheckAt + ". ";
-                    if (downloadCheckError == null) {
-                        s += "The download completed successfully.";
-                    } else {
-                        s += "The download failed: " + downloadCheckError;
-                    }
-                    w.t(s);
-                }
-            } else {
-                w.t("Not yet checked");
-            }
-            w.end("td");
-            w.end("tr");
-        }
-
         w.end("table");
 
         if (editable) {
@@ -895,15 +866,10 @@ public class PackageVersionPage extends MyPage {
             }
         }
 
-        if (this.new_) {
-            this.downloadCheckAt = null;
-            this.downloadCheckError = null;
-        } else {
+        if (!this.new_) {
             Objectify ofy = DefaultServlet.getObjectify();
             PackageVersion pv =
                     PackageVersion.find(ofy, this.packageName, this.version);
-            this.downloadCheckAt = pv.downloadCheckAt;
-            this.downloadCheckError = pv.downloadCheckError;
         }
 
         UserService us = UserServiceFactory.getUserService();
