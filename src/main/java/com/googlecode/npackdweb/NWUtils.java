@@ -483,7 +483,7 @@ public class NWUtils {
                 r.add(line);
             }
         } catch (IOException e) {
-            throw new InternalError(e);
+            throw new InternalError(e.getMessage());
         }
         return r;
     }
@@ -496,7 +496,7 @@ public class NWUtils {
             return DocumentBuilderFactory.newInstance().newDocumentBuilder()
                     .newDocument();
         } catch (ParserConfigurationException e) {
-            throw new InternalError(e);
+            throw new InternalError(e.getMessage());
         }
     }
 
@@ -1071,6 +1071,21 @@ public class NWUtils {
     }
 
     /**
+     * Changes the size of a list.
+     *
+     * @param list a list
+     * @param m the desired size. New "null" values will be added, if necessary.
+     */
+    public static void resize(List<String> list, int m) {
+        while (list.size() > m) {
+            list.remove(list.size() - 1);
+        }
+        while (list.size() < m) {
+            list.add(null);
+        }
+    }
+
+    /**
      * Information about a downloaded file
      */
     public static class Info {
@@ -1289,7 +1304,7 @@ public class NWUtils {
             }
             return builder.toString();
         } catch (IOException e) {
-            throw new InternalError(e);
+            throw new InternalError(e.getMessage());
         }
     }
 
@@ -1510,5 +1525,27 @@ public class NWUtils {
             throw new IOException(ex);
         }
         return result;
+    }
+
+    /**
+     * Splits a string in two parts on the delimiter.
+     *
+     * @param s the string
+     * @param del delimiter
+     * @return [first string, second string] or [s, ""] if the delimiter was not
+     * found
+     */
+    public static String[] partition(String s, String del) {
+        int p = s.indexOf(del);
+        String[] r = new String[2];
+        if (p < 0) {
+            r[0] = s;
+            r[1] = "";
+        } else {
+            r[0] = s.substring(0, p);
+            r[1] = s.substring(p + 1);
+        }
+
+        return r;
     }
 }

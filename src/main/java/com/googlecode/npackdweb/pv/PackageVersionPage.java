@@ -34,7 +34,7 @@ public class PackageVersionPage extends MyPage {
 
     private String packageName;
     private String version;
-    private String url, sha, detectMSI;
+    private String url, sha;
     private List<String> dependencyPackages;
     private List<String> dependencyVersionRanges;
     private List<String> dependencyEnvVars;
@@ -57,7 +57,6 @@ public class PackageVersionPage extends MyPage {
         this.version = "";
         this.url = "";
         this.sha = "";
-        this.detectMSI = "";
         this.dependencyPackages = new ArrayList<String>();
         this.dependencyVersionRanges = new ArrayList<String>();
         this.dependencyEnvVars = new ArrayList<String>();
@@ -98,7 +97,6 @@ public class PackageVersionPage extends MyPage {
         this.version = pv.version;
         this.url = pv.url;
         this.sha = pv.sha1;
-        this.detectMSI = pv.detectMSI;
         this.dependencyPackages = new ArrayList<String>();
         this.dependencyPackages.addAll(pv.dependencyPackages);
         this.dependencyVersionRanges = new ArrayList<String>();
@@ -126,6 +124,13 @@ public class PackageVersionPage extends MyPage {
         this.installFailed = pv.installFailed;
         this.uninstallSucceeded = pv.uninstallSucceeded;
         this.uninstallFailed = pv.uninstallFailed;
+
+        StringBuilder detect = new StringBuilder();
+        for (int i = 0; i < pv.detectPackageNames.size(); i++) {
+            detect.append(pv.detectPackageNames.get(i)).append(' ').append(
+                    pv.detectPackageVersions.get(i)).append('\n');
+        }
+        this.params.put("detect", detect.toString());
     }
 
     @Override
@@ -373,24 +378,34 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // type
         w.start("tr");
-        w.start("td");
-        w.t("Detect MSI GUID");
-        if (editable) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
+        w.e("td", "Type:");
         w.start("td");
         if (editable) {
-            w.e("input", "class", "form-control", "type", "text", "name",
-                    "detectMSI", "value", detectMSI, "size", "43", "title",
-                    "MSI package ID like " +
-                    "{1ad147d0-be0e-3d6c-ac11-64f6dc4163f1}. " +
-                    "Leave this field empty if the package does not " +
-                    "install itself using the Microsoft installer.");
+            w.start("div", "class", "radio");
+            w.start("label",
+                    "title",
+                    "the file will be downloaded and placed in the package directory under the name derived from the download URL");
+            w.e("input", "type", "radio", "id", "oneFile", "name", "type",
+                    "value", "one-file", "checked", oneFile ? "checked" : null,
+                    "title",
+                    "The file may have any format and will be downloaded as-is.");
+            w.t("one file");
+            w.end("label");
+            w.end("div");
+
+            w.start("div", "class", "radio");
+            w.start("label", "title",
+                    "the file will be downloaded and unzipped in the package directory");
+            w.e("input", "type", "radio", "id", "zip", "name", "type", "value",
+                    "zip", "checked", !oneFile ? "checked" : null, "title",
+                    "The file must be in ZIP format and will be unpacked automatically.");
+            w.t("zip");
+            w.end("label");
+            w.end("div");
         } else {
-            w.t(detectMSI);
+            w.t(oneFile ? "one file" : "zip");
         }
         w.end("td");
         w.end("tr");
@@ -462,38 +477,6 @@ public class PackageVersionPage extends MyPage {
             w.end("td");
             w.end("tr");
         }
-
-        // type
-        w.start("tr");
-        w.e("td", "Type:");
-        w.start("td");
-        if (editable) {
-            w.start("div", "class", "radio");
-            w.start("label",
-                    "title",
-                    "the file will be downloaded and placed in the package directory under the name derived from the download URL");
-            w.e("input", "type", "radio", "id", "oneFile", "name", "type",
-                    "value", "one-file", "checked", oneFile ? "checked" : null,
-                    "title",
-                    "The file may have any format and will be downloaded as-is.");
-            w.t("one file");
-            w.end("label");
-            w.end("div");
-
-            w.start("div", "class", "radio");
-            w.start("label", "title",
-                    "the file will be downloaded and unzipped in the package directory");
-            w.e("input", "type", "radio", "id", "zip", "name", "type", "value",
-                    "zip", "checked", !oneFile ? "checked" : null, "title",
-                    "The file must be in ZIP format and will be unpacked automatically.");
-            w.t("zip");
-            w.end("label");
-            w.end("div");
-        } else {
-            w.t(oneFile ? "one file" : "zip");
-        }
-        w.end("td");
-        w.end("tr");
 
         w.start("tr");
         w.start("td");
@@ -654,12 +637,6 @@ public class PackageVersionPage extends MyPage {
                     "uninstall a .7z archive", "id",
                     "addSevenZIPFiles", "Add .7z files");
             w.end("li");
-            w.start("li");
-            w.e("a", "href", "#", "title",
-                    "Adds the files necessary to install and " +
-                    "uninstall a Vim plugin", "id", "addVimFiles",
-                    "Add Vim plugin files");
-            w.end("li");
             w.end("ul");
             w.end("div");
             w.end("td");
@@ -716,6 +693,49 @@ public class PackageVersionPage extends MyPage {
 
             w.end("div");
             w.end("div");
+        }
+        w.end("td");
+        w.end("tr");
+
+        // <detect>
+        w.start("tr");
+        w.start("td");
+        w.t("Detection");
+        w.e("small", " (optional)");
+        w.t(":");
+        w.end("td");
+        w.start("td");
+        if (editable) {
+            w.start("textarea",
+                    "class",
+                    "form-control nw-autosize",
+                    "rows",
+                    "5",
+                    "name",
+                    "detect",
+                    "cols",
+                    "80",
+                    "title",
+                    "List of package names and versions from other package managers. " +
+                    "These entries will be used to detect this package version since Npackd 1.22. " +
+                    "Each line should contain " +
+                    "one package name and version separated by a " +
+                    "space character. The package names detected by Npackd are " +
+                    "in form msi._xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_ for MSI " +
+                    "packages or control-panel.xxxxxx for packages detected " +
+                    "from the Software control panel in Windows.");
+            w.t(params.get("detect"));
+            w.end("textarea");
+        } else {
+            w.start("ul");
+            String detect = params.get("detect");
+            if (detect == null) {
+                detect = "";
+            }
+            for (String line : NWUtils.splitLines(detect)) {
+                w.e("li", line);
+            }
+            w.end("ul");
         }
         w.end("td");
         w.end("tr");
@@ -801,14 +821,16 @@ public class PackageVersionPage extends MyPage {
         return license;
     }
 
-    public void fillForm(HttpServletRequest req) {
+    @Override
+    public void fill(HttpServletRequest req) {
+        super.fill(req);
+
         this.new_ = "true".equals(req.getParameter("new"));
         packageName = req.getParameter("package");
         version = req.getParameter("version");
 
         url = req.getParameter("url");
         sha = req.getParameter("sha1");
-        detectMSI = req.getParameter("detectMSI");
         oneFile = "one-file".equals(req.getParameter("type"));
         tags = NWUtils.split(req.getParameter("tags"), ',');
 
@@ -932,12 +954,6 @@ public class PackageVersionPage extends MyPage {
         }
 
         if (r == null) {
-            if (!this.detectMSI.trim().isEmpty()) {
-                r = NWUtils.validateGUID(this.detectMSI);
-            }
-        }
-
-        if (r == null) {
             for (int i = 0; i < this.dependencyPackages.size(); i++) {
                 r = Package.checkName(this.dependencyPackages.get(i));
                 if (r != null) {
@@ -980,6 +996,41 @@ public class PackageVersionPage extends MyPage {
             }
         }
 
+        if (r == null) {
+            String detect = params.get("detect");
+            if (detect == null) {
+                detect = "";
+            }
+            List<String> lines = NWUtils.splitLines(detect);
+            for (String line : lines) {
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    String[] parts = NWUtils.partition(line, " ");
+
+                    // if there are many spaces between the package name and
+                    // the version
+                    parts[1] = parts[1].trim();
+
+                    if (parts[1].isEmpty()) {
+                        r = "Missing package version for detection";
+                    } else {
+                        r = Package.checkName(parts[0]);
+                        if (r == null) {
+                            try {
+                                Version.parse(parts[1]);
+                            } catch (NumberFormatException e) {
+                                r = "Invalid version number for detection: " +
+                                        e.getMessage();
+                            }
+                        }
+                    }
+                }
+                if (r != null) {
+                    break;
+                }
+            }
+        }
+
         return r;
     }
 
@@ -1015,7 +1066,6 @@ public class PackageVersionPage extends MyPage {
         pv.name = this.packageName + "@" + this.version;
         pv.url = this.url;
         pv.sha1 = this.sha;
-        pv.detectMSI = this.detectMSI;
         pv.dependencyPackages = new ArrayList<String>();
         pv.dependencyPackages.addAll(this.dependencyPackages);
         pv.dependencyVersionRanges = new ArrayList<String>();
@@ -1039,6 +1089,21 @@ public class PackageVersionPage extends MyPage {
         }
 
         pv.lastModifiedBy = this.lastModifiedBy;
+
+        pv.detectPackageNames.clear();
+        pv.detectPackageVersions.clear();
+        String detect = this.params.get("detect");
+        if (detect == null) {
+            detect = "";
+        }
+        List<String> lines = NWUtils.splitLines(detect);
+        for (String line : lines) {
+            if (!line.trim().isEmpty()) {
+                String[] parts = NWUtils.partition(line, " ");
+                pv.detectPackageNames.add(parts[0].trim());
+                pv.detectPackageVersions.add(parts[1].trim());
+            }
+        }
     }
 
     /**

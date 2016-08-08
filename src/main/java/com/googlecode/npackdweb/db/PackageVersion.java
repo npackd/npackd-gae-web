@@ -85,7 +85,12 @@ public class PackageVersion {
     public boolean oneFile;
     public String url = "";
     public String sha1 = "";
-    public String detectMSI = "";
+
+    /**
+     * @deprecated use detectPackageNames/detectPackageVersions instead
+     */
+    private String detectMSI = "";
+
     public List<String> importantFileTitles = new ArrayList<String>();
     public List<String> importantFilePaths = new ArrayList<String>();
 
@@ -100,6 +105,9 @@ public class PackageVersion {
     public List<String> dependencyEnvVars = new ArrayList<String>();
     public List<String> detectFilePaths = new ArrayList<String>();
     public List<String> detectFileSHA1s = new ArrayList<String>();
+
+    public List<String> detectPackageNames = new ArrayList<String>();
+    public List<String> detectPackageVersions = new ArrayList<String>();
 
     public List<String> tags;
 
@@ -158,6 +166,9 @@ public class PackageVersion {
         }
         tags = new ArrayList<String>();
         tags.add("not-reviewed");
+
+        this.detectPackageNames = new ArrayList<>();
+        this.detectPackageVersions = new ArrayList<>();
     }
 
     public String getName() {
@@ -182,10 +193,6 @@ public class PackageVersion {
 
     public String getSha1() {
         return sha1;
-    }
-
-    public String getDetectMSI() {
-        return detectMSI;
     }
 
     public List<String> getDependencyPackages() {
@@ -218,6 +225,8 @@ public class PackageVersion {
         c.detectFileSHA1s.addAll(this.detectFileSHA1s);
         c.tags.addAll(this.tags);
         c.lastModifiedBy = this.lastModifiedBy;
+        c.detectPackageNames.addAll(this.detectPackageNames);
+        c.detectPackageVersions.addAll(this.detectPackageVersions);
         return c;
     }
 
@@ -230,45 +239,45 @@ public class PackageVersion {
     public Element toXML(Document d) {
         PackageVersion pv = this;
 
-        Element version = d.createElement("version");
-        version.setAttribute("name", pv.version);
-        version.setAttribute("package", pv.package_);
+        Element v = d.createElement("version");
+        v.setAttribute("name", pv.version);
+        v.setAttribute("package", pv.package_);
         if (pv.oneFile) {
-            version.setAttribute("type", "one-file");
+            v.setAttribute("type", "one-file");
         }
         for (int i = 0; i < pv.importantFilePaths.size(); i++) {
             Element importantFile = d.createElement("important-file");
-            version.appendChild(importantFile);
+            v.appendChild(importantFile);
             importantFile.setAttribute("path", pv.importantFilePaths.get(i));
             importantFile.setAttribute("title", pv.importantFileTitles.get(i));
         }
         for (int i = 0; i < pv.cmdFilePaths.size(); i++) {
             Element cmdFile = d.createElement("cmd-file");
-            version.appendChild(cmdFile);
+            v.appendChild(cmdFile);
             cmdFile.setAttribute("path", pv.cmdFilePaths.get(i));
         }
         for (int i = 0; i < pv.filePaths.size(); i++) {
             Element file = d.createElement("file");
-            version.appendChild(file);
+            v.appendChild(file);
             file.setAttribute("path", pv.filePaths.get(i));
             NWUtils.t(file, pv.getFileContents(i));
         }
         if (!pv.url.isEmpty()) {
-            NWUtils.e(version, "url", pv.url);
+            NWUtils.e(v, "url", pv.url);
         }
 
         String sha1 = pv.sha1.trim();
         if (!sha1.isEmpty()) {
             if (sha1.length() == 40) {
-                NWUtils.e(version, "sha1", sha1);
+                NWUtils.e(v, "sha1", sha1);
             } else if (sha1.length() == 64) {
-                NWUtils.e(version, "hash-sum", "type", "SHA-256", sha1);
+                NWUtils.e(v, "hash-sum", "type", "SHA-256", sha1);
             }
         }
 
         for (int i = 0; i < pv.dependencyPackages.size(); i++) {
             Element dependency = d.createElement("dependency");
-            version.appendChild(dependency);
+            v.appendChild(dependency);
             dependency.setAttribute("package", pv.dependencyPackages.get(i));
             dependency.setAttribute("versions",
                     pv.dependencyVersionRanges.get(i));
@@ -276,16 +285,19 @@ public class PackageVersion {
                 NWUtils.e(dependency, "variable", pv.dependencyEnvVars.get(i));
             }
         }
-        if (!pv.detectMSI.isEmpty()) {
-            NWUtils.e(version, "detect-msi", pv.detectMSI);
-        }
         for (int i = 0; i < pv.detectFilePaths.size(); i++) {
             Element detectFile = d.createElement("detect-file");
-            version.appendChild(detectFile);
+            v.appendChild(detectFile);
             NWUtils.e(detectFile, "path", pv.detectFilePaths.get(i));
             NWUtils.e(detectFile, "sha1", pv.detectFileSHA1s.get(i));
         }
-        return version;
+        for (int i = 0; i < pv.detectPackageNames.size(); i++) {
+            Element detect = d.createElement("detect");
+            v.appendChild(detect);
+            detect.setAttribute("package", pv.detectPackageNames.get(i));
+            detect.setAttribute("version", pv.detectPackageVersions.get(i));
+        }
+        return v;
     }
 
     /**
@@ -342,6 +354,27 @@ public class PackageVersion {
         if (this.tags == null) {
             this.tags = new ArrayList<>();
         }
+
+        if (this.detectPackageNames == null) {
+            this.detectPackageNames = new ArrayList<>();
+        }
+        if (this.detectPackageVersions == null) {
+            this.detectPackageVersions = new ArrayList<>();
+        }
+        int m = Math.min(this.detectPackageNames.size(),
+                this.detectPackageVersions.size());
+        NWUtils.resize(this.detectPackageNames, m);
+        NWUtils.resize(this.detectPackageVersions, m);
+
+        if (detectMSI != null) {
+            if (NWUtils.validateGUID(detectMSI) == null) {
+                this.detectPackageNames.add("msi." + detectMSI.substring(1, 37).
+                        toLowerCase());
+                this.detectPackageVersions.add(this.version);
+            }
+        }
+
+        this.detectMSI = "";
     }
 
     @PrePersist

@@ -111,22 +111,12 @@ $(document).ready(function() {
         event.preventDefault();
     });
 
-    $('#addVimFiles').click(function(event) {
-        addFile(".Npackd\\Install.bat",
-                "mkdir \"%ALLUSERSPROFILE%/Npackd/VimPlugins/\"\r\n"
-                        + "mklink /D \"%ALLUSERSPROFILE%/Npackd/VimPlugins/%NPACKD_PACKAGE_NAME%\" \"%CD%\"\r\n");
-        addFile(".Npackd\\Uninstall.bat",
-                "rmdir \"%ALLUSERSPROFILE%/Npackd/VimPlugins/%NPACKD_PACKAGE_NAME%\"\r\n"
-                        + "verify\r\n");
-        event.preventDefault();
-    });
-
     $('#addSevenZIPFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
-		"\"%sevenzipa%\\7za.exe\" x \"%npackd_package_binary%\" > .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%npackd_package_binary%\"\r\n");
-        addDependency("org.7-zip.SevenZIPA", "[9.20, 20)", "sevenzipa");
+		"\"%nih%\\Extract.bat\" \"%npackd_package_binary%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+        addDependency("com.googlecode.windows-package-manager.NpackdInstallerHelper", "[1.19, 2)", "nih");
         $('#oneFile').prop('checked', true);
-        event.preventDefault();
+        event.preventDefault();        
     });
 
     $('#addDep').click(function(event) {

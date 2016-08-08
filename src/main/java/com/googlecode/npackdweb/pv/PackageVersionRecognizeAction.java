@@ -164,7 +164,7 @@ public class PackageVersionRecognizeAction extends Action {
         } catch (ResponseTooLargeException e) {
             NWUtils.LOG.log(Level.WARNING, e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
-            throw new InternalError(e);
+            throw new InternalError(e.getMessage());
         }
 
         byte[] contentLowerCase = null;

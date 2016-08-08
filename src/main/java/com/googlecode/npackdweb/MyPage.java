@@ -34,8 +34,6 @@ public abstract class MyPage extends Page {
     @Override
     public final void create(HttpServletRequest request,
             HttpServletResponse resp) throws IOException {
-        params.clear();
-        params.putAll(request.getParameterMap());
 
         resp.setContentType("text/html; charset=UTF-8");
         Writer out = resp.getWriter();
@@ -107,6 +105,14 @@ public abstract class MyPage extends Page {
      * @param req HTTP request
      */
     public void fill(HttpServletRequest req) {
+        this.params.clear();
+        for (Object e : req.getParameterMap().entrySet()) {
+            Map.Entry me = (Map.Entry) e;
+            String[] values = (String[]) me.getValue();
+            if (values.length == 1) {
+                this.params.put((String) me.getKey(), values[0]);
+            }
+        }
     }
 
     /**
@@ -123,7 +129,7 @@ public abstract class MyPage extends Page {
                     MyPage.getLoginHeader(request), "searchForm",
                     needsSearchFormInTheMenu() ? "true" : null);
         } catch (IOException e) {
-            throw new InternalError(e);
+            throw new InternalError(e.getMessage());
         }
     }
 

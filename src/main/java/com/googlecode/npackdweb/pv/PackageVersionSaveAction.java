@@ -31,7 +31,7 @@ public class PackageVersionSaveAction extends Action {
             throws IOException {
         Page page;
         PackageVersionPage pvp = new PackageVersionPage(null, false);
-        pvp.fillForm(req);
+        pvp.fill(req);
         String error = pvp.validate();
         if (error == null) {
             String package_ = pvp.getPackageName();
@@ -54,6 +54,7 @@ public class PackageVersionSaveAction extends Action {
                 } else {
                     old = p.copy();
                 }
+
                 pvp.fillObject(p);
 
                 NWUtils.savePackageVersion(ofy, old, p, true, true);
