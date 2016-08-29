@@ -29,7 +29,32 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
     @Override
     public void map(Entity value) {
-        moveToFilesNpackdOrg(value);
+        moveFromGoogleCodeFiles(value);
+    }
+
+    private void moveFromGoogleCodeFiles(Entity value) {
+        Objectify ofy = DefaultServlet.getObjectify();
+
+        PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion oldpv = pv.copy();
+        boolean save = false;
+
+        String[] parts = NWUtils.partition(pv.url, ".googlecode.com/files/");
+
+        if (!parts[1].isEmpty()) {
+            String[] parts2 = NWUtils.partition(parts[0], "://");
+            if (!parts2[1].isEmpty()) {
+                pv.url =
+                        "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/" +
+                        parts2[1] + "/" + parts[1];
+                save = true;
+            }
+        }
+
+        if (save) {
+            System.out.println("Saving " + pv.name + " " + pv.url);
+            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
+        }
     }
 
     private void moveToFilesNpackdOrg(Entity value) {

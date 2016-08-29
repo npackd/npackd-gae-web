@@ -1209,7 +1209,7 @@ public class NWUtils {
             String defaultValue) {
         Setting st =
                 ofy.find(new com.googlecode.objectify.Key<Setting>(
-                        Setting.class, name));
+                                Setting.class, name));
         String value;
         if (st == null) {
             st = new Setting();
@@ -1232,7 +1232,7 @@ public class NWUtils {
     public static void setSetting(Objectify ofy, String name, String value) {
         Setting st =
                 ofy.find(new com.googlecode.objectify.Key<Setting>(
-                        Setting.class, name));
+                                Setting.class, name));
         if (st == null) {
             st = new Setting();
             st.name = name;
@@ -1290,7 +1290,7 @@ public class NWUtils {
             try {
                 Reader reader =
                         new BufferedReader(new InputStreamReader(stream,
-                                "UTF-8"));
+                                        "UTF-8"));
                 char[] buffer = new char[8192];
                 int read;
                 while ((read = reader.read(buffer, 0, buffer.length)) > 0) {
@@ -1502,7 +1502,7 @@ public class NWUtils {
                  getContent(), "US-ASCII"));*/
                 final BufferedReader br =
                         new BufferedReader(new StringReader(new String(r.
-                                getContent(), "US-ASCII")));
+                                                getContent(), "US-ASCII")));
                 int i = 0;
                 String line;
                 while ((i < result.length) && (line = br.readLine()) != null) {
@@ -1543,7 +1543,7 @@ public class NWUtils {
             r[1] = "";
         } else {
             r[0] = s.substring(0, p);
-            r[1] = s.substring(p + 1);
+            r[1] = s.substring(p + del.length());
         }
 
         return r;

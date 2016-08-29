@@ -20,7 +20,7 @@
 
 
 	<properties>
-		<appengine.target.version>1.9.26</appengine.target.version>
+		<appengine.target.version>1.9.42</appengine.target.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
