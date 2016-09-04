@@ -464,7 +464,7 @@ public class PackageVersionPage extends MyPage {
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Package dp =
                         ofy.find(new com.googlecode.objectify.Key<Package>(
-                                Package.class, dependencyPackages.get(i)));
+                                        Package.class, dependencyPackages.get(i)));
 
                 w.start("li");
                 w.e("a", "href", "/p/" + dependencyPackages.get(i),
@@ -619,21 +619,21 @@ public class PackageVersionPage extends MyPage {
             w.end("li");
             w.start("li");
             w.e("a", "href", "#", "title",
-                    "Adds the files necessary to install and " +
+                    "Adds the files and dependencies necessary to install and " +
                     "uninstall an installation package (.exe) " +
                     "created using Inno Setup", "id",
                     "addInnoSetupFiles", "Add Inno Setup files");
             w.end("li");
             w.start("li");
             w.e("a", "href", "#", "title",
-                    "Adds the files necessary to install and " +
+                    "Adds the files and dependencies necessary to install and " +
                     "uninstall an installation package (.msi) " +
                     "created for the Microsoft Installer", "id",
                     "addMSIFiles", "Add MSI files");
             w.end("li");
             w.start("li");
             w.e("a", "href", "#", "title",
-                    "Adds the files necessary to install and " +
+                    "Adds the files and dependencies necessary to install and " +
                     "uninstall a .7z archive", "id",
                     "addSevenZIPFiles", "Add .7z files");
             w.end("li");
@@ -931,7 +931,7 @@ public class PackageVersionPage extends MyPage {
                 Objectify ofy = DefaultServlet.getObjectify();
                 PackageVersion p =
                         ofy.find(new Key<PackageVersion>(PackageVersion.class,
-                                packageName.trim() + "@" + v.toString()));
+                                        packageName.trim() + "@" + v.toString()));
                 if (p != null) {
                     r = "Package version " + v + " already exists";
                 }
