@@ -73,7 +73,8 @@ public class PackagesPage extends MyPage {
     private String internalCreateContent() {
         Index index = NWUtils.getIndex();
         QueryOptions.Builder ob =
-                QueryOptions.newBuilder().setLimit(1000).setOffset(start);
+                QueryOptions.newBuilder().setLimit(PAGE_SIZE + 1).setOffset(
+                        start);
 
         SortExpression se;
         if (!recent) {
