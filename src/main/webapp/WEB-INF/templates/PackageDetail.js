@@ -1,7 +1,7 @@
 var defaultTags = ["Communications", "Development",
                 "Education", "Finance", "Games", "Music", "News", "Photo",
                 "Productivity", "Security", "Text", "Tools", "Video",
-                "auto-create-versions"];
+                "auto-create-versions", "end-of-life"];
                                     
 function updateTagCheckboxes() {
 	var allTags = defaultTags.slice();

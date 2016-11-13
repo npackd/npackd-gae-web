@@ -224,6 +224,14 @@ public class PackagesPage extends MyPage {
                     }
                 }
 
+                if (p.hasTag("end-of-life")) {
+                    w.t(" ");
+                    w.e("span", "class", "label label-warning",
+                            "title",
+                            "The development was stopped. There will be no new versions of this software.",
+                            "end-of-life");
+                }
+
                 /*
                  * // Google+ w.unencoded(
                  * " <div class='g-plusone' data-size='small' data-href='https://npackd.appspot.com/p/"
