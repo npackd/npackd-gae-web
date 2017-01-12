@@ -1,5 +1,7 @@
 package com.googlecode.npackdweb.pv;
 
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -12,6 +14,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import java.io.IOException;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -54,7 +57,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
         } else {
             PackageVersion copyFound =
                     ofy.find(new Key<PackageVersion>(PackageVersion.class,
-                            p.package_ + "@" + version));
+                                    p.package_ + "@" + version));
             if (copyFound != null) {
                 err =
                         "This version already exists: " + p.package_ + " " +
@@ -68,6 +71,9 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 PackageVersion copy = p.copy();
                 copy.name = copy.package_ + "@" + version;
                 copy.version = version;
+                copy.createdAt = new Date();
+                UserService us = UserServiceFactory.getUserService();
+                copy.createdBy = us.getCurrentUser();
                 copy.addTag("untested");
 
                 NWUtils.savePackageVersion(ofy, null, copy, true, true);

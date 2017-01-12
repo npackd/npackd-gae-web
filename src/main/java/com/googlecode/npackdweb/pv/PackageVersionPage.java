@@ -47,6 +47,8 @@ public class PackageVersionPage extends MyPage {
     private List<String> fileContents;
     private Date lastModifiedAt;
     private User lastModifiedBy;
+    private Date createdAt;
+    private User createdBy;
     private int installSucceeded, installFailed, uninstallSucceeded, uninstallFailed;
 
     /**
@@ -77,6 +79,7 @@ public class PackageVersionPage extends MyPage {
             this.lastModifiedBy =
                     new User("tim.lebedkov@gmail.com", "gmail.com");
         }
+        this.createdBy = this.lastModifiedBy;
     }
 
     /**
@@ -120,6 +123,8 @@ public class PackageVersionPage extends MyPage {
         }
         this.lastModifiedAt = pv.lastModifiedAt;
         this.lastModifiedBy = pv.lastModifiedBy;
+        this.createdAt = pv.createdAt;
+        this.createdBy = pv.createdBy;
         this.installSucceeded = pv.installSucceeded;
         this.installFailed = pv.installFailed;
         this.uninstallSucceeded = pv.uninstallSucceeded;
@@ -752,6 +757,21 @@ public class PackageVersionPage extends MyPage {
         w.start("td");
         w.unencoded(lastModifiedBy == null ? "" : NWUtils.obfuscateEmail(ofy,
                 lastModifiedBy.getEmail()));
+        w.end("td");
+        w.end("tr");
+
+        w.start("tr");
+        w.e("td", "Created:");
+        w.start("td");
+        w.t(createdAt == null ? "" : createdAt.toString());
+        w.end("td");
+        w.end("tr");
+
+        w.start("tr");
+        w.e("td", "Created by:");
+        w.start("td");
+        w.unencoded(createdBy == null ? "" : NWUtils.obfuscateEmail(ofy,
+                createdBy.getEmail()));
         w.end("td");
         w.end("tr");
 

@@ -122,6 +122,16 @@ public class PackageVersion {
     public User lastModifiedBy;
 
     /**
+     * creation date
+     */
+    public Date createdAt;
+
+    /**
+     * user for the creation
+     */
+    public User createdBy;
+
+    /**
      * number of installations that succeeded
      */
     public int installSucceeded;
@@ -164,6 +174,7 @@ public class PackageVersion {
             this.lastModifiedBy =
                     new User("tim.lebedkov@gmail.com", "gmail.com");
         }
+        this.createdBy = this.lastModifiedBy;
         tags = new ArrayList<String>();
         tags.add("not-reviewed");
 
@@ -225,6 +236,8 @@ public class PackageVersion {
         c.detectFileSHA1s.addAll(this.detectFileSHA1s);
         c.tags.addAll(this.tags);
         c.lastModifiedBy = this.lastModifiedBy;
+        c.createdAt = this.createdAt;
+        c.createdBy = this.createdBy;
         c.detectPackageNames.addAll(this.detectPackageNames);
         c.detectPackageVersions.addAll(this.detectPackageVersions);
         return c;
@@ -337,6 +350,10 @@ public class PackageVersion {
             this.lastModifiedAt = new Date();
         }
 
+        if (this.createdAt == null) {
+            this.createdAt = this.lastModifiedAt;
+        }
+
         while (this.dependencyEnvVars.size() < this.dependencyPackages.size()) {
             this.dependencyEnvVars.add("");
         }
@@ -349,6 +366,10 @@ public class PackageVersion {
                 this.lastModifiedBy =
                         new User("tim.lebedkov@gmail.com", "gmail.com");
             }
+        }
+
+        if (createdBy == null) {
+            this.createdBy = this.lastModifiedBy;
         }
 
         if (this.tags == null) {
