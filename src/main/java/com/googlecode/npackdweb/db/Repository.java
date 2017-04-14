@@ -1,17 +1,15 @@
 package com.googlecode.npackdweb.db;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.Id;
+import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
 
 /**
  * A repository.
@@ -19,26 +17,34 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 @Cached
 public class Repository {
-    /** name of the repository */
+
+    /**
+     * name of the repository
+     */
     @Id
     public String name;
 
-    /** last modification date */
+    /**
+     * last modification date
+     */
     public Date lastModifiedAt;
 
-    /** path to the XML blob or null */
+    /**
+     * path to the XML blob or null
+     */
     public String blobFile;
 
     @PostLoad
     public void postLoad() {
-        if (this.lastModifiedAt == null)
-            this.lastModifiedAt = new Date();
+        if (this.lastModifiedAt == null) {
+            this.lastModifiedAt = NWUtils.newDate();
+        }
     }
 
     @PrePersist
     void onPersist() {
         NWUtils.incDataVersion();
-        this.lastModifiedAt = new Date();
+        this.lastModifiedAt = NWUtils.newDate();
     }
 
     /**
@@ -50,11 +56,9 @@ public class Repository {
 
     /**
      * Searches for the repository with the given tag.
-     * 
-     * @param ofy
-     *            Objectify
-     * @param tag
-     *            tag name
+     *
+     * @param ofy Objectify
+     * @param tag tag name
      * @return found repository or null
      */
     public static Repository findByTag(Objectify ofy, String tag) {
@@ -62,8 +66,7 @@ public class Repository {
     }
 
     /**
-     * @param ofy
-     *            Objectify instance
+     * @param ofy Objectify instance
      * @return all defined repositories
      */
     public static List<Repository> findAll(Objectify ofy) {

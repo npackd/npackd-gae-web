@@ -55,14 +55,14 @@ public class License {
     @PostLoad
     public void postLoad() {
         if (this.lastModifiedAt == null) {
-            this.lastModifiedAt = new Date();
+            this.lastModifiedAt = NWUtils.newDate();
         }
     }
 
     @PrePersist
     void onPersist() {
         NWUtils.incDataVersion();
-        this.lastModifiedAt = new Date();
+        this.lastModifiedAt = NWUtils.newDate();
     }
 
     /**

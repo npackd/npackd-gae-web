@@ -49,7 +49,7 @@ public class LicensePage extends MyPage {
         id = "";
         title = "";
         url = "";
-        modifiedAt = new Date();
+        modifiedAt = NWUtils.newDate();
     }
 
     @Override
@@ -157,8 +157,8 @@ public class LicensePage extends MyPage {
                     "style",
                     "cursor: pointer; font-size: 20px; font-weight: bold");
             /*
-			 * w.start("a", "id", "url-link", "href", "#", "target", "_blank");
-			 * w.e("img", "src", "/Link.png"); w.end("a");
+             * w.start("a", "id", "url-link", "href", "#", "target", "_blank");
+             * w.e("img", "src", "/Link.png"); w.end("a");
              */
         } else {
             w.e("a", "href", url, url);
@@ -217,7 +217,7 @@ public class LicensePage extends MyPage {
         url = req.getParameter("url");
 
         if (this.id == null || this.id.trim().length() == 0) {
-            this.modifiedAt = new Date();
+            this.modifiedAt = NWUtils.newDate();
         } else {
             Objectify ofy = DefaultServlet.getObjectify();
             License p = License.findByName(ofy, this.id);

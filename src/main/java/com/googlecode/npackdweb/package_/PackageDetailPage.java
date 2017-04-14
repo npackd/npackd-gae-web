@@ -775,7 +775,7 @@ public class PackageDetailPage extends MyPage {
         permissions = req.getParameter("permissions");
 
         if (this.mode == FormMode.CREATE) {
-            this.createdAt = new Date();
+            this.createdAt = NWUtils.newDate();
             this.createdBy =
                     UserServiceFactory.getUserService().getCurrentUser();
         } else {

@@ -63,7 +63,7 @@ public class CheckUpdatesAction extends Action {
                         PackageVersion pv = versions.get(versions.size() - 1);
                         int r = v.compare(Version.parse(pv.version));
                         if (r == 0) {
-                            noUpdatesCheck = new Date();
+                            noUpdatesCheck = NWUtils.newDate();
                         } else if (r > 0) {
                             if (old.hasTag("auto-create-versions")) {
                                 final PackageVersion d =

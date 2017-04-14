@@ -14,7 +14,6 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import java.io.IOException;
-import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -71,7 +70,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 PackageVersion copy = p.copy();
                 copy.name = copy.package_ + "@" + version;
                 copy.version = version;
-                copy.createdAt = new Date();
+                copy.createdAt = NWUtils.newDate();
                 UserService us = UserServiceFactory.getUserService();
                 copy.createdBy = us.getCurrentUser();
                 copy.addTag("untested");

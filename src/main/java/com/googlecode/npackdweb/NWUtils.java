@@ -58,6 +58,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -750,7 +751,7 @@ public class NWUtils {
             NWUtils.increasePackageNumber();
         }
         if (changeLastModifiedAt) {
-            p.lastModifiedAt = new Date();
+            p.lastModifiedAt = NWUtils.newDate();
         }
 
         ofy.put(p);
@@ -805,7 +806,7 @@ public class NWUtils {
             PackageVersion p,
             boolean changeLastModified, boolean changeNotReviewed) {
         if (changeLastModified) {
-            p.lastModifiedAt = new Date();
+            p.lastModifiedAt = NWUtils.newDate();
             p.lastModifiedBy =
                     UserServiceFactory.getUserService().getCurrentUser();
         }
@@ -1086,6 +1087,22 @@ public class NWUtils {
     }
 
     /**
+     * As "new Date()", but sets the hours to 22.
+     *
+     * @return new Date object
+     */
+    public static Date newDate() {
+        Date d = new Date();
+        if (isAdminLoggedIn()) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(d);
+            c.set(Calendar.HOUR_OF_DAY, 22);
+            d = c.getTime();
+        }
+        return d;
+    }
+
+    /**
      * Information about a downloaded file
      */
     public static class Info {
@@ -1333,7 +1350,7 @@ public class NWUtils {
             NWUtils.increasePackageNumber();
         }
         if (changeLastModifiedAt) {
-            p.lastModifiedAt = new Date();
+            p.lastModifiedAt = NWUtils.newDate();
         }
         ofy.put(p);
         NWUtils.incDataVersion();

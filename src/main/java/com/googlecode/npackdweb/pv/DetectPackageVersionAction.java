@@ -14,7 +14,6 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +98,7 @@ public class DetectPackageVersionAction extends Action {
                     copy = pv.copy();
                     UserService us = UserServiceFactory.getUserService();
                     copy.createdBy = us.getCurrentUser();
-                    copy.createdAt = new Date();
+                    copy.createdAt = NWUtils.newDate();
                 }
                 copy.name = copy.package_ + "@" + v.toString();
                 copy.version = v.toString();

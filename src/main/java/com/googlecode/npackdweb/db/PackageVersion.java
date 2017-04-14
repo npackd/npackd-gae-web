@@ -114,7 +114,7 @@ public class PackageVersion {
     /**
      * last modification date
      */
-    public Date lastModifiedAt = new Date();
+    public Date lastModifiedAt = NWUtils.newDate();
 
     /**
      * user for the last modification
@@ -347,7 +347,7 @@ public class PackageVersion {
         }
 
         if (this.lastModifiedAt == null) {
-            this.lastModifiedAt = new Date();
+            this.lastModifiedAt = NWUtils.newDate();
         }
 
         if (this.createdAt == null) {

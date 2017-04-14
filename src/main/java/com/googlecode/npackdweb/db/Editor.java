@@ -1,16 +1,14 @@
 package com.googlecode.npackdweb.db;
 
-import java.util.Date;
-
-import javax.persistence.Id;
-import javax.persistence.PrePersist;
-
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
+import java.util.Date;
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
 
 /**
  * A package.
@@ -18,20 +16,29 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 @Cached
 public class Editor {
+
     @Id
     /* User.getEmail() */
     public String name = "";
 
-    /** last modification date */
-    public Date lastModifiedAt = new Date();
+    /**
+     * last modification date
+     */
+    public Date lastModifiedAt = NWUtils.newDate();
 
-    /** creation time */
-    public Date createdAt = new Date();
+    /**
+     * creation time
+     */
+    public Date createdAt = NWUtils.newDate();
 
-    /** this package was created by this user */
+    /**
+     * this package was created by this user
+     */
     public User createdBy;
 
-    /** ID > 0 */
+    /**
+     * ID > 0
+     */
     public int id;
 
     /**
@@ -41,13 +48,13 @@ public class Editor {
     }
 
     /**
-     * @param user
-     *            editor
+     * @param user editor
      */
     public Editor(User user) {
         createdBy = UserServiceFactory.getUserService().getCurrentUser();
-        if (createdBy == null)
+        if (createdBy == null) {
             createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
+        }
         this.name = user.getEmail();
     }
 
@@ -58,7 +65,7 @@ public class Editor {
     @PrePersist
     void onPersist() {
         NWUtils.incDataVersion();
-        this.lastModifiedAt = new Date();
+        this.lastModifiedAt = NWUtils.newDate();
     }
 
     /**
