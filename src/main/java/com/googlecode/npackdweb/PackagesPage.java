@@ -74,7 +74,7 @@ public class PackagesPage extends MyPage {
         Index index = NWUtils.getIndex();
         QueryOptions.Builder ob =
                 QueryOptions.newBuilder().setLimit(PAGE_SIZE + 1).setOffset(
-                        start);
+                        start).setNumberFoundAccuracy(2000);
 
         SortExpression se;
         if (!recent) {
