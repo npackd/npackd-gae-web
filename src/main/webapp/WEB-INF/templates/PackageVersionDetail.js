@@ -111,6 +111,16 @@ $(document).ready(function() {
         event.preventDefault();
     });
 
+    $('#addZIPDirFiles').click(function(event) {
+        addFile(".Npackd\\Install.bat",
+                "for /f \"delims=\" %%x in ('dir /b " + $('#package').val() + 
+                "*') do set name=%%x\r\n" + 
+		"call \"%nih%\\Extract.bat\" \"%name%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+        addDependency("com.googlecode.windows-package-manager.NpackdInstallerHelper", "[1.19, 2)", "nih");
+        $('#zip').prop('checked', true);
+        event.preventDefault();        
+    });
+
     $('#addSevenZIPFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
 		"call \"%nih%\\Extract.bat\" \"%npackd_package_binary%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");

@@ -138,6 +138,50 @@ public class PackageVersionPage extends MyPage {
         this.params.put("detect", detect.toString());
     }
 
+    private void createScripts(HTMLWriter w) {
+        w.start("button", "class", "btn btn-default dropdown-toggle",
+                "type", "button", "data-toggle", "dropdown");
+        w.t("Create scripts ");
+        w.e("span", "class", "caret");
+        w.end("button");
+        w.start("ul", "class", "dropdown-menu", "role", "menu");
+        w.start("li");
+        w.e("a", "href", "#", "title",
+                "Adds the files necessary to install and " +
+                "uninstall an installation package (.exe) " +
+                "created using NSIS", "id", "addNSISFiles",
+                "NSIS");
+        w.end("li");
+        w.start("li");
+        w.e("a", "href", "#", "title",
+                "Adds the files and dependencies necessary to install and " +
+                "uninstall an installation package (.exe) " +
+                "created using Inno Setup", "id",
+                "addInnoSetupFiles", "Inno Setup");
+        w.end("li");
+        w.start("li");
+        w.e("a", "href", "#", "title",
+                "Adds the files and dependencies necessary to install and " +
+                "uninstall an installation package (.msi) " +
+                "created for the Microsoft Installer", "id",
+                "addMSIFiles", "MSI");
+        w.end("li");
+        w.start("li");
+        w.e("a", "href", "#", "title",
+                "Adds the files and dependencies necessary to install and " +
+                "uninstall a .zip archive with an additional top-level directory",
+                "id",
+                "addZIPDirFiles", ".zip with a top-level directory");
+        w.end("li");
+        w.start("li");
+        w.e("a", "href", "#", "title",
+                "Adds the files and dependencies necessary to install and " +
+                "uninstall a .7z archive", "id",
+                "addSevenZIPFiles", ".7z");
+        w.end("li");
+        w.end("ul");
+    }
+
     @Override
     public String getTitleHTML() {
         HTMLWriter w = new HTMLWriter();
@@ -181,10 +225,11 @@ public class PackageVersionPage extends MyPage {
                     "id", "package",
                     "value",
                     this.packageName);
-            w.start("div", "class", "btn-group");
-            w.e("input", "class", "btn btn-default", "type", "submit", "title",
-                    "Saves the changes", "value", "Save", "id", "save");
             if (!new_) {
+                w.start("div", "class", "btn-group");
+                w.e("input", "class", "btn btn-default", "type", "submit",
+                        "title",
+                        "Saves the changes", "value", "Save", "id", "save");
                 NWUtils.jsButton_(w, "Copy", "copyOnClick()",
                         "Create a copy of this package version");
                 NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
@@ -214,8 +259,16 @@ public class PackageVersionPage extends MyPage {
                         "/package-version/recognize?package=" + packageName +
                         "&version=" + version,
                         "downloads the binary and tries to recognize the used installer and create the necessary dependencies and scripts automatically");
+                createScripts(w);
+                w.end("div");
+            } else {
+                w.start("div", "class", "btn-group");
+                w.e("input", "class", "btn btn-default", "type", "submit",
+                        "title",
+                        "Saves the changes", "value", "Save", "id", "save");
+                createScripts(w);
+                w.end("div");
             }
-            w.end("div");
         }
 
         w.start("table", "id", "fields", "itemscope", "itemscope", "itemtype",
@@ -608,42 +661,6 @@ public class PackageVersionPage extends MyPage {
             w.end("div");
             w.t(" ");
 
-            w.start("div", "class", "btn-group");
-            w.start("button", "class", "btn btn-default dropdown-toggle",
-                    "type", "button", "data-toggle", "dropdown");
-            w.t("Add ");
-            w.e("span", "class", "caret");
-            w.end("button");
-            w.start("ul", "class", "dropdown-menu", "role", "menu");
-            w.start("li");
-            w.e("a", "href", "#", "title",
-                    "Adds the files necessary to install and " +
-                    "uninstall an installation package (.exe) " +
-                    "created using NSIS", "id", "addNSISFiles",
-                    "Add NSIS files");
-            w.end("li");
-            w.start("li");
-            w.e("a", "href", "#", "title",
-                    "Adds the files and dependencies necessary to install and " +
-                    "uninstall an installation package (.exe) " +
-                    "created using Inno Setup", "id",
-                    "addInnoSetupFiles", "Add Inno Setup files");
-            w.end("li");
-            w.start("li");
-            w.e("a", "href", "#", "title",
-                    "Adds the files and dependencies necessary to install and " +
-                    "uninstall an installation package (.msi) " +
-                    "created for the Microsoft Installer", "id",
-                    "addMSIFiles", "Add MSI files");
-            w.end("li");
-            w.start("li");
-            w.e("a", "href", "#", "title",
-                    "Adds the files and dependencies necessary to install and " +
-                    "uninstall a .7z archive", "id",
-                    "addSevenZIPFiles", "Add .7z files");
-            w.end("li");
-            w.end("ul");
-            w.end("div");
             w.end("td");
             w.end("tr");
 
