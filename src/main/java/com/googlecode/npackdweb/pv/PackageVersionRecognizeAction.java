@@ -61,7 +61,7 @@ public class PackageVersionRecognizeAction extends Action {
         } else {
             PackageVersion p =
                     ofy.get(new Key<PackageVersion>(PackageVersion.class,
-                            package_ + "@" + version));
+                                    package_ + "@" + version));
             PackageVersion oldp = p.copy();
             String err = recognize(p);
             if (err != null) {
@@ -120,8 +120,8 @@ public class PackageVersionRecognizeAction extends Action {
         long startPosition = 0;
 
         // limit 32 MiB:
-        // https://developers.google.com/appengine/docs/java/urlfetch/
-        long segment = 10 * 1024 * 1024;
+        // https://cloud.google.com/appengine/quotas#UrlFetch
+        long segment = 20 * 1024 * 1024;
 
         // true if the complete file was downloaded, false if only the first
         // part of the file was downloaded
