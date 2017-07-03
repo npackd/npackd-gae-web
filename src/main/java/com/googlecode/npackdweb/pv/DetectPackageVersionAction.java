@@ -56,11 +56,19 @@ public class DetectPackageVersionAction extends Action {
                     "No discovery regular expression for a package version is defined";
         }
 
+        if (msg != null) {
+            return new MessagePage(msg);
+        }
+
         Version v = null;
         try {
             v = p.findNewestVersion();
         } catch (IOException e) {
             msg = e.getMessage();
+        }
+
+        if (msg != null) {
+            return new MessagePage(msg);
         }
 
         List<PackageVersion> versions = p.getSortedVersions(ofy);
