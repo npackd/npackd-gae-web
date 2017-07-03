@@ -234,6 +234,7 @@ public class PackageVersion {
         c.dependencyEnvVars.addAll(this.dependencyEnvVars);
         c.detectFilePaths.addAll(this.detectFilePaths);
         c.detectFileSHA1s.addAll(this.detectFileSHA1s);
+        c.tags.clear();
         c.tags.addAll(this.tags);
         c.lastModifiedBy = this.lastModifiedBy;
         c.createdAt = this.createdAt;

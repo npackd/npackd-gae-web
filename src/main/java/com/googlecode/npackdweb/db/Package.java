@@ -634,7 +634,8 @@ public class Package {
             copy = new PackageVersion(this.name, version.toString());
         }
 
-        if (this.discoveryURLPattern.trim().length() > 0) {
+        if (!hasTag("same-url") &&
+                this.discoveryURLPattern.trim().length() > 0) {
             Map<String, String> map = new HashMap<>();
             map.put("${version}", version.toString());
             /*
@@ -670,7 +671,7 @@ public class Package {
             copy.addTag("untested");
         }
 
-        NWUtils.savePackageVersion(ofy, null, copy, true, true);
+        NWUtils.savePackageVersion(ofy, null, copy, true, !hasTag("same-url"));
 
         return copy;
     }
