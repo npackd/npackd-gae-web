@@ -577,7 +577,10 @@ public class PackageDetailPage extends MyPage {
                     "size",
                     "80",
                     "title",
-                    "pattern for the download URL for the newly discovered package");
+                    "pattern for the download URL for the newly discovered " +
+                    "package. Use ${version} for the whole version " +
+                    "number and ${v0}, ${v1}, etc. to access one " +
+                    "number from the version.");
             w.start("datalist", "id", "discovery-url");
             w.e("option", "value",
                     "http://www.example.com/downloads/example-${version}.zip");

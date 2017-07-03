@@ -638,15 +638,13 @@ public class Package {
                 this.discoveryURLPattern.trim().length() > 0) {
             Map<String, String> map = new HashMap<>();
             map.put("${version}", version.toString());
-            /*
-             map.put("${{version2Parts}}", v.toString());
-             map.put("${{version3Parts}}", v.toString());
-             map.put("${{version2PartsWithoutDots}}", v.toString());
-             map.put("${{actualVersion}}", v.toString());
-             map.put("${{actualVersionWithoutDots}}", v.toString());
-             map.put("${{actualVersionWithUnderscores}}", v.toString());
-             map.put("${{match}}", v.toString());
-             */
+            map.put("${v0}", Integer.toString(version.getPart(0)));
+            map.put("${v1}", Integer.toString(version.getPart(1)));
+            map.put("${v2}", Integer.toString(version.getPart(2)));
+            map.put("${v3}", Integer.toString(version.getPart(3)));
+            map.put("${v4}", Integer.toString(version.getPart(4)));
+            map.put("${v5}", Integer.toString(version.getPart(5)));
+            /*map.put("${{match}}", v.toString());*/
             copy.url = NWUtils.tmplString(this.discoveryURLPattern, map);
             if (!copy.sha1.isEmpty()) {
                 try {
