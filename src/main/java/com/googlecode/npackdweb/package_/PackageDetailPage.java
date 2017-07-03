@@ -139,11 +139,6 @@ public class PackageDetailPage extends MyPage {
         permissions = "";
     }
 
-    /*
-     * @Override public String getHeadPart() { return
-     * "<script type=\"text/javascript\" language=\"javascript\" src=\"/com.googlecode.npackdweb.Editor/com.googlecode.npackdweb.Editor.nocache.js\"></script>\n"
-     * ; }
-     */
     @Override
     public String createBodyBottom(HttpServletRequest request)
             throws IOException {

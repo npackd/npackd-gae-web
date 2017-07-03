@@ -1,10 +1,7 @@
 package com.googlecode.npackdweb.pv;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
-import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -14,9 +11,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -68,64 +63,34 @@ public class DetectPackageVersionAction extends Action {
             msg = e.getMessage();
         }
 
-        if (msg == null) {
-            List<PackageVersion> versions = p.getSortedVersions(ofy);
+        List<PackageVersion> versions = p.getSortedVersions(ofy);
 
-            PackageVersion pv;
-            Version vnewest = null;
-            if (versions.size() > 0) {
-                pv = versions.get(versions.size() - 1);
-                vnewest = Version.parse(pv.version);
-                if (vnewest.compare(v) > 0) {
-                    msg =
-                            "The newest defined version " + vnewest.toString() +
-                            " is bigger than the detected " +
-                            v.toString();
-                } else if (vnewest.compare(v) == 0) {
-                    msg =
-                            "The newest version is already in the repository (" +
-                            vnewest + ")";
-                }
-            } else {
-                pv = null;
-            }
-
-            if (msg == null) {
-                PackageVersion copy;
-                if (pv == null) {
-                    copy = new PackageVersion(package_, v.toString());
-                } else {
-                    copy = pv.copy();
-                    UserService us = UserServiceFactory.getUserService();
-                    copy.createdBy = us.getCurrentUser();
-                    copy.createdAt = NWUtils.newDate();
-                }
-                copy.name = copy.package_ + "@" + v.toString();
-                copy.version = v.toString();
-                if (p.discoveryURLPattern.trim().length() > 0) {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("${version}", v.toString());
-                    /*
-                     map.put("${{version2Parts}}", v.toString());
-                     map.put("${{version3Parts}}", v.toString());
-                     map.put("${{version2PartsWithoutDots}}", v.toString());
-                     map.put("${{actualVersion}}", v.toString());
-                     map.put("${{actualVersionWithoutDots}}", v.toString());
-                     map.put("${{actualVersionWithUnderscores}}", v.toString());
-                     map.put("${{match}}", v.toString());
-                     */
-                    copy.url = NWUtils.tmplString(p.discoveryURLPattern, map);
-                }
-                copy.addTag("untested");
-
-                NWUtils.savePackageVersion(ofy, null, copy, true, true);
+        PackageVersion pv;
+        Version vnewest = null;
+        if (versions.size() > 0) {
+            pv = versions.get(versions.size() - 1);
+            vnewest = Version.parse(pv.version);
+            if (vnewest.compare(v) > 0) {
                 msg =
-                        "Created version " + v.toString() +
-                        " (the newest available was " + vnewest + ")";
-                resp.sendRedirect("/p/" + package_ + "/" + copy.version);
-                return null;
+                        "The newest defined version " + vnewest.toString() +
+                        " is bigger than the detected " +
+                        v.toString();
+            } else if (vnewest.compare(v) == 0) {
+                msg =
+                        "The newest version is already in the repository (" +
+                        vnewest + ")";
             }
+        } else {
+            pv = null;
         }
-        return new MessagePage(msg);
+
+        if (msg != null) {
+            return new MessagePage(msg);
+        }
+
+        PackageVersion copy = p.createDetectedVersion(ofy, v);
+
+        resp.sendRedirect("/p/" + package_ + "/" + copy.version);
+        return null;
     }
 }

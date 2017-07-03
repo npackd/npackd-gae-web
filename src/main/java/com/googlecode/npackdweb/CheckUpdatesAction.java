@@ -65,15 +65,7 @@ public class CheckUpdatesAction extends Action {
                         if (r == 0) {
                             noUpdatesCheck = NWUtils.newDate();
                         } else if (r > 0) {
-                            /*if (old.hasTag("auto-create-versions"))*/ {
-                                final PackageVersion d =
-                                        data.createDetectedVersion(ob, v);
-                                if (d != null) {
-                                    NWUtils.
-                                            savePackageVersion(ob, null, d, true,
-                                                    true);
-                                }
-                            }
+                            data.createDetectedVersion(ob, v);
                         }
                     }
                 } catch (IOException e) {

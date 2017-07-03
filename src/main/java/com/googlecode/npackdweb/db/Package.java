@@ -56,7 +56,7 @@ public class Package {
     public static final String[] TAGS = {"Communications", "Development",
         "Education", "Finance", "Games", "Music", "News", "Photo",
         "Productivity", "Security", "Text", "Tools", "Video",
-        "auto-create-versions", "end-of-life"};
+        "same-url", "end-of-life"};
 
     /**
      * Help for the tags.
@@ -70,7 +70,9 @@ public class Package {
         "productivity", "security related software",
         "text related software (text editors, etc.)",
         "other tools", "video",
-        "automatically create new versions of this package using the detection for the newest available version",
+        "different versions are distributed from the same address. " +
+        "The download is always up-to-date. New versions will " +
+        "automatically replace the newest available.",
         "the development was stopped. There will be no new versions of this software."
     };
 
@@ -452,8 +454,8 @@ public class Package {
             r = s.fetch(new URL(discoveryPage));
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(
-                                    new ByteArrayInputStream(r.getContent()),
-                                    "UTF-8"));
+                            new ByteArrayInputStream(r.getContent()),
+                            "UTF-8"));
             String line;
             Pattern vp = Pattern.compile(discoveryRE);
             while ((line = br.readLine()) != null) {
@@ -611,7 +613,7 @@ public class Package {
 
     /**
      * Creates a new version of this package using the newest available version
-     * as a template.
+     * as a template and saves it.
      *
      * @param ofy Objectify
      * @param version new version number
@@ -620,41 +622,56 @@ public class Package {
     public PackageVersion createDetectedVersion(Objectify ofy, Version version) {
         List<PackageVersion> versions = getSortedVersions(ofy);
 
-        PackageVersion copy = null;
+        PackageVersion copy;
+        PackageVersion pv = null;
         if (versions.size() > 0) {
-            PackageVersion pv = versions.get(versions.size() - 1);
-
+            pv = versions.get(versions.size() - 1);
             copy = pv.copy();
             copy.name = copy.package_ + "@" + version.toString();
             copy.version = version.toString();
-            if (this.discoveryURLPattern.trim().length() > 0) {
-                Map<String, String> map = new HashMap<>();
-                map.put("${version}", version.toString());
-                /*
-                 map.put("${{version2Parts}}", v.toString());
-                 map.put("${{version3Parts}}", v.toString());
-                 map.put("${{version2PartsWithoutDots}}", v.toString());
-                 map.put("${{actualVersion}}", v.toString());
-                 map.put("${{actualVersionWithoutDots}}", v.toString());
-                 map.put("${{actualVersionWithUnderscores}}", v.toString());
-                 map.put("${{match}}", v.toString());
-                 */
-                copy.url = NWUtils.tmplString(this.discoveryURLPattern, map);
-                if (!copy.sha1.isEmpty()) {
-                    try {
-                        final NWUtils.Info info =
-                                NWUtils.download(copy.url, "SHA-1",
-                                        100L * 1024 * 1024);
-                        copy.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-                    } catch (IOException |
-                            NoSuchAlgorithmException ex) {
-                        NWUtils.LOG.
-                                log(Level.SEVERE, null, ex);
-                    }
+            copy.createdAt = NWUtils.newDate();
+        } else {
+            copy = new PackageVersion(this.name, version.toString());
+        }
+
+        if (this.discoveryURLPattern.trim().length() > 0) {
+            Map<String, String> map = new HashMap<>();
+            map.put("${version}", version.toString());
+            /*
+             map.put("${{version2Parts}}", v.toString());
+             map.put("${{version3Parts}}", v.toString());
+             map.put("${{version2PartsWithoutDots}}", v.toString());
+             map.put("${{actualVersion}}", v.toString());
+             map.put("${{actualVersionWithoutDots}}", v.toString());
+             map.put("${{actualVersionWithUnderscores}}", v.toString());
+             map.put("${{match}}", v.toString());
+             */
+            copy.url = NWUtils.tmplString(this.discoveryURLPattern, map);
+            if (!copy.sha1.isEmpty()) {
+                try {
+                    final NWUtils.Info info =
+                            NWUtils.download(copy.url, "SHA-1",
+                                    100L * 1024 * 1024);
+                    copy.sha1 = NWUtils.byteArrayToHexString(info.sha1);
+                } catch (IOException |
+                        NoSuchAlgorithmException ex) {
+                    NWUtils.LOG.
+                            log(Level.SEVERE, null, ex);
                 }
             }
+        }
+
+        if (hasTag("same-url") && pv != null) {
+            ofy.delete(pv);
+
+            // the next call to savePackageVersion will do this
+            // NWUtils.incDataVersion();
+        } else {
             copy.addTag("untested");
         }
+
+        NWUtils.savePackageVersion(ofy, null, copy, true, true);
+
         return copy;
     }
 }
