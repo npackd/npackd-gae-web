@@ -617,9 +617,13 @@ public class Package {
      *
      * @param ofy Objectify
      * @param version new version number
+     * @param maxSize maximum size of the file or 0 for "unlimited". If the file
+     * is bigger than the specified size, the download will be cancelled and an
+     * IOException will be thrown
      * @return created package version or null if the creation is not possible
      */
-    public PackageVersion createDetectedVersion(Objectify ofy, Version version) {
+    public PackageVersion createDetectedVersion(Objectify ofy, Version version,
+            long maxSize) {
         List<PackageVersion> versions = getSortedVersions(ofy);
 
         PackageVersion copy;
@@ -650,7 +654,7 @@ public class Package {
                 try {
                     final NWUtils.Info info =
                             NWUtils.download(copy.url, "SHA-1",
-                                    100L * 1024 * 1024);
+                                    maxSize);
                     copy.sha1 = NWUtils.byteArrayToHexString(info.sha1);
                 } catch (IOException |
                         NoSuchAlgorithmException ex) {

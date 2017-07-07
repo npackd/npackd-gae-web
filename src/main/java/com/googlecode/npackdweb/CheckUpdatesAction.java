@@ -65,7 +65,7 @@ public class CheckUpdatesAction extends Action {
                         if (r == 0) {
                             noUpdatesCheck = NWUtils.newDate();
                         } else if (r > 0) {
-                            data.createDetectedVersion(ob, v);
+                            data.createDetectedVersion(ob, v, 0);
                         }
                     }
                 } catch (IOException e) {
