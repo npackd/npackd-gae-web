@@ -80,20 +80,20 @@ public class PackagesPage extends MyPage {
         if (!recent) {
             se =
                     SortExpression
-                    .newBuilder()
-                    .setExpression("title")
-                    .setDirection(
-                            SortExpression.SortDirection.ASCENDING)
-                    .setDefaultValue("").build();
+                            .newBuilder()
+                            .setExpression("title")
+                            .setDirection(
+                                    SortExpression.SortDirection.ASCENDING)
+                            .setDefaultValue("").build();
         } else {
             se =
                     SortExpression
-                    .newBuilder()
-                    .setExpression("createdAt")
-                    .setDirection(
-                            SortExpression.SortDirection.DESCENDING)
-                    .setDefaultValueDate(
-                            SearchApiLimits.MINIMUM_DATE_VALUE).build();
+                            .newBuilder()
+                            .setExpression("createdAt")
+                            .setDirection(
+                                    SortExpression.SortDirection.DESCENDING)
+                            .setDefaultValueDate(
+                                    SearchApiLimits.MINIMUM_DATE_VALUE).build();
         }
         ob =
                 ob.setSortOptions(SortOptions.newBuilder()
@@ -108,9 +108,9 @@ public class PackagesPage extends MyPage {
 
         com.google.appengine.api.search.Query.Builder qb =
                 com.google.appengine.api.search.Query.newBuilder()
-                .addReturnFacet(fr0.build())
-                .addReturnFacet(fr1.build()).setOptions(ob.build())
-                .setFacetOptions(fob.build());
+                        .addReturnFacet(fr0.build())
+                        .addReturnFacet(fr1.build()).setOptions(ob.build())
+                        .setFacetOptions(fob.build());
 
         if (category0 != null) {
             qb.addFacetRefinement(FacetRefinement.withValue("category0",
@@ -213,24 +213,7 @@ public class PackagesPage extends MyPage {
                 w.t(" ");
                 w.e("a", "href", "/p/" + p.name, p.title);
 
-                if (p.noUpdatesCheck != null) {
-                    if ((System.currentTimeMillis() - p.noUpdatesCheck
-                            .getTime()) < 7L * 24 * 60 * 60 * 1000) {
-                        w.t(" ");
-                        w.e("span", "class", "label label-success",
-                                "title",
-                                "This package was checked in the last 7 days and there were no updates",
-                                "up-to-date");
-                    }
-                }
-
-                if (p.hasTag("end-of-life")) {
-                    w.t(" ");
-                    w.e("span", "class", "label label-warning",
-                            "title",
-                            "The development was stopped. There will be no new versions of this software.",
-                            "end-of-life");
-                }
+                createTags(w, p.noUpdatesCheck, p.hasTag("end-of-life"));
 
                 /*
                  * // Google+ w.unencoded(
@@ -250,7 +233,7 @@ public class PackagesPage extends MyPage {
                 w.e("div",
                         "Categories: " +
                         (p.tags.size() == 0 ? "-" : NWUtils.join(", ",
-                                        p.tags)) + "; License: " +
+                        p.tags)) + "; License: " +
                         (lic == null ? "unknown" : lic.title));
                 w.end("div");
                 w.end("div");
@@ -259,6 +242,35 @@ public class PackagesPage extends MyPage {
         }
 
         return w.toString();
+    }
+
+    /**
+     * Creates HTML for special tags.
+     *
+     * @param w output
+     * @param noUpdatesCheck see Package.noUpdatesCheck
+     * @param eol true = "end-of-life" tag is present
+     */
+    public static void createTags(HTMLWriter w,
+            java.util.Date noUpdatesCheck, boolean eol) {
+        if (noUpdatesCheck != null) {
+            if ((System.currentTimeMillis() - noUpdatesCheck
+                    .getTime()) < 7L * 24 * 60 * 60 * 1000) {
+                w.t(" ");
+                w.e("span", "class", "label label-success",
+                        "title",
+                        "This package was checked in the last 7 days and there were no updates",
+                        "up-to-date");
+            }
+        }
+
+        if (eol) {
+            w.t(" ");
+            w.e("span", "class", "label label-warning",
+                    "title",
+                    "The development was stopped. There will be no new versions of this software.",
+                    "end-of-life");
+        }
     }
 
     /**
@@ -383,7 +395,7 @@ public class PackagesPage extends MyPage {
         w.start("script");
         InputStream stream =
                 DefaultServlet.getInstance(request).getServletContext()
-                .getResourceAsStream("/WEB-INF/templates/Packages.js");
+                        .getResourceAsStream("/WEB-INF/templates/Packages.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
 

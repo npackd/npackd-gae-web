@@ -6,6 +6,7 @@ import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.PackagesPage;
 import com.googlecode.npackdweb.QueryCache;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.License;
@@ -116,6 +117,11 @@ public class PackageDetailPage extends MyPage {
      * multi-line list emails
      */
     public String permissions;
+
+    /**
+     * see Package.noUpdatesCheck
+     */
+    private Date noUpdatesCheck;
 
     /**
      * @param mode editing mode
@@ -706,12 +712,16 @@ public class PackageDetailPage extends MyPage {
         if (mode != FormMode.CREATE) {
             w.t(" " + title);
 
+            PackagesPage.createTags(w, noUpdatesCheck, this.tags.indexOf(
+                    "end-of-life") >= 0);
+
             w.unencoded(
                     " <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
                     "https://npackd.appspot.com/p/" + id + "'></div>");
         } else {
             w.t(" New package");
         }
+
         return w.toString();
     }
 
@@ -776,11 +786,13 @@ public class PackageDetailPage extends MyPage {
             this.createdAt = NWUtils.newDate();
             this.createdBy =
                     UserServiceFactory.getUserService().getCurrentUser();
+            this.noUpdatesCheck = null;
         } else {
             Objectify ofy = DefaultServlet.getObjectify();
             Package p = Package.findByName(ofy, this.id);
             this.createdAt = p.createdAt;
             this.createdBy = p.createdBy;
+            this.noUpdatesCheck = p.noUpdatesCheck;
         }
     }
 
@@ -948,5 +960,6 @@ public class PackageDetailPage extends MyPage {
             sb.append(r.permissions.get(i).getEmail());
         }
         this.permissions = sb.toString();
+        this.noUpdatesCheck = r.noUpdatesCheck;
     }
 }

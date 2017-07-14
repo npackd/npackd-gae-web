@@ -50,7 +50,7 @@ public class RecentRepXMLPage extends Page {
                 ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
                 Query<PackageVersion> q =
                         ofy.query(PackageVersion.class).limit(20)
-                        .order("-lastModifiedAt");
+                                .order("-lastModifiedAt");
                 if (user != null) {
                     q =
                             q.filter(
@@ -62,7 +62,7 @@ public class RecentRepXMLPage extends Page {
                     q = q.filter("tags =", tag);
                 }
                 pvs.addAll(q.list());
-                Document d = RepXMLPage.toXML(ofy, pvs, false);
+                Document d = RepXMLPage.toXML(ofy, pvs, false, null);
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 NWUtils.serializeXML(d, baos);

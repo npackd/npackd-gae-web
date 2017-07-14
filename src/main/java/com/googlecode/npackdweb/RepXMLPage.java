@@ -84,17 +84,18 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(ofy, pvs, onlyReviewed);
+        return toXML(ofy, pvs, onlyReviewed, tag);
     }
 
     /**
      * @param ofy Objectify
      * @param pvs package versions
      * @param onlyReviewed true = only export reviewed package versions
+     * @param tag package versions tag or null for "everything"
      * @return XML for the specified package versions
      */
     public static Document toXML(Objectify ofy, ArrayList<PackageVersion> pvs,
-            boolean onlyReviewed) {
+            boolean onlyReviewed, String tag) {
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
@@ -148,6 +149,23 @@ public class RepXMLPage extends Page {
         }
 
         for (Package p : ps) {
+            if ("stable".equals(tag)) {
+                p.description += "\ni686";
+            } else if ("stable64".equals(tag)) {
+                p.description += "\nx86_64";
+            }
+
+            if (p.hasTag("end-of-life")) {
+                p.description = "WARNING: the development was stopped. " +
+                        "There will be no new versions of this software.\n" +
+                        p.description;
+            }
+            if (p.hasTag("same-url")) {
+                p.description =
+                        "WARNING: this package always installs the newest " +
+                        "version of the software.\n" +
+                        p.description;
+            }
             Element package_ = p.toXML(d);
 
             root.appendChild(package_);
