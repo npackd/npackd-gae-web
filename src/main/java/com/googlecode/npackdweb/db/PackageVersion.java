@@ -172,7 +172,7 @@ public class PackageVersion {
             this.lastModifiedBy = us.getCurrentUser();
         } else {
             this.lastModifiedBy =
-                    new User("tim.lebedkov@gmail.com", "gmail.com");
+                    new User(NWUtils.THE_EMAIL, "gmail.com");
         }
         this.createdBy = this.lastModifiedBy;
         tags = new ArrayList<String>();
@@ -365,7 +365,7 @@ public class PackageVersion {
                 this.lastModifiedBy = us.getCurrentUser();
             } else {
                 this.lastModifiedBy =
-                        new User("tim.lebedkov@gmail.com", "gmail.com");
+                        new User(NWUtils.THE_EMAIL, "gmail.com");
             }
         }
 

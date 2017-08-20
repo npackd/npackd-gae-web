@@ -110,6 +110,11 @@ public class Package {
     public Date lastModifiedAt = NWUtils.newDate();
 
     /**
+     * user for the last modification
+     */
+    public User lastModifiedBy;
+
+    /**
      * creation time
      */
     public Date createdAt = NWUtils.newDate();
@@ -169,10 +174,15 @@ public class Package {
      * @param name full internal name of the package
      */
     public Package(String name) {
-        createdBy = UserServiceFactory.getUserService().getCurrentUser();
-        if (createdBy == null) {
-            createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
+        final UserService us = UserServiceFactory.getUserService();
+        if (us.isUserLoggedIn()) {
+            this.lastModifiedBy = us.getCurrentUser();
+        } else {
+            this.lastModifiedBy =
+                    new User(NWUtils.THE_EMAIL, "gmail.com");
         }
+
+        createdBy = lastModifiedBy;
         this.name = name;
         this.permissions.add(createdBy);
     }
@@ -261,7 +271,10 @@ public class Package {
             this.discoveryURLPattern = "";
         }
         if (this.createdBy == null) {
-            this.createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
+            this.createdBy = new User(NWUtils.THE_EMAIL, "gmail.com");
+        }
+        if (lastModifiedBy == null) {
+            this.lastModifiedBy = this.createdBy;
         }
         if (this.tags == null) {
             this.tags = new ArrayList<String>();
@@ -337,14 +350,14 @@ public class Package {
                         Field.newBuilder().setName("title").setText(this.title))
                 .addField(
                         Field.newBuilder().setName("description")
-                        .setText(this.description))
+                                .setText(this.description))
                 .addField(
                         Field.newBuilder().setName("createdAt")
-                        .setDate(this.createdAt))
+                                .setDate(this.createdAt))
                 .addField(Field.newBuilder().setName("name").setText(this.name))
                 .addField(
                         Field.newBuilder().setName("category")
-                        .setText(NWUtils.join(" ", tags)));
+                                .setText(NWUtils.join(" ", tags)));
 
         String category0 = null, category1 = null;
         if (tags.size() > 0) {
@@ -396,7 +409,7 @@ public class Package {
                     char c = part.charAt(0);
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c >= 'a' && c <= 'z') || Character
-                            .isLetter(c))) {
+                                    .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position 1 in {0}", part);
                     }
@@ -407,7 +420,7 @@ public class Package {
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c == '-') || (c >= 'a' && c <= 'z') ||
                             Character
-                            .isLetter(c))) {
+                                    .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position {0} in {1}",
                                 i + 1, part);
@@ -418,7 +431,7 @@ public class Package {
                     char c = part.charAt(part.length() - 1);
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c >= 'a' && c <= 'z') || Character
-                            .isLetter(c))) {
+                                    .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position {0} in {1}",
                                 part.length(), part);
@@ -467,8 +480,8 @@ public class Package {
             }
         } catch (MalformedURLException e) {
             throw new IOException(e);
-        } catch (IOException |
-                com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
+        } catch (IOException
+                | com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
             throw new IOException(e);
         }
 
@@ -557,6 +570,7 @@ public class Package {
         p.license = this.license;
         p.comment = this.comment;
         p.lastModifiedAt = this.lastModifiedAt;
+        p.lastModifiedBy = this.lastModifiedBy;
         p.createdAt = this.createdAt;
         p.discoveryPage = this.discoveryPage;
         p.discoveryRE = this.discoveryRE;
@@ -656,8 +670,7 @@ public class Package {
                             NWUtils.download(copy.url, "SHA-1",
                                     maxSize);
                     copy.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-                } catch (IOException |
-                        NoSuchAlgorithmException ex) {
+                } catch (IOException | NoSuchAlgorithmException ex) {
                     NWUtils.LOG.
                             log(Level.SEVERE, null, ex);
                 }
@@ -673,7 +686,19 @@ public class Package {
             copy.addTag("untested");
         }
 
-        NWUtils.savePackageVersion(ofy, null, copy, true, !hasTag("same-url"));
+        boolean changeNotReviewed = true;
+        if (hasTag("same-url")) {
+            changeNotReviewed = false;
+        } else {
+            // full trust to THE_EMAIL
+            User theUser = new User(NWUtils.THE_EMAIL, "gmail.com");
+            if (pv != null && NWUtils.isEqual(pv.lastModifiedBy, theUser) &&
+                    NWUtils.isEqual(this.lastModifiedBy, theUser)) {
+                changeNotReviewed = false;
+            }
+        }
+
+        NWUtils.savePackageVersion(ofy, null, copy, true, changeNotReviewed);
 
         return copy;
     }

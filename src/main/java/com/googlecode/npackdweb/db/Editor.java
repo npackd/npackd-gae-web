@@ -53,7 +53,7 @@ public class Editor {
     public Editor(User user) {
         createdBy = UserServiceFactory.getUserService().getCurrentUser();
         if (createdBy == null) {
-            createdBy = new User("tim.lebedkov@gmail.com", "gmail.com");
+            createdBy = new User(NWUtils.THE_EMAIL, "gmail.com");
         }
         this.name = user.getEmail();
     }

@@ -77,7 +77,7 @@ public class PackageVersionPage extends MyPage {
             this.lastModifiedBy = us.getCurrentUser();
         } else {
             this.lastModifiedBy =
-                    new User("tim.lebedkov@gmail.com", "gmail.com");
+                    new User(NWUtils.THE_EMAIL, "gmail.com");
         }
         this.createdBy = this.lastModifiedBy;
     }
@@ -289,7 +289,7 @@ public class PackageVersionPage extends MyPage {
                 "Microsoft Windows");
         w.e("meta", "itemprop", "applicationCategory", "content",
                 p.tags.size() > 0 ? NWUtils.join(", ", p.tags) :
-                        "Uncategorized");
+                "Uncategorized");
         w.end("td");
         w.end("tr");
 
@@ -522,7 +522,7 @@ public class PackageVersionPage extends MyPage {
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Package dp =
                         ofy.find(new com.googlecode.objectify.Key<Package>(
-                                        Package.class, dependencyPackages.get(i)));
+                                Package.class, dependencyPackages.get(i)));
 
                 w.start("li");
                 w.e("a", "href", "/p/" + dependencyPackages.get(i),
@@ -936,7 +936,7 @@ public class PackageVersionPage extends MyPage {
             this.lastModifiedBy = us.getCurrentUser();
         } else {
             this.lastModifiedBy =
-                    new User("tim.lebedkov@gmail.com", "gmail.com");
+                    new User(NWUtils.THE_EMAIL, "gmail.com");
         }
     }
 
@@ -968,7 +968,7 @@ public class PackageVersionPage extends MyPage {
                 Objectify ofy = DefaultServlet.getObjectify();
                 PackageVersion p =
                         ofy.find(new Key<PackageVersion>(PackageVersion.class,
-                                        packageName.trim() + "@" + v.toString()));
+                                packageName.trim() + "@" + v.toString()));
                 if (p != null) {
                     r = "Package version " + v + " already exists";
                 }
@@ -1159,10 +1159,10 @@ public class PackageVersionPage extends MyPage {
         w.start("script");
         InputStream stream =
                 DefaultServlet
-                .getInstance(request)
-                .getServletContext()
-                .getResourceAsStream(
-                        "/WEB-INF/templates/PackageVersionDetail.js");
+                        .getInstance(request)
+                        .getServletContext()
+                        .getResourceAsStream(
+                                "/WEB-INF/templates/PackageVersionDetail.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
 
