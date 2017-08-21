@@ -646,6 +646,20 @@ public class PackageDetailPage extends MyPage {
         }
 
         w.start("tr");
+        w.e("td", "Last modified:");
+        w.start("td");
+        w.t(params.get("modified"));
+        w.end("td");
+        w.end("tr");
+
+        w.start("tr");
+        w.e("td", "Last modified by:");
+        w.start("td");
+        w.unencoded(NWUtils.obfuscateEmail(ofy, params.get("modifiedBy")));
+        w.end("td");
+        w.end("tr");
+
+        w.start("tr");
         w.e("td", "Created:");
         w.start("td");
         w.t(createdAt == null ? "" : createdAt.toString());
@@ -961,5 +975,8 @@ public class PackageDetailPage extends MyPage {
         }
         this.permissions = sb.toString();
         this.noUpdatesCheck = r.noUpdatesCheck;
+
+        params.put("modified", r.lastModifiedAt.toString());
+        params.put("modifiedBy", r.lastModifiedBy.getEmail());
     }
 }

@@ -757,6 +757,8 @@ public class NWUtils {
         }
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
+            p.lastModifiedBy = UserServiceFactory.getUserService().
+                    getCurrentUser();
         }
 
         ofy.put(p);
