@@ -143,6 +143,10 @@ public class PackageDetailPage extends MyPage {
         this.tags = new ArrayList<String>();
         screenshots = "";
         permissions = "";
+
+        User u = UserServiceFactory.getUserService().getCurrentUser();
+        this.params.put("modified", new Date().toString());
+        this.params.put("modifiedBy", u.getEmail());
     }
 
     @Override
