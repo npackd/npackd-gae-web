@@ -146,7 +146,7 @@ public class PackageDetailPage extends MyPage {
 
         User u = UserServiceFactory.getUserService().getCurrentUser();
         this.params.put("modified", new Date().toString());
-        this.params.put("modifiedBy", u.getEmail());
+        this.params.put("modifiedBy", u == null ? "" : u.getEmail());
     }
 
     @Override
