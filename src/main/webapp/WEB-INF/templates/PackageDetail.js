@@ -77,7 +77,7 @@ function initEvents() {
     	s = s.replace(/\-+/g, "-");
     	if (s.indexOf("-") === 0)
     		s = s.substring(1);
-    	if (s.lastIndexOf('-') == s.length - 1)
+    	if (s.lastIndexOf('-') === s.length - 1)
     		s = s.substring(0, s.length - 1);
     	$('#id').val(s);
     });
