@@ -80,20 +80,20 @@ public class PackagesPage extends MyPage {
         if (!recent) {
             se =
                     SortExpression
-                            .newBuilder()
-                            .setExpression("title")
-                            .setDirection(
-                                    SortExpression.SortDirection.ASCENDING)
-                            .setDefaultValue("").build();
+                    .newBuilder()
+                    .setExpression("title")
+                    .setDirection(
+                            SortExpression.SortDirection.ASCENDING)
+                    .setDefaultValue("").build();
         } else {
             se =
                     SortExpression
-                            .newBuilder()
-                            .setExpression("createdAt")
-                            .setDirection(
-                                    SortExpression.SortDirection.DESCENDING)
-                            .setDefaultValueDate(
-                                    SearchApiLimits.MINIMUM_DATE_VALUE).build();
+                    .newBuilder()
+                    .setExpression("createdAt")
+                    .setDirection(
+                            SortExpression.SortDirection.DESCENDING)
+                    .setDefaultValueDate(
+                            SearchApiLimits.MINIMUM_DATE_VALUE).build();
         }
         ob =
                 ob.setSortOptions(SortOptions.newBuilder()
@@ -108,9 +108,9 @@ public class PackagesPage extends MyPage {
 
         com.google.appengine.api.search.Query.Builder qb =
                 com.google.appengine.api.search.Query.newBuilder()
-                        .addReturnFacet(fr0.build())
-                        .addReturnFacet(fr1.build()).setOptions(ob.build())
-                        .setFacetOptions(fob.build());
+                .addReturnFacet(fr0.build())
+                .addReturnFacet(fr1.build()).setOptions(ob.build())
+                .setFacetOptions(fob.build());
 
         if (category0 != null) {
             qb.addFacetRefinement(FacetRefinement.withValue("category0",
@@ -217,7 +217,7 @@ public class PackagesPage extends MyPage {
 
                 /*
                  * // Google+ w.unencoded(
-                 * " <div class='g-plusone' data-size='small' data-href='https://npackd.appspot.com/p/"
+                 * " <div class='g-plusone' data-size='small' data-href='https://www.npackd.org/p/"
                  * + p.name + "'></div>");
                  */
                 w.end("h4");
@@ -233,7 +233,7 @@ public class PackagesPage extends MyPage {
                 w.e("div",
                         "Categories: " +
                         (p.tags.size() == 0 ? "-" : NWUtils.join(", ",
-                        p.tags)) + "; License: " +
+                                        p.tags)) + "; License: " +
                         (lic == null ? "unknown" : lic.title));
                 w.end("div");
                 w.end("div");
@@ -395,7 +395,7 @@ public class PackagesPage extends MyPage {
         w.start("script");
         InputStream stream =
                 DefaultServlet.getInstance(request).getServletContext()
-                        .getResourceAsStream("/WEB-INF/templates/Packages.js");
+                .getResourceAsStream("/WEB-INF/templates/Packages.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
 

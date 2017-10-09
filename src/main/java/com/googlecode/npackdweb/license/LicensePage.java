@@ -197,7 +197,7 @@ public class LicensePage extends MyPage {
 
             w.unencoded(
                     " <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-                    "https://npackd.appspot.com/p/" + id + "'></div>");
+                    "https://www.npackd.org/p/" + id + "'></div>");
         } else {
             w.t(" New license");
         }
