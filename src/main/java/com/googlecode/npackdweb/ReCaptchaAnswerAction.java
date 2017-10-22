@@ -1,23 +1,27 @@
 package com.googlecode.npackdweb;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaResponse;
-
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import static com.googlecode.npackdweb.NWUtils.getSetting;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * User's answer to a ReCaptcha.
  */
 public class ReCaptchaAnswerAction extends Action {
+
     /**
      * -
      */
@@ -32,21 +36,31 @@ public class ReCaptchaAnswerAction extends Action {
 
         String remoteAddr = req.getRemoteAddr();
         Objectify ob = DefaultServlet.getObjectify();
-        ReCaptcha reCaptcha = NWUtils.createReCaptcha(ob);
 
-        String challenge = req.getParameter("recaptcha_challenge_field");
-        String uresponse = req.getParameter("recaptcha_response_field");
-        ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(remoteAddr,
-                challenge, uresponse);
+        String secretParameter = getSetting(ob, "ReCaptchaPrivateKey", "");
+        String recap = req.getParameter("g-recaptcha-response");
+        URLFetchService us = URLFetchServiceFactory.getURLFetchService();
+        URL url = new URL(
+                "https://www.google.com/recaptcha/api/siteverify?secret=" +
+                secretParameter + "&response=" + recap + "&remoteip=" + req.
+                getRemoteAddr());
+        HTTPResponse r = us.fetch(url);
+        JSONObject json = null;
+        try {
+            json = new JSONObject(new String(r.getContent(), Charset.
+                    forName("UTF-8")));
 
-        String s;
-        if (reCaptchaResponse.isValid()) {
-            Editor e = ob.query(Editor.class).filter("id =", id).get();
-            s = "Email address: " + e.name;
-        } else {
-            s = "Answer is wrong";
+            String s;
+            if (json.getBoolean("success")) {
+                Editor e = ob.query(Editor.class).filter("id =", id).get();
+                s = "Email address: " + e.name;
+            } else {
+                s = "Answer is wrong";
+            }
+
+            return new MessagePage(s);
+        } catch (JSONException ex) {
+            throw new IOException(ex);
         }
-
-        return new MessagePage(s);
     }
 }

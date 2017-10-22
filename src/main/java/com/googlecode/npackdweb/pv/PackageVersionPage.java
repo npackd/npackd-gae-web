@@ -773,7 +773,7 @@ public class PackageVersionPage extends MyPage {
         w.e("td", "Last modified by:");
         w.start("td");
         w.unencoded(lastModifiedBy == null ? "" : NWUtils.obfuscateEmail(ofy,
-                lastModifiedBy.getEmail()));
+                lastModifiedBy.getEmail(), request.getServerName()));
         w.end("td");
         w.end("tr");
 
@@ -788,7 +788,7 @@ public class PackageVersionPage extends MyPage {
         w.e("td", "Created by:");
         w.start("td");
         w.unencoded(createdBy == null ? "" : NWUtils.obfuscateEmail(ofy,
-                createdBy.getEmail()));
+                createdBy.getEmail(), request.getServerName()));
         w.end("td");
         w.end("tr");
 

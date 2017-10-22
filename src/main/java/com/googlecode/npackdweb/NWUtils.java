@@ -82,8 +82,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaImpl;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1196,9 +1194,11 @@ public class NWUtils {
      *
      * @param ob Objectify
      * @param email an email address
+     * @param domain server domain
      * @return HTML. abc dot def at bla dot com
      */
-    public static String obfuscateEmail(Objectify ob, String email) {
+    public static String obfuscateEmail(Objectify ob, String email,
+            String domain) {
         HTMLWriter w = new HTMLWriter();
         int index = email.indexOf('@');
         if (index > 0) {
@@ -1212,7 +1212,9 @@ public class NWUtils {
             if (before.length() > 10) {
                 before = before.substring(0, 10) + "...";
             }
-            w.start("a", "href", "/recaptcha?id=" + e.id);
+
+            // only https is supported
+            w.start("a", "href", "https://" + domain + "/recaptcha?id=" + e.id);
             w.t(before);
             w.end("a");
         } else {
@@ -1263,20 +1265,6 @@ public class NWUtils {
         }
         st.value = value;
         ofy.put(st);
-    }
-
-    /**
-     * @param ofy Objectify
-     * @return ReCaptcha-object
-     */
-    public static ReCaptcha createReCaptcha(Objectify ofy) {
-        ReCaptchaImpl recaptcha = new ReCaptchaImpl();
-        recaptcha.setIncludeNoscript(true);
-        recaptcha.setPrivateKey(getSetting(ofy, "ReCaptchaPrivateKey", ""));
-        recaptcha.setPublicKey(getSetting(ofy, "ReCaptchaPublicKey", ""));
-        recaptcha.setRecaptchaServer("https://www.google.com/recaptcha/api");
-
-        return recaptcha;
     }
 
     /**
