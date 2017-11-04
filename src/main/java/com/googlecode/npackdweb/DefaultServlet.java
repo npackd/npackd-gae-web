@@ -11,14 +11,15 @@ import com.googlecode.npackdweb.admin.RecreateIndexAction;
 import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.ResavePackagesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
-import com.googlecode.npackdweb.api.TagPackageVersionAction;
 import com.googlecode.npackdweb.api.NotifyAction;
+import com.googlecode.npackdweb.api.TagPackageVersionAction;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
 import com.googlecode.npackdweb.license.LicenseSaveAction;
 import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
 import com.googlecode.npackdweb.package_.PackageNewAction;
+import com.googlecode.npackdweb.package_.PackageNextAction;
 import com.googlecode.npackdweb.package_.PackageSaveAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
@@ -125,7 +126,7 @@ public class DefaultServlet extends HttpServlet {
                         ok = false;
                         resp.
                                 sendRedirect(us.createLoginURL(req.
-                                        getRequestURI()));
+                                                getRequestURI()));
                     }
                     break;
                 case ADMINISTRATOR:
@@ -133,7 +134,7 @@ public class DefaultServlet extends HttpServlet {
                         ok = false;
                         resp.
                                 sendRedirect(us.createLoginURL(req.
-                                        getRequestURI()));
+                                                getRequestURI()));
                     } else if (!us.isUserAdmin()) {
                         ok = false;
                         resp.setContentType("text/plain");
@@ -180,6 +181,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new PackageNewAction());
         registerAction(new PackageSaveAction());
         registerAction(new PackageDeleteConfirmedAction());
+        registerAction(new PackageNextAction());
 
         /* package version */
         registerAction(new PackageVersionDetailAction());
