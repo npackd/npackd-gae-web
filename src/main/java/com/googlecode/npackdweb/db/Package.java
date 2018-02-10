@@ -350,14 +350,14 @@ public class Package {
                         Field.newBuilder().setName("title").setText(this.title))
                 .addField(
                         Field.newBuilder().setName("description")
-                                .setText(this.description))
+                        .setText(this.description))
                 .addField(
                         Field.newBuilder().setName("createdAt")
-                                .setDate(this.createdAt))
+                        .setDate(this.createdAt))
                 .addField(Field.newBuilder().setName("name").setText(this.name))
                 .addField(
                         Field.newBuilder().setName("category")
-                                .setText(NWUtils.join(" ", tags)));
+                        .setText(NWUtils.join(" ", tags)));
 
         String category0 = null, category1 = null;
         if (tags.size() > 0) {
@@ -409,7 +409,7 @@ public class Package {
                     char c = part.charAt(0);
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c >= 'a' && c <= 'z') || Character
-                                    .isLetter(c))) {
+                            .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position 1 in {0}", part);
                     }
@@ -420,7 +420,7 @@ public class Package {
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c == '-') || (c >= 'a' && c <= 'z') ||
                             Character
-                                    .isLetter(c))) {
+                            .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position {0} in {1}",
                                 i + 1, part);
@@ -431,7 +431,7 @@ public class Package {
                     char c = part.charAt(part.length() - 1);
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c >= 'a' && c <= 'z') || Character
-                                    .isLetter(c))) {
+                            .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position {0} in {1}",
                                 part.length(), part);
@@ -467,8 +467,8 @@ public class Package {
             r = s.fetch(new URL(discoveryPage));
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(
-                            new ByteArrayInputStream(r.getContent()),
-                            "UTF-8"));
+                                    new ByteArrayInputStream(r.getContent()),
+                                    "UTF-8"));
             String line;
             Pattern vp = Pattern.compile(discoveryRE);
             while ((line = br.readLine()) != null) {
@@ -480,8 +480,8 @@ public class Package {
             }
         } catch (MalformedURLException e) {
             throw new IOException(e);
-        } catch (IOException
-                | com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
+        } catch (IOException |
+                com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
             throw new IOException(e);
         }
 
@@ -491,6 +491,7 @@ public class Package {
         }
 
         version = version.replace('-', '.');
+        version = version.replace('_', '.');
 
         // process version numbers like 2.0.6b
         if (version.length() > 0) {

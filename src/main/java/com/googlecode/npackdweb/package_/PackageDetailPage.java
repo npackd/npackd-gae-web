@@ -556,7 +556,7 @@ public class PackageDetailPage extends MyPage {
                     "size",
                     "80",
                     "title",
-                    "Regular expression to match the newest version number. This regular expression should contain a match group for the version number. A single letter at the end of the version number is allowed (2.0.6b will be interpreted as 2.0.6.2). Minus sign will be interpreted as a dot.\n" +
+                    "Regular expression to match the newest version number. This regular expression should contain a match group for the version number. A single letter at the end of the version number is allowed (2.0.6b will be interpreted as 2.0.6.2). Minus characters and underscores will be interpreted as dots.\n" +
 
                     "This regular expression will be applied to all lines in the file one-by-one until a match is found.\n" +
                     "Example: <h1>the newest version is ([\\d\\.]+)</h1>");
