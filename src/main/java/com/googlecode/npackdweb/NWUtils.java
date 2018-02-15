@@ -51,6 +51,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -82,6 +83,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1478,64 +1482,84 @@ public class NWUtils {
      * @param ofy Objectify
      * @param urls this URLs will be checked. At most 500 URLs can be processed
      * at once.
-     * @return GET_RESP_BODY = “phishing” | “malware” | "unwanted" |
-     * “phishing,malware” | "phishing,unwanted" | "malware,unwanted" |
-     * "phishing,malware,unwanted" | ""
+     * @return threat types or empty strings if everything is OK.
+     * THREAT_TYPE_UNSPECIFIED Unknown. MALWARE Malware threat type.
+     * SOCIAL_ENGINEERING Social engineering threat type. UNWANTED_SOFTWARE
+     * Unwanted software threat type. POTENTIALLY_HARMFUL_APPLICATION
+     * Potentially harmful application threat type.
      * @throws java.io.IOException there was a communication problem, the server
      * is unavailable, over quota or something different.
      */
     public static String[] checkURLs(Objectify ofy, String urls[]) throws
             IOException {
         String[] result = new String[urls.length];
-        Arrays.fill(result, "");
+
         try {
+            JSONObject request = new JSONObject();
+            JSONObject client = new JSONObject();
+            client.put("clientId", "npackdweb");
+            client.put("clientVersion", "2");
+            request.put("client", client);
+            JSONObject threatInfo = new JSONObject();
+            threatInfo.put("threatTypes", new JSONArray(Arrays.asList(
+                    "THREAT_TYPE_UNSPECIFIED", "MALWARE",
+                    "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE",
+                    "POTENTIALLY_HARMFUL_APPLICATION")));
+            threatInfo.put("platformTypes", new JSONArray(Arrays.asList(
+                    "ANY_PLATFORM")));
+            threatInfo.put("threatEntryTypes", new JSONArray(Arrays.
+                    asList("URL", "EXECUTABLE")));
+            JSONArray threatEntries = new JSONArray();
+            for (String url : urls) {
+                JSONObject e = new JSONObject();
+                e.put("url", url);
+                threatEntries.put(e);
+            }
+            threatInfo.put("threatEntries", threatEntries);
+            request.put("threatInfo", threatInfo);
+
+            Arrays.fill(result, "");
             URL u = new URL(
-                    "https://sb-ssl.google.com/safebrowsing/api/lookup?client=npackdweb&key=" +
-                    getSetting(ofy, "PublicAPIKey", "") +
-                    "&appver=1&pver=3.1");
+                    "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" +
+                    getSetting(ofy, "PublicAPIKey", ""));
             URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
-            StringBuilder sb = new StringBuilder();
-            sb.append(urls.length);
-            for (String url : urls) {
-                sb.append('\n').append(new URL(url).toExternalForm());
-            }
-
-            //LOG.info("Google Safe Browsing API call:" + sb.toString());
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);
-            ht.setPayload(sb.toString().getBytes("US-ASCII"));
+            LOG.info(request.toString());
+            ht.setHeader(new HTTPHeader("Content-Type", "application/json"));
+            ht.setPayload(request.toString().getBytes("UTF-8"));
             HTTPResponse r = s.fetch(ht);
             int rc = r.getResponseCode();
             /*LOG.info("Google Safe Browsing API response code:" +
              rc);*/
             if (rc == 200) {
-                /*LOG.info("Google Safe Browsing API response:" +
-                 new String(r.
-                 getContent(), "US-ASCII"));*/
-                final BufferedReader br =
-                        new BufferedReader(new StringReader(new String(r.
-                                                getContent(), "US-ASCII")));
-                int i = 0;
-                String line;
-                while ((i < result.length) && (line = br.readLine()) != null) {
-                    if (line.equals("ok")) {
-                        result[i] = "";
-                    } else {
-                        result[i] = line;
+                JSONObject json = new JSONObject(new String(r.getContent(),
+                        Charset.forName("UTF-8")));
+                JSONArray matches = json.getJSONArray("matches");
+                if (matches != null) {
+                    for (int i = 0; i < matches.length(); i++) {
+                        JSONObject match = matches.getJSONObject(i);
+                        String url = match.getJSONObject("threat").getString(
+                                "url");
+                        for (int j = 0; j < urls.length; j++) {
+                            if (urls[j].equals(url)) {
+                                result[j] = match.getString("threatType");
+                                break;
+                            }
+                        }
                     }
-                    i++;
                 }
-            } else if (rc == 204) {
-                // OK
-            } else if (rc == 400) {
-                throw new IOException(new String(r.getContent()));
             } else {
                 throw new IOException(
-                        "Unknown exception from the Google Safe Browsing API");
+                        "Error " + rc + " from the Google Safe Browsing API " +
+                        new String(r.getContent(), "UTF-8"));
             }
         } catch (MalformedURLException ex) {
             throw new IOException(ex);
+        } catch (JSONException ex) {
+            throw new IOException(ex);
         }
+
         return result;
     }
 

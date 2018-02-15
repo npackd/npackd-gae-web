@@ -92,11 +92,17 @@ public class UpdateSafeBrowsingInfoAction extends Action {
                 data.tags.remove("unwanted");
                 String v = results[i];
                 if (!data.url.trim().isEmpty()) {
-                    if (!v.isEmpty()) {
-                        List<String> parts = NWUtils.split(v, ',');
-                        for (String part : parts) {
-                            data.addTag(part);
-                        }
+                    switch (v) {
+                        case "THREAT_TYPE_UNSPECIFIED":
+                            data.addTag("unwanted");
+                        case "MALWARE":
+                            data.addTag("malware");
+                        case "SOCIAL_ENGINEERING":
+                            data.addTag("phishing");
+                        case "UNWANTED_SOFTWARE":
+                            data.addTag("unwanted");
+                        case "POTENTIALLY_HARMFUL_APPLICATION":
+                            data.addTag("unwanted");
                     }
                 }
 
