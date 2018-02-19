@@ -51,7 +51,7 @@ public class Repository {
      * @return created Key for this object
      */
     public Key<Repository> createKey() {
-        return new Key<Repository>(Repository.class, name);
+        return new Key<>(Repository.class, name);
     }
 
     /**
@@ -62,7 +62,7 @@ public class Repository {
      * @return found repository or null
      */
     public static Repository findByTag(Objectify ofy, String tag) {
-        return ofy.find(new Key<Repository>(Repository.class, tag));
+        return ofy.find(new Key<>(Repository.class, tag));
     }
 
     /**

@@ -27,7 +27,7 @@ public class License {
      * @return found license or null
      */
     public static License findByName(Objectify ofy, String id) {
-        return ofy.find(new Key<License>(License.class, id));
+        return ofy.find(new Key<>(License.class, id));
     }
 
     @Id
@@ -69,7 +69,7 @@ public class License {
      * @return created Key for this object
      */
     public Key<License> createKey() {
-        return new Key<License>(License.class, name);
+        return new Key<>(License.class, name);
     }
 
     /**

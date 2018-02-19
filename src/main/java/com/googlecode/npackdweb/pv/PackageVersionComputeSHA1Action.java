@@ -33,7 +33,7 @@ public class PackageVersionComputeSHA1Action extends Action {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
         Objectify ofy = DefaultServlet.getObjectify();
-        Package pa = ofy.get(new Key<Package>(Package.class, package_));
+        Package pa = ofy.get(new Key<>(Package.class, package_));
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
             page =
@@ -41,7 +41,7 @@ public class PackageVersionComputeSHA1Action extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion p =
-                    ofy.get(new Key<PackageVersion>(PackageVersion.class,
+                    ofy.get(new Key<>(PackageVersion.class,
                             package_ + "@" + version));
             PackageVersion oldp = p.copy();
 

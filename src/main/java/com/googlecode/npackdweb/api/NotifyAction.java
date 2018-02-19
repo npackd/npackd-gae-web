@@ -52,7 +52,7 @@ public class NotifyAction extends Action {
         boolean success = "1".equals(req.getParameter("success"));
 
         com.googlecode.npackdweb.db.Package pa = ofy.get(
-                new Key<com.googlecode.npackdweb.db.Package>(
+                new Key<>(
                         com.googlecode.npackdweb.db.Package.class, package_));
         boolean ok = pa.isCurrentUserPermittedToModify();
 
@@ -79,7 +79,7 @@ public class NotifyAction extends Action {
         }
 
         PackageVersion r =
-                ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                ofy.find(new Key<>(PackageVersion.class,
                                 package_ + "@" + version));
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);

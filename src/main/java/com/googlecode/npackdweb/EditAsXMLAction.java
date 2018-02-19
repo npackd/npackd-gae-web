@@ -48,7 +48,7 @@ public class EditAsXMLAction extends Action {
 		switch (type) {
 		case "version": {
 			PackageVersion r =
-					ofy.get(new Key<PackageVersion>(PackageVersion.class, id));
+					ofy.get(new Key<>(PackageVersion.class, id));
 			Element e = r.toXML(d);
 			if (r.tags.size() > 0)
 				tag = r.tags.get(0);
@@ -56,13 +56,13 @@ public class EditAsXMLAction extends Action {
 			break;
 		}
 		case "package": {
-			Package r = ofy.get(new Key<Package>(Package.class, id));
+			Package r = ofy.get(new Key<>(Package.class, id));
 			Element e = r.toXML(d);
 			root.appendChild(e);
 			break;
 		}
 		case "license": {
-			License r = ofy.get(new Key<License>(License.class, id));
+			License r = ofy.get(new Key<>(License.class, id));
 			Element e = r.toXML(d);
 			root.appendChild(e);
 			break;
@@ -71,12 +71,12 @@ public class EditAsXMLAction extends Action {
 			if (package_ == null) {
 				// nothing. Editing an empty repository.
 			} else if (version == null) {
-				Package r = ofy.get(new Key<Package>(Package.class, package_));
+				Package r = ofy.get(new Key<>(Package.class, package_));
 				Element e = r.toXML(d);
 				root.appendChild(e);
 			} else {
 				PackageVersion r =
-						ofy.get(new Key<PackageVersion>(PackageVersion.class,
+						ofy.get(new Key<>(PackageVersion.class,
 								package_ + "@" + version));
 				Element e = r.toXML(d);
 				if (r.tags.size() > 0)

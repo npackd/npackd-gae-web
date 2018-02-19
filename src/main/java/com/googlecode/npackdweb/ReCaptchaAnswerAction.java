@@ -45,7 +45,7 @@ public class ReCaptchaAnswerAction extends Action {
                 secretParameter + "&response=" + recap + "&remoteip=" + req.
                 getRemoteAddr());
         HTTPResponse r = us.fetch(url);
-        JSONObject json = null;
+        JSONObject json;
         try {
             json = new JSONObject(new String(r.getContent(), Charset.
                     forName("UTF-8")));

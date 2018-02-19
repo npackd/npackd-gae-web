@@ -12,7 +12,7 @@ import com.googlecode.npackdweb.wlib.HTMLWriter;
  * Shows a message
  */
 public class MessagePage extends MyPage {
-    private List<String> msg = new ArrayList<String>();
+    private List<String> msg = new ArrayList<>();
 
     /**
      * @param msg

@@ -31,7 +31,7 @@ public class LicenseDeleteAction extends Action {
 			throws IOException {
 		String name = req.getParameter("id");
 		Objectify ofy = DefaultServlet.getObjectify();
-		License r = ofy.find(new Key<License>(License.class, name));
+		License r = ofy.find(new Key<>(License.class, name));
 		Page page;
 		if (!r.isCurrentUserPermittedToModify())
 			page =

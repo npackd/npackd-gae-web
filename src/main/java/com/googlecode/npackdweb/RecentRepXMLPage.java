@@ -47,7 +47,7 @@ public class RecentRepXMLPage extends Page {
             NWUtils.LOG.warning("Found no value in cache");
             try {
                 Objectify ofy = DefaultServlet.getObjectify();
-                ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
+                ArrayList<PackageVersion> pvs = new ArrayList<>();
                 Query<PackageVersion> q =
                         ofy.query(PackageVersion.class).limit(20)
                                 .order("-lastModifiedAt");

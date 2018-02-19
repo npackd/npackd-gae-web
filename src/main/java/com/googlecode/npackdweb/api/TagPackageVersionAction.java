@@ -44,7 +44,7 @@ public class TagPackageVersionAction extends Action {
         String value = req.getParameter("value");
 
         PackageVersion r =
-                ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                ofy.find(new Key<>(PackageVersion.class,
                         package_ + "@" + version));
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -52,7 +52,7 @@ public class TagPackageVersionAction extends Action {
         }
 
         com.googlecode.npackdweb.db.Package pa = ofy.get(
-                new Key<com.googlecode.npackdweb.db.Package>(
+                new Key<>(
                         com.googlecode.npackdweb.db.Package.class, package_));
         if (!pa.isCurrentUserPermittedToModify() && !pw.equals(password)) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);

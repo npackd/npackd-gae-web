@@ -85,7 +85,7 @@ public class ExportDefaultVimRepAction extends Action {
         jr.setLenient(true);
         JsonElement e = new JsonParser().parse(jr);
 
-        Repository r = ob.find(new Key<Repository>(Repository.class, tag));
+        Repository r = ob.find(new Key<>(Repository.class, tag));
         if (r == null) {
             r = new Repository();
             r.name = tag;

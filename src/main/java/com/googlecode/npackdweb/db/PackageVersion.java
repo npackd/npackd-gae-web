@@ -66,7 +66,7 @@ public class PackageVersion {
         }
     }
 
-    private List<Object> fileContents = new ArrayList<Object>();
+    private List<Object> fileContents = new ArrayList<>();
 
     /**
      * abc@2.4
@@ -91,23 +91,23 @@ public class PackageVersion {
      */
     private String detectMSI = "";
 
-    public List<String> importantFileTitles = new ArrayList<String>();
-    public List<String> importantFilePaths = new ArrayList<String>();
+    public List<String> importantFileTitles = new ArrayList<>();
+    public List<String> importantFilePaths = new ArrayList<>();
 
     /**
      * <cmd-file>
      */
-    public List<String> cmdFilePaths = new ArrayList<String>();
+    public List<String> cmdFilePaths = new ArrayList<>();
 
-    public List<String> filePaths = new ArrayList<String>();
-    public List<String> dependencyPackages = new ArrayList<String>();
-    public List<String> dependencyVersionRanges = new ArrayList<String>();
-    public List<String> dependencyEnvVars = new ArrayList<String>();
-    public List<String> detectFilePaths = new ArrayList<String>();
-    public List<String> detectFileSHA1s = new ArrayList<String>();
+    public List<String> filePaths = new ArrayList<>();
+    public List<String> dependencyPackages = new ArrayList<>();
+    public List<String> dependencyVersionRanges = new ArrayList<>();
+    public List<String> dependencyEnvVars = new ArrayList<>();
+    public List<String> detectFilePaths = new ArrayList<>();
+    public List<String> detectFileSHA1s = new ArrayList<>();
 
-    public List<String> detectPackageNames = new ArrayList<String>();
-    public List<String> detectPackageVersions = new ArrayList<String>();
+    public List<String> detectPackageNames = new ArrayList<>();
+    public List<String> detectPackageVersions = new ArrayList<>();
 
     public List<String> tags;
 
@@ -175,7 +175,7 @@ public class PackageVersion {
                     new User(NWUtils.THE_EMAIL, "gmail.com");
         }
         this.createdBy = this.lastModifiedBy;
-        tags = new ArrayList<String>();
+        tags = new ArrayList<>();
         tags.add("not-reviewed");
 
         this.detectPackageNames = new ArrayList<>();
@@ -439,7 +439,7 @@ public class PackageVersion {
      * @return created Key for this object
      */
     public Key<PackageVersion> createKey() {
-        return new Key<PackageVersion>(PackageVersion.class, this.name);
+        return new Key<>(PackageVersion.class, this.name);
     }
 
     /**
@@ -467,7 +467,7 @@ public class PackageVersion {
      */
     public static PackageVersion find(Objectify ofy, String packageName,
             String v) {
-        return ofy.find(new Key<PackageVersion>(PackageVersion.class,
+        return ofy.find(new Key<>(PackageVersion.class,
                 packageName + "@" + v));
     }
 

@@ -59,17 +59,17 @@ public class PackageVersionPage extends MyPage {
         this.version = "";
         this.url = "";
         this.sha = "";
-        this.dependencyPackages = new ArrayList<String>();
-        this.dependencyVersionRanges = new ArrayList<String>();
-        this.dependencyEnvVars = new ArrayList<String>();
+        this.dependencyPackages = new ArrayList<>();
+        this.dependencyVersionRanges = new ArrayList<>();
+        this.dependencyEnvVars = new ArrayList<>();
         this.oneFile = false;
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
         this.tags.add("not-reviewed");
-        this.importantFilePaths = new ArrayList<String>();
-        this.importantFileTitles = new ArrayList<String>();
-        this.cmdFilePaths = new ArrayList<String>();
-        this.filePaths = new ArrayList<String>();
-        this.fileContents = new ArrayList<String>();
+        this.importantFilePaths = new ArrayList<>();
+        this.importantFileTitles = new ArrayList<>();
+        this.cmdFilePaths = new ArrayList<>();
+        this.filePaths = new ArrayList<>();
+        this.fileContents = new ArrayList<>();
         this.lastModifiedAt = null;
 
         UserService us = UserServiceFactory.getUserService();
@@ -100,24 +100,24 @@ public class PackageVersionPage extends MyPage {
         this.version = pv.version;
         this.url = pv.url;
         this.sha = pv.sha1;
-        this.dependencyPackages = new ArrayList<String>();
+        this.dependencyPackages = new ArrayList<>();
         this.dependencyPackages.addAll(pv.dependencyPackages);
-        this.dependencyVersionRanges = new ArrayList<String>();
+        this.dependencyVersionRanges = new ArrayList<>();
         this.dependencyVersionRanges.addAll(pv.dependencyVersionRanges);
-        this.dependencyEnvVars = new ArrayList<String>();
+        this.dependencyEnvVars = new ArrayList<>();
         this.dependencyEnvVars.addAll(pv.dependencyEnvVars);
         this.oneFile = pv.oneFile;
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
         this.tags.addAll(pv.tags);
-        this.importantFilePaths = new ArrayList<String>();
+        this.importantFilePaths = new ArrayList<>();
         this.importantFilePaths.addAll(pv.importantFilePaths);
-        this.importantFileTitles = new ArrayList<String>();
+        this.importantFileTitles = new ArrayList<>();
         this.importantFileTitles.addAll(pv.importantFileTitles);
-        this.cmdFilePaths = new ArrayList<String>();
+        this.cmdFilePaths = new ArrayList<>();
         this.cmdFilePaths.addAll(pv.cmdFilePaths);
-        this.filePaths = new ArrayList<String>();
+        this.filePaths = new ArrayList<>();
         this.filePaths.addAll(pv.filePaths);
-        this.fileContents = new ArrayList<String>();
+        this.fileContents = new ArrayList<>();
         for (int i = 0; i < this.filePaths.size(); i++) {
             this.fileContents.add(pv.getFileContents(i));
         }
@@ -521,7 +521,7 @@ public class PackageVersionPage extends MyPage {
             w.start("ul", "itemprop", "requirements");
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Package dp =
-                        ofy.find(new com.googlecode.objectify.Key<Package>(
+                        ofy.find(new com.googlecode.objectify.Key<>(
                                         Package.class, dependencyPackages.get(i)));
 
                 w.start("li");
@@ -967,7 +967,7 @@ public class PackageVersionPage extends MyPage {
                 v.normalize();
                 Objectify ofy = DefaultServlet.getObjectify();
                 PackageVersion p =
-                        ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                        ofy.find(new Key<>(PackageVersion.class,
                                         packageName.trim() + "@" + v.toString()));
                 if (p != null) {
                     r = "Package version " + v + " already exists";
@@ -1103,22 +1103,22 @@ public class PackageVersionPage extends MyPage {
         pv.name = this.packageName + "@" + this.version;
         pv.url = this.url;
         pv.sha1 = this.sha;
-        pv.dependencyPackages = new ArrayList<String>();
+        pv.dependencyPackages = new ArrayList<>();
         pv.dependencyPackages.addAll(this.dependencyPackages);
-        pv.dependencyVersionRanges = new ArrayList<String>();
+        pv.dependencyVersionRanges = new ArrayList<>();
         pv.dependencyVersionRanges.addAll(this.dependencyVersionRanges);
-        pv.dependencyEnvVars = new ArrayList<String>();
+        pv.dependencyEnvVars = new ArrayList<>();
         pv.dependencyEnvVars.addAll(this.dependencyEnvVars);
         pv.oneFile = this.oneFile;
-        pv.tags = new ArrayList<String>();
+        pv.tags = new ArrayList<>();
         pv.tags.addAll(this.tags);
-        pv.importantFilePaths = new ArrayList<String>();
+        pv.importantFilePaths = new ArrayList<>();
         pv.importantFilePaths.addAll(this.importantFilePaths);
-        pv.importantFileTitles = new ArrayList<String>();
+        pv.importantFileTitles = new ArrayList<>();
         pv.importantFileTitles.addAll(this.importantFileTitles);
-        pv.cmdFilePaths = new ArrayList<String>();
+        pv.cmdFilePaths = new ArrayList<>();
         pv.cmdFilePaths.addAll(this.cmdFilePaths);
-        pv.filePaths = new ArrayList<String>();
+        pv.filePaths = new ArrayList<>();
         pv.filePaths.addAll(this.filePaths);
         pv.clearFiles();
         for (int i = 0; i < this.filePaths.size(); i++) {

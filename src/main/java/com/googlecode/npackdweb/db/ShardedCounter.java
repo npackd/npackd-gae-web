@@ -53,7 +53,7 @@ public class ShardedCounter implements Serializable {
         Objectify ofy = of.begin();
 
         // fetch the counter to determine the number of shards
-        EntityCounter counter = ofy.get(new Key<EntityCounter>(
+        EntityCounter counter = ofy.get(new Key<>(
                 EntityCounter.class, name));
 
         // pick a random shard
@@ -69,7 +69,7 @@ public class ShardedCounter implements Serializable {
             try {
 
                 EntityCounterShard shard = trans
-                        .get(new Key<EntityCounterShard>(
+                        .get(new Key<>(
                                 EntityCounterShard.class, name + shardNum));
 
                 shard.value += add;
@@ -112,7 +112,7 @@ public class ShardedCounter implements Serializable {
         int tries = 3;
         while (true) {
             try {
-                counter = counterTrans.get(new Key<EntityCounter>(
+                counter = counterTrans.get(new Key<>(
                         EntityCounter.class, name));
                 nextShardNumber = counter.numShards;
                 counter.numShards += newShards;
@@ -148,13 +148,13 @@ public class ShardedCounter implements Serializable {
 
     public int getCount() {
         Objectify ofy = of.begin();
-        EntityCounter counter = ofy.get(new Key<EntityCounter>(
+        EntityCounter counter = ofy.get(new Key<>(
                 EntityCounter.class, name));
 
         List<Key<EntityCounterShard>> shardKeys =
-                new ArrayList<Key<EntityCounterShard>>();
+                new ArrayList<>();
         for (int shard = 0; shard < counter.numShards; shard++) {
-            shardKeys.add(new Key<EntityCounterShard>(EntityCounterShard.class,
+            shardKeys.add(new Key<>(EntityCounterShard.class,
                     String.format("%s%d", name, shard)));
         }
 
@@ -173,7 +173,7 @@ public class ShardedCounter implements Serializable {
         int tries = 3;
         while (true) {
             try {
-                EntityCounter counter = trans.find(new Key<EntityCounter>(
+                EntityCounter counter = trans.find(new Key<>(
                         EntityCounter.class, name));
                 if (counter == null) {
                     // create new counter
@@ -204,7 +204,7 @@ public class ShardedCounter implements Serializable {
         int tries = 3;
         while (true) {
             try {
-                EntityCounter counter = trans.find(new Key<EntityCounter>(
+                EntityCounter counter = trans.find(new Key<>(
                         EntityCounter.class, name));
                 if (counter == null) {
                     // create new counter
@@ -234,7 +234,7 @@ public class ShardedCounter implements Serializable {
 
     public static ShardedCounter getCounter(String name) {
         Objectify ofy = DefaultServlet.getObjectify();
-        if (ofy.find(new Key<EntityCounter>(EntityCounter.class, name)) != null) {
+        if (ofy.find(new Key<>(EntityCounter.class, name)) != null) {
             return new ShardedCounter(name);
         }
         return null;

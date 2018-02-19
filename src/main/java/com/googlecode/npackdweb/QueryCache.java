@@ -50,7 +50,7 @@ public class QueryCache {
 			syncCache.put(key, value); // populate cache
 		} else {
 			List<String> keys = NWUtils.split(value, ' ');
-			result = new ArrayList<Key<T>>();
+			result = new ArrayList<>();
 			for (String k : keys) {
 				result.add(new Key<T>(k));
 			}

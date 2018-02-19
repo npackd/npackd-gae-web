@@ -33,9 +33,9 @@ public class PackageVersionDeleteConfirmedAction extends Action {
             throws IOException {
         String name = req.getParameter("name");
         Objectify ofy = DefaultServlet.getObjectify();
-        PackageVersion p = ofy.get(new Key<PackageVersion>(
+        PackageVersion p = ofy.get(new Key<>(
                 PackageVersion.class, name));
-        Package pa = ofy.get(new Key<Package>(Package.class, p.package_));
+        Package pa = ofy.get(new Key<>(Package.class, p.package_));
         Page page;
         if (!pa.isCurrentUserPermittedToModify())
             page = new MessagePage(

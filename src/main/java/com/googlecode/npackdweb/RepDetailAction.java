@@ -29,7 +29,7 @@ public class RepDetailAction extends Action {
         long id = Long.parseLong(req.getRequestURI().substring(5));
 
         Objectify ofy = DefaultServlet.getObjectify();
-        Repository r = ofy.get(new Key<Repository>(Repository.class, id));
+        Repository r = ofy.get(new Key<>(Repository.class, id));
 
         return new RepDetailPage(r);
     }

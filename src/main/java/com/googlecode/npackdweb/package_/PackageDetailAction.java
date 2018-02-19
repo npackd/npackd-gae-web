@@ -33,7 +33,7 @@ public class PackageDetailAction extends Action {
         String name = req.getRequestURI().substring(3);
 
         Objectify ofy = DefaultServlet.getObjectify();
-        Package r = ofy.find(new Key<Package>(Package.class, name));
+        Package r = ofy.find(new Key<>(Package.class, name));
         PackageDetailPage pdp = null;
         User u = UserServiceFactory.getUserService().getCurrentUser();
         if (r == null) {

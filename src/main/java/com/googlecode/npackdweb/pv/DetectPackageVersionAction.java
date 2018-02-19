@@ -41,7 +41,7 @@ public class DetectPackageVersionAction extends Action {
         }
 
         Objectify ofy = DefaultServlet.getObjectify();
-        Package p = ofy.get(new Key<Package>(Package.class, package_));
+        Package p = ofy.get(new Key<>(Package.class, package_));
         if (!p.isCurrentUserPermittedToModify()) {
             return new MessagePage(
                     "You do not have permission to modify this package");
@@ -67,17 +67,19 @@ public class DetectPackageVersionAction extends Action {
             msg = e.getMessage();
         }
 
+        if (v == null) {
+            msg = "Cannot find the version";
+        }
+
         if (msg != null) {
             return new MessagePage(msg);
         }
 
         List<PackageVersion> versions = p.getSortedVersions(ofy);
 
-        PackageVersion pv;
-        Version vnewest = null;
         if (versions.size() > 0) {
-            pv = versions.get(versions.size() - 1);
-            vnewest = Version.parse(pv.version);
+            PackageVersion pv = versions.get(versions.size() - 1);
+            Version vnewest = Version.parse(pv.version);
             if (vnewest.compare(v) > 0) {
                 msg =
                         "The newest defined version " + vnewest.toString() +
@@ -88,8 +90,6 @@ public class DetectPackageVersionAction extends Action {
                         "The newest version is already in the repository (" +
                         vnewest + ")";
             }
-        } else {
-            pv = null;
         }
 
         if (msg != null) {

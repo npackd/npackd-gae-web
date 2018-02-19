@@ -37,7 +37,7 @@ public class LicensesPage extends MyPage {
 	}
 
 	private String internalCreateContent() {
-		licenses = new ArrayList<License>();
+		licenses = new ArrayList<>();
 		Objectify obj = DefaultServlet.getObjectify();
 		licenses.addAll(obj.query(License.class).limit(PAGE_SIZE + 1)
 				.offset(start).list());

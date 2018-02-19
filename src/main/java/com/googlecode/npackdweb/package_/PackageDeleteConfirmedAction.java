@@ -33,7 +33,7 @@ public class PackageDeleteConfirmedAction extends Action {
             throws IOException {
         String name = req.getParameter("name");
         Objectify ofy = DefaultServlet.getObjectify();
-        Package r = ofy.find(new Key<Package>(Package.class, name));
+        Package r = ofy.find(new Key<>(Package.class, name));
         Page page;
         if (!r.isCurrentUserPermittedToModify()) {
             page =

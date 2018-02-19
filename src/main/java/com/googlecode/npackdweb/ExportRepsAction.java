@@ -64,7 +64,7 @@ public class ExportRepsAction extends Action {
     public static Repository export(GcsService gcsService, Objectify ob,
             String tag, boolean recreate)
             throws IOException {
-        Repository r = ob.find(new Key<Repository>(Repository.class, tag));
+        Repository r = ob.find(new Key<>(Repository.class, tag));
         if (r == null) {
             r = new Repository();
             r.name = tag;

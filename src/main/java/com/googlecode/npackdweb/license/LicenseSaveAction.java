@@ -35,7 +35,7 @@ public class LicenseSaveAction extends Action {
 		pdp.fill(req);
 		String msg = pdp.validate();
 		if (msg == null) {
-			License p = ofy.find(new Key<License>(License.class, name));
+			License p = ofy.find(new Key<>(License.class, name));
 			if (p == null) {
 				p = new License();
 				p.name = name;

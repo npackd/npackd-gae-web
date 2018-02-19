@@ -39,6 +39,6 @@ public class Setting {
 	 * @return created Key for this object
 	 */
 	public Key<Setting> createKey() {
-		return new Key<Setting>(Setting.class, this.name);
+		return new Key<>(Setting.class, this.name);
 	}
 }

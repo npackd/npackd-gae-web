@@ -46,8 +46,8 @@ public class CopyPackageVersionConfirmedAction extends Action {
 
         Objectify ofy = DefaultServlet.getObjectify();
         PackageVersion p =
-                ofy.get(new Key<PackageVersion>(PackageVersion.class, name));
-        Package r = ofy.find(new Key<Package>(Package.class, p.package_));
+                ofy.get(new Key<>(PackageVersion.class, name));
+        Package r = ofy.find(new Key<>(Package.class, p.package_));
         Page page;
         if (!r.isCurrentUserPermittedToModify()) {
             page =
@@ -55,7 +55,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion copyFound =
-                    ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                    ofy.find(new Key<>(PackageVersion.class,
                                     p.package_ + "@" + version));
             if (copyFound != null) {
                 err =

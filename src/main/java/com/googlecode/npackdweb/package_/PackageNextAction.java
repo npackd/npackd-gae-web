@@ -33,7 +33,7 @@ public class PackageNextAction extends Action {
         Objectify ofy = DefaultServlet.getObjectify();
         Package next = null;
 
-        Package p = ofy.find(new Key<Package>(Package.class, name));
+        Package p = ofy.find(new Key<>(Package.class, name));
         if (p != null) {
             List<Package> ps =
                     ofy.query(Package.class).limit(5).filter("title >=",

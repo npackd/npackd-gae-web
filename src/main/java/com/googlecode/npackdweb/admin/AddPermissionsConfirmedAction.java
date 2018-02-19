@@ -39,7 +39,7 @@ public class AddPermissionsConfirmedAction extends Action {
             User u = NWUtils.email2user(p.email);
             Objectify ofy = DefaultServlet.getObjectify();
             List<Package> q = ofy.query(Package.class).list();
-            List<Package> toSave = new ArrayList<Package>();
+            List<Package> toSave = new ArrayList<>();
             for (Package p_ : q) {
                 if (!p_.isUserPermittedToModify(u)) {
                     p_.permissions.add(u);

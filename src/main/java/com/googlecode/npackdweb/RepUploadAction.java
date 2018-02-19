@@ -56,7 +56,7 @@ public class RepUploadAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        List<String> messages = new ArrayList<String>();
+        List<String> messages = new ArrayList<>();
 
         Found f = null;
         String tag = "unknown";
@@ -110,7 +110,7 @@ public class RepUploadAction extends Action {
 
             // determine the keys for all objects
             Objectify ofy = DefaultServlet.getObjectify();
-            List<Key<?>> keys = new ArrayList<Key<?>>();
+            List<Key<?>> keys = new ArrayList<>();
             for (License lic : f.lics) {
                 keys.add(lic.createKey());
             }
@@ -151,7 +151,7 @@ public class RepUploadAction extends Action {
 
             // process packages before the package versions
             for (Package p : f.ps) {
-                Package p_ = ofy.find(new Key<Package>(Package.class, p.name));
+                Package p_ = ofy.find(new Key<>(Package.class, p.name));
                 if (p_ != null && !p_.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
@@ -179,7 +179,7 @@ public class RepUploadAction extends Action {
                 pv.addTag("untested");
 
                 Package p =
-                        ofy.find(new Key<Package>(Package.class, pv.package_));
+                        ofy.find(new Key<>(Package.class, pv.package_));
                 PackageVersion existing =
                         ofy.find(pv.createKey());
                 if (p != null && !p.isCurrentUserPermittedToModify()) {
@@ -252,7 +252,7 @@ public class RepUploadAction extends Action {
     }
 
     private List<License> processLicenses(NodeList children) {
-        List<License> v = new ArrayList<License>();
+        List<License> v = new ArrayList<>();
         for (int i = 0; i < children.getLength(); i++) {
             Node ch = children.item(i);
             if (ch.getNodeType() == Element.ELEMENT_NODE &&
@@ -269,7 +269,7 @@ public class RepUploadAction extends Action {
     }
 
     private List<Package> processPackages(NodeList children) {
-        List<Package> v = new ArrayList<Package>();
+        List<Package> v = new ArrayList<>();
         for (int i = 0; i < children.getLength(); i++) {
             Node ch = children.item(i);
             if (ch.getNodeType() == Element.ELEMENT_NODE &&
@@ -283,7 +283,7 @@ public class RepUploadAction extends Action {
     }
 
     private List<PackageVersion> processPackageVersions(NodeList children) {
-        List<PackageVersion> v = new ArrayList<PackageVersion>();
+        List<PackageVersion> v = new ArrayList<>();
         for (int i = 0; i < children.getLength(); i++) {
             Node ch = children.item(i);
             if (ch.getNodeType() == Element.ELEMENT_NODE &&

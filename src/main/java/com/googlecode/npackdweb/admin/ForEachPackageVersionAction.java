@@ -52,7 +52,7 @@ public abstract class ForEachPackageVersionAction extends Action {
 		QueryResultIterator<PackageVersion> iterator = q.iterator();
 
 		int n = 0;
-		List<PackageVersion> list = new ArrayList<PackageVersion>();
+		List<PackageVersion> list = new ArrayList<>();
 		while (iterator.hasNext()) {
 			PackageVersion data = iterator.next();
 			list.add(data);

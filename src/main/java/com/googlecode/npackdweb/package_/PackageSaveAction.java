@@ -35,7 +35,7 @@ public class PackageSaveAction extends Action {
         pdp.fill(req);
         String msg = pdp.validate();
         if (msg == null) {
-            Package p = ofy.find(new Key<Package>(Package.class, name));
+            Package p = ofy.find(new Key<>(Package.class, name));
             Package old = p == null ? null : p.copy();
             if (p == null) {
                 p = new Package(name);

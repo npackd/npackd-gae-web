@@ -18,11 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 public class LicensePage extends MyPage {
 
     /**
-     * error message or null
-     */
-    public String error;
-
-    /**
      * full license id or ""
      */
     public String id;
@@ -242,7 +237,7 @@ public class LicensePage extends MyPage {
         if (msg == null) {
             if (this.id == null || this.id.trim().length() == 0) {
                 Objectify ofy = DefaultServlet.getObjectify();
-                License r = ofy.find(new Key<License>(License.class, this.id));
+                License r = ofy.find(new Key<>(License.class, this.id));
                 if (r != null) {
                     msg = "A license with this ID already exists";
                 }

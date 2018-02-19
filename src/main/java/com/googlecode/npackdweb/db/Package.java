@@ -84,7 +84,7 @@ public class Package {
      * @return found package or null
      */
     public static Package findByName(Objectify ofy, String id) {
-        return ofy.find(new Key<Package>(Package.class, id));
+        return ofy.find(new Key<>(Package.class, id));
     }
 
     @Id
@@ -142,7 +142,7 @@ public class Package {
     /**
      * categories. Example: "Entertainment/Travel"
      */
-    public List<String> tags = new ArrayList<String>();
+    public List<String> tags = new ArrayList<>();
 
     /**
      * this package was created by this user
@@ -152,12 +152,12 @@ public class Package {
     /**
      * list of users allowed to edit this package and package versions
      */
-    public List<User> permissions = new ArrayList<User>();
+    public List<User> permissions = new ArrayList<>();
 
     /**
      * list of screenshot URLs
      */
-    public List<String> screenshots = new ArrayList<String>();
+    public List<String> screenshots = new ArrayList<>();
 
     /**
      * last check performed which found no updates
@@ -277,10 +277,10 @@ public class Package {
             this.lastModifiedBy = this.createdBy;
         }
         if (this.tags == null) {
-            this.tags = new ArrayList<String>();
+            this.tags = new ArrayList<>();
         }
         if (permissions == null) {
-            this.permissions = new ArrayList<User>();
+            this.permissions = new ArrayList<>();
         }
         if (permissions.size() == 0) {
             this.permissions.add(this.createdBy);
@@ -337,7 +337,7 @@ public class Package {
      * @return created Key for this object
      */
     public Key<Package> createKey() {
-        return new Key<Package>(Package.class, this.name);
+        return new Key<>(Package.class, this.name);
     }
 
     /**

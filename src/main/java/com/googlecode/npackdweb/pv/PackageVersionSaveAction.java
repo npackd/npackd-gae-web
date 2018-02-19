@@ -37,14 +37,14 @@ public class PackageVersionSaveAction extends Action {
             String package_ = pvp.getPackageName();
             final String version = pvp.getVersion();
             Objectify ofy = DefaultServlet.getObjectify();
-            Package pa = ofy.get(new Key<Package>(Package.class, package_));
+            Package pa = ofy.get(new Key<>(Package.class, package_));
             if (!pa.isCurrentUserPermittedToModify()) {
                 page =
                         new MessagePage(
                                 "You do not have permission to modify this package");
             } else {
                 PackageVersion p =
-                        ofy.find(new Key<PackageVersion>(PackageVersion.class,
+                        ofy.find(new Key<>(PackageVersion.class,
                                 package_ + "@" + version));
                 PackageVersion old;
                 if (p == null) {

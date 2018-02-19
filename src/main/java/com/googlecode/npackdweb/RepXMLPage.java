@@ -67,7 +67,7 @@ public class RepXMLPage extends Page {
      */
     public static Document
             toXML(Objectify ofy, String tag, boolean onlyReviewed) {
-        ArrayList<PackageVersion> pvs = new ArrayList<PackageVersion>();
+        ArrayList<PackageVersion> pvs = new ArrayList<>();
         Query<PackageVersion> q =
                 ofy.query(PackageVersion.class).chunkSize(500);
         if (tag != null) {
@@ -108,14 +108,14 @@ public class RepXMLPage extends Page {
                 return r;
             }
         });
-        Set<String> pns = new HashSet<String>();
+        Set<String> pns = new HashSet<>();
         for (PackageVersion pv : pvs) {
             if (!pv.tags.contains("not-reviewed") || !onlyReviewed) {
                 pns.add(pv.package_);
             }
         }
         Map<String, Package> ps_ = ofy.get(Package.class, pns);
-        List<Package> ps = new ArrayList<Package>();
+        List<Package> ps = new ArrayList<>();
         ps.addAll(ps_.values());
         Collections.sort(ps, new Comparator<Package>() {
             @Override
@@ -123,14 +123,14 @@ public class RepXMLPage extends Page {
                 return a.name.compareToIgnoreCase(b.name);
             }
         });
-        Set<String> lns = new HashSet<String>();
+        Set<String> lns = new HashSet<>();
         for (Package p : ps) {
             if (!p.license.isEmpty()) {
                 lns.add(p.license);
             }
         }
         Map<String, License> ls = ofy.get(License.class, lns);
-        List<License> licenses = new ArrayList<License>();
+        List<License> licenses = new ArrayList<>();
         licenses.addAll(ls.values());
         Collections.sort(licenses, new Comparator<License>() {
             @Override

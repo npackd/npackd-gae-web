@@ -140,7 +140,7 @@ public class PackageDetailPage extends MyPage {
         discoveryRE = "";
         discoveryURLPattern = "";
         license = "";
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
         screenshots = "";
         permissions = "";
 
@@ -752,7 +752,7 @@ public class PackageDetailPage extends MyPage {
      * @return versions of this package
      */
     public List<PackageVersion> getVersions(Objectify ofy) {
-        ArrayList<PackageVersion> versions = new ArrayList<PackageVersion>();
+        ArrayList<PackageVersion> versions = new ArrayList<>();
         if (!id.isEmpty()) {
             for (PackageVersion pv : ofy.query(PackageVersion.class)
                     .filter("package_ =", id).fetch()) {
@@ -768,7 +768,7 @@ public class PackageDetailPage extends MyPage {
      * @return list of all licenses
      */
     private List<License> getLicenses(Objectify ofy) {
-        List<License> licenses = new ArrayList<License>();
+        List<License> licenses = new ArrayList<>();
         String cacheSuffix = "@" + NWUtils.getDataVersion();
         Query<License> q = ofy.query(License.class).order("title");
         List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
@@ -834,7 +834,7 @@ public class PackageDetailPage extends MyPage {
         p.discoveryPage = discoveryURL.trim();
         p.discoveryRE = discoveryRE.trim();
         p.discoveryURLPattern = discoveryURLPattern.trim();
-        p.tags = new ArrayList<String>();
+        p.tags = new ArrayList<>();
         p.tags.addAll(this.tags);
 
         if (NWUtils.isAdminLoggedIn()) {
@@ -861,13 +861,12 @@ public class PackageDetailPage extends MyPage {
 
     @Override
     public String validate() {
-        String msg = null;
-        msg = Package.checkName(this.id);
+        String msg = Package.checkName(this.id);
 
         if (msg == null) {
             if (mode == FormMode.CREATE) {
                 Objectify ofy = DefaultServlet.getObjectify();
-                Package r = ofy.find(new Key<Package>(Package.class, this.id));
+                Package r = ofy.find(new Key<>(Package.class, this.id));
                 if (r != null) {
                     msg = "A package with this ID already exists";
                 }
@@ -970,7 +969,7 @@ public class PackageDetailPage extends MyPage {
         discoveryURLPattern = r.discoveryURLPattern.trim();
         createdAt = r.createdAt;
         createdBy = r.createdBy;
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
         this.tags.addAll(r.tags);
         screenshots = NWUtils.join("\n", r.screenshots);
 

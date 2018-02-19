@@ -134,13 +134,13 @@ public class PackagesPage extends MyPage {
             }
         }
         if (category0Values == null) {
-            category0Values = new ArrayList<FacetResultValue>();
+            category0Values = new ArrayList<>();
         }
         if (category1Values == null) {
-            category1Values = new ArrayList<FacetResultValue>();
+            category1Values = new ArrayList<>();
         }
 
-        List<String> ids = new ArrayList<String>();
+        List<String> ids = new ArrayList<>();
         for (ScoredDocument sd : r) {
             ids.add(sd.getId());
 
@@ -152,7 +152,7 @@ public class PackagesPage extends MyPage {
         Objectify obj = DefaultServlet.getObjectify();
         Map<String, Package> map = obj.get(Package.class, ids);
 
-        packages = new ArrayList<Package>();
+        packages = new ArrayList<>();
 
         for (Map.Entry<String, Package> e : map.entrySet()) {
             if (e.getValue() != null) {
@@ -335,15 +335,15 @@ public class PackagesPage extends MyPage {
     private String createPager(int cur, boolean hasNextPage) {
         HTMLWriter w = new HTMLWriter();
         w.start("ul", "class", "pager");
-        String params =
+        String p =
                 (recent ? "&sort=created" : "") + "&q=" +
                 NWUtils.encode(this.query);
         if (category0 != null) {
-            params += "&category0=" + NWUtils.encode(this.category0);
+            p += "&category0=" + NWUtils.encode(this.category0);
         }
         if (cur >= PAGE_SIZE) {
             w.start("li");
-            w.e("a", "href", "/p?start=" + (cur - PAGE_SIZE) + params,
+            w.e("a", "href", "/p?start=" + (cur - PAGE_SIZE) + p,
                     "\u2190 Previous page");
             w.end("li");
         } else {
@@ -354,7 +354,7 @@ public class PackagesPage extends MyPage {
 
         if (hasNextPage) {
             w.start("li");
-            w.e("a", "href", "/p?start=" + (cur + PAGE_SIZE) + params,
+            w.e("a", "href", "/p?start=" + (cur + PAGE_SIZE) + p,
                     "Next page \u2192");
             w.end("li");
         } else {

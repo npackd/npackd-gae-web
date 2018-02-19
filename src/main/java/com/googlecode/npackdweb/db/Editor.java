@@ -72,7 +72,7 @@ public class Editor {
      * @return created Key for this object
      */
     public Key<Editor> createKey() {
-        return new Key<Editor>(Editor.class, this.name);
+        return new Key<>(Editor.class, this.name);
     }
 
     /**

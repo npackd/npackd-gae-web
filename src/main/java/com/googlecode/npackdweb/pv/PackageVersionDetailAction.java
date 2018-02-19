@@ -1,7 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -48,7 +46,7 @@ public class PackageVersionDetailAction extends Action {
         String version = m.group(2);
 
         Objectify ofy = DefaultServlet.getObjectify();
-        PackageVersion r = ofy.find(new Key<PackageVersion>(
+        PackageVersion r = ofy.find(new Key<>(
                 PackageVersion.class, package_ + "@" + version));
         if (r == null) {
             Version v = Version.parse(version);
@@ -63,18 +61,6 @@ public class PackageVersionDetailAction extends Action {
             }
         }
 
-        PackageVersionPage pvp = null;
-        if (r == null) {
-            User u = UserServiceFactory.getUserService().getCurrentUser();
-            if (u != null) {
-                r = new PackageVersion(package_, version);
-                pvp = new PackageVersionPage(r, true);
-            } else {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            }
-        } else {
-            pvp = new PackageVersionPage(r, false);
-        }
-        return pvp;
+        return new PackageVersionPage(r, false);
     }
 }

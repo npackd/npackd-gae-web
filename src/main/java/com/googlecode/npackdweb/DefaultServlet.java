@@ -83,8 +83,8 @@ public class DefaultServlet extends HttpServlet {
         return OBJS.get();
     }
 
-    private List<Pattern> urlPatterns = new ArrayList<Pattern>();
-    private List<Action> actions = new ArrayList<Action>();
+    private List<Pattern> urlPatterns = new ArrayList<>();
+    private List<Action> actions = new ArrayList<>();
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)

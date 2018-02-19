@@ -32,7 +32,7 @@ public class LicenseAction extends Action {
 		String name = req.getRequestURI().substring(3);
 
 		Objectify ofy = DefaultServlet.getObjectify();
-		License r = ofy.find(new Key<License>(License.class, name));
+		License r = ofy.find(new Key<>(License.class, name));
 		LicensePage pdp = null;
 		User u = UserServiceFactory.getUserService().getCurrentUser();
 		if (r == null) {

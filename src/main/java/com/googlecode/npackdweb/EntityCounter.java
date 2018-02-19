@@ -32,7 +32,7 @@ public class EntityCounter {
 	}
 
 	public Key<EntityCounterShard> keyForShard(int shardNumber) {
-		return new Key<EntityCounterShard>(EntityCounterShard.class,
+		return new Key<>(EntityCounterShard.class,
 		        shardName(shardNumber));
 	}
 

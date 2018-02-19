@@ -16,11 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 public class AddEditorPage extends MyPage {
 
     /**
-     * error message or null
-     */
-    public String error;
-
-    /**
      * entered email address
      */
     public String email = "";
@@ -52,7 +47,7 @@ public class AddEditorPage extends MyPage {
 
         if (err == null) {
             Objectify ofy = DefaultServlet.getObjectify();
-            Editor existing = ofy.find(new Key<Editor>(Editor.class, email));
+            Editor existing = ofy.find(new Key<>(Editor.class, email));
             if (existing != null) {
                 err = "An editor with the email " + email + " already exists";
             }

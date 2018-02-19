@@ -223,7 +223,7 @@ public class NWUtils {
      */
     public static String tmpl(String templateName, String... keysAndValues)
             throws IOException {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         for (int i = 0; i < keysAndValues.length; i += 2) {
             map.put(keysAndValues[i], keysAndValues[i + 1]);
         }
@@ -241,7 +241,7 @@ public class NWUtils {
      */
     public static String tmpl(Page page, String templateName,
             String... keysAndValues) throws IOException {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         for (int i = 0; i < keysAndValues.length; i += 2) {
             map.put(keysAndValues[i], keysAndValues[i + 1]);
         }
@@ -285,7 +285,7 @@ public class NWUtils {
      * @return map with the specified value
      */
     public static Map<String, Object> newMap(String key, String value) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put(key, value);
         return map;
     }
@@ -301,7 +301,7 @@ public class NWUtils {
      */
     public static Map<String, Object> newMap(String key, String value,
             String key2, String value2) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put(key, value);
         map.put(key2, value2);
         return map;
@@ -455,7 +455,7 @@ public class NWUtils {
      * @return parts
      */
     public static List<String> split(String txt, char separator) {
-        List<String> r = new ArrayList<String>();
+        List<String> r = new ArrayList<>();
         while (true) {
             txt = txt.trim();
             int p = txt.indexOf(separator);
@@ -484,7 +484,7 @@ public class NWUtils {
      */
     public static List<String> splitLines(String txt) {
         BufferedReader br = new BufferedReader(new StringReader(txt));
-        List<String> r = new ArrayList<String>();
+        List<String> r = new ArrayList<>();
         String line;
         try {
             while ((line = br.readLine()) != null) {
@@ -892,7 +892,7 @@ public class NWUtils {
      * @param name package name
      */
     public static void deletePackage(Objectify ofy, String name) {
-        Package p = ofy.get(new Key<Package>(Package.class, name));
+        Package p = ofy.get(new Key<>(Package.class, name));
         ofy.delete(p);
         QueryResultIterable<Key<PackageVersion>> k =
                 ofy.query(PackageVersion.class).filter("package_ =", name)
@@ -1206,7 +1206,7 @@ public class NWUtils {
         HTMLWriter w = new HTMLWriter();
         int index = email.indexOf('@');
         if (index > 0) {
-            Editor e = ob.find(new Key<Editor>(Editor.class, email));
+            Editor e = ob.find(new Key<>(Editor.class, email));
             if (e == null) {
                 e = new Editor(email2user(email));
                 e.createId();
@@ -1238,7 +1238,7 @@ public class NWUtils {
     public static String getSetting(Objectify ofy, String name,
             String defaultValue) {
         Setting st =
-                ofy.find(new com.googlecode.objectify.Key<Setting>(
+                ofy.find(new com.googlecode.objectify.Key<>(
                                 Setting.class, name));
         String value;
         if (st == null) {
@@ -1261,7 +1261,7 @@ public class NWUtils {
      */
     public static void setSetting(Objectify ofy, String name, String value) {
         Setting st =
-                ofy.find(new com.googlecode.objectify.Key<Setting>(
+                ofy.find(new com.googlecode.objectify.Key<>(
                                 Setting.class, name));
         if (st == null) {
             st = new Setting();
@@ -1331,7 +1331,7 @@ public class NWUtils {
      * @param name license ID
      */
     public static void deleteLicense(Objectify ofy, String name) {
-        License p = ofy.get(new Key<License>(License.class, name));
+        License p = ofy.get(new Key<>(License.class, name));
         ofy.delete(p);
         NWUtils.incDataVersion();
     }
