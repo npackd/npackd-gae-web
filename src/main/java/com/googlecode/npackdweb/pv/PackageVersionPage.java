@@ -330,18 +330,27 @@ public class PackageVersionPage extends MyPage {
             w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
                     "style",
                     "cursor: pointer; font-size: 20px; font-weight: bold");
-        } else if (!tags.contains("not-reviewed")) {
-            w.start("a", "href",
-                    url,
-                    "class", "btn btn-primary btn-md",
-                    "role", "button");
-            w.e("span", "class", "glyphicon glyphicon-download");
-            w.t(" Download " + p.title + " " + version);
-            w.end("a");
-            w.unencoded("<br><br>");
-            w.e("a", "itemprop", "downloadUrl", "href", url, url);
         } else {
-            w.t("Not yet reviewed");
+            if (!tags.contains("not-reviewed")) {
+                w.start("a", "href",
+                        url,
+                        "class", "btn btn-primary btn-md",
+                        "role", "button");
+                w.e("span", "class", "glyphicon glyphicon-download");
+                w.t(" Download " + p.title + " " + version);
+                w.end("a");
+                w.unencoded("<br><br>");
+                w.e("a", "itemprop", "downloadUrl", "href", url, url);
+            } else {
+                w.t("Not yet reviewed");
+            }
+            if (!url.trim().isEmpty()) {
+                w.unencoded("<br><br>");
+                w.e("a", "href", "https://www.virustotal.com/#/url/" + NWUtils.
+                        byteArrayToHexString(NWUtils.
+                                stringSHA256(url)) + "/detection",
+                        "VirusTotal results");
+            }
         }
         w.end("td");
         w.end("tr");

@@ -41,6 +41,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,6 +49,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1125,6 +1127,26 @@ public class NWUtils {
          * size of the file
          */
         public long size;
+    }
+
+    /**
+     * Computes SHA-256 for a string.
+     *
+     * @param value a string
+     * @return SHA-256 of the UTF-8 encoding of the supplied value
+     */
+    public static byte[] stringSHA256(String value) {
+        MessageDigest crypt;
+        try {
+            crypt = MessageDigest.getInstance("SHA-256");
+            crypt.update(value.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException ex) {
+            throw new IOError(ex);
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IOError(ex);
+        }
+
+        return crypt.digest();
     }
 
     /**
