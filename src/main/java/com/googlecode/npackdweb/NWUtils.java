@@ -1428,44 +1428,6 @@ public class NWUtils {
     }
 
     /**
-     * Checks an URL using the Google Safe Browsing Lookup API
-     *
-     * @param ofy Objectify
-     * @param url this URL will be checked
-     * @return GET_RESP_BODY = “phishing” | “malware” | "unwanted" |
-     * “phishing,malware” | "phishing,unwanted" | "malware,unwanted" |
-     * "phishing,malware,unwanted" | ""
-     * @throws java.io.IOException there was a communication problem, the server
-     * is unavailable, over quota or something different.
-     */
-    public static String checkURL(Objectify ofy, String url) throws IOException {
-        try {
-            URL u = new URL(
-                    "https://sb-ssl.google.com/safebrowsing/api/lookup?client=npackdweb&key=" +
-                    getSetting(ofy, "PublicAPIKey", "") +
-                    "&appver=1&pver=3.1&url=" +
-                    NWUtils.encode(url));
-            URLFetchService s = URLFetchServiceFactory.getURLFetchService();
-
-            HTTPRequest ht = new HTTPRequest(u);
-            HTTPResponse r = s.fetch(ht);
-            int rc = r.getResponseCode();
-            if (rc == 200) {
-                return new String(r.getContent());
-            } else if (rc == 204) {
-                return "";
-            } else if (rc == 400) {
-                throw new IOException(new String(r.getContent()));
-            } else {
-                throw new IOException(
-                        "Unknown exception from the Google Safe Browsing API");
-            }
-        } catch (MalformedURLException ex) {
-            throw new IOException(ex);
-        }
-    }
-
-    /**
      * Creates a &lt;script&gt; tag
      *
      * @param w output
