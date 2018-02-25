@@ -37,7 +37,7 @@ public class PackageVersion {
      * WARNING: update TAG_TOOLTIPS!
      */
     public static final String[] TAGS = {"stable", "stable64", "libs",
-        "unstable", "untested", "test-failed",
+        "unstable", "untested", "non-admin", "test-failed",
         "not-reviewed", "phishing", "malware", "unwanted"};
 
     /**
@@ -49,6 +49,7 @@ public class PackageVersion {
         "this package version should be included in the default repository for software libraries",
         "this package version should be included in the default repository for unstable software",
         "the installation and removal of this package version was not yet tested. This package will not be included in the default repositories.",
+        "can be installed without administrative privileges",
         "the automatic testing for this package version failed. This package will still be included in the default repositories.",
         "this package version is not yet reviewed and may be unsafe. Only an administrator can change this tag.",
         "Warning—Suspected phishing page. This page may be a forgery or imitation of another website, designed to trick users into sharing personal or financial information. Entering any personal information on this page may result in identity theft or other abuse. You can find out more about phishing from www.antiphishing.org.",
