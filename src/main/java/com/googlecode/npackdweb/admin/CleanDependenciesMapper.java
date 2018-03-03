@@ -29,7 +29,27 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
     @Override
     public void map(Entity value) {
-        moveFromGoogleCodeFiles(value);
+        moveSourceForgeToOneServer(value);
+    }
+
+    private void moveSourceForgeToOneServer(Entity value) {
+        Objectify ofy = DefaultServlet.getObjectify();
+
+        PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion oldpv = pv.copy();
+        boolean save = false;
+
+        final String PREFIX = "http://downloads.sourceforge.net/";
+
+        if (pv.url.startsWith(PREFIX)) {
+            pv.url = pv.url.replace(PREFIX, "https://ayera.dl.sourceforge.net/");
+            save = true;
+        }
+
+        if (save) {
+            System.out.println("Saving " + pv.name + " " + pv.url);
+            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
+        }
     }
 
     private void moveFromGoogleCodeFiles(Entity value) {
