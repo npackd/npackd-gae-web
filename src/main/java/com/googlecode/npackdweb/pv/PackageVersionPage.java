@@ -330,6 +330,8 @@ public class PackageVersionPage extends MyPage {
             w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
                     "style",
                     "cursor: pointer; font-size: 20px; font-weight: bold");
+            w.e("div",
+                    "Example: https://ayera.dl.sourceforge.net/project/x64dbg/snapshots/snapshot_2018-03-04_22-52.zip");
         } else {
             if (!tags.contains("not-reviewed")) {
                 w.start("a", "href",
