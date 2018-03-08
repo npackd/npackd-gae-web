@@ -178,11 +178,6 @@ public class PackagesPage extends MyPage {
             w.t(" ");
             w.e("a",
                     "href",
-                    "https://github.com/tim-lebedkov/npackd/wiki/RejectedSoftware",
-                    "List of rejected packages*");
-            w.t(" ");
-            w.e("a",
-                    "href",
                     "https://github.com/tim-lebedkov/npackd/issues/new",
                     "Suggest " + this.query + " for inclusion*");
             w.end("div");
