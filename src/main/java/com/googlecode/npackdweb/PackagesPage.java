@@ -65,6 +65,9 @@ public class PackagesPage extends MyPage {
             }
         }
 
+        packages.
+                sort((Package o1, Package o2) -> o1.title.compareTo(o2.title));
+
         found = packages.size();
     }
 
