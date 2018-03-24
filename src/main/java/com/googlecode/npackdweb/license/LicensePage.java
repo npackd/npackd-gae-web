@@ -53,7 +53,6 @@ public class LicensePage extends MyPage {
         HTMLWriter w = new HTMLWriter();
 
         w.unencoded(NWUtils.tmpl("LicensePage.html"));
-        w.unencoded(NWUtils.tmpl("GooglePlus.html"));
 
         return w.toString();
     }

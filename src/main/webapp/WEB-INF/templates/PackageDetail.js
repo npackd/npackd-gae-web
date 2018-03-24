@@ -1,23 +1,23 @@
 var defaultTags = ["Communications", "Development",
-                "Education", "Finance", "Games", "Music", "News", "Photo",
-                "Productivity", "Security", "Text", "Tools", "Video",
-                "same-url", "end-of-life"];
+        "Education", "Finance", "Games", "Music", "News", "Photo",
+        "Productivity", "Security", "Text", "Tools", "Video",
+        "same-url", "end-of-life"];
                                     
 function updateTagCheckboxes() {
-	var allTags = defaultTags.slice();
-	var tags = $('#tags').val();
-	var tags_ = tags.split(",");
-	for (var i = 0; i < tags_.length; i++) {
-		var tag = $.trim(tags_[i]);
-		var index = $.inArray(tag, allTags);
-		if (index >= 0) {
-			$("#tag-" + tag).prop('checked', true);
-			allTags.splice(index, 1);
-		}
-	}
-	for (var i = 0; i < allTags.length; i++) {
-		$("#tag-" + allTags[i]).prop('checked', false);
-	}
+    var allTags = defaultTags.slice();
+    var tags = $('#tags').val();
+    var tags_ = tags.split(",");
+    for (var i = 0; i < tags_.length; i++) {
+        var tag = $.trim(tags_[i]);
+        var index = $.inArray(tag, allTags);
+        if (index >= 0) {
+            $("#tag-" + tag).prop('checked', true);
+            allTags.splice(index, 1);
+        }
+    }
+    for (var i = 0; i < allTags.length; i++) {
+        $("#tag-" + allTags[i]).prop('checked', false);
+    }
 }
 
 /**
@@ -25,39 +25,39 @@ function updateTagCheckboxes() {
  * checkboxes.
  */
 function updateTagInput() {
-	var allTags = defaultTags.slice();
-	
-	var tags = $('#tags').val();
-	var tags_ = tags.split(",");
-	for (var i = 0; i < tags_.length; i++) {
-		tags_[i] = $.trim(tags_[i]);
-	}
-	
-	for (var i = 0; i < allTags.length; i++) {
-		var tag = allTags[i];
-		var index = $.inArray(tag, tags_);
-		if ($("#tag-" + tag).prop('checked')) {
-			if (index < 0) {
-				tags_.push(tag);
-			}
-		} else {
-			if (index >= 0) {
-				tags_.splice(index, 1);
-			}
-		}
-	}
-	
-	$('#tags').val(tags_.join(", "));
+    var allTags = defaultTags.slice();
+
+    var tags = $('#tags').val();
+    var tags_ = tags.split(",");
+    for (var i = 0; i < tags_.length; i++) {
+        tags_[i] = $.trim(tags_[i]);
+    }
+
+    for (var i = 0; i < allTags.length; i++) {
+        var tag = allTags[i];
+        var index = $.inArray(tag, tags_);
+        if ($("#tag-" + tag).prop('checked')) {
+            if (index < 0) {
+                tags_.push(tag);
+            }
+        } else {
+            if (index >= 0) {
+                tags_.splice(index, 1);
+            }
+        }
+    }
+
+    $('#tags').val(tags_.join(", "));
 }
 
 function deleteOnClick() {
-	var msg = prompt("Deleting the package. Please enter the explanations.", 
-			"Seems to be just a test.");
-	if (msg !== null) {
-		var id = $('#name').val();
-		window.location.href='/package/delete-confirmed?name=' + id + 
-				"&message=" + encodeURIComponent(msg);
-	}
+    var msg = prompt("Deleting the package. Please enter the explanations.", 
+                    "Seems to be just a test.");
+    if (msg !== null) {
+        var id = $('#name').val();
+        window.location.href='/package/delete-confirmed?name=' + id + 
+                "&message=" + encodeURIComponent(msg);
+    }
 }
 
 function initEvents() {
@@ -95,7 +95,38 @@ function initEvents() {
     }
 
     autosize($(".nw-autosize"));
+
+    $('.star').click(starClick);
 }
 
+function starClick(event) {
+    var star = 1;
+    var t = event.target;
+    var p = $(t).data('package');
+
+    if ($(t).hasClass("glyphicon-star-empty")) {
+        star = 1;
+    } else {
+        star = 0;
+    }
+
+    $.ajax({
+        url: "/api/star",
+        data: { package: p, star: star },
+        cache: false
+    }).done(function() {
+        $.ajax({
+            url: "/star",
+            data: { package: p },
+            context: t,
+            cache: false
+        }).done(function(html) {
+            this.parentElement.innerHTML = html;
+            $('.star').off("click");
+            $('.star').click(starClick);
+        });
+    });
+}
+    
 $(document).ready(initEvents);
 

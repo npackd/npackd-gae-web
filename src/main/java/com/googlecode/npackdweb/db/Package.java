@@ -165,6 +165,12 @@ public class Package {
     public Date noUpdatesCheck;
 
     /**
+     * How many users starred this package?
+     */
+    public int starred;
+
+    // PLEASE ALSO UPDATE #copy()
+    /**
      * For Objectify.
      */
     public Package() {
@@ -584,6 +590,7 @@ public class Package {
         p.screenshots.clear();
         p.screenshots.addAll(this.screenshots);
         p.noUpdatesCheck = this.noUpdatesCheck;
+        p.starred = this.starred;
         return p;
     }
 

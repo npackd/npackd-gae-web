@@ -9,6 +9,7 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackagesPage;
 import com.googlecode.npackdweb.QueryCache;
 import com.googlecode.npackdweb.Version;
+import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -123,6 +124,9 @@ public class PackageDetailPage extends MyPage {
      */
     private Date noUpdatesCheck;
 
+    private boolean starFilled;
+    private int starred;
+
     /**
      * @param mode editing mode
      */
@@ -158,8 +162,6 @@ public class PackageDetailPage extends MyPage {
         w.end("script");
 
         NWUtils.linkScript(w, "/autosize.min.js");
-
-        w.unencoded(NWUtils.tmpl("GooglePlus.html"));
 
         return w.toString();
     }
@@ -738,9 +740,8 @@ public class PackageDetailPage extends MyPage {
             PackagesPage.createTags(w, noUpdatesCheck, this.tags.indexOf(
                     "end-of-life") >= 0);
 
-            w.unencoded(
-                    " <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-                    "https://www.npackd.org/p/" + id + "'></div>");
+            w.t(" ");
+            NWUtils.star(w, this.id, starFilled, starred);
         } else {
             w.t(" New package");
         }
@@ -816,6 +817,17 @@ public class PackageDetailPage extends MyPage {
             this.createdAt = p.createdAt;
             this.createdBy = p.createdBy;
             this.noUpdatesCheck = p.noUpdatesCheck;
+
+            this.starFilled = false;
+            User u = UserServiceFactory.getUserService().getCurrentUser();
+            if (u != null) {
+                Editor e = NWUtils.findEditor(ofy, u);
+                if (e != null && e.starredPackages.contains(id)) {
+                    starFilled = true;
+                }
+            }
+
+            this.starred = p.starred;
         }
     }
 
@@ -986,5 +998,17 @@ public class PackageDetailPage extends MyPage {
 
         params.put("modified", r.lastModifiedAt.toString());
         params.put("modifiedBy", r.lastModifiedBy.getEmail());
+
+        this.starFilled = false;
+        User u = UserServiceFactory.getUserService().getCurrentUser();
+        if (u != null) {
+            Objectify ofy = DefaultServlet.getObjectify();
+            Editor e = NWUtils.findEditor(ofy, u);
+            if (e != null && e.starredPackages.contains(id)) {
+                starFilled = true;
+            }
+        }
+
+        this.starred = r.starred;
     }
 }

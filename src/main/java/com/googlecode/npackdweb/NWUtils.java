@@ -1114,6 +1114,40 @@ public class NWUtils {
     }
 
     /**
+     * Adds or removes a star from a package
+     *
+     * @param ofy Objectify
+     * @param p a package
+     * @param e an editor/user
+     * @param star true = star, false = unstar
+     */
+    public static void starPackage(Objectify ofy, Package p, Editor e,
+            boolean star) {
+        if (star) {
+            if (e.starredPackages.indexOf(p.name) < 0) {
+                com.googlecode.npackdweb.db.Package oldp = p.copy();
+                p.starred++;
+                NWUtils.savePackage(ofy, oldp, p, false);
+
+                e.starredPackages.add(p.name);
+                NWUtils.saveEditor(ofy, e);
+            }
+        } else {
+            if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
+                com.googlecode.npackdweb.db.Package oldp = p.copy();
+                p.starred--;
+                if (p.starred < 0) {
+                    p.starred = 0;
+                }
+                NWUtils.savePackage(ofy, oldp, p, false);
+
+                e.starredPackages.remove(p.name);
+                NWUtils.saveEditor(ofy, e);
+            }
+        }
+    }
+
+    /**
      * Information about a downloaded file
      */
     public static class Info {
@@ -1231,7 +1265,6 @@ public class NWUtils {
             Editor e = ob.find(new Key<>(Editor.class, email));
             if (e == null) {
                 e = new Editor(email2user(email));
-                e.createId();
                 saveEditor(ob, e);
             }
             String before = email.substring(0, index);
@@ -1313,7 +1346,22 @@ public class NWUtils {
      * @param e editor
      */
     public static void saveEditor(Objectify ofy, Editor e) {
+        if (e.id <= 0) {
+            e.createId();
+        }
         ofy.put(e);
+        NWUtils.incDataVersion();
+    }
+
+    /**
+     * Searches for an editor.
+     *
+     * @param ofy Objectify
+     * @param u a user
+     * @return editor or null
+     */
+    public static Editor findEditor(Objectify ofy, User u) {
+        return ofy.find(new Key<>(Editor.class, u.getEmail()));
     }
 
     /**
@@ -1458,6 +1506,43 @@ public class NWUtils {
      */
     public static HTMLWriter linkScript(HTMLWriter w, final String src) {
         return w.e("script", "type", "text/javascript", "src", src);
+    }
+
+    /**
+     * Creates a star for a package
+     *
+     * @param w output
+     * @param package_ full package name
+     * @param filled true = filled star
+     * @param starred the amount of people who starred the package
+     * @return the same writer
+     */
+    public static HTMLWriter star(HTMLWriter w, final String package_,
+            boolean filled, int starred) {
+        String txt;
+        if (starred == 1) {
+            txt = "1 user starred this package";
+        } else if (starred > 1) {
+            txt = starred + " users starred this package";
+        } else {
+            txt = "";
+        }
+
+        String n = String.valueOf(filled ? starred - 1 : starred);
+        w.start("span");
+        if (filled) {
+            w.e("span", "class", "star glyphicon glyphicon-star", "style",
+                    "cursor: pointer; color:#337ab7", "data-package", package_,
+                    "data-starred", n);
+        } else {
+            w.e("span", "class", "star glyphicon glyphicon-star-empty", "style",
+                    "cursor: pointer", "data-package", package_,
+                    "data-starred", n);
+        }
+        w.e("small", txt);
+        w.end("span");
+
+        return w;
     }
 
     /**

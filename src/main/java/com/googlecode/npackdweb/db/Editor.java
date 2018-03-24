@@ -6,12 +6,15 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Entity;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 
 /**
- * A package.
+ * An editor/user.
  */
 @Entity
 @Cached
@@ -32,9 +35,14 @@ public class Editor {
     public Date createdAt = NWUtils.newDate();
 
     /**
-     * this package was created by this user
+     * this record was created by this user
      */
     public User createdBy;
+
+    /**
+     * list of package IDs starred by this user
+     */
+    public List<String> starredPackages = new ArrayList<>();
 
     /**
      * ID > 0
@@ -82,5 +90,12 @@ public class Editor {
         ShardedCounter sc = ShardedCounter.getOrCreateCounter("EditorID", 20);
         sc.increment();
         this.id = sc.getCount();
+    }
+
+    @PostLoad
+    public void postLoad() {
+        if (this.starredPackages == null) {
+            this.starredPackages = new ArrayList<>();
+        }
     }
 }

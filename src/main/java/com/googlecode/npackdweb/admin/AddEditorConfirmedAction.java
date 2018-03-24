@@ -35,7 +35,6 @@ public class AddEditorConfirmedAction extends Action {
         if (err == null) {
             Editor e = new Editor(NWUtils.email2user(p.email));
             Objectify ofy = DefaultServlet.getObjectify();
-            e.createId();
             NWUtils.saveEditor(ofy, e);
             res = new MessagePage("Editor " + p.email +
                     " was added successfully");

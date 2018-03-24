@@ -2,34 +2,34 @@ function addDependency(package_, versions, variable) {
 	var files = $('#deps');
     var n = files.children().first().children().size() - 1;
     files.children().first().append(
-    		'<tr><td><input class="form-control" type="text" ' + 
-    		'name="depPackage.' + n + '" value="' + package_ + '" size="80"></td><td>' + 
-    		'<input class="form-control" type="text" ' + 
-    		'name="depVersions.' + n + '" value="' + versions + '" size="20"></td><td>' + 
-    		'<input class="form-control" type="text" ' + 
-    		'name="depEnvVar.' + n + '" value="' + variable + '" size="20"></td></tr>');
+            '<tr><td><input class="form-control" type="text" ' + 
+            'name="depPackage.' + n + '" value="' + package_ + '" size="80"></td><td>' + 
+            '<input class="form-control" type="text" ' + 
+            'name="depVersions.' + n + '" value="' + versions + '" size="20"></td><td>' + 
+            '<input class="form-control" type="text" ' + 
+            'name="depEnvVar.' + n + '" value="' + variable + '" size="20"></td></tr>');
 }
 
 function deleteOnClick() {
-	if (confirm("Do you really want to delete this package version?")) {
-		window.location.href='/package-version/delete-confirmed?name=' + 
-                        $('#package').val() + "@" + $('#version').val();
-	}
+    if (confirm("Do you really want to delete this package version?")) {
+        window.location.href='/package-version/delete-confirmed?name=' + 
+                $('#package').val() + "@" + $('#version').val();
+    }
 }
 
 function copyOnClick() {
-        var id = $('#version').val();
-	var msg = prompt("Please enter the new version number for the copy.", 
-                id);
-	if (msg !== null) {
-            window.location.href='/package-version/copy-confirmed?version=' + 
-                    msg + 
-                    "&name=" + $('#package').val() + "@" + id;
-	}
+    var id = $('#version').val();
+    var msg = prompt("Please enter the new version number for the copy.", 
+            id);
+    if (msg !== null) {
+        window.location.href='/package-version/copy-confirmed?version=' + 
+                msg + 
+                "&name=" + $('#package').val() + "@" + id;
+    }
 }
 
 function addFile(name, content) {
-	var files = $('#files');
+    var files = $('#files');
     var n = files.children().size();
     files.append('<div><div>File path ' + n + ':</div><input class=\"form-control\" type=\"text\" name=\"path.' + n + '\" value=\"' + name + '\" size=\"80\"><div>File content ' + n + ':</div><textarea class=\"form-control nw-autosize\" name=\"content.' + n + '\" rows=\"5\" cols=\"80\" wrap=\"off\">' + content + '</textarea></div>');
 }

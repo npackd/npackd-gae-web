@@ -13,6 +13,10 @@ import com.google.appengine.api.search.ScoredDocument;
 import com.google.appengine.api.search.SortExpression;
 import com.google.appengine.api.search.SortOptions;
 import com.google.appengine.api.search.checkers.SearchApiLimits;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
@@ -36,7 +40,6 @@ public class PackagesPage extends MyPage {
     private int start;
     private String query = "";
     private long found;
-    private String content;
     private String category0;
     private String category1;
 
@@ -62,12 +65,11 @@ public class PackagesPage extends MyPage {
         if (this.category1 != null && this.category1.trim().isEmpty()) {
             this.category1 = null;
         }
-        this.content = internalCreateContent();
     }
 
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
-        return this.content;
+        return internalCreateContent();
     }
 
     private String internalCreateContent() {
@@ -185,6 +187,14 @@ public class PackagesPage extends MyPage {
             w.start("div", "class", "nw-packages");
             Objectify ofy = DefaultServlet.getObjectify();
             Markdown4jProcessor mp = new Markdown4jProcessor();
+
+            UserService us = UserServiceFactory.getUserService();
+            final User u = us.getCurrentUser();
+            Editor e = null;
+            if (u != null) {
+                e = NWUtils.findEditor(ofy, u);
+            }
+
             for (Package p : this.getPackages()) {
                 License lic;
                 if (!p.license.isEmpty()) {
@@ -210,6 +220,11 @@ public class PackagesPage extends MyPage {
 
                 createTags(w, p.noUpdatesCheck, p.hasTag("end-of-life"));
 
+                w.t(" ");
+                NWUtils.star(w, p.name, e != null && e.starredPackages.contains(
+                        p.name),
+                        p.starred);
+
                 /*
                  * // Google+ w.unencoded(
                  * " <div class='g-plusone' data-size='small' data-href='https://www.npackd.org/p/"
@@ -219,11 +234,11 @@ public class PackagesPage extends MyPage {
 
                 try {
                     w.unencoded(mp.process("Description: " + p.description));
-                } catch (IOException e) {
+                } catch (IOException ex) {
                     w.e("div",
                             "Description: " + p.description +
                             " Failed to parse the Markdown syntax: " +
-                            e.getMessage());
+                            ex.getMessage());
                 }
                 w.e("div",
                         "Categories: " +
@@ -393,8 +408,6 @@ public class PackagesPage extends MyPage {
                 .getResourceAsStream("/WEB-INF/templates/Packages.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
-
-        w.unencoded(NWUtils.tmpl("GooglePlus.html"));
 
         return w.toString();
     }

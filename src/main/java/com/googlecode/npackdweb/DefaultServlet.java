@@ -12,6 +12,7 @@ import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.ResavePackagesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
 import com.googlecode.npackdweb.api.NotifyAction;
+import com.googlecode.npackdweb.api.StarAction;
 import com.googlecode.npackdweb.api.TagPackageVersionAction;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
@@ -215,6 +216,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new AddEditorAction());
         registerAction(new AddEditorConfirmedAction());
         registerAction(new InfoAction());
+        registerAction(new StarFragmentAction());
         registerAction(new ReCaptchaAnswerAction());
         registerAction(new ReCaptchaAction());
         registerAction(new AddPermissionsAction());
@@ -225,6 +227,7 @@ public class DefaultServlet extends HttpServlet {
         /* API */
         registerAction(new TagPackageVersionAction());
         registerAction(new NotifyAction());
+        registerAction(new StarAction());
     }
 
     /**

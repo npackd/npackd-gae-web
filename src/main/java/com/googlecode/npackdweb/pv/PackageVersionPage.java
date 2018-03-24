@@ -1179,8 +1179,6 @@ public class PackageVersionPage extends MyPage {
 
         NWUtils.linkScript(w, "/autosize.min.js");
 
-        w.unencoded(NWUtils.tmpl("GooglePlus.html"));
-
         return w.toString();
     }
 }
