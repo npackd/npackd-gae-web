@@ -205,6 +205,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new PackageVersionListAction());
 
         registerAction(new HomeAction());
+        registerAction(new StarsAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
         registerAction(new ResavePackageVersionsAction());
         registerAction(new CheckUpdatesAction());

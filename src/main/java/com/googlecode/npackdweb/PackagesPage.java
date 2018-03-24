@@ -35,13 +35,38 @@ import org.markdown4j.Markdown4jProcessor;
 public class PackagesPage extends MyPage {
 
     private static final int PAGE_SIZE = 20;
-    private List<Package> packages;
+    private List<Package> packages = new ArrayList<>();
     private boolean recent;
     private int start;
     private String query = "";
     private long found;
     private String category0;
     private String category1;
+    private List<FacetResultValue> category0Values = new ArrayList<>();
+    private List<FacetResultValue> category1Values = new ArrayList<>();
+
+    /**
+     * true = show the search text field
+     */
+    public boolean showSearch = true;
+
+    /**
+     * -
+     *
+     * @param ids IDs of the packages
+     */
+    public PackagesPage(List<String> ids) {
+        Objectify obj = DefaultServlet.getObjectify();
+        Map<String, Package> map = obj.get(Package.class, ids);
+
+        for (Map.Entry<String, Package> e : map.entrySet()) {
+            if (e.getValue() != null) {
+                packages.add(e.getValue());
+            }
+        }
+
+        found = packages.size();
+    }
 
     /**
      * -
@@ -65,6 +90,22 @@ public class PackagesPage extends MyPage {
         if (this.category1 != null && this.category1.trim().isEmpty()) {
             this.category1 = null;
         }
+
+        Object[] results = findPackageIDs();
+        List<String> ids = (List<String>) results[0];
+        category0Values =
+                (List<FacetResultValue>) results[1];
+        category1Values =
+                (List<FacetResultValue>) results[2];
+
+        Objectify obj = DefaultServlet.getObjectify();
+        Map<String, Package> map = obj.get(Package.class, ids);
+
+        for (Map.Entry<String, Package> e : map.entrySet()) {
+            if (e.getValue() != null) {
+                packages.add(e.getValue());
+            }
+        }
     }
 
     @Override
@@ -72,7 +113,7 @@ public class PackagesPage extends MyPage {
         return internalCreateContent();
     }
 
-    private String internalCreateContent() {
+    private Object[] findPackageIDs() {
         Index index = NWUtils.getIndex();
         QueryOptions.Builder ob =
                 QueryOptions.newBuilder().setLimit(PAGE_SIZE + 1).setOffset(
@@ -150,18 +191,10 @@ public class PackagesPage extends MyPage {
                 break;
             }
         }
+        return new Object[]{ids, category0Values, category1Values};
+    }
 
-        Objectify obj = DefaultServlet.getObjectify();
-        Map<String, Package> map = obj.get(Package.class, ids);
-
-        packages = new ArrayList<>();
-
-        for (Map.Entry<String, Package> e : map.entrySet()) {
-            if (e.getValue() != null) {
-                packages.add(e.getValue());
-            }
-        }
-
+    private String internalCreateContent() {
         return createContent2(category0Values, category1Values) +
                 createPager(start, packages.size() > PAGE_SIZE);
     }
@@ -170,20 +203,28 @@ public class PackagesPage extends MyPage {
             List<FacetResultValue> category1Values) {
         HTMLWriter w = new HTMLWriter();
 
-        w.unencoded(createSearchForm(this.query, this.recent, category0Values,
-                category1Values));
+        if (showSearch) {
+            w.unencoded(createSearchForm(this.query, this.recent,
+                    category0Values,
+                    category1Values));
+        }
 
         if (this.getPackages().isEmpty()) {
-            w.start("div", "style", "padding-top: 10px; padding-bottom: 10px");
-            NWUtils.jsButton(w, "Create package " + this.query, "/package/new",
-                    "Creates a new package");
-            w.t(" ");
-            w.e("a",
-                    "href",
-                    "https://github.com/tim-lebedkov/npackd/issues/new",
-                    "Suggest " + this.query + " for inclusion*");
-            w.end("div");
+            if (showSearch) {
+                w.start("div", "style",
+                        "padding-top: 10px; padding-bottom: 10px");
+                NWUtils.jsButton(w, "Create package " + this.query,
+                        "/package/new",
+                        "Creates a new package");
+                w.t(" ");
+                w.e("a",
+                        "href",
+                        "https://github.com/tim-lebedkov/npackd/issues/new",
+                        "Suggest " + this.query + " for inclusion*");
+                w.end("div");
+            }
         } else {
+            // list of packages
             w.start("div", "class", "nw-packages");
             Objectify ofy = DefaultServlet.getObjectify();
             Markdown4jProcessor mp = new Markdown4jProcessor();
@@ -221,15 +262,11 @@ public class PackagesPage extends MyPage {
                 createTags(w, p.noUpdatesCheck, p.hasTag("end-of-life"));
 
                 w.t(" ");
-                NWUtils.star(w, p.name, e != null && e.starredPackages.contains(
-                        p.name),
+                NWUtils.star(w, p.name, e != null && e.starredPackages.
+                        contains(
+                                p.name),
                         p.starred);
 
-                /*
-                 * // Google+ w.unencoded(
-                 * " <div class='g-plusone' data-size='small' data-href='https://www.npackd.org/p/"
-                 * + p.name + "'></div>");
-                 */
                 w.end("h4");
 
                 try {
