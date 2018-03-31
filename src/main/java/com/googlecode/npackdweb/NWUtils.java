@@ -101,6 +101,11 @@ import org.w3c.dom.Text;
 public class NWUtils {
 
     /**
+     * URL
+     */
+    public static final String WEB_SITE = "https://www.npackd.org";
+
+    /**
      * My email.
      */
     public static final String THE_EMAIL = "tim.lebedkov@gmail.com";
@@ -1062,7 +1067,7 @@ public class NWUtils {
             Message msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(THE_EMAIL, "Admin"));
             msg.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-            msg.setSubject("http://www.npackd.org");
+            msg.setSubject(WEB_SITE);
             msg.setText(body);
             Transport.send(msg);
 

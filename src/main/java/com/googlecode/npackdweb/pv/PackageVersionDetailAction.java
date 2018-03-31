@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb.pv;
 
 import com.googlecode.npackdweb.DefaultServlet;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -26,7 +27,7 @@ public class PackageVersionDetailAction extends Action {
      * @return URL for the page
      */
     public static String getURL(PackageVersion pv) {
-        return "https://www.npackd.org/p/" + pv.package_ + "/" + pv.version;
+        return NWUtils.WEB_SITE + "/p/" + pv.package_ + "/" + pv.version;
     }
 
     /**

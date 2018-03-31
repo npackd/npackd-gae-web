@@ -39,11 +39,20 @@ public abstract class MyPage extends Page {
         Writer out = resp.getWriter();
 
         out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "titleHTML",
-                getTitleHTML(), "content", createContent(request), "head",
-                getHeadPart(), "menu", createMenu(request), "error", error,
+                getTitleHTML(), "content", createContent(request),
+                "head", createHead(),
+                "scripts",
+                getScriptsPart(), "menu", createMenu(request), "error", error,
                 "info", info, "generator", this.getClass().getName(),
                 "bodyBottom", createBodyBottom(request)));
         out.close();
+    }
+
+    /**
+     * @return HTML inserted in the &lt;head&gt; tag.
+     */
+    public String createHead() throws IOException {
+        return "";
     }
 
     /**
@@ -86,7 +95,7 @@ public abstract class MyPage extends Page {
     /**
      * @return HTML code that should be inserted in &lt;head&gt;
      */
-    public String getHeadPart() {
+    public String getScriptsPart() {
         return "";
     }
 

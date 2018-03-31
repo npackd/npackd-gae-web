@@ -43,7 +43,7 @@ public class ReCaptchaPage extends MyPage {
     }
 
     @Override
-    public String getHeadPart() {
+    public String getScriptsPart() {
         return "<script src=\"https://www.google.com/recaptcha/api.js\" async defer></script>";
     }
 }

@@ -154,6 +154,17 @@ public class PackageDetailPage extends MyPage {
     }
 
     @Override
+    public String createHead() throws IOException {
+        if (this.mode != FormMode.CREATE) {
+            return "<link rel='canonical' href='" + NWUtils.WEB_SITE + "/p/" +
+                    id +
+                    "'>";
+        } else {
+            return "";
+        }
+    }
+
+    @Override
     public String createBodyBottom(HttpServletRequest request)
             throws IOException {
         HTMLWriter w = new HTMLWriter();

@@ -183,6 +183,17 @@ public class PackageVersionPage extends MyPage {
     }
 
     @Override
+    public String createHead() throws IOException {
+        if (!new_) {
+            return "<link rel='canonical' href='" + NWUtils.WEB_SITE + "/p/" +
+                    package_.name + "/" + version +
+                    "'>";
+        } else {
+            return "";
+        }
+    }
+
+    @Override
     public String getTitleHTML() {
         HTMLWriter w = new HTMLWriter();
         if (package_.icon.isEmpty()) {
@@ -196,7 +207,7 @@ public class PackageVersionPage extends MyPage {
         w.t(" " + version);
         w.unencoded(
                 " <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-                "https://www.npackd.org/p/" + package_.name + "'></div>");
+                NWUtils.WEB_SITE + "/p/" + package_.name + "'></div>");
         return w.toString();
     }
 
