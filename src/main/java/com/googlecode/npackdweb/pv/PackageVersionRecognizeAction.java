@@ -154,7 +154,7 @@ public class PackageVersionRecognizeAction extends Action {
             if (content.length < segment) {
                 completeDownload = true;
 
-                MessageDigest crypt = MessageDigest.getInstance("SHA-1");
+                MessageDigest crypt = MessageDigest.getInstance("SHA-256");
                 crypt.update(content);
                 pv.sha1 = NWUtils.byteArrayToHexString(crypt.digest());
             }

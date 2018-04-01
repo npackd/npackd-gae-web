@@ -675,7 +675,7 @@ public class Package {
             if (!copy.sha1.isEmpty()) {
                 try {
                     final NWUtils.Info info =
-                            NWUtils.download(copy.url, "SHA-1",
+                            NWUtils.download(copy.url, "SHA-256",
                                     maxSize);
                     copy.sha1 = NWUtils.byteArrayToHexString(info.sha1);
                 } catch (IOException | NoSuchAlgorithmException ex) {
