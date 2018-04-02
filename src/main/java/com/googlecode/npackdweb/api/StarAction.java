@@ -35,9 +35,10 @@ public class StarAction extends Action {
         String package_ = req.getParameter("package");
         boolean star = "1".equals(req.getParameter("star"));
 
-        com.googlecode.npackdweb.db.Package p = ofy.get(
-                new Key<>(
-                        com.googlecode.npackdweb.db.Package.class, package_));
+        com.googlecode.npackdweb.db.Package p = ofy.load().key(
+                Key.create(
+                        com.googlecode.npackdweb.db.Package.class, package_)).
+                now();
         if (p == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;

@@ -236,7 +236,8 @@ public class LicensePage extends MyPage {
         if (msg == null) {
             if (this.id == null || this.id.trim().length() == 0) {
                 Objectify ofy = DefaultServlet.getObjectify();
-                License r = ofy.find(new Key<>(License.class, this.id));
+                License r = ofy.load().key(Key.create(License.class, this.id)).
+                        now();
                 if (r != null) {
                     msg = "A license with this ID already exists";
                 }

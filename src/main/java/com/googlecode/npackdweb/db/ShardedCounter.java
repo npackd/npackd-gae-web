@@ -7,14 +7,17 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.annotation.Unindexed;
+import static com.googlecode.objectify.ObjectifyService.ofy;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Ignore;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Unindex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
-import javax.persistence.Transient;
 
 /**
  * Stores a count in shards.
@@ -22,14 +25,16 @@ import javax.persistence.Transient;
  * From http://thoughtsofthree.com/2011/03/implementing-a-sharded-counter-using-
  * objectify/
  */
+@Entity
+@Index
 public class ShardedCounter implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Transient
+    @Ignore
     private transient ObjectifyFactory of;
 
-    @Unindexed
+    @Unindex
     private String name;
 
     private ShardedCounter() {
@@ -50,11 +55,9 @@ public class ShardedCounter implements Serializable {
     }
 
     public void increment(int add) {
-        Objectify ofy = of.begin();
-
         // fetch the counter to determine the number of shards
-        EntityCounter counter = ofy.get(new Key<>(
-                EntityCounter.class, name));
+        EntityCounter counter = ofy().load().key(Key.create(
+                EntityCounter.class, name)).now();
 
         // pick a random shard
         Random generator = new Random();
@@ -63,31 +66,30 @@ public class ShardedCounter implements Serializable {
         // get the shard from the datastore, increment its value by 'add' and
         // persist it if the shard was modified in the datastore between the get
         // and the persist, retry the operation
-        Objectify trans = of.beginTransaction();
-        int triesLeft = 3;
-        while (true) {
-            try {
+        ofy().transact(() -> {
+            int triesLeft = 3;
+            while (true) {
+                try {
 
-                EntityCounterShard shard = trans
-                        .get(new Key<>(
-                                EntityCounterShard.class, name + shardNum));
+                    EntityCounterShard shard = ofy()
+                            .load().key(Key.create(
+                                            EntityCounterShard.class, name +
+                                            shardNum)).now();
 
-                shard.value += add;
+                    shard.value += add;
 
-                trans.put(shard);
-                trans.getTxn().commit();
-                break;
-            } catch (ConcurrentModificationException e) {
-                if (triesLeft == 0) {
-                    throw e;
-                }
-                --triesLeft;
-            } finally {
-                if (trans.getTxn().isActive()) {
-                    trans.getTxn().rollback();
+                    ofy().save().entity(shard);
+                    break;
+                } catch (ConcurrentModificationException e) {
+                    if (triesLeft == 0) {
+                        throw e;
+                    }
+                    --triesLeft;
                 }
             }
-        }
+            return null;
+        });
+
     }
 
     public void decrement() {
@@ -103,33 +105,31 @@ public class ShardedCounter implements Serializable {
     }
 
     public void addShards(int newShards) {
-        Objectify counterTrans = of.beginTransaction();
-        int nextShardNumber = -1;
-        EntityCounter counter = null;
+        int[] nextShardNumber = {-1};
+        EntityCounter[] counter = {null};
 
-        // fetch the counter to determine the number of existing shards
-        // and increment the shard count
-        int tries = 3;
-        while (true) {
-            try {
-                counter = counterTrans.get(new Key<>(
-                        EntityCounter.class, name));
-                nextShardNumber = counter.numShards;
-                counter.numShards += newShards;
-                counterTrans.put(counter);
-                counterTrans.getTxn().commit();
-            } catch (ConcurrentModificationException e) {
-                if (tries == 0) {
-                    throw e;
+        ofy().transact(() -> {
+
+            // fetch the counter to determine the number of existing shards
+            // and increment the shard count
+            int tries = 3;
+            while (true) {
+                try {
+                    counter[0] = ofy().load().key(Key.create(
+                            EntityCounter.class, name)).now();
+                    nextShardNumber[0] = counter[0].numShards;
+                    counter[0].numShards += newShards;
+                    ofy().save().entity(counter[0]);
+                } catch (ConcurrentModificationException e) {
+                    if (tries == 0) {
+                        throw e;
+                    }
+                    --tries;
                 }
-                --tries;
-            } finally {
-                if (counterTrans.getTxn().isActive()) {
-                    counterTrans.getTxn().rollback();
-                }
+                break;
             }
-            break;
-        }
+            return null;
+        });
 
         // by increasing counter.numShards, this thread reserved
         // a shard 'range', so this thread is the only one
@@ -138,27 +138,27 @@ public class ShardedCounter implements Serializable {
         int shardsAdded = 0;
         Objectify ofy = of.begin();
         while (shardsAdded < newShards) {
-            EntityCounterShard newShard = new EntityCounterShard(counter,
-                    nextShardNumber);
-            ofy.put(newShard);
+            EntityCounterShard newShard = new EntityCounterShard(counter[0],
+                    nextShardNumber[0]);
+            ofy().save().entity(newShard);
             shardsAdded++;
-            nextShardNumber++;
+            nextShardNumber[0]++;
         }
     }
 
     public int getCount() {
-        Objectify ofy = of.begin();
-        EntityCounter counter = ofy.get(new Key<>(
-                EntityCounter.class, name));
+        EntityCounter counter = ofy().load().key(Key.create(
+                EntityCounter.class, name)).now();
 
         List<Key<EntityCounterShard>> shardKeys =
                 new ArrayList<>();
         for (int shard = 0; shard < counter.numShards; shard++) {
-            shardKeys.add(new Key<>(EntityCounterShard.class,
+            shardKeys.add(Key.create(EntityCounterShard.class,
                     String.format("%s%d", name, shard)));
         }
 
-        Collection<EntityCounterShard> shards = ofy.get(shardKeys).values();
+        Collection<EntityCounterShard> shards = ofy().load().keys(shardKeys).
+                values();
         int count = 0;
         for (EntityCounterShard shard : shards) {
             count += shard.value;
@@ -169,72 +169,67 @@ public class ShardedCounter implements Serializable {
 
     public static ShardedCounter getOrCreateCounter(String name, int numShards) {
         ShardedCounter shardedCounter = new ShardedCounter(name);
-        Objectify trans = ObjectifyService.beginTransaction();
-        int tries = 3;
-        while (true) {
-            try {
-                EntityCounter counter = trans.find(new Key<>(
-                        EntityCounter.class, name));
-                if (counter == null) {
-                    // create new counter
-                    counter = new EntityCounter(name);
-                    trans.put(counter);
-                    trans.getTxn().commit();
-                    shardedCounter.addShards(numShards);
-                }
+        ofy().transact(() -> {
+            int tries = 3;
+            while (true) {
+                try {
+                    EntityCounter counter = ofy().load().key(Key.create(
+                            EntityCounter.class, name)).now();
+                    if (counter == null) {
+                        // create new counter
+                        counter = new EntityCounter(name);
+                        ofy().save().entity(counter);
+                        shardedCounter.addShards(numShards);
+                    }
 
-                break;
-            } catch (ConcurrentModificationException e) {
-                if (tries == 0) {
-                    throw e;
-                }
-                --tries;
-            } finally {
-                if (trans.getTxn().isActive()) {
-                    trans.getTxn().rollback();
+                    break;
+                } catch (ConcurrentModificationException e) {
+                    if (tries == 0) {
+                        throw e;
+                    }
+                    --tries;
                 }
             }
-        }
+            return null;
+        });
         return shardedCounter;
     }
 
     public static ShardedCounter createCounter(String name, int numShards) {
         ShardedCounter shardedCounter = new ShardedCounter(name);
-        Objectify trans = ObjectifyService.beginTransaction();
-        int tries = 3;
-        while (true) {
-            try {
-                EntityCounter counter = trans.find(new Key<>(
-                        EntityCounter.class, name));
-                if (counter == null) {
-                    // create new counter
-                    counter = new EntityCounter(name);
-                    trans.put(counter);
-                    trans.getTxn().commit();
-                    shardedCounter.addShards(numShards);
-                } else {
-                    throw new IllegalArgumentException("A counter with name " +
-                             name + " does already exist!");
-                }
+        ofy().transact(() -> {
+            int tries = 3;
+            while (true) {
+                try {
+                    EntityCounter counter = ofy().load().key(Key.create(
+                            EntityCounter.class, name)).now();
+                    if (counter == null) {
+                        // create new counter
+                        counter = new EntityCounter(name);
+                        ofy().save().entity(counter);
+                        shardedCounter.addShards(numShards);
+                    } else {
+                        throw new IllegalArgumentException(
+                                "A counter with name " +
+                                name + " does already exist!");
+                    }
 
-                break;
-            } catch (ConcurrentModificationException e) {
-                if (tries == 0) {
-                    throw e;
-                }
-                --tries;
-            } finally {
-                if (trans.getTxn().isActive()) {
-                    trans.getTxn().rollback();
+                    break;
+                } catch (ConcurrentModificationException e) {
+                    if (tries == 0) {
+                        throw e;
+                    }
+                    --tries;
                 }
             }
-        }
+            return null;
+        });
         return shardedCounter;
     }
 
     public static ShardedCounter getCounter(String name) {
         Objectify ofy = DefaultServlet.getObjectify();
-        if (ofy.find(new Key<>(EntityCounter.class, name)) != null) {
+        if (ofy.load().key(Key.create(EntityCounter.class, name)).now() != null) {
             return new ShardedCounter(name);
         }
         return null;

@@ -16,7 +16,7 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.Query;
+import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -451,7 +451,8 @@ public class PackageDetailPage extends MyPage {
         } else {
             License license_ = null;
             if (!license.isEmpty()) {
-                license_ = ofy.find(License.class, license);
+                license_ = ofy.load().key(Key.create(License.class, license)).
+                        now();
             }
 
             if (license_ == null) {
@@ -767,8 +768,8 @@ public class PackageDetailPage extends MyPage {
     public List<PackageVersion> getVersions(Objectify ofy) {
         ArrayList<PackageVersion> versions = new ArrayList<>();
         if (!id.isEmpty()) {
-            for (PackageVersion pv : ofy.query(PackageVersion.class)
-                    .filter("package_ =", id).fetch()) {
+            for (PackageVersion pv : ofy.load().type(PackageVersion.class)
+                    .filter("package_ =", id).list()) {
                 versions.add(pv);
             }
 
@@ -783,9 +784,9 @@ public class PackageDetailPage extends MyPage {
     private List<License> getLicenses(Objectify ofy) {
         List<License> licenses = new ArrayList<>();
         String cacheSuffix = "@" + NWUtils.getDataVersion();
-        Query<License> q = ofy.query(License.class).order("title");
+        Query<License> q = ofy.load().type(License.class).order("title");
         List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
-        Map<Key<License>, License> k2v = ofy.get(keys);
+        Map<Key<License>, License> k2v = ofy.load().keys(keys);
         licenses.addAll(k2v.values());
         return licenses;
     }
@@ -890,7 +891,8 @@ public class PackageDetailPage extends MyPage {
         if (msg == null) {
             if (mode == FormMode.CREATE) {
                 Objectify ofy = DefaultServlet.getObjectify();
-                Package r = ofy.find(new Key<>(Package.class, this.id));
+                Package r = ofy.load().key(Key.create(Package.class, this.id)).
+                        now();
                 if (r != null) {
                     msg = "A package with this ID already exists";
                 }

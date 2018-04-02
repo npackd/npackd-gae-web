@@ -35,7 +35,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.Query;
+import com.googlecode.objectify.cmd.Query;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -622,7 +622,7 @@ public class NWUtils {
             value = sc.getCount();
             if (sc.getCount() == 0) {
                 Objectify ofy = DefaultServlet.getObjectify();
-                sc.increment(ofy.query(Package.class).count());
+                sc.increment(ofy.load().type(Package.class).count());
                 value = sc.getCount();
             }
             syncCache.put(key, value); // populate cache
@@ -711,7 +711,7 @@ public class NWUtils {
      */
     public static void recreateIndex() {
         Objectify ofy = DefaultServlet.getObjectify();
-        Query<Package> q = ofy.query(Package.class);
+        Query<Package> q = ofy.load().type(Package.class);
         Index index = getIndex();
         for (Package p : q) {
             index.put(p.createDocument());
@@ -761,7 +761,7 @@ public class NWUtils {
      */
     public static void savePackage(Objectify ofy, Package old, Package p,
             boolean changeLastModifiedAt) {
-        if (ofy.find(p.createKey()) == null) {
+        if (ofy.load().key(p.createKey()).now() == null) {
             NWUtils.increasePackageNumber();
         }
         if (changeLastModifiedAt) {
@@ -770,7 +770,7 @@ public class NWUtils {
                     getCurrentUser();
         }
 
-        ofy.put(p);
+        ofy.save().entity(p);
         NWUtils.incDataVersion();
         Index index = NWUtils.getIndex();
         index.put(p.createDocument());
@@ -783,7 +783,7 @@ public class NWUtils {
      * @param r repository
      */
     public static void saveRepository(Objectify ofy, Repository r) {
-        ofy.put(r);
+        ofy.save().entity(r);
         NWUtils.incDataVersion();
     }
 
@@ -855,7 +855,7 @@ public class NWUtils {
                 }
             }
         }
-        ofy.put(p);
+        ofy.save().entity(p);
         NWUtils.incDataVersion();
     }
 
@@ -899,12 +899,12 @@ public class NWUtils {
      * @param name package name
      */
     public static void deletePackage(Objectify ofy, String name) {
-        Package p = ofy.get(new Key<>(Package.class, name));
-        ofy.delete(p);
+        Package p = ofy.load().key(Key.create(Package.class, name)).now();
+        ofy.delete().entity(p);
         QueryResultIterable<Key<PackageVersion>> k =
-                ofy.query(PackageVersion.class).filter("package_ =", name)
-                .fetchKeys();
-        ofy.delete(k);
+                ofy.load().type(PackageVersion.class).filter("package_ =", name)
+                .keys();
+        ofy.delete().keys(k);
         NWUtils.decrementPackageNumber();
         Index index = NWUtils.getIndex();
         index.delete(p.name);
@@ -1267,7 +1267,7 @@ public class NWUtils {
         HTMLWriter w = new HTMLWriter();
         int index = email.indexOf('@');
         if (index > 0) {
-            Editor e = ob.find(new Key<>(Editor.class, email));
+            Editor e = ob.load().key(Key.create(Editor.class, email)).now();
             if (e == null) {
                 e = new Editor(email2user(email));
                 saveEditor(ob, e);
@@ -1298,14 +1298,13 @@ public class NWUtils {
     public static String getSetting(Objectify ofy, String name,
             String defaultValue) {
         Setting st =
-                ofy.find(new com.googlecode.objectify.Key<>(
-                                Setting.class, name));
+                ofy.load().key(Key.create(Setting.class, name)).now();
         String value;
         if (st == null) {
             st = new Setting();
             st.name = name;
             st.value = defaultValue;
-            ofy.put(st);
+            ofy.save().entity(st);
         }
         value = st.value;
 
@@ -1321,14 +1320,13 @@ public class NWUtils {
      */
     public static void setSetting(Objectify ofy, String name, String value) {
         Setting st =
-                ofy.find(new com.googlecode.objectify.Key<>(
-                                Setting.class, name));
+                ofy.load().key(Key.create(Setting.class, name)).now();
         if (st == null) {
             st = new Setting();
             st.name = name;
         }
         st.value = value;
-        ofy.put(st);
+        ofy.save().entity(st);
     }
 
     /**
@@ -1354,7 +1352,7 @@ public class NWUtils {
         if (e.id <= 0) {
             e.createId();
         }
-        ofy.put(e);
+        ofy.save().entity(e);
         NWUtils.incDataVersion();
     }
 
@@ -1366,7 +1364,7 @@ public class NWUtils {
      * @return editor or null
      */
     public static Editor findEditor(Objectify ofy, User u) {
-        return ofy.find(new Key<>(Editor.class, u.getEmail()));
+        return ofy.load().key(Key.create(Editor.class, u.getEmail())).now();
     }
 
     /**
@@ -1406,8 +1404,8 @@ public class NWUtils {
      * @param name license ID
      */
     public static void deleteLicense(Objectify ofy, String name) {
-        License p = ofy.get(new Key<>(License.class, name));
-        ofy.delete(p);
+        License p = ofy.load().key(Key.create(License.class, name)).now();
+        ofy.delete().entity(p);
         NWUtils.incDataVersion();
     }
 
@@ -1420,13 +1418,13 @@ public class NWUtils {
      */
     public static void saveLicense(Objectify ofy, License p,
             boolean changeLastModifiedAt) {
-        if (ofy.find(p.createKey()) == null) {
+        if (ofy.load().key(p.createKey()).now() == null) {
             NWUtils.increasePackageNumber();
         }
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
         }
-        ofy.put(p);
+        ofy.save().entity(p);
         NWUtils.incDataVersion();
     }
 

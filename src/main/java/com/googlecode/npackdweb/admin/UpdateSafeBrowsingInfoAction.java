@@ -14,7 +14,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.Query;
+import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,14 +40,14 @@ public class UpdateSafeBrowsingInfoAction extends Action {
         String cursor = req.getParameter("cursor");
 
         Objectify ob = DefaultServlet.getObjectify();
-        Query<PackageVersion> q = ob.query(PackageVersion.class);
+        Query<PackageVersion> q = ob.load().type(PackageVersion.class);
         if (cursor != null) {
-            q.startCursor(Cursor.fromWebSafeString(cursor));
+            q = q.startAt(Cursor.fromWebSafeString(cursor));
         }
 
         final int BATCH_SIZE = 100;
 
-        q.limit(BATCH_SIZE);
+        q = q.limit(BATCH_SIZE);
 
         /*
          if (!"0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
@@ -126,7 +126,7 @@ public class UpdateSafeBrowsingInfoAction extends Action {
             }
 
             if (toSave.size() > 0) {
-                ob.put(toSave);
+                ob.save().entities(toSave);
                 NWUtils.incDataVersion();
             }
         }

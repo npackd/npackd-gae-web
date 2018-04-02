@@ -1,44 +1,40 @@
 package com.googlecode.npackdweb.db;
 
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
 /**
  * A setting.
  */
 @Entity
-@Cached
+@Cache
+@Index
 public class Setting {
-	/** name of the setting */
-	@Id
-	public String name = "";
 
-	/** value of the setting */
-	public String value = "";
+    /**
+     * name of the setting
+     */
+    @Id
+    public String name = "";
 
-	/**
-	 * For Objectify.
-	 */
-	public Setting() {
-	}
+    /**
+     * value of the setting
+     */
+    public String value = "";
 
-	@PostLoad
-	public void postLoad() {
-	}
+    /**
+     * For Objectify.
+     */
+    public Setting() {
+    }
 
-	@PrePersist
-	void onPersist() {
-	}
-
-	/**
-	 * @return created Key for this object
-	 */
-	public Key<Setting> createKey() {
-		return new Key<>(Setting.class, this.name);
-	}
+    /**
+     * @return created Key for this object
+     */
+    public Key<Setting> createKey() {
+        return Key.create(Setting.class, this.name);
+    }
 }

@@ -52,7 +52,7 @@ public class PackageVersionRecognizeAction extends Action {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
         Objectify ofy = DefaultServlet.getObjectify();
-        Package pa = ofy.get(new Key<>(Package.class, package_));
+        Package pa = ofy.load().key(Key.create(Package.class, package_)).now();
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
             page =
@@ -60,8 +60,8 @@ public class PackageVersionRecognizeAction extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion p =
-                    ofy.get(new Key<>(PackageVersion.class,
-                                    package_ + "@" + version));
+                    ofy.load().key(Key.create(PackageVersion.class,
+                                    package_ + "@" + version)).now();
             PackageVersion oldp = p.copy();
             String err = recognize(p);
             if (err != null) {

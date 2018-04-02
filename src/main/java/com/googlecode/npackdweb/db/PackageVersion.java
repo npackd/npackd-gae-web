@@ -8,19 +8,21 @@ import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.Query;
 import com.googlecode.objectify.annotation.AlsoLoad;
-import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.OnLoad;
+import com.googlecode.objectify.annotation.OnSave;
+import com.googlecode.objectify.annotation.Unindex;
+import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -28,7 +30,8 @@ import org.w3c.dom.Element;
  * A package version.
  */
 @Entity
-@Cached
+@Cache
+@Index
 public class PackageVersion {
 
     /**
@@ -67,6 +70,7 @@ public class PackageVersion {
         }
     }
 
+    @Unindex
     private List<Object> fileContents = new ArrayList<>();
 
     /**
@@ -328,7 +332,7 @@ public class PackageVersion {
         }
     }
 
-    @PostLoad
+    @OnLoad
     public void postLoad() {
         if (this.sha1 == null) {
             this.sha1 = "";
@@ -400,7 +404,7 @@ public class PackageVersion {
         this.detectMSI = "";
     }
 
-    @PrePersist
+    @OnSave
     void onPersist() {
         NWUtils.incDataVersion();
     }
@@ -440,7 +444,7 @@ public class PackageVersion {
      * @return created Key for this object
      */
     public Key<PackageVersion> createKey() {
-        return new Key<>(PackageVersion.class, this.name);
+        return Key.create(PackageVersion.class, this.name);
     }
 
     /**
@@ -468,8 +472,8 @@ public class PackageVersion {
      */
     public static PackageVersion find(Objectify ofy, String packageName,
             String v) {
-        return ofy.find(new Key<>(PackageVersion.class,
-                packageName + "@" + v));
+        return ofy.load().key(Key.create(PackageVersion.class,
+                packageName + "@" + v)).now();
     }
 
     /**
@@ -480,12 +484,13 @@ public class PackageVersion {
      */
     public static List<PackageVersion> find20PackageVersions(Objectify ofy,
             String tag, String order) {
-        Query<PackageVersion> q = ofy.query(PackageVersion.class).limit(20);
+        Query<PackageVersion> q = ofy.load().type(PackageVersion.class).
+                limit(20);
         if (tag != null) {
-            q.filter("tags ==", tag);
+            q = q.filter("tags ==", tag);
         }
         if (order != null) {
-            q.order(order);
+            q = q.order(order);
         }
         return q.list();
     }

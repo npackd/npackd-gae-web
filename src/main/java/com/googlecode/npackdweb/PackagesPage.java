@@ -20,6 +20,7 @@ import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,9 +58,14 @@ public class PackagesPage extends MyPage {
      */
     public PackagesPage(List<String> ids) {
         Objectify obj = DefaultServlet.getObjectify();
-        Map<String, Package> map = obj.get(Package.class, ids);
+        List<Key<Package>> keys = new ArrayList<>();
+        for (String id : ids) {
+            keys.add(Key.create(Package.class, id));
+        }
 
-        for (Map.Entry<String, Package> e : map.entrySet()) {
+        Map<Key<Package>, Package> map = obj.load().keys(keys);
+
+        for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
             if (e.getValue() != null) {
                 packages.add(e.getValue());
             }
@@ -102,9 +108,13 @@ public class PackagesPage extends MyPage {
                 (List<FacetResultValue>) results[2];
 
         Objectify obj = DefaultServlet.getObjectify();
-        Map<String, Package> map = obj.get(Package.class, ids);
+        List<Key<Package>> keys = new ArrayList<>();
+        for (String id : ids) {
+            keys.add(Key.create(Package.class, id));
+        }
+        Map<Key<Package>, Package> map = obj.load().keys(keys);
 
-        for (Map.Entry<String, Package> e : map.entrySet()) {
+        for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
             if (e.getValue() != null) {
                 packages.add(e.getValue());
             }
@@ -242,7 +252,8 @@ public class PackagesPage extends MyPage {
             for (Package p : this.getPackages()) {
                 License lic;
                 if (!p.license.isEmpty()) {
-                    lic = ofy.find(License.class, p.license);
+                    lic = ofy.load().key(Key.create(License.class, p.license)).
+                            now();
                 } else {
                     lic = null;
                 }

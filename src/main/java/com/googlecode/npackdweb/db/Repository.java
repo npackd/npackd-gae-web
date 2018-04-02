@@ -3,19 +3,21 @@ package com.googlecode.npackdweb.db;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.OnLoad;
+import com.googlecode.objectify.annotation.OnSave;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
 
 /**
  * A repository.
  */
 @Entity
-@Cached
+@Cache
+@Index
 public class Repository {
 
     /**
@@ -34,14 +36,14 @@ public class Repository {
      */
     public String blobFile;
 
-    @PostLoad
+    @OnLoad
     public void postLoad() {
         if (this.lastModifiedAt == null) {
             this.lastModifiedAt = NWUtils.newDate();
         }
     }
 
-    @PrePersist
+    @OnSave
     void onPersist() {
         NWUtils.incDataVersion();
         this.lastModifiedAt = NWUtils.newDate();
@@ -51,7 +53,7 @@ public class Repository {
      * @return created Key for this object
      */
     public Key<Repository> createKey() {
-        return new Key<>(Repository.class, name);
+        return Key.create(Repository.class, name);
     }
 
     /**
@@ -62,7 +64,7 @@ public class Repository {
      * @return found repository or null
      */
     public static Repository findByTag(Objectify ofy, String tag) {
-        return ofy.find(new Key<>(Repository.class, tag));
+        return ofy.load().key(Key.create(Repository.class, tag)).now();
     }
 
     /**
@@ -70,6 +72,6 @@ public class Repository {
      * @return all defined repositories
      */
     public static List<Repository> findAll(Objectify ofy) {
-        return ofy.query(Repository.class).list();
+        return ofy.load().type(Repository.class).list();
     }
 }

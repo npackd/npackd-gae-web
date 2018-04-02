@@ -37,10 +37,10 @@ public class LicensesPage extends MyPage {
     private String internalCreateContent() {
         licenses = new ArrayList<>();
         Objectify obj = DefaultServlet.getObjectify();
-        licenses.addAll(obj.query(License.class).limit(PAGE_SIZE + 1)
+        licenses.addAll(obj.load().type(License.class).limit(PAGE_SIZE + 1)
                 .offset(start).list());
 
-        found = obj.query(License.class).count();
+        found = obj.load().type(License.class).count();
 
         return createContent2() +
                 createPager(start, licenses.size() > PAGE_SIZE);

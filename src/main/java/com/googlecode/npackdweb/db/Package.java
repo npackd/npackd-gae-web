@@ -13,8 +13,11 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.OnLoad;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,9 +36,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -45,7 +45,8 @@ import org.w3c.dom.NodeList;
  * A package.
  */
 @Entity
-@Cached
+@Cache
+@Index
 public class Package {
 
     /**
@@ -84,7 +85,7 @@ public class Package {
      * @return found package or null
      */
     public static Package findByName(Objectify ofy, String id) {
-        return ofy.find(new Key<>(Package.class, id));
+        return ofy.load().key(Key.create(Package.class, id)).now();
     }
 
     @Id
@@ -256,7 +257,7 @@ public class Package {
         return comment;
     }
 
-    @PostLoad
+    @OnLoad
     public void postLoad() {
         if (this.comment == null) {
             this.comment = "";
@@ -335,15 +336,11 @@ public class Package {
         return package_;
     }
 
-    @PrePersist
-    void onPersist() {
-    }
-
     /**
      * @return created Key for this object
      */
     public Key<Package> createKey() {
-        return new Key<>(Package.class, this.name);
+        return Key.create(Package.class, this.name);
     }
 
     /**
@@ -620,7 +617,7 @@ public class Package {
      * @return sorted versions (1.1, 1.2, 1.3) for this package
      */
     public List<PackageVersion> getSortedVersions(Objectify ofy) {
-        List<PackageVersion> versions = ofy.query(PackageVersion.class)
+        List<PackageVersion> versions = ofy.load().type(PackageVersion.class)
                 .filter("package_ =", this.name).list();
         Collections.sort(versions, new Comparator<PackageVersion>() {
             @Override
@@ -686,7 +683,7 @@ public class Package {
         }
 
         if (hasTag("same-url") && pv != null) {
-            ofy.delete(pv);
+            ofy.delete().entities(pv);
 
             // the next call to savePackageVersion will do this
             // NWUtils.incDataVersion();

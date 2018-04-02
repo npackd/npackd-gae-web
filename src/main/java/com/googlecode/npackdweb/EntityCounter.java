@@ -1,9 +1,8 @@
 package com.googlecode.npackdweb;
 
-import javax.persistence.Id;
-
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
 
 /**
  * EntityCounter is stored in the data store to reserve a counter name and
@@ -11,32 +10,34 @@ import com.googlecode.objectify.annotation.Entity;
  */
 @Entity
 public class EntityCounter {
-	@Id
-	public String name;
 
-	/** number of shards in this counter */
-	public int numShards;
+    @Id
+    public String name;
 
-	@SuppressWarnings("unused")
-	private EntityCounter() {
-	}
+    /**
+     * number of shards in this counter
+     */
+    public int numShards;
 
-	/**
-	 * -
-	 * 
-	 * @param name
-	 *            name for this counter
-	 */
-	public EntityCounter(String name) {
-		this.name = name;
-	}
+    @SuppressWarnings("unused")
+    private EntityCounter() {
+    }
 
-	public Key<EntityCounterShard> keyForShard(int shardNumber) {
-		return new Key<>(EntityCounterShard.class,
-		        shardName(shardNumber));
-	}
+    /**
+     * -
+     *
+     * @param name name for this counter
+     */
+    public EntityCounter(String name) {
+        this.name = name;
+    }
 
-	public String shardName(int shardNumber) {
-		return String.format("%s%d", name, shardNumber);
-	}
+    public Key<EntityCounterShard> keyForShard(int shardNumber) {
+        return Key.create(EntityCounterShard.class,
+                shardName(shardNumber));
+    }
+
+    public String shardName(int shardNumber) {
+        return String.format("%s%d", name, shardNumber);
+    }
 }

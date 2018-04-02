@@ -7,7 +7,7 @@ import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.Query;
+import com.googlecode.objectify.cmd.Query;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,14 +49,14 @@ public class RecentRepXMLPage extends Page {
                 Objectify ofy = DefaultServlet.getObjectify();
                 ArrayList<PackageVersion> pvs = new ArrayList<>();
                 Query<PackageVersion> q =
-                        ofy.query(PackageVersion.class).limit(20)
-                                .order("-lastModifiedAt");
+                        ofy.load().type(PackageVersion.class).limit(20)
+                        .order("-lastModifiedAt");
                 if (user != null) {
                     q =
                             q.filter(
                                     "lastModifiedBy =",
                                     new User(user, user.substring(user
-                                            .indexOf('@'))));
+                                                    .indexOf('@'))));
                 }
                 if (tag != null) {
                     q = q.filter("tags =", tag);

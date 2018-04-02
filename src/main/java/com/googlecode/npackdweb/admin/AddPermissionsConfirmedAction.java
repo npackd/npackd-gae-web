@@ -38,7 +38,7 @@ public class AddPermissionsConfirmedAction extends Action {
         if (err == null) {
             User u = NWUtils.email2user(p.email);
             Objectify ofy = DefaultServlet.getObjectify();
-            List<Package> q = ofy.query(Package.class).list();
+            List<Package> q = ofy.load().type(Package.class).list();
             List<Package> toSave = new ArrayList<>();
             for (Package p_ : q) {
                 if (!p_.isUserPermittedToModify(u)) {
@@ -46,7 +46,7 @@ public class AddPermissionsConfirmedAction extends Action {
                     toSave.add(p_);
                 }
             }
-            ofy.put(toSave);
+            ofy.save().entities(toSave);
             res =
                     new MessagePage("The permissions for " + p.email + " for " +
                             toSave.size() + " packages " +

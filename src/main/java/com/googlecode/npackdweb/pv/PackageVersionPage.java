@@ -543,8 +543,9 @@ public class PackageVersionPage extends MyPage {
             w.start("ul", "itemprop", "requirements");
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Package dp =
-                        ofy.find(new com.googlecode.objectify.Key<>(
-                                        Package.class, dependencyPackages.get(i)));
+                        ofy.load().key(Key.create(
+                                        Package.class, dependencyPackages.get(i))).
+                        now();
 
                 w.start("li");
                 w.e("a", "href", "/p/" + dependencyPackages.get(i),
@@ -846,7 +847,8 @@ public class PackageVersionPage extends MyPage {
     public Package getPackage() {
         if (this.package_ == null) {
             Objectify objectify = DefaultServlet.getObjectify();
-            this.package_ = objectify.find(Package.class, packageName);
+            this.package_ = objectify.load().key(Key.create(Package.class,
+                    packageName)).now();
             if (this.package_ == null) {
                 this.package_ = new Package("unknown");
             }
@@ -869,7 +871,8 @@ public class PackageVersionPage extends MyPage {
         if (this.license == null) {
             Package p = getPackage();
             if (!p.license.isEmpty()) {
-                this.license = ofy.find(License.class, p.license);
+                this.license = ofy.load().key(Key.create(License.class,
+                        p.license)).now();
                 if (this.license == null) {
                     NWUtils.LOG.log(Level.WARNING,
                             "License {0} not found for {1}", new Object[]{
@@ -989,8 +992,9 @@ public class PackageVersionPage extends MyPage {
                 v.normalize();
                 Objectify ofy = DefaultServlet.getObjectify();
                 PackageVersion p =
-                        ofy.find(new Key<>(PackageVersion.class,
-                                        packageName.trim() + "@" + v.toString()));
+                        ofy.load().key(Key.create(PackageVersion.class,
+                                        packageName.trim() + "@" + v.toString())).
+                        now();
                 if (p != null) {
                     r = "Package version " + v + " already exists";
                 }

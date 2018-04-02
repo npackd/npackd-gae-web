@@ -3,12 +3,13 @@ package com.googlecode.npackdweb.db;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.OnLoad;
+import com.googlecode.objectify.annotation.OnSave;
 import java.util.Date;
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -16,7 +17,8 @@ import org.w3c.dom.Element;
  * A license definition.
  */
 @Entity
-@Cached
+@Cache
+@Index
 public class License {
 
     /**
@@ -27,7 +29,7 @@ public class License {
      * @return found license or null
      */
     public static License findByName(Objectify ofy, String id) {
-        return ofy.find(new Key<>(License.class, id));
+        return ofy.load().key(Key.create(License.class, id)).now();
     }
 
     @Id
@@ -52,14 +54,14 @@ public class License {
         return name;
     }
 
-    @PostLoad
+    @OnLoad
     public void postLoad() {
         if (this.lastModifiedAt == null) {
             this.lastModifiedAt = NWUtils.newDate();
         }
     }
 
-    @PrePersist
+    @OnSave
     void onPersist() {
         NWUtils.incDataVersion();
         this.lastModifiedAt = NWUtils.newDate();
@@ -69,7 +71,7 @@ public class License {
      * @return created Key for this object
      */
     public Key<License> createKey() {
-        return new Key<>(License.class, name);
+        return Key.create(License.class, name);
     }
 
     /**

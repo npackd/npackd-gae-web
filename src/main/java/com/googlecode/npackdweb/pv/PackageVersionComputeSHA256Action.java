@@ -34,7 +34,7 @@ public class PackageVersionComputeSHA256Action extends Action {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
         Objectify ofy = DefaultServlet.getObjectify();
-        Package pa = ofy.get(new Key<>(Package.class, package_));
+        Package pa = ofy.load().key(Key.create(Package.class, package_)).now();
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
             page =
@@ -42,8 +42,8 @@ public class PackageVersionComputeSHA256Action extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion p =
-                    ofy.get(new Key<>(PackageVersion.class,
-                            package_ + "@" + version));
+                    ofy.load().key(Key.create(PackageVersion.class,
+                                    package_ + "@" + version)).now();
             PackageVersion oldp = p.copy();
             try {
                 Info info = p.check(false, "SHA-256");

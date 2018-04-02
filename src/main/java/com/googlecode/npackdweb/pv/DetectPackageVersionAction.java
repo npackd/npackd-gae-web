@@ -41,7 +41,7 @@ public class DetectPackageVersionAction extends Action {
         }
 
         Objectify ofy = DefaultServlet.getObjectify();
-        Package p = ofy.get(new Key<>(Package.class, package_));
+        Package p = ofy.load().key(Key.create(Package.class, package_)).now();
         if (!p.isCurrentUserPermittedToModify()) {
             return new MessagePage(
                     "You do not have permission to modify this package");

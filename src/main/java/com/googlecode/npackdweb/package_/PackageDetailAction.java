@@ -33,7 +33,7 @@ public class PackageDetailAction extends Action {
         String name = req.getRequestURI().substring(3);
 
         Objectify ofy = DefaultServlet.getObjectify();
-        Package r = ofy.find(new Key<>(Package.class, name));
+        Package r = ofy.load().key(Key.create(Package.class, name)).now();
         PackageDetailPage pdp = null;
         User u = UserServiceFactory.getUserService().getCurrentUser();
         if (r == null) {
@@ -46,7 +46,7 @@ public class PackageDetailAction extends Action {
             }
         } else {
             pdp = new PackageDetailPage(u != null ? FormMode.EDIT :
-                     FormMode.VIEW);
+                    FormMode.VIEW);
             pdp.fill(r);
         }
         return pdp;

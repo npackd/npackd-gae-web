@@ -121,16 +121,13 @@ public class RepUploadAction extends Action {
                 keys.add(p.createKey());
             }
 
-            // get all objects at once to fill the cache
-            ofy.get(keys);
-
             Stats stats = new Stats();
 
             // process licenses first. Only admins can change the license.
             if (f.lics.size() > 0) {
                 if (isAdmin) {
                     for (License lic : f.lics) {
-                        License existing = ofy.find(lic.createKey());
+                        License existing = ofy.load().key(lic.createKey()).now();
                         if (existing != null) {
                             if (overwrite) {
                                 NWUtils.saveLicense(ofy, lic, true);
@@ -151,7 +148,8 @@ public class RepUploadAction extends Action {
 
             // process packages before the package versions
             for (Package p : f.ps) {
-                Package p_ = ofy.find(new Key<>(Package.class, p.name));
+                Package p_ = ofy.load().key(Key.create(Package.class, p.name)).
+                        now();
                 if (p_ != null && !p_.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
@@ -179,9 +177,10 @@ public class RepUploadAction extends Action {
                 pv.addTag("untested");
 
                 Package p =
-                        ofy.find(new Key<>(Package.class, pv.package_));
+                        ofy.load().key(Key.create(Package.class, pv.package_)).
+                        now();
                 PackageVersion existing =
-                        ofy.find(pv.createKey());
+                        ofy.load().key(pv.createKey()).now();
                 if (p != null && !p.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +

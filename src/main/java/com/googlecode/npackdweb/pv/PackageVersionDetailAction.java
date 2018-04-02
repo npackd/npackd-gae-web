@@ -47,8 +47,8 @@ public class PackageVersionDetailAction extends Action {
         String version = m.group(2);
 
         Objectify ofy = DefaultServlet.getObjectify();
-        PackageVersion r = ofy.find(new Key<>(
-                PackageVersion.class, package_ + "@" + version));
+        PackageVersion r = ofy.load().key(Key.create(
+                PackageVersion.class, package_ + "@" + version)).now();
         if (r == null) {
             Version v = Version.parse(version);
             if (!v.toString().equals(version)) {

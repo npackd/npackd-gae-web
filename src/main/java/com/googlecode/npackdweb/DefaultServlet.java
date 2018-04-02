@@ -36,12 +36,11 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.npackdweb.wlib.SendRedirectAction;
 import com.googlecode.npackdweb.wlib.SendStatusAction;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -54,19 +53,14 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class DefaultServlet extends HttpServlet {
 
+    static {
+        NWUtils.initObjectify();
+    }
+
     /**
      * version of the data (versions, packages, licenses): 0, 1, ...
      */
     public static AtomicInteger dataVersion = new AtomicInteger();
-
-    private static ThreadLocal<Objectify> OBJS = new ThreadLocal<Objectify>() {
-        @Override
-        protected Objectify initialValue() {
-            Objectify ofy = ObjectifyService.begin();
-            NWUtils.initObjectify();
-            return ofy;
-        }
-    };
 
     /**
      * @param req an HTTP request
@@ -81,20 +75,15 @@ public class DefaultServlet extends HttpServlet {
      * @return Objectify instance associated with this request
      */
     public static Objectify getObjectify() {
-        return OBJS.get();
+        return ofy();
     }
 
-    private List<Pattern> urlPatterns = new ArrayList<>();
     private List<Action> actions = new ArrayList<>();
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        try {
-            doGet0(req, resp);
-        } finally {
-            OBJS.remove();
-        }
+        doGet0(req, resp);
     }
 
     private void doGet0(HttpServletRequest req, HttpServletResponse resp)

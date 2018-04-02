@@ -9,8 +9,9 @@ import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.Query;
+import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,9 +70,9 @@ public class RepXMLPage extends Page {
             toXML(Objectify ofy, String tag, boolean onlyReviewed) {
         ArrayList<PackageVersion> pvs = new ArrayList<>();
         Query<PackageVersion> q =
-                ofy.query(PackageVersion.class).chunkSize(500);
+                ofy.load().type(PackageVersion.class).chunk(500);
         if (tag != null) {
-            q.filter("tags =", tag);
+            q = q.filter("tags =", tag);
         }
         pvs.addAll(q.list());
 
@@ -114,7 +115,11 @@ public class RepXMLPage extends Page {
                 pns.add(pv.package_);
             }
         }
-        Map<String, Package> ps_ = ofy.get(Package.class, pns);
+        List<Key<Package>> keys = new ArrayList<>();
+        for (String s : pns) {
+            keys.add(Key.create(Package.class, s));
+        }
+        Map<Key<Package>, Package> ps_ = ofy.load().keys(keys);
         List<Package> ps = new ArrayList<>();
         ps.addAll(ps_.values());
         Collections.sort(ps, new Comparator<Package>() {
@@ -129,7 +134,11 @@ public class RepXMLPage extends Page {
                 lns.add(p.license);
             }
         }
-        Map<String, License> ls = ofy.get(License.class, lns);
+        List<Key<License>> lkeys = new ArrayList<>();
+        for (String s : lns) {
+            lkeys.add(Key.create(License.class, s));
+        }
+        Map<Key<License>, License> ls = ofy.load().keys(lkeys);
         List<License> licenses = new ArrayList<>();
         licenses.addAll(ls.values());
         Collections.sort(licenses, new Comparator<License>() {

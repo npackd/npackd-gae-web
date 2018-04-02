@@ -12,6 +12,7 @@ import com.googlecode.objectify.Objectify;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
@@ -52,8 +53,9 @@ public class ReCaptchaAnswerAction extends Action {
 
             String s;
             if (json.getBoolean("success")) {
-                Editor e = ob.query(Editor.class).filter("id =", id).get();
-                s = "Email address: " + e.name;
+                List<Editor> editors = ob.load().type(Editor.class).filter(
+                        "id =", id).limit(1).list();
+                s = "Email address: " + editors.get(0).name;
             } else {
                 s = "Answer is wrong";
             }

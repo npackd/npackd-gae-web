@@ -47,7 +47,8 @@ public class AddEditorPage extends MyPage {
 
         if (err == null) {
             Objectify ofy = DefaultServlet.getObjectify();
-            Editor existing = ofy.find(new Key<>(Editor.class, email));
+            Editor existing = ofy.load().key(Key.create(Editor.class, email)).
+                    now();
             if (existing != null) {
                 err = "An editor with the email " + email + " already exists";
             }

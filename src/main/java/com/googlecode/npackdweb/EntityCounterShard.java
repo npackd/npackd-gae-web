@@ -1,9 +1,8 @@
 package com.googlecode.npackdweb;
 
-import javax.persistence.Id;
-
 import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Unindexed;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Unindex;
 
 /**
  * EntityCounterShard represents one shard and stores the result of a fraction
@@ -11,20 +10,21 @@ import com.googlecode.objectify.annotation.Unindexed;
  */
 @Entity
 public class EntityCounterShard {
-	/**
-	 * id is equal to the counter name appended with the number of the shard
-	 */
-	@Id
-	public String name;
 
-	@Unindexed
-	public int value;
+    /**
+     * id is equal to the counter name appended with the number of the shard
+     */
+    @Id
+    public String name;
 
-	@SuppressWarnings("unused")
-	private EntityCounterShard() {
-	}
+    @Unindex
+    public int value;
 
-	public EntityCounterShard(EntityCounter counter, int shardNumber) {
-		name = counter.shardName(shardNumber);
-	}
+    @SuppressWarnings("unused")
+    private EntityCounterShard() {
+    }
+
+    public EntityCounterShard(EntityCounter counter, int shardNumber) {
+        name = counter.shardName(shardNumber);
+    }
 }

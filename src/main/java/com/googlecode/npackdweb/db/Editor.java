@@ -4,20 +4,22 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.OnLoad;
+import com.googlecode.objectify.annotation.OnSave;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
 
 /**
  * An editor/user.
  */
 @Entity
-@Cached
+@Cache
+@Index
 public class Editor {
 
     @Id
@@ -70,7 +72,7 @@ public class Editor {
         return name;
     }
 
-    @PrePersist
+    @OnSave
     void onPersist() {
         NWUtils.incDataVersion();
         this.lastModifiedAt = NWUtils.newDate();
@@ -80,7 +82,7 @@ public class Editor {
      * @return created Key for this object
      */
     public Key<Editor> createKey() {
-        return new Key<>(Editor.class, this.name);
+        return Key.create(Editor.class, this.name);
     }
 
     /**
@@ -92,7 +94,7 @@ public class Editor {
         this.id = sc.getCount();
     }
 
-    @PostLoad
+    @OnLoad
     public void postLoad() {
         if (this.starredPackages == null) {
             this.starredPackages = new ArrayList<>();

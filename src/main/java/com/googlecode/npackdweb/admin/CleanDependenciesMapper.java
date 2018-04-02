@@ -35,7 +35,8 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     private void moveSourceForgeToOneServer(Entity value) {
         Objectify ofy = DefaultServlet.getObjectify();
 
-        PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
+                getKey().toString())).now();
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -55,7 +56,8 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     private void moveFromGoogleCodeFiles(Entity value) {
         Objectify ofy = DefaultServlet.getObjectify();
 
-        PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
+                getKey().toString())).now();
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -80,7 +82,8 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     private void moveToFilesNpackdOrg(Entity value) {
         Objectify ofy = DefaultServlet.getObjectify();
 
-        PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
+                getKey().toString())).now();
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -101,7 +104,8 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     public void removeNpackdCLCalls(Entity value) {
         Objectify ofy = DefaultServlet.getObjectify();
 
-        PackageVersion pv = ofy.find(new Key<PackageVersion>(value.getKey()));
+        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
+                getKey().toString())).now();
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
