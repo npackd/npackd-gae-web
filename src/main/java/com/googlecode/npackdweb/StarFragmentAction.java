@@ -25,7 +25,7 @@ public class StarFragmentAction extends Action {
         final String package_ = req.getParameter("package");
         if (package_ == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                    "Empty repository name");
+                    "Empty package name");
             return null;
         } else {
             return new StarFragmentPage(package_);
