@@ -18,6 +18,7 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.OnLoad;
+import com.googlecode.objectify.annotation.Unindex;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -100,9 +101,13 @@ public class Package {
      */
     public String changelog;
 
+    @Unindex
     public String description = "";
+
     public String icon = "";
     public String license = "";
+
+    @Unindex
     public String comment = "";
 
     /**
