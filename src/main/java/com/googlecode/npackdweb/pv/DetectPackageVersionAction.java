@@ -67,10 +67,6 @@ public class DetectPackageVersionAction extends Action {
             msg = e.getMessage();
         }
 
-        if (v == null) {
-            msg = "Cannot find the version";
-        }
-
         if (msg != null) {
             return new MessagePage(msg);
         }
