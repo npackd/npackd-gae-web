@@ -143,7 +143,8 @@ public class DefaultServlet extends HttpServlet {
                 }
             }
         } else {
-            resp.sendError(404, "Unknown command: " + pi);
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND,
+                    "Unknown command: " + pi);
         }
     }
 

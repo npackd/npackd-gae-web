@@ -22,6 +22,13 @@ public class StarFragmentAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        return new StarFragmentPage(req.getParameter("package"));
+        final String package_ = req.getParameter("package");
+        if (package_ == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    "Empty repository name");
+            return null;
+        } else {
+            return new StarFragmentPage(package_);
+        }
     }
 }
