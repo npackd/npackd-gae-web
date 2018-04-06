@@ -107,18 +107,19 @@ public class PackagesPage extends MyPage {
         category1Values =
                 (List<FacetResultValue>) results[2];
 
-        Objectify obj = DefaultServlet.getObjectify();
-        List<Key<Package>> keys = new ArrayList<>();
-        for (String id : ids) {
-            keys.add(Key.create(Package.class, id));
-        }
-        Map<Key<Package>, Package> map = obj.load().keys(keys);
+        packages.addAll(NWUtils.getPackages(ids));
+        /*Objectify obj = DefaultServlet.getObjectify();
+         List<Key<Package>> keys = new ArrayList<>();
+         for (String id : ids) {
+         keys.add(Key.create(Package.class, id));
+         }
 
-        for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
-            if (e.getValue() != null) {
-                packages.add(e.getValue());
-            }
-        }
+         Map<Key<Package>, Package> map = obj.load().values(keys);
+         for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
+         if (e.getValue() != null) {
+         packages.add(e.getValue());
+         }
+         }*/
     }
 
     @Override

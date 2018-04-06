@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -147,13 +149,16 @@ public class RepUploadAction extends Action {
             }
 
             // process packages before the package versions
+            Map<String, Package> packagesCache = new HashMap<>();
             for (Package p : f.ps) {
                 Package p_ = ofy.load().key(Key.create(Package.class, p.name)).
                         now();
+
                 if (p_ != null && !p_.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
                             p.name);
+                    packagesCache.put(p_.name, p_);
                 } else if (p_ != null) {
                     if (overwrite) {
                         // overwriting should not change the permissions
@@ -162,13 +167,16 @@ public class RepUploadAction extends Action {
 
                         NWUtils.savePackage(ofy, p_, p, true);
                         stats.pOverwritten++;
+                        packagesCache.put(p.name, p);
                     } else {
                         messages.add("The package " + p.name +
                                 " exists already. It will not be overwritten.");
+                        packagesCache.put(p_.name, p_);
                     }
                 } else {
                     NWUtils.savePackage(ofy, null, p, true);
                     stats.pAppended++;
+                    packagesCache.put(p.name, p);
                 }
             }
 
@@ -186,6 +194,10 @@ public class RepUploadAction extends Action {
                             "You do not have permission to modify this package: " +
                             pv.package_);
                 } else {
+                    if (p == null) {
+                        p = packagesCache.get(pv.package_);
+                    }
+
                     if (p == null) {
                         p = new Package(pv.package_);
                         p.title = p.name;

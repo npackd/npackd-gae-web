@@ -40,7 +40,6 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -56,11 +55,6 @@ public class DefaultServlet extends HttpServlet {
     static {
         NWUtils.initObjectify();
     }
-
-    /**
-     * version of the data (versions, packages, licenses): 0, 1, ...
-     */
-    public static AtomicInteger dataVersion = new AtomicInteger();
 
     /**
      * @param req an HTTP request
@@ -88,6 +82,7 @@ public class DefaultServlet extends HttpServlet {
 
     private void doGet0(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        NWUtils.updateDataVersion();
         req.setAttribute("com.googlecode.npackdweb.DefaultServlet", this);
 
         String pi = req.getRequestURI();

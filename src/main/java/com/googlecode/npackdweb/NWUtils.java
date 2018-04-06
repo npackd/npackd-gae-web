@@ -67,6 +67,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Message;
@@ -145,6 +147,16 @@ public class NWUtils {
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     private static boolean objectifyInitialized;
+
+    private static ReentrantLock lock = new ReentrantLock();
+
+    /**
+     * version of the data (versions, packages, licenses): 0, 1, ...
+     */
+    private static long dataVersion;
+
+    private static Map<String, Package> packagesCache =
+            new ConcurrentHashMap<>();
 
     /**
      * Initializes FreeMarker. This method can be called multiple times from
@@ -732,13 +744,23 @@ public class NWUtils {
             syncCache.put("DataVersion", 1L);
             v = 1L;
         }
+
+        lock.lock();
+        try {
+            dataVersion = v;
+            packagesCache.clear();
+        } finally {
+            lock.unlock();
+        }
+
         return v;
     }
 
     /**
-     * @return current data version
+     * Reads the data version from the memcached and updates the static
+     * in-memory cache.
      */
-    public static long getDataVersion() {
+    public static void updateDataVersion() {
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
         syncCache.setErrorHandler(ErrorHandlers
                 .getConsistentLogAndContinue(Level.INFO));
@@ -746,6 +768,83 @@ public class NWUtils {
         if (v == null) {
             syncCache.put("DataVersion", 1L);
             v = 1L;
+        }
+
+        lock.lock();
+        try {
+            if (dataVersion != v) {
+                dataVersion = v;
+                packagesCache.clear();
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Returns packages by their IDs.
+     *
+     * @param ids internal package names
+     * @return found packages
+     */
+    public static List<Package> getPackages(List<String> ids) {
+        List<Package> packages = new ArrayList<>();
+
+        if (ids.size() > 0) {
+            lock.lock();
+            try {
+                for (String id : ids) {
+                    Package p = packagesCache.get(id);
+                    if (p == null) {
+                        packages.clear();
+                        break;
+                    }
+                    packages.add(p);
+                }
+            } finally {
+                lock.unlock();
+            }
+
+            if (packages.size() == 0) {
+                Objectify obj = DefaultServlet.getObjectify();
+                List<Key<Package>> keys = new ArrayList<>();
+                for (String id : ids) {
+                    keys.add(Key.create(Package.class, id));
+                }
+
+                Map<Key<Package>, Package> map = obj.load().values(keys);
+
+                lock.lock();
+                try {
+                    for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
+                        Package p = e.getValue();
+                        if (p != null) {
+                            packages.add(p);
+                            packagesCache.put(p.name, p);
+                        }
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+            for (int i = 0; i < packages.size(); i++) {
+                packages.set(i, packages.get(i).copy());
+            }
+        }
+
+        return packages;
+    }
+
+    /**
+     * @return current data version
+     */
+    public static long getDataVersion() {
+        long v;
+        lock.lock();
+        try {
+            v = dataVersion;
+        } finally {
+            lock.unlock();
         }
         return v;
     }

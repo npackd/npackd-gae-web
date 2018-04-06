@@ -117,6 +117,9 @@ public class ShardedCounter implements Serializable {
                 try {
                     counter[0] = ofy().load().key(Key.create(
                             EntityCounter.class, name)).now();
+                    if (counter[0] == null) {
+                        counter[0] = new EntityCounter(name);
+                    }
                     nextShardNumber[0] = counter[0].numShards;
                     counter[0].numShards += newShards;
                     ofy().save().entity(counter[0]);
@@ -136,7 +139,6 @@ public class ShardedCounter implements Serializable {
         // that could add shards with the shard numbers we're about to add:
         // add newShard number shards
         int shardsAdded = 0;
-        Objectify ofy = of.begin();
         while (shardsAdded < newShards) {
             EntityCounterShard newShard = new EntityCounterShard(counter[0],
                     nextShardNumber[0]);
