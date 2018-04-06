@@ -3,12 +3,12 @@ package com.googlecode.npackdweb.admin;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.util.List;
 
 public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
@@ -33,7 +33,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     private void moveSourceForgeToOneServer(Entity value) {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
 
         PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
                 getKey().toString())).now();
@@ -54,7 +54,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     private void moveFromGoogleCodeFiles(Entity value) {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
 
         PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
                 getKey().toString())).now();
@@ -80,7 +80,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     private void moveToFilesNpackdOrg(Entity value) {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
 
         PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
                 getKey().toString())).now();
@@ -102,7 +102,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     public void removeNpackdCLCalls(Entity value) {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
 
         PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
                 getKey().toString())).now();

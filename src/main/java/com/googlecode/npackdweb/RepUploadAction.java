@@ -8,6 +8,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -111,7 +112,7 @@ public class RepUploadAction extends Action {
             }
 
             // determine the keys for all objects
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             List<Key<?>> keys = new ArrayList<>();
             for (License lic : f.lics) {
                 keys.add(lic.createKey());

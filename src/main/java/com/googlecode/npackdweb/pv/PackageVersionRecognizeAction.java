@@ -7,7 +7,6 @@ import com.google.appengine.api.urlfetch.ResponseTooLargeException;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.common.primitives.Bytes;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -17,6 +16,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -51,7 +51,7 @@ public class PackageVersionRecognizeAction extends Action {
             throws IOException {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Package pa = ofy.load().key(Key.create(Package.class, package_)).now();
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {

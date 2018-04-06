@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb.license;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
@@ -8,6 +7,7 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
@@ -213,7 +213,7 @@ public class LicensePage extends MyPage {
         if (this.id == null || this.id.trim().length() == 0) {
             this.modifiedAt = NWUtils.newDate();
         } else {
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             License p = License.findByName(ofy, this.id);
             this.modifiedAt = p.lastModifiedAt;
         }
@@ -235,7 +235,7 @@ public class LicensePage extends MyPage {
 
         if (msg == null) {
             if (this.id == null || this.id.trim().length() == 0) {
-                Objectify ofy = DefaultServlet.getObjectify();
+                Objectify ofy = ofy();
                 License r = ofy.load().key(Key.create(License.class, this.id)).
                         now();
                 if (r != null) {

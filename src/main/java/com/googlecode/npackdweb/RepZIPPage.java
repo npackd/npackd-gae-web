@@ -7,6 +7,7 @@ import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +29,7 @@ public class RepZIPPage extends Page {
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         final GcsService gcsService =
                 GcsServiceFactory.createGcsService(RetryParams
                         .getDefaultInstance());

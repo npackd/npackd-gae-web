@@ -35,8 +35,6 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.npackdweb.wlib.SendRedirectAction;
 import com.googlecode.npackdweb.wlib.SendStatusAction;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,13 +61,6 @@ public class DefaultServlet extends HttpServlet {
     public static DefaultServlet getInstance(HttpServletRequest req) {
         return (DefaultServlet) req
                 .getAttribute("com.googlecode.npackdweb.DefaultServlet");
-    }
-
-    /**
-     * @return Objectify instance associated with this request
-     */
-    public static Objectify getObjectify() {
-        return ofy();
     }
 
     private List<Action> actions = new ArrayList<>();

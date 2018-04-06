@@ -7,6 +7,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class StarsAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         User u = UserServiceFactory.getUserService().getCurrentUser();
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Editor e = NWUtils.findEditor(ofy, u);
         List<String> starredPackages = new ArrayList<>();
         if (e != null) {

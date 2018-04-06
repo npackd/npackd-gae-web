@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class LicensesPage extends MyPage {
 
     private String internalCreateContent() {
         licenses = new ArrayList<>();
-        Objectify obj = DefaultServlet.getObjectify();
+        Objectify obj = ofy();
         licenses.addAll(obj.load().type(License.class).limit(PAGE_SIZE + 1)
                 .offset(start).list());
 

@@ -2,7 +2,6 @@ package com.googlecode.npackdweb.package_;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -11,6 +10,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +32,7 @@ public class PackageDetailAction extends Action {
             throws IOException {
         String name = req.getRequestURI().substring(3);
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Package r = ofy.load().key(Key.create(Package.class, name)).now();
         PackageDetailPage pdp = null;
         User u = UserServiceFactory.getUserService().getCurrentUser();

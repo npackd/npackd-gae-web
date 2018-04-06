@@ -11,6 +11,7 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class RepXMLPage extends Page {
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         final GcsService gcsService =
                 GcsServiceFactory.createGcsService(RetryParams
                         .getDefaultInstance());

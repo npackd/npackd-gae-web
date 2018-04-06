@@ -5,6 +5,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +28,7 @@ public class RepZIPAction extends Action {
         String tag = req.getParameter("tag");
 
         if (tag != null && !tag.isEmpty()) {
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             Repository r = Repository.findByTag(ofy, tag);
             if (r == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository " +

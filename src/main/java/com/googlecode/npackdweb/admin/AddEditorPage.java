@@ -1,12 +1,12 @@
 package com.googlecode.npackdweb.admin;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,7 +46,7 @@ public class AddEditorPage extends MyPage {
         String err = NWUtils.validateEmail(this.email);
 
         if (err == null) {
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             Editor existing = ofy.load().key(Key.create(Editor.class, email)).
                     now();
             if (existing != null) {

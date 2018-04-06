@@ -230,7 +230,7 @@ public class ShardedCounter implements Serializable {
     }
 
     public static ShardedCounter getCounter(String name) {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         if (ofy.load().key(Key.create(EntityCounter.class, name)).now() != null) {
             return new ShardedCounter(name);
         }

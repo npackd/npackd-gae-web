@@ -22,6 +22,7 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class PackagesPage extends MyPage {
      * @param ids IDs of the packages
      */
     public PackagesPage(List<String> ids) {
-        Objectify obj = DefaultServlet.getObjectify();
+        Objectify obj = ofy();
         List<Key<Package>> keys = new ArrayList<>();
         for (String id : ids) {
             keys.add(Key.create(Package.class, id));
@@ -178,6 +179,7 @@ public class PackagesPage extends MyPage {
                     category1));
         }
 
+        NWUtils.LOG.info("Starting search");
         Results<ScoredDocument> r = index.search(qb.build(query));
         found = r.getNumberFound();
 
@@ -205,6 +207,7 @@ public class PackagesPage extends MyPage {
                 break;
             }
         }
+        NWUtils.LOG.info("Search completed");
         return new Object[]{ids, category0Values, category1Values};
     }
 
@@ -240,7 +243,7 @@ public class PackagesPage extends MyPage {
         } else {
             // list of packages
             w.start("div", "class", "nw-packages");
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             Markdown4jProcessor mp = new Markdown4jProcessor();
 
             UserService us = UserServiceFactory.getUserService();

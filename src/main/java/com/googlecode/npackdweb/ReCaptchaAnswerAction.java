@@ -9,6 +9,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -36,7 +37,7 @@ public class ReCaptchaAnswerAction extends Action {
         int id = Integer.parseInt(req.getParameter("id"));
 
         String remoteAddr = req.getRemoteAddr();
-        Objectify ob = DefaultServlet.getObjectify();
+        Objectify ob = ofy();
 
         String secretParameter = getSetting(ob, "ReCaptchaPrivateKey", "");
         String recap = req.getParameter("g-recaptcha-response");

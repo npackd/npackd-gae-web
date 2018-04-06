@@ -2,7 +2,6 @@ package com.googlecode.npackdweb.package_;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
@@ -16,6 +15,7 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -259,7 +259,7 @@ public class PackageDetailPage extends MyPage {
         }
         w.end("tr");
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
 
         // versions
         w.start("tr");
@@ -824,7 +824,7 @@ public class PackageDetailPage extends MyPage {
                     UserServiceFactory.getUserService().getCurrentUser();
             this.noUpdatesCheck = null;
         } else {
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             Package p = Package.findByName(ofy, this.id);
             this.createdAt = p.createdAt;
             this.createdBy = p.createdBy;
@@ -890,7 +890,7 @@ public class PackageDetailPage extends MyPage {
 
         if (msg == null) {
             if (mode == FormMode.CREATE) {
-                Objectify ofy = DefaultServlet.getObjectify();
+                Objectify ofy = ofy();
                 Package r = ofy.load().key(Key.create(Package.class, this.id)).
                         now();
                 if (r != null) {
@@ -1015,7 +1015,7 @@ public class PackageDetailPage extends MyPage {
         this.starFilled = false;
         User u = UserServiceFactory.getUserService().getCurrentUser();
         if (u != null) {
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             Editor e = NWUtils.findEditor(ofy, u);
             if (e != null && e.starredPackages.contains(id)) {
                 starFilled = true;

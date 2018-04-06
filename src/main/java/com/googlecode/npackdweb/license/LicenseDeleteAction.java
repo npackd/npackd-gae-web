@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb.license;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
@@ -9,6 +8,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ public class LicenseDeleteAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String name = req.getParameter("id");
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         License r = ofy.load().key(Key.create(License.class, name)).now();
         Page page;
         if (!r.isCurrentUserPermittedToModify()) {

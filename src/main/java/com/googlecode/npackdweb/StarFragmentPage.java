@@ -7,6 +7,7 @@ import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class StarFragmentPage extends Page {
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         com.googlecode.npackdweb.db.Package p =
                 com.googlecode.npackdweb.db.Package.findByName(ofy, package_);
         HTMLWriter w = new HTMLWriter();

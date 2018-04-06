@@ -12,6 +12,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
@@ -42,7 +43,7 @@ public class ExportRepsAction extends Action {
                 GcsServiceFactory.createGcsService(RetryParams
                         .getDefaultInstance());
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         List<Repository> rs = Repository.findAll(ofy);
         for (Repository r : rs) {
             export(gcsService, ofy, r.name, true);

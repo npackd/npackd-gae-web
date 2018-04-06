@@ -14,6 +14,7 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -215,7 +216,7 @@ public class PackageVersionPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Package p = getPackage();
         License lic = getLicense(ofy);
 
@@ -846,7 +847,7 @@ public class PackageVersionPage extends MyPage {
      */
     public Package getPackage() {
         if (this.package_ == null) {
-            Objectify objectify = DefaultServlet.getObjectify();
+            Objectify objectify = ofy();
             this.package_ = objectify.load().key(Key.create(Package.class,
                     packageName)).now();
             if (this.package_ == null) {
@@ -951,7 +952,7 @@ public class PackageVersionPage extends MyPage {
         }
 
         if (!this.new_) {
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             PackageVersion pv =
                     PackageVersion.find(ofy, this.packageName, this.version);
         }
@@ -990,7 +991,7 @@ public class PackageVersionPage extends MyPage {
             if (new_) {
                 Version v = Version.parse(version);
                 v.normalize();
-                Objectify ofy = DefaultServlet.getObjectify();
+                Objectify ofy = ofy();
                 PackageVersion p =
                         ofy.load().key(Key.create(PackageVersion.class,
                                         packageName.trim() + "@" + v.toString())).

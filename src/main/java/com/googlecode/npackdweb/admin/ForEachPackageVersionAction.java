@@ -7,13 +7,13 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskAlreadyExistsException;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public abstract class ForEachPackageVersionAction extends Action {
             throws IOException {
         String cursor = req.getParameter("cursor");
 
-        Objectify ob = DefaultServlet.getObjectify();
+        Objectify ob = ofy();
         Query<PackageVersion> q = ob.load().type(PackageVersion.class);
         if (cursor != null) {
             q = q.startAt(Cursor.fromWebSafeString(cursor));

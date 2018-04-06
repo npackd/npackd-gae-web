@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.Package;
@@ -10,6 +9,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -40,7 +40,7 @@ public class DetectPackageVersionAction extends Action {
             throw new IOException("Invalid package name");
         }
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Package p = ofy.load().key(Key.create(Package.class, package_)).now();
         if (!p.isCurrentUserPermittedToModify()) {
             return new MessagePage(

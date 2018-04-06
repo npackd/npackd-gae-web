@@ -3,7 +3,6 @@ package com.googlecode.npackdweb.api;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.Action;
@@ -11,6 +10,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class StarAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
 
         String package_ = req.getParameter("package");
         boolean star = "1".equals(req.getParameter("star"));

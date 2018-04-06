@@ -12,6 +12,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.Date;
@@ -37,7 +38,7 @@ public class CheckUpdatesAction extends Action {
             throws IOException {
         String cursor = req.getParameter("cursor");
 
-        Objectify ob = DefaultServlet.getObjectify();
+        Objectify ob = ofy();
         Query<Package> q = ob.load().type(Package.class);
         if (cursor != null) {
             q = q.startAt(Cursor.fromWebSafeString(cursor));

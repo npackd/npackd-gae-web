@@ -2,7 +2,6 @@ package com.googlecode.npackdweb.pv;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
@@ -13,6 +12,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +44,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
             err = "Error parsing the version number: " + e.getMessage();
         }
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         PackageVersion p =
                 ofy.load().key(Key.create(PackageVersion.class, name)).now();
         Package r = ofy.load().key(Key.create(Package.class, p.package_)).now();

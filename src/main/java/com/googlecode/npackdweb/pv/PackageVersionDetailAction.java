@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -9,6 +8,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +46,7 @@ public class PackageVersionDetailAction extends Action {
         String package_ = m.group(1);
         String version = m.group(2);
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         PackageVersion r = ofy.load().key(Key.create(
                 PackageVersion.class, package_ + "@" + version)).now();
         if (r == null) {

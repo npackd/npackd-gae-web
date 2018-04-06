@@ -8,6 +8,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,7 +41,7 @@ public class EditAsXMLAction extends Action {
 
         Document d = NWUtils.newXMLRepository(false);
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Element root = d.getDocumentElement();
         String tag = "";
 

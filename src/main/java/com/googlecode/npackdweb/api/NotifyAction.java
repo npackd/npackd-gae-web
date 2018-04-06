@@ -4,7 +4,6 @@ import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.oauth.OAuthService;
 import com.google.appengine.api.oauth.OAuthServiceFactory;
 import com.google.appengine.api.users.User;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -13,6 +12,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class NotifyAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
 
         String pw = NWUtils.getSetting(ofy, "MarkTestedPassword", "");
         if (pw == null) {

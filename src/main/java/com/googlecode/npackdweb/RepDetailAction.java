@@ -6,6 +6,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +28,7 @@ public class RepDetailAction extends Action {
             throws IOException {
         long id = Long.parseLong(req.getRequestURI().substring(5));
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Repository r = ofy.load().key(Key.create(Repository.class, id)).now();
 
         return new RepDetailPage(r);

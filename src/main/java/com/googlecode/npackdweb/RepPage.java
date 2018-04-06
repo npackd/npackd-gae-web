@@ -5,6 +5,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ public class RepPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter b = new HTMLWriter();
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         List<Repository> reps = Repository.findAll(ofy);
         if (reps.size() > 0) {
             b.

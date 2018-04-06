@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb.package_;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
@@ -8,6 +7,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +30,7 @@ public class PackageNextAction extends Action {
             throws IOException {
         String name = req.getParameter("name");
 
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Package next = null;
 
         Package p = ofy.load().key(Key.create(Package.class, name)).now();

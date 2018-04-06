@@ -35,6 +35,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -633,7 +634,7 @@ public class NWUtils {
                     ShardedCounter.getOrCreateCounter("NumberOfPackages", 2);
             value = sc.getCount();
             if (sc.getCount() == 0) {
-                Objectify ofy = DefaultServlet.getObjectify();
+                Objectify ofy = ofy();
                 sc.increment(ofy.load().type(Package.class).count());
                 value = sc.getCount();
             }
@@ -722,7 +723,7 @@ public class NWUtils {
      * Re-creates the index for packages
      */
     public static void recreateIndex() {
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         Query<Package> q = ofy.load().type(Package.class);
         Index index = getIndex();
         for (Package p : q) {
@@ -806,7 +807,7 @@ public class NWUtils {
             }
 
             if (packages.size() == 0) {
-                Objectify obj = DefaultServlet.getObjectify();
+                Objectify obj = ofy();
                 List<Key<Package>> keys = new ArrayList<>();
                 for (String id : ids) {
                     keys.add(Key.create(Package.class, id));
@@ -826,6 +827,8 @@ public class NWUtils {
                 } finally {
                     lock.unlock();
                 }
+            } else {
+                NWUtils.LOG.info("Got packages from the memory cache!");
             }
             for (int i = 0; i < packages.size(); i++) {
                 packages.set(i, packages.get(i).copy());

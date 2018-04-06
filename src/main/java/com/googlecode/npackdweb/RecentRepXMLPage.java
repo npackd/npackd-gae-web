@@ -7,6 +7,7 @@ import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class RecentRepXMLPage extends Page {
         if (value == null) {
             NWUtils.LOG.warning("Found no value in cache");
             try {
-                Objectify ofy = DefaultServlet.getObjectify();
+                Objectify ofy = ofy();
                 ArrayList<PackageVersion> pvs = new ArrayList<>();
                 Query<PackageVersion> q =
                         ofy.load().type(PackageVersion.class).limit(20)

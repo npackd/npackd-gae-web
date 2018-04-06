@@ -1,7 +1,6 @@
 package com.googlecode.npackdweb.admin;
 
 import com.google.appengine.api.users.User;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -9,6 +8,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class AddPermissionsConfirmedAction extends Action {
         String err = p.validate();
         if (err == null) {
             User u = NWUtils.email2user(p.email);
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             List<Package> q = ofy.load().type(Package.class).list();
             List<Package> toSave = new ArrayList<>();
             for (Package p_ : q) {

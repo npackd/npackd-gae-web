@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,7 @@ public class PackageVersionListPage extends MyPage {
         msg += " (showing only the first 20):";
         b.t(msg);
         b.start("ul");
-        Objectify ofy = DefaultServlet.getObjectify();
+        Objectify ofy = ofy();
         List<PackageVersion> pvs =
                 PackageVersion.find20PackageVersions(ofy, tag, order);
         for (int i = 0; i < pvs.size(); i++) {

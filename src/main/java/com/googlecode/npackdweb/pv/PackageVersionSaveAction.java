@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -10,6 +9,7 @@ import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +36,7 @@ public class PackageVersionSaveAction extends Action {
         if (error == null) {
             String package_ = pvp.getPackageName();
             final String version = pvp.getVersion();
-            Objectify ofy = DefaultServlet.getObjectify();
+            Objectify ofy = ofy();
             Package pa = ofy.load().key(Key.create(Package.class, package_)).
                     now();
             if (!pa.isCurrentUserPermittedToModify()) {
