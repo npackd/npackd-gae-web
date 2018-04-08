@@ -20,14 +20,10 @@ import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.markdown4j.Markdown4jProcessor;
 
@@ -58,20 +54,7 @@ public class PackagesPage extends MyPage {
      * @param ids IDs of the packages
      */
     public PackagesPage(List<String> ids) {
-        Objectify obj = ofy();
-        List<Key<Package>> keys = new ArrayList<>();
-        for (String id : ids) {
-            keys.add(Key.create(Package.class, id));
-        }
-
-        Map<Key<Package>, Package> map = obj.load().keys(keys);
-
-        for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
-            if (e.getValue() != null) {
-                packages.add(e.getValue());
-            }
-        }
-
+        packages.addAll(NWUtils.dsCache.getPackages(ids));
         packages.
                 sort((Package o1, Package o2) -> o1.title.compareTo(o2.title));
 
@@ -232,14 +215,13 @@ public class PackagesPage extends MyPage {
         } else {
             // list of packages
             w.start("div", "class", "nw-packages");
-            Objectify ofy = ofy();
             Markdown4jProcessor mp = new Markdown4jProcessor();
 
             UserService us = UserServiceFactory.getUserService();
             final User u = us.getCurrentUser();
             Editor e = null;
             if (u != null) {
-                e = NWUtils.findEditor(ofy, u);
+                e = NWUtils.findEditor(u);
             }
 
             for (Package p : this.getPackages()) {

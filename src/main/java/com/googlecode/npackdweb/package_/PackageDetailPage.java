@@ -632,7 +632,7 @@ public class PackageDetailPage extends MyPage {
             w.start("td");
             User u = UserServiceFactory.getUserService().getCurrentUser();
             if (mode != FormMode.CREATE) {
-                Package p = Package.findByName(ofy, this.id);
+                Package p = Package.findByName(this.id);
                 if (NWUtils.isAdminLoggedIn()) {
                     w.e("textarea",
                             "class",
@@ -825,7 +825,7 @@ public class PackageDetailPage extends MyPage {
             this.noUpdatesCheck = null;
         } else {
             Objectify ofy = ofy();
-            Package p = Package.findByName(ofy, this.id);
+            Package p = Package.findByName(this.id);
             this.createdAt = p.createdAt;
             this.createdBy = p.createdBy;
             this.noUpdatesCheck = p.noUpdatesCheck;
@@ -833,7 +833,7 @@ public class PackageDetailPage extends MyPage {
             this.starFilled = false;
             User u = UserServiceFactory.getUserService().getCurrentUser();
             if (u != null) {
-                Editor e = NWUtils.findEditor(ofy, u);
+                Editor e = NWUtils.findEditor(u);
                 if (e != null && e.starredPackages.contains(id)) {
                     starFilled = true;
                 }
@@ -1016,7 +1016,7 @@ public class PackageDetailPage extends MyPage {
         User u = UserServiceFactory.getUserService().getCurrentUser();
         if (u != null) {
             Objectify ofy = ofy();
-            Editor e = NWUtils.findEditor(ofy, u);
+            Editor e = NWUtils.findEditor(u);
             if (e != null && e.starredPackages.contains(id)) {
                 starFilled = true;
             }

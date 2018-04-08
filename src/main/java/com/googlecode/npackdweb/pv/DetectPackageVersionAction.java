@@ -93,7 +93,7 @@ public class DetectPackageVersionAction extends Action {
         }
 
         PackageVersion copy = p.
-                createDetectedVersion(ofy, v, 100L * 1024 * 1024);
+                createDetectedVersion(v, 100L * 1024 * 1024);
 
         resp.sendRedirect("/p/" + package_ + "/" + copy.version);
         return null;

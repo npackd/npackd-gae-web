@@ -1,15 +1,11 @@
 package com.googlecode.npackdweb.db;
 
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.EntityCounter;
 import com.googlecode.npackdweb.EntityCounterShard;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyFactory;
-import com.googlecode.objectify.ObjectifyService;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Ignore;
 import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Unindex;
 import java.io.Serializable;
@@ -31,14 +27,10 @@ public class ShardedCounter implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Ignore
-    private transient ObjectifyFactory of;
-
     @Unindex
     private String name;
 
     private ShardedCounter() {
-        of = ObjectifyService.factory();
     }
 
     private ShardedCounter(String name) {

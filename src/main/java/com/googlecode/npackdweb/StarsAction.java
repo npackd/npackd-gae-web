@@ -31,7 +31,7 @@ public class StarsAction extends Action {
             throws IOException {
         User u = UserServiceFactory.getUserService().getCurrentUser();
         Objectify ofy = ofy();
-        Editor e = NWUtils.findEditor(ofy, u);
+        Editor e = NWUtils.findEditor(u);
         List<String> starredPackages = new ArrayList<>();
         if (e != null) {
             starredPackages.addAll(e.starredPackages);

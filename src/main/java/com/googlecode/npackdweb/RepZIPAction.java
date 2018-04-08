@@ -29,7 +29,7 @@ public class RepZIPAction extends Action {
 
         if (tag != null && !tag.isEmpty()) {
             Objectify ofy = ofy();
-            Repository r = Repository.findByTag(ofy, tag);
+            Repository r = Repository.findByTag(tag);
             if (r == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository " +
                         tag + " not found");

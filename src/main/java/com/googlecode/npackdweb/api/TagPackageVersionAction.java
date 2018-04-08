@@ -29,7 +29,7 @@ public class TagPackageVersionAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         Objectify ofy = ofy();
-        String pw = NWUtils.getSetting(ofy, "MarkTestedPassword", "");
+        String pw = NWUtils.getSetting("MarkTestedPassword", "");
         if (pw == null) {
             pw = "";
         }

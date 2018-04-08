@@ -954,7 +954,7 @@ public class PackageVersionPage extends MyPage {
         if (!this.new_) {
             Objectify ofy = ofy();
             PackageVersion pv =
-                    PackageVersion.find(ofy, this.packageName, this.version);
+                    PackageVersion.find(this.packageName, this.version);
         }
 
         UserService us = UserServiceFactory.getUserService();

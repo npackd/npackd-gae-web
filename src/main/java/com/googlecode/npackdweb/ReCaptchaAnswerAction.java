@@ -36,10 +36,9 @@ public class ReCaptchaAnswerAction extends Action {
             throws IOException {
         int id = Integer.parseInt(req.getParameter("id"));
 
-        String remoteAddr = req.getRemoteAddr();
         Objectify ob = ofy();
 
-        String secretParameter = getSetting(ob, "ReCaptchaPrivateKey", "");
+        String secretParameter = getSetting("ReCaptchaPrivateKey", "");
         String recap = req.getParameter("g-recaptcha-response");
         URLFetchService us = URLFetchServiceFactory.getURLFetchService();
         URL url = new URL(

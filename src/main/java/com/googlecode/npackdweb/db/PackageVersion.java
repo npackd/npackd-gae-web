@@ -466,14 +466,12 @@ public class PackageVersion {
     /**
      * Searches for a package version.
      *
-     * @param ofy Objectify
      * @param packageName full package name
      * @param v version number
      * @return found version or null
      */
-    public static PackageVersion find(Objectify ofy, String packageName,
-            String v) {
-        return ofy.load().key(Key.create(PackageVersion.class,
+    public static PackageVersion find(String packageName, String v) {
+        return ofy().load().key(Key.create(PackageVersion.class,
                 packageName + "@" + v)).now();
     }
 

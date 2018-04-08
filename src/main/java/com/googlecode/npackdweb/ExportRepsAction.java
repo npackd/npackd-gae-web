@@ -68,7 +68,7 @@ public class ExportRepsAction extends Action {
         if (r == null) {
             r = new Repository();
             r.name = tag;
-            NWUtils.saveRepository(ob, r);
+            NWUtils.saveRepository(r);
         }
 
         GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
@@ -102,7 +102,7 @@ public class ExportRepsAction extends Action {
                     "/gs/" + fileName.getBucketName() + "/" +
                     fileName.getObjectName();
 
-            NWUtils.saveRepository(ob, r);
+            NWUtils.saveRepository(r);
         }
 
         return r;

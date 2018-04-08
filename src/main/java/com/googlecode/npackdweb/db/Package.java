@@ -13,6 +13,7 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -81,12 +82,11 @@ public class Package {
     /**
      * Searches for a package with the given full package ID.
      *
-     * @param ofy Objectify
      * @param id full package ID
      * @return found package or null
      */
-    public static Package findByName(Objectify ofy, String id) {
-        return ofy.load().key(Key.create(Package.class, id)).now();
+    public static Package findByName(String id) {
+        return ofy().load().key(Key.create(Package.class, id)).now();
     }
 
     @Id
@@ -639,16 +639,15 @@ public class Package {
      * Creates a new version of this package using the newest available version
      * as a template and saves it.
      *
-     * @param ofy Objectify
      * @param version new version number
      * @param maxSize maximum size of the file or 0 for "unlimited". If the file
      * is bigger than the specified size, the download will be cancelled and an
      * IOException will be thrown
      * @return created package version or null if the creation is not possible
      */
-    public PackageVersion createDetectedVersion(Objectify ofy, Version version,
-            long maxSize) {
-        List<PackageVersion> versions = getSortedVersions(ofy);
+    public PackageVersion createDetectedVersion(Version version, long maxSize) {
+        Objectify ob = ofy();
+        List<PackageVersion> versions = getSortedVersions(ob);
 
         PackageVersion copy;
         PackageVersion pv = null;
@@ -688,7 +687,7 @@ public class Package {
         }
 
         if (hasTag("same-url") && pv != null) {
-            ofy.delete().entities(pv);
+            ob.delete().entities(pv);
 
             // the next call to savePackageVersion will do this
             // NWUtils.incDataVersion();
@@ -708,7 +707,7 @@ public class Package {
             }
         }
 
-        NWUtils.savePackageVersion(ofy, null, copy, true, changeNotReviewed);
+        NWUtils.savePackageVersion(ob, null, copy, true, changeNotReviewed);
 
         return copy;
     }

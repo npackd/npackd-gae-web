@@ -47,7 +47,7 @@ public class StarAction extends Action {
         UserService us = UserServiceFactory.getUserService();
         User u = us.getCurrentUser();
 
-        Editor e = NWUtils.findEditor(ofy, u);
+        Editor e = NWUtils.findEditor(u);
         if (e == null) {
             e = new Editor(u);
         }

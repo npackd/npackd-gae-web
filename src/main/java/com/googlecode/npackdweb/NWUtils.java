@@ -701,11 +701,10 @@ public class NWUtils {
     /**
      * Saves a repository.
      *
-     * @param ofy Objectify
      * @param r repository
      */
-    public static void saveRepository(Objectify ofy, Repository r) {
-        ofy.save().entity(r);
+    public static void saveRepository(Repository r) {
+        ofy().save().entity(r);
         dsCache.incDataVersion();
     }
 
@@ -1216,16 +1215,16 @@ public class NWUtils {
      * @param defaultValue default value returned if the setting does not exist
      * @return setting value
      */
-    public static String getSetting(Objectify ofy, String name,
-            String defaultValue) {
+    public static String getSetting(String name, String defaultValue) {
+        Objectify ob = ofy();
         Setting st =
-                ofy.load().key(Key.create(Setting.class, name)).now();
+                ob.load().key(Key.create(Setting.class, name)).now();
         String value;
         if (st == null) {
             st = new Setting();
             st.name = name;
             st.value = defaultValue;
-            ofy.save().entity(st);
+            ob.save().entity(st);
         }
         value = st.value;
 
@@ -1284,8 +1283,8 @@ public class NWUtils {
      * @param u a user
      * @return editor or null
      */
-    public static Editor findEditor(Objectify ofy, User u) {
-        return ofy.load().key(Key.create(Editor.class, u.getEmail())).now();
+    public static Editor findEditor(User u) {
+        return ofy().load().key(Key.create(Editor.class, u.getEmail())).now();
     }
 
     /**
@@ -1511,7 +1510,7 @@ public class NWUtils {
             Arrays.fill(result, "");
             URL u = new URL(
                     "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" +
-                    getSetting(ofy, "PublicAPIKey", ""));
+                    getSetting("PublicAPIKey", ""));
             URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);

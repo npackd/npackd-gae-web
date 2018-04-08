@@ -34,13 +34,13 @@ public class StarFragmentPage extends Page {
             throws IOException {
         Objectify ofy = ofy();
         com.googlecode.npackdweb.db.Package p =
-                com.googlecode.npackdweb.db.Package.findByName(ofy, package_);
+                com.googlecode.npackdweb.db.Package.findByName(package_);
         HTMLWriter w = new HTMLWriter();
         UserService us = UserServiceFactory.getUserService();
         final User u = us.getCurrentUser();
         Editor e = null;
         if (u != null) {
-            e = NWUtils.findEditor(ofy, u);
+            e = NWUtils.findEditor(u);
         }
 
         NWUtils.star(w, p.name, e != null && e.starredPackages.contains(

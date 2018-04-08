@@ -60,12 +60,11 @@ public class Repository {
     /**
      * Searches for the repository with the given tag.
      *
-     * @param ofy Objectify
      * @param tag tag name
      * @return found repository or null
      */
-    public static Repository findByTag(Objectify ofy, String tag) {
-        return ofy.load().key(Key.create(Repository.class, tag)).now();
+    public static Repository findByTag(String tag) {
+        return ofy().load().key(Key.create(Repository.class, tag)).now();
     }
 
     /**

@@ -214,7 +214,7 @@ public class LicensePage extends MyPage {
             this.modifiedAt = NWUtils.newDate();
         } else {
             Objectify ofy = ofy();
-            License p = License.findByName(ofy, this.id);
+            License p = License.findByName(this.id);
             this.modifiedAt = p.lastModifiedAt;
         }
     }
