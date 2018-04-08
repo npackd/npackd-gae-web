@@ -4,9 +4,6 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.QueryResultIterable;
-import com.google.appengine.api.memcache.ErrorHandlers;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
@@ -29,7 +26,6 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.db.Setting;
-import com.googlecode.npackdweb.db.ShardedCounter;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
@@ -613,31 +609,6 @@ public class NWUtils {
     }
 
     /**
-     * @return the number of packages
-     */
-    public static int countPackages() {
-        final String key =
-                NWUtils.class.getName() + ".countPackages@" +
-                dsCache.getDataVersion();
-        MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-        syncCache.setErrorHandler(ErrorHandlers
-                .getConsistentLogAndContinue(Level.INFO));
-        Integer value = (Integer) syncCache.get(key); // read from cache
-        if (value == null) {
-            ShardedCounter sc =
-                    ShardedCounter.getOrCreateCounter("NumberOfPackages", 2);
-            value = sc.getCount();
-            if (sc.getCount() == 0) {
-                Objectify ofy = ofy();
-                sc.increment(ofy.load().type(Package.class).count());
-                value = sc.getCount();
-            }
-            syncCache.put(key, value); // populate cache
-        }
-        return value;
-    }
-
-    /**
      * @return true if an admin is logged in
      */
     public static boolean isAdminLoggedIn() {
@@ -684,27 +655,6 @@ public class NWUtils {
     }
 
     /**
-     * Increments the counter for the number of packages.
-     */
-    public static void increasePackageNumber() {
-        ShardedCounter sc =
-                ShardedCounter.getOrCreateCounter("NumberOfPackages", 2);
-        sc.increment();
-    }
-
-    /**
-     * Decrements the counter for the number of packages.
-     */
-    public static void decrementPackageNumber() {
-        ShardedCounter sc =
-                ShardedCounter.getOrCreateCounter("NumberOfPackages", 2);
-        sc.decrement();
-        if (sc.getCount() < 0) {
-            sc.increment(-sc.getCount());
-        }
-    }
-
-    /**
      * @return index for packages
      */
     public static Index getIndex() {
@@ -736,9 +686,6 @@ public class NWUtils {
      */
     public static void savePackage(Objectify ofy, Package old, Package p,
             boolean changeLastModifiedAt) {
-        if (ofy.load().key(p.createKey()).now() == null) {
-            NWUtils.increasePackageNumber();
-        }
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
             p.lastModifiedBy = UserServiceFactory.getUserService().
@@ -880,7 +827,6 @@ public class NWUtils {
                 ofy.load().type(PackageVersion.class).filter("package_ =", name)
                 .keys();
         ofy.delete().keys(k);
-        NWUtils.decrementPackageNumber();
         Index index = NWUtils.getIndex();
         index.delete(p.name);
         dsCache.incDataVersion();
@@ -1393,9 +1339,6 @@ public class NWUtils {
      */
     public static void saveLicense(Objectify ofy, License p,
             boolean changeLastModifiedAt) {
-        if (ofy.load().key(p.createKey()).now() == null) {
-            NWUtils.increasePackageNumber();
-        }
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
         }

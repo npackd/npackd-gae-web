@@ -8,9 +8,9 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
@@ -27,10 +27,10 @@ public class DatastoreCache {
     private long dataVersion;
 
     private Map<String, Package> packagesCache =
-            new ConcurrentHashMap<>();
+            new HashMap<>();
 
     private Map<String, License> licensesCache =
-            new ConcurrentHashMap<>();
+            new HashMap<>();
 
     /**
      * Increments the version of the data.
