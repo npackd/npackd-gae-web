@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
@@ -28,7 +27,7 @@ public class RepAddAction extends Action {
         Repository r = new Repository();
         r.name = req.getParameter("title");
         Objectify ofy = ofy();
-        DatastoreCache.saveRepository(r);
+        NWUtils.dsCache.saveRepository(r);
 
         resp.sendRedirect("/rep");
         return null;

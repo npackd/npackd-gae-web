@@ -2,7 +2,6 @@ package com.googlecode.npackdweb.api;
 
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -26,7 +25,7 @@ public class TagPackageVersionAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        String pw = DatastoreCache.getSetting("MarkTestedPassword", "");
+        String pw = NWUtils.dsCache.getSetting("MarkTestedPassword", "");
         if (pw == null) {
             pw = "";
         }
@@ -61,7 +60,7 @@ public class TagPackageVersionAction extends Action {
         } else {
             r.tags.remove(name);
         }
-        DatastoreCache.savePackageVersion(oldr, r, false, false);
+        NWUtils.dsCache.savePackageVersion(oldr, r, false, false);
 
         return null;
     }

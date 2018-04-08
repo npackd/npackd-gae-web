@@ -4,7 +4,6 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -41,7 +40,7 @@ public class StarAction extends Action {
         UserService us = UserServiceFactory.getUserService();
         User u = us.getCurrentUser();
 
-        Editor e = DatastoreCache.findEditor(u);
+        Editor e = NWUtils.dsCache.findEditor(u);
         if (e == null) {
             e = new Editor(u);
         }

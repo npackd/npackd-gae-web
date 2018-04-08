@@ -3,7 +3,6 @@ package com.googlecode.npackdweb.pv;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.NWUtils.Info;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -44,7 +43,7 @@ public class PackageVersionComputeSHA1Action extends Action {
             try {
                 Info info = p.check(false, "SHA-1");
                 p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-                DatastoreCache.savePackageVersion(oldp, p, true, true);
+                NWUtils.dsCache.savePackageVersion(oldp, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
             } catch (IOException e) {

@@ -1,6 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -134,14 +133,14 @@ public class RepUploadAction extends Action {
                         License existing = ofy.load().key(lic.createKey()).now();
                         if (existing != null) {
                             if (overwrite) {
-                                DatastoreCache.saveLicense(lic, true);
+                                NWUtils.dsCache.saveLicense(lic, true);
                                 stats.licOverwritten++;
                             } else {
                                 messages.add("The license " + lic.name +
                                         " exists already. It will not be overwritten.");
                             }
                         } else {
-                            DatastoreCache.saveLicense(lic, true);
+                            NWUtils.dsCache.saveLicense(lic, true);
                             stats.licAppended++;
                         }
                     }
@@ -209,7 +208,7 @@ public class RepUploadAction extends Action {
 
                     if (existing != null) {
                         if (overwrite) {
-                            DatastoreCache.
+                            NWUtils.dsCache.
                                     savePackageVersion(existing, pv, true,
                                             true);
                             stats.pvOverwritten++;
@@ -219,7 +218,7 @@ public class RepUploadAction extends Action {
                                     " exists already. It will not be overwritten.");
                         }
                     } else {
-                        DatastoreCache.savePackageVersion(null, pv, true, true);
+                        NWUtils.dsCache.savePackageVersion(null, pv, true, true);
                         stats.pvAppended++;
                     }
                 }

@@ -2,7 +2,6 @@ package com.googlecode.npackdweb.license;
 
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -40,7 +39,7 @@ public class LicenseSaveAction extends Action {
                         "You do not have permission to modify this license");
             }
             pdp.fillObject(p);
-            DatastoreCache.saveLicense(p, true);
+            NWUtils.dsCache.saveLicense(p, true);
             pdp = null;
             resp.sendRedirect("/l/" + p.name);
         } else {

@@ -2,7 +2,6 @@ package com.googlecode.npackdweb.pv;
 
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -53,7 +52,7 @@ public class PackageVersionSaveAction extends Action {
 
                 pvp.fillObject(p);
 
-                DatastoreCache.savePackageVersion(old, p, true, true);
+                NWUtils.dsCache.savePackageVersion(old, p, true, true);
 
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;

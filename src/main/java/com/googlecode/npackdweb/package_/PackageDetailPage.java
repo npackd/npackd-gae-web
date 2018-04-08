@@ -8,7 +8,6 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackagesPage;
 import com.googlecode.npackdweb.QueryCache;
 import com.googlecode.npackdweb.Version;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -829,7 +828,7 @@ public class PackageDetailPage extends MyPage {
             this.starFilled = false;
             User u = UserServiceFactory.getUserService().getCurrentUser();
             if (u != null) {
-                Editor e = DatastoreCache.findEditor(u);
+                Editor e = NWUtils.dsCache.findEditor(u);
                 if (e != null && e.starredPackages.contains(id)) {
                     starFilled = true;
                 }
@@ -1009,7 +1008,7 @@ public class PackageDetailPage extends MyPage {
         this.starFilled = false;
         User u = UserServiceFactory.getUserService().getCurrentUser();
         if (u != null) {
-            Editor e = DatastoreCache.findEditor(u);
+            Editor e = NWUtils.dsCache.findEditor(u);
             if (e != null && e.starredPackages.contains(id)) {
                 starFilled = true;
             }

@@ -674,7 +674,7 @@ public class Package {
             }
         }
 
-        DatastoreCache.savePackageVersion(null, copy, true, changeNotReviewed);
+        NWUtils.dsCache.savePackageVersion(null, copy, true, changeNotReviewed);
 
         return copy;
     }

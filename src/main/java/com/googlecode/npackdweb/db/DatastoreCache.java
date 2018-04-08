@@ -28,6 +28,19 @@ import java.util.logging.Level;
  */
 public class DatastoreCache {
 
+    private ReentrantLock lock = new ReentrantLock();
+
+    /**
+     * version of the data (versions, packages, licenses): 0, 1, ...
+     */
+    private long dataVersion;
+
+    private Map<String, Package> packagesCache =
+            new HashMap<>();
+
+    private Map<String, License> licensesCache =
+            new HashMap<>();
+
     /**
      * Saves a package. The package can be new or an already existing one. The
      * total number of packages and the index will be automatically updated.
@@ -44,7 +57,7 @@ public class DatastoreCache {
                     UserServiceFactory.getUserService().getCurrentUser();
         }
         ofy().save().entity(p);
-        NWUtils.dsCache.incDataVersion();
+        incDataVersion();
         Index index = NWUtils.getIndex();
         index.put(p.createDocument());
     }
@@ -54,12 +67,12 @@ public class DatastoreCache {
      *
      * @param e editor
      */
-    public static void saveEditor(Editor e) {
+    public void saveEditor(Editor e) {
         if (e.id <= 0) {
             e.createId();
         }
         ofy().save().entity(e);
-        NWUtils.dsCache.incDataVersion();
+        incDataVersion();
     }
 
     /**
@@ -68,12 +81,12 @@ public class DatastoreCache {
      * @param p license
      * @param changeLastModifiedAt true = change the last modification time
      */
-    public static void saveLicense(License p, boolean changeLastModifiedAt) {
+    public void saveLicense(License p, boolean changeLastModifiedAt) {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
         }
         ofy().save().entity(p);
-        NWUtils.dsCache.incDataVersion();
+        incDataVersion();
     }
 
     /**
@@ -83,7 +96,7 @@ public class DatastoreCache {
      * @param defaultValue default value returned if the setting does not exist
      * @return setting value
      */
-    public static String getSetting(String name, String defaultValue) {
+    public String getSetting(String name, String defaultValue) {
         Objectify ob = ofy();
         Setting st = ob.load().key(Key.create(Setting.class, name)).now();
         String value;
@@ -105,7 +118,7 @@ public class DatastoreCache {
      * @param changeLastModified last modified at/by will be changed, if true
      * @param changeNotReviewed not-reviewed tag will be changed, if true
      */
-    public static void savePackageVersion(
+    public void savePackageVersion(
             PackageVersion old, PackageVersion p, boolean changeLastModified,
             boolean changeNotReviewed) {
         if (changeLastModified) {
@@ -146,7 +159,7 @@ public class DatastoreCache {
      *
      * @param r repository
      */
-    public static void saveRepository(Repository r) {
+    public void saveRepository(Repository r) {
         ofy().save().entity(r);
         NWUtils.dsCache.incDataVersion();
     }
@@ -155,8 +168,9 @@ public class DatastoreCache {
      * Searches for an editor.
      *
      * @param u a user
+     * @return the found editor or null
      */
-    public static Editor findEditor(User u) {
+    public Editor findEditor(User u) {
         return ofy().load().key(Key.create(Editor.class, u.getEmail())).now();
     }
 
@@ -175,7 +189,7 @@ public class DatastoreCache {
                 p.starred++;
                 savePackage(oldp, p, false);
                 e.starredPackages.add(p.name);
-                DatastoreCache.saveEditor(e);
+                NWUtils.dsCache.saveEditor(e);
             }
         } else {
             if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
@@ -186,23 +200,10 @@ public class DatastoreCache {
                 }
                 savePackage(oldp, p, false);
                 e.starredPackages.remove(p.name);
-                DatastoreCache.saveEditor(e);
+                NWUtils.dsCache.saveEditor(e);
             }
         }
     }
-
-    private ReentrantLock lock = new ReentrantLock();
-
-    /**
-     * version of the data (versions, packages, licenses): 0, 1, ...
-     */
-    private long dataVersion;
-
-    private Map<String, Package> packagesCache =
-            new HashMap<>();
-
-    private Map<String, License> licensesCache =
-            new HashMap<>();
 
     /**
      * @return all defined repositories

@@ -5,7 +5,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -71,7 +70,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 copy.createdBy = us.getCurrentUser();
                 copy.addTag("untested");
 
-                DatastoreCache.savePackageVersion(null, copy, true, true);
+                NWUtils.dsCache.savePackageVersion(null, copy, true, true);
                 resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
                 page = null;
             }

@@ -9,7 +9,6 @@ import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.common.primitives.Bytes;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -64,7 +63,7 @@ public class PackageVersionRecognizeAction extends Action {
                 page = new MessagePage(err);
             } else {
                 p.addTag("untested");
-                DatastoreCache.savePackageVersion(oldp, p, true, true);
+                NWUtils.dsCache.savePackageVersion(oldp, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
             }

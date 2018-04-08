@@ -954,7 +954,6 @@ public class NWUtils {
         return d;
     }
 
-
     /**
      * Information about a downloaded file
      */
@@ -1071,7 +1070,7 @@ public class NWUtils {
             Editor e = ofy().load().key(Key.create(Editor.class, email)).now();
             if (e == null) {
                 e = new Editor(email2user(email));
-                DatastoreCache.saveEditor(e);
+                NWUtils.dsCache.saveEditor(e);
             }
             String before = email.substring(0, index);
             if (before.length() > 10) {
@@ -1325,7 +1324,7 @@ public class NWUtils {
             Arrays.fill(result, "");
             URL u = new URL(
                     "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" +
-                    DatastoreCache.getSetting("PublicAPIKey", ""));
+                    NWUtils.dsCache.getSetting("PublicAPIKey", ""));
             URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);

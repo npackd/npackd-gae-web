@@ -5,7 +5,6 @@ import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -50,7 +49,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name + " " + pv.url);
-            DatastoreCache.savePackageVersion(oldpv, pv, true, false);
+            NWUtils.dsCache.savePackageVersion(oldpv, pv, true, false);
         }
     }
 
@@ -76,7 +75,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name + " " + pv.url);
-            DatastoreCache.savePackageVersion(oldpv, pv, true, false);
+            NWUtils.dsCache.savePackageVersion(oldpv, pv, true, false);
         }
     }
 
@@ -98,7 +97,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name);
-            DatastoreCache.savePackageVersion(oldpv, pv, true, false);
+            NWUtils.dsCache.savePackageVersion(oldpv, pv, true, false);
         }
     }
 
@@ -145,7 +144,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name);
-            DatastoreCache.savePackageVersion(oldpv, pv, true, false);
+            NWUtils.dsCache.savePackageVersion(oldpv, pv, true, false);
         }
     }
 
