@@ -3,6 +3,7 @@ package com.googlecode.npackdweb.db;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -68,10 +69,9 @@ public class Repository {
     }
 
     /**
-     * @param ofy Objectify instance
      * @return all defined repositories
      */
-    public static List<Repository> findAll(Objectify ofy) {
-        return ofy.load().type(Repository.class).list();
+    public static List<Repository> findAll() {
+        return ofy().load().type(Repository.class).list();
     }
 }

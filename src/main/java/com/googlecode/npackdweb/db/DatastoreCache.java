@@ -145,16 +145,19 @@ public class DatastoreCache {
      * Returns a license by its ID.
      *
      * @param id internal license ID
+     * @param useCache true = use the cache
      * @return found license or null
      */
-    public License getLicense(String id) {
+    public License getLicense(String id, boolean useCache) {
         License ret = null;
 
-        lock.lock();
-        try {
-            ret = licensesCache.get(id);
-        } finally {
-            lock.unlock();
+        if (useCache) {
+            lock.lock();
+            try {
+                ret = licensesCache.get(id);
+            } finally {
+                lock.unlock();
+            }
         }
 
         if (ret == null) {
@@ -165,6 +168,57 @@ public class DatastoreCache {
                 lock.lock();
                 try {
                     licensesCache.put(id, ret);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+
+        if (ret != null) {
+            ret = ret.copy();
+        }
+
+        return ret;
+    }
+
+    /**
+     * Returns a package version by its ID.
+     *
+     * @param id internal package version ID
+     * @return found package version or null
+     */
+    public PackageVersion getPackageVersion(String id) {
+        return ofy().load().key(Key.create(
+                PackageVersion.class, id)).now();
+    }
+
+    /**
+     * Returns a package by its ID.
+     *
+     * @param id internal package ID
+     * @param useCache true = use cache
+     * @return found package or null
+     */
+    public Package getPackage(String id, boolean useCache) {
+        Package ret = null;
+
+        if (useCache) {
+            lock.lock();
+            try {
+                ret = packagesCache.get(id);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        if (ret == null) {
+            ret = ofy().load().key(Key.create(Package.class, id)).
+                    now();
+
+            if (ret != null) {
+                lock.lock();
+                try {
+                    packagesCache.put(id, ret);
                 } finally {
                     lock.unlock();
                 }

@@ -8,6 +8,7 @@ import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -477,14 +478,13 @@ public class PackageVersion {
     }
 
     /**
-     * @param ofy Objectify instance
      * @param tag a tag to filter the package versions or null
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
      * @return first 20 package versions with errors downloading the binary
      */
-    public static List<PackageVersion> find20PackageVersions(Objectify ofy,
+    public static List<PackageVersion> find20PackageVersions(
             String tag, String order) {
-        Query<PackageVersion> q = ofy.load().type(PackageVersion.class).
+        Query<PackageVersion> q = ofy().load().type(PackageVersion.class).
                 limit(20);
         if (tag != null) {
             q = q.filter("tags ==", tag);

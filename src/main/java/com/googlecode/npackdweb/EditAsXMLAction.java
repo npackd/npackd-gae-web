@@ -6,9 +6,6 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,15 +38,12 @@ public class EditAsXMLAction extends Action {
 
         Document d = NWUtils.newXMLRepository(false);
 
-        Objectify ofy = ofy();
         Element root = d.getDocumentElement();
         String tag = "";
 
         switch (type) {
             case "version": {
-                PackageVersion r =
-                        ofy.load().key(Key.create(
-                                        PackageVersion.class, id)).now();
+                PackageVersion r = NWUtils.dsCache.getPackageVersion(id);
                 Element e = r.toXML(d);
                 if (r.tags.size() > 0) {
                     tag = r.tags.get(0);
@@ -58,15 +52,13 @@ public class EditAsXMLAction extends Action {
                 break;
             }
             case "package": {
-                Package r = ofy.load().key(Key.create(Package.class, id)).
-                        now();
+                Package r = NWUtils.dsCache.getPackage(id, false);
                 Element e = r.toXML(d);
                 root.appendChild(e);
                 break;
             }
             case "license": {
-                License r = ofy.load().key(Key.create(License.class, id)).
-                        now();
+                License r = NWUtils.dsCache.getLicense(id, false);
                 Element e = r.toXML(d);
                 root.appendChild(e);
                 break;
@@ -75,15 +67,12 @@ public class EditAsXMLAction extends Action {
                 if (package_ == null) {
                     // nothing. Editing an empty repository.
                 } else if (version == null) {
-                    Package r = ofy.load().key(Key.create(Package.class,
-                            package_)).now();
+                    Package r = NWUtils.dsCache.getPackage(package_, false);
                     Element e = r.toXML(d);
                     root.appendChild(e);
                 } else {
-                    PackageVersion r =
-                            ofy.load().key(Key.create(
-                                            PackageVersion.class,
-                                            package_ + "@" + version)).now();
+                    PackageVersion r = NWUtils.dsCache.getPackageVersion(
+                            package_ + "@" + version);
                     Element e = r.toXML(d);
                     if (r.tags.size() > 0) {
                         tag = r.tags.get(0);

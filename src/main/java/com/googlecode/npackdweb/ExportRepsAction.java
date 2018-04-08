@@ -43,10 +43,9 @@ public class ExportRepsAction extends Action {
                 GcsServiceFactory.createGcsService(RetryParams
                         .getDefaultInstance());
 
-        Objectify ofy = ofy();
-        List<Repository> rs = Repository.findAll(ofy);
+        List<Repository> rs = Repository.findAll();
         for (Repository r : rs) {
-            export(gcsService, ofy, r.name, true);
+            export(gcsService, r.name, true);
         }
         resp.setStatus(200);
         return null;
@@ -56,15 +55,15 @@ public class ExportRepsAction extends Action {
      * Exports a repository.
      *
      * @param gcsService GCS
-     * @param ob Objectify instance
      * @param tag tag for package versions. Cannot be null.
      * @param recreate true = recreate the repository if it already exists
      * @return the repository with blobFile != null
      * @throws java.io.IOException any error
      */
-    public static Repository export(GcsService gcsService, Objectify ob,
+    public static Repository export(GcsService gcsService,
             String tag, boolean recreate)
             throws IOException {
+        Objectify ob = ofy();
         Repository r = ob.load().key(Key.create(Repository.class, tag)).now();
         if (r == null) {
             r = new Repository();
