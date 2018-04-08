@@ -76,7 +76,7 @@ public class CheckUpdatesAction extends Action {
 
             if (noUpdatesCheck != null || data.noUpdatesCheck != null) {
                 data.noUpdatesCheck = noUpdatesCheck;
-                NWUtils.savePackage(ob, old, data, false);
+                NWUtils.savePackage(old, data, false);
             }
 
             NWUtils.LOG.log(Level.INFO, "check-update noUpdatesCheck= {0}",

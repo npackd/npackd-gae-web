@@ -49,7 +49,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name + " " + pv.url);
-            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
+            NWUtils.savePackageVersion(oldpv, pv, true, false);
         }
     }
 
@@ -75,7 +75,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name + " " + pv.url);
-            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
+            NWUtils.savePackageVersion(oldpv, pv, true, false);
         }
     }
 
@@ -97,7 +97,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name);
-            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
+            NWUtils.savePackageVersion(oldpv, pv, true, false);
         }
     }
 
@@ -144,7 +144,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
         if (save) {
             System.out.println("Saving " + pv.name);
-            NWUtils.savePackageVersion(ofy, oldpv, pv, true, false);
+            NWUtils.savePackageVersion(oldpv, pv, true, false);
         }
     }
 

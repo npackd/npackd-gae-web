@@ -654,8 +654,7 @@ public class PackageDetailPage extends MyPage {
                         if (NWUtils.isEqual(u, p.permissions.get(i))) {
                             w.t(u.getEmail());
                         } else {
-                            w.unencoded(NWUtils.obfuscateEmail(ofy,
-                                    p.permissions.get(i).getEmail(), request.
+                            w.unencoded(NWUtils.obfuscateEmail(                                    p.permissions.get(i).getEmail(), request.
                                     getServerName()));
                         }
                     }
@@ -677,7 +676,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.e("td", "Last modified by:");
         w.start("td");
-        w.unencoded(NWUtils.obfuscateEmail(ofy, params.get("modifiedBy"),
+        w.unencoded(NWUtils.obfuscateEmail(params.get("modifiedBy"),
                 request.getServerName()));
         w.end("td");
         w.end("tr");
@@ -692,8 +691,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.e("td", "Created by:");
         w.start("td");
-        w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(ofy,
-                createdBy.getEmail(), request.getServerName()) : "");
+        w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(                createdBy.getEmail(), request.getServerName()) : "");
         w.end("td");
         w.end("tr");
 

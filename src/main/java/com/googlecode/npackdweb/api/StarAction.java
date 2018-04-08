@@ -52,7 +52,7 @@ public class StarAction extends Action {
             e = new Editor(u);
         }
 
-        NWUtils.starPackage(ofy, p, e, star);
+        NWUtils.starPackage(p, e, star);
 
         return null;
     }

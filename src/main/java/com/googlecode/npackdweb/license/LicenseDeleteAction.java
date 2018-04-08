@@ -37,7 +37,7 @@ public class LicenseDeleteAction extends Action {
                     new MessagePage(
                             "You do not have permission to modify this license");
         } else {
-            NWUtils.deleteLicense(ofy, name);
+            NWUtils.deleteLicense(name);
             resp.sendRedirect("/l");
             page = null;
         }

@@ -43,7 +43,7 @@ public class LicenseSaveAction extends Action {
                         "You do not have permission to modify this license");
             }
             pdp.fillObject(p);
-            NWUtils.saveLicense(ofy, p, true);
+            NWUtils.saveLicense(p, true);
             pdp = null;
             resp.sendRedirect("/l/" + p.name);
         } else {

@@ -67,7 +67,7 @@ public class TagPackageVersionAction extends Action {
         } else {
             r.tags.remove(name);
         }
-        NWUtils.savePackageVersion(ofy, oldr, r, false, false);
+        NWUtils.savePackageVersion(oldr, r, false, false);
 
         return null;
     }

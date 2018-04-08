@@ -44,7 +44,7 @@ public class PackageDeleteConfirmedAction extends Action {
             User u = us.getCurrentUser();
 
             String message = req.getParameter("message");
-            NWUtils.deletePackage(ofy, name);
+            NWUtils.deletePackage(name);
             if (message != null) {
                 if (!NWUtils.isEqual(r.createdBy, u)) {
                     NWUtils.sendMailTo("The package " + r.title + " (" +

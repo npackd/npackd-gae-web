@@ -58,7 +58,7 @@ public class PackageVersionSaveAction extends Action {
 
                 pvp.fillObject(p);
 
-                NWUtils.savePackageVersion(ofy, old, p, true, true);
+                NWUtils.savePackageVersion(old, p, true, true);
 
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;

@@ -35,7 +35,7 @@ public class AddEditorConfirmedAction extends Action {
         if (err == null) {
             Editor e = new Editor(NWUtils.email2user(p.email));
             Objectify ofy = ofy();
-            NWUtils.saveEditor(ofy, e);
+            NWUtils.saveEditor(e);
             res = new MessagePage("Editor " + p.email +
                     " was added successfully");
         } else {

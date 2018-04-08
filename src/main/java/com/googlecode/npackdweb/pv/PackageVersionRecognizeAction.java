@@ -68,7 +68,7 @@ public class PackageVersionRecognizeAction extends Action {
                 page = new MessagePage(err);
             } else {
                 p.addTag("untested");
-                NWUtils.savePackageVersion(ofy, oldp, p, true, true);
+                NWUtils.savePackageVersion(oldp, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
             }

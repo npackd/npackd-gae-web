@@ -679,12 +679,11 @@ public class NWUtils {
      * Saves a package. The package can be new or an already existing one. The
      * total number of packages and the index will be automatically updated.
      *
-     * @param ofy Objectify
      * @param old old version of the package object or null
      * @param p package
      * @param changeLastModifiedAt change the last modification time
      */
-    public static void savePackage(Objectify ofy, Package old, Package p,
+    public static void savePackage(Package old, Package p,
             boolean changeLastModifiedAt) {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
@@ -692,7 +691,7 @@ public class NWUtils {
                     getCurrentUser();
         }
 
-        ofy.save().entity(p);
+        ofy().save().entity(p);
         dsCache.incDataVersion();
         Index index = NWUtils.getIndex();
         index.put(p.createDocument());
@@ -733,14 +732,12 @@ public class NWUtils {
     /**
      * Saves a package version.
      *
-     * @param ofy Objectify
      * @param old previous state in the database or null if not existent
      * @param p package version
      * @param changeLastModified last modified at/by will be changed, if true
      * @param changeNotReviewed not-reviewed tag will be changed, if true
      */
-    public static void savePackageVersion(Objectify ofy, PackageVersion old,
-            PackageVersion p,
+    public static void savePackageVersion(PackageVersion old, PackageVersion p,
             boolean changeLastModified, boolean changeNotReviewed) {
         if (changeLastModified) {
             p.lastModifiedAt = NWUtils.newDate();
@@ -776,7 +773,7 @@ public class NWUtils {
                 }
             }
         }
-        ofy.save().entity(p);
+        ofy().save().entity(p);
         dsCache.incDataVersion();
     }
 
@@ -816,16 +813,16 @@ public class NWUtils {
     /**
      * Deletes a package
      *
-     * @param ofy Objectify
      * @param name package name
      */
-    public static void deletePackage(Objectify ofy, String name) {
-        Package p = ofy.load().key(Key.create(Package.class, name)).now();
-        ofy.delete().entity(p);
+    public static void deletePackage(String name) {
+        Objectify ob = ofy();
+        Package p = ob.load().key(Key.create(Package.class, name)).now();
+        ob.delete().entity(p);
         QueryResultIterable<Key<PackageVersion>> k =
-                ofy.load().type(PackageVersion.class).filter("package_ =", name)
+                ob.load().type(PackageVersion.class).filter("package_ =", name)
                 .keys();
-        ofy.delete().keys(k);
+        ob.delete().keys(k);
         Index index = NWUtils.getIndex();
         index.delete(p.name);
         dsCache.incDataVersion();
@@ -1041,21 +1038,19 @@ public class NWUtils {
     /**
      * Adds or removes a star from a package
      *
-     * @param ofy Objectify
      * @param p a package
      * @param e an editor/user
      * @param star true = star, false = unstar
      */
-    public static void starPackage(Objectify ofy, Package p, Editor e,
-            boolean star) {
+    public static void starPackage(Package p, Editor e, boolean star) {
         if (star) {
             if (e.starredPackages.indexOf(p.name) < 0) {
                 com.googlecode.npackdweb.db.Package oldp = p.copy();
                 p.starred++;
-                NWUtils.savePackage(ofy, oldp, p, false);
+                NWUtils.savePackage(oldp, p, false);
 
                 e.starredPackages.add(p.name);
-                NWUtils.saveEditor(ofy, e);
+                NWUtils.saveEditor(e);
             }
         } else {
             if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
@@ -1064,10 +1059,10 @@ public class NWUtils {
                 if (p.starred < 0) {
                     p.starred = 0;
                 }
-                NWUtils.savePackage(ofy, oldp, p, false);
+                NWUtils.savePackage(oldp, p, false);
 
                 e.starredPackages.remove(p.name);
-                NWUtils.saveEditor(ofy, e);
+                NWUtils.saveEditor(e);
             }
         }
     }
@@ -1177,20 +1172,18 @@ public class NWUtils {
     /**
      * Changes an email address so it cannot be easily parsed.
      *
-     * @param ob Objectify
      * @param email an email address
      * @param domain server domain
      * @return HTML. abc dot def at bla dot com
      */
-    public static String obfuscateEmail(Objectify ob, String email,
-            String domain) {
+    public static String obfuscateEmail(String email, String domain) {
         HTMLWriter w = new HTMLWriter();
         int index = email.indexOf('@');
         if (index > 0) {
-            Editor e = ob.load().key(Key.create(Editor.class, email)).now();
+            Editor e = ofy().load().key(Key.create(Editor.class, email)).now();
             if (e == null) {
                 e = new Editor(email2user(email));
-                saveEditor(ob, e);
+                saveEditor(e);
             }
             String before = email.substring(0, index);
             if (before.length() > 10) {
@@ -1210,7 +1203,6 @@ public class NWUtils {
     /**
      * Reads a setting
      *
-     * @param ofy Objectify
      * @param name setting name
      * @param defaultValue default value returned if the setting does not exist
      * @return setting value
@@ -1234,19 +1226,19 @@ public class NWUtils {
     /**
      * Writes a setting
      *
-     * @param ofy Objectify
      * @param name setting name
      * @param value new setting value
      */
-    public static void setSetting(Objectify ofy, String name, String value) {
+    public static void setSetting(String name, String value) {
+        Objectify ob = ofy();
         Setting st =
-                ofy.load().key(Key.create(Setting.class, name)).now();
+                ob.load().key(Key.create(Setting.class, name)).now();
         if (st == null) {
             st = new Setting();
             st.name = name;
         }
         st.value = value;
-        ofy.save().entity(st);
+        ob.save().entity(st);
     }
 
     /**
@@ -1265,23 +1257,20 @@ public class NWUtils {
     /**
      * Saves an editor.
      *
-     * @param ofy Objectify
      * @param e editor
      */
-    public static void saveEditor(Objectify ofy, Editor e) {
+    public static void saveEditor(Editor e) {
         if (e.id <= 0) {
             e.createId();
         }
-        ofy.save().entity(e);
+        ofy().save().entity(e);
         dsCache.incDataVersion();
     }
 
     /**
      * Searches for an editor.
      *
-     * @param ofy Objectify
      * @param u a user
-     * @return editor or null
      */
     public static Editor findEditor(User u) {
         return ofy().load().key(Key.create(Editor.class, u.getEmail())).now();
@@ -1320,28 +1309,26 @@ public class NWUtils {
     /**
      * Deletes a license
      *
-     * @param ofy Objectify
      * @param name license ID
      */
-    public static void deleteLicense(Objectify ofy, String name) {
-        License p = ofy.load().key(Key.create(License.class, name)).now();
-        ofy.delete().entity(p);
+    public static void deleteLicense(String name) {
+        Objectify ob = ofy();
+        License p = ob.load().key(Key.create(License.class, name)).now();
+        ob.delete().entity(p);
         dsCache.incDataVersion();
     }
 
     /**
      * Saves a license
      *
-     * @param ofy Objectify
      * @param p license
      * @param changeLastModifiedAt true = change the last modification time
      */
-    public static void saveLicense(Objectify ofy, License p,
-            boolean changeLastModifiedAt) {
+    public static void saveLicense(License p, boolean changeLastModifiedAt) {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
         }
-        ofy.save().entity(p);
+        ofy().save().entity(p);
         dsCache.incDataVersion();
     }
 
@@ -1468,7 +1455,6 @@ public class NWUtils {
     /**
      * Checks URLs using the Google Safe Browsing Lookup API
      *
-     * @param ofy Objectify
      * @param urls this URLs will be checked. At most 500 URLs can be processed
      * at once.
      * @return threat types or empty strings if everything is OK.
@@ -1479,7 +1465,7 @@ public class NWUtils {
      * @throws java.io.IOException there was a communication problem, the server
      * is unavailable, over quota or something different.
      */
-    public static String[] checkURLs(Objectify ofy, String urls[]) throws
+    public static String[] checkURLs(String[] urls) throws
             IOException {
         String[] result = new String[urls.length];
 

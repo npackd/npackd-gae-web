@@ -707,7 +707,7 @@ public class Package {
             }
         }
 
-        NWUtils.savePackageVersion(ob, null, copy, true, changeNotReviewed);
+        NWUtils.savePackageVersion(null, copy, true, changeNotReviewed);
 
         return copy;
     }

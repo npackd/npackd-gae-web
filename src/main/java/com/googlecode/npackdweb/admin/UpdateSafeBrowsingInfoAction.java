@@ -82,7 +82,7 @@ public class UpdateSafeBrowsingInfoAction extends Action {
                     urls[i] = "https://www.google.com";
                 }
             }
-            String[] results = NWUtils.checkURLs(ob, urls);
+            String[] results = NWUtils.checkURLs(urls);
             for (int i = 0; i < results.length; i++) {
                 PackageVersion data = list.get(i);
                 PackageVersion old = data.copy();

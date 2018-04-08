@@ -103,7 +103,7 @@ public class NotifyAction extends Action {
             }
         }
 
-        NWUtils.savePackageVersion(ofy, oldr, r, false, false);
+        NWUtils.savePackageVersion(oldr, r, false, false);
 
         return null;
     }

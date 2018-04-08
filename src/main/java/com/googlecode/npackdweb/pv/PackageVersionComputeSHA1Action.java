@@ -48,7 +48,7 @@ public class PackageVersionComputeSHA1Action extends Action {
             try {
                 Info info = p.check(false, "SHA-1");
                 p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-                NWUtils.savePackageVersion(ofy, oldp, p, true, true);
+                NWUtils.savePackageVersion(oldp, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
             } catch (IOException e) {

@@ -133,14 +133,14 @@ public class RepUploadAction extends Action {
                         License existing = ofy.load().key(lic.createKey()).now();
                         if (existing != null) {
                             if (overwrite) {
-                                NWUtils.saveLicense(ofy, lic, true);
+                                NWUtils.saveLicense(lic, true);
                                 stats.licOverwritten++;
                             } else {
                                 messages.add("The license " + lic.name +
                                         " exists already. It will not be overwritten.");
                             }
                         } else {
-                            NWUtils.saveLicense(ofy, lic, true);
+                            NWUtils.saveLicense(lic, true);
                             stats.licAppended++;
                         }
                     }
@@ -166,7 +166,7 @@ public class RepUploadAction extends Action {
                         p.permissions.clear();
                         p.permissions.addAll(p_.permissions);
 
-                        NWUtils.savePackage(ofy, p_, p, true);
+                        NWUtils.savePackage(p_, p, true);
                         stats.pOverwritten++;
                         packagesCache.put(p.name, p);
                     } else {
@@ -175,7 +175,7 @@ public class RepUploadAction extends Action {
                         packagesCache.put(p_.name, p_);
                     }
                 } else {
-                    NWUtils.savePackage(ofy, null, p, true);
+                    NWUtils.savePackage(null, p, true);
                     stats.pAppended++;
                     packagesCache.put(p.name, p);
                 }
@@ -202,13 +202,13 @@ public class RepUploadAction extends Action {
                     if (p == null) {
                         p = new Package(pv.package_);
                         p.title = p.name;
-                        NWUtils.savePackage(ofy, null, p, true);
+                        NWUtils.savePackage(null, p, true);
                         stats.pAppended++;
                     }
 
                     if (existing != null) {
                         if (overwrite) {
-                            NWUtils.savePackageVersion(ofy, existing, pv, true,
+                            NWUtils.savePackageVersion(existing, pv, true,
                                     true);
                             stats.pvOverwritten++;
                         } else {
@@ -217,7 +217,7 @@ public class RepUploadAction extends Action {
                                     " exists already. It will not be overwritten.");
                         }
                     } else {
-                        NWUtils.savePackageVersion(ofy, null, pv, true, true);
+                        NWUtils.savePackageVersion(null, pv, true, true);
                         stats.pvAppended++;
                     }
                 }
