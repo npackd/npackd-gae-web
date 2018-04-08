@@ -540,7 +540,7 @@ public class PackageVersionPage extends MyPage {
             w.start("ul", "itemprop", "requirements");
             for (int i = 0; i < dependencyPackages.size(); i++) {
                 Package dp = NWUtils.dsCache.getPackage(
-                        dependencyPackages.get(i), false);
+                        dependencyPackages.get(i), true);
 
                 w.start("li");
                 w.e("a", "href", "/p/" + dependencyPackages.get(i),
@@ -842,7 +842,7 @@ public class PackageVersionPage extends MyPage {
     public Package getPackage() {
         if (this.package_ == null) {
             this.package_ = NWUtils.dsCache.getPackage(
-                    packageName, false);
+                    packageName, true);
             if (this.package_ == null) {
                 this.package_ = new Package("unknown");
             }
@@ -864,7 +864,7 @@ public class PackageVersionPage extends MyPage {
         if (this.license == null) {
             Package p = getPackage();
             if (!p.license.isEmpty()) {
-                this.license = NWUtils.dsCache.getLicense(p.license, false);
+                this.license = NWUtils.dsCache.getLicense(p.license, true);
                 if (this.license == null) {
                     NWUtils.LOG.log(Level.WARNING,
                             "License {0} not found for {1}", new Object[]{

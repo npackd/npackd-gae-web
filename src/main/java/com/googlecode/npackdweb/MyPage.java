@@ -34,18 +34,35 @@ public abstract class MyPage extends Page {
     @Override
     public final void create(HttpServletRequest request,
             HttpServletResponse resp) throws IOException {
+        NWUtils.LOG.info("Before create");
 
         resp.setContentType("text/html; charset=UTF-8");
         Writer out = resp.getWriter();
 
-        out.write(NWUtils.tmpl("Frame.html", "title", getTitle(), "titleHTML",
-                getTitleHTML(), "content", createContent(request),
-                "head", createHead(),
-                "scripts",
-                getScriptsPart(), "menu", createMenu(request), "error", error,
-                "info", info, "generator", this.getClass().getName(),
-                "bodyBottom", createBodyBottom(request)));
-        out.close();
+        String title = getTitle();
+        String titleHTML = getTitleHTML();
+
+        NWUtils.LOG.info("Before createContent");
+        String content = createContent(request);
+        NWUtils.LOG.info("After createContent");
+
+        String head = createHead();
+        String scriptsPart = getScriptsPart();
+        String menu = createMenu(request);
+        String bodyBottom = createBodyBottom(request);
+
+        NWUtils.LOG.info("Before tmpl");
+        final String r =
+                NWUtils.tmpl("Frame.html", "title", title, "titleHTML",
+                        titleHTML, "content", content,
+                        "head", head,
+                        "scripts",
+                        scriptsPart, "menu", menu, "error", error,
+                        "info", info, "generator", this.getClass().getName(),
+                        "bodyBottom", bodyBottom);
+        NWUtils.LOG.info("After tmpl");
+
+        out.write(r);
     }
 
     /**

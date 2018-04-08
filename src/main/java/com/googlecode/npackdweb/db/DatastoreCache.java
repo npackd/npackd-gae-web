@@ -414,15 +414,17 @@ public class DatastoreCache {
                 }
 
                 Map<Key<Package>, Package> map = obj.load().values(keys);
+                for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
+                    Package p = e.getValue();
+                    if (p != null) {
+                        packages.add(p);
+                    }
+                }
 
                 lock.lock();
                 try {
-                    for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
-                        Package p = e.getValue();
-                        if (p != null) {
-                            packages.add(p);
-                            packagesCache.put(p.name, p);
-                        }
+                    for (Package p : packages) {
+                        packagesCache.put(p.name, p);
                     }
                 } finally {
                     lock.unlock();

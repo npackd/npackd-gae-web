@@ -125,6 +125,7 @@ public class DefaultServlet extends HttpServlet {
             }
 
             if (ok) {
+                NWUtils.LOG.info("Before perform");
                 Page p = found.perform(req, resp);
                 if (p != null) {
                     p.create(req, resp);
