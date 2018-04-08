@@ -6,6 +6,7 @@ import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -68,7 +69,7 @@ public class ExportRepsAction extends Action {
         if (r == null) {
             r = new Repository();
             r.name = tag;
-            NWUtils.saveRepository(r);
+            DatastoreCache.saveRepository(r);
         }
 
         GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
@@ -102,7 +103,7 @@ public class ExportRepsAction extends Action {
                     "/gs/" + fileName.getBucketName() + "/" +
                     fileName.getObjectName();
 
-            NWUtils.saveRepository(r);
+            DatastoreCache.saveRepository(r);
         }
 
         return r;

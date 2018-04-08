@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb;
 
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -133,14 +134,14 @@ public class RepUploadAction extends Action {
                         License existing = ofy.load().key(lic.createKey()).now();
                         if (existing != null) {
                             if (overwrite) {
-                                NWUtils.saveLicense(lic, true);
+                                DatastoreCache.saveLicense(lic, true);
                                 stats.licOverwritten++;
                             } else {
                                 messages.add("The license " + lic.name +
                                         " exists already. It will not be overwritten.");
                             }
                         } else {
-                            NWUtils.saveLicense(lic, true);
+                            DatastoreCache.saveLicense(lic, true);
                             stats.licAppended++;
                         }
                     }
@@ -166,7 +167,7 @@ public class RepUploadAction extends Action {
                         p.permissions.clear();
                         p.permissions.addAll(p_.permissions);
 
-                        NWUtils.savePackage(p_, p, true);
+                        NWUtils.dsCache.savePackage(p_, p, true);
                         stats.pOverwritten++;
                         packagesCache.put(p.name, p);
                     } else {
@@ -175,7 +176,7 @@ public class RepUploadAction extends Action {
                         packagesCache.put(p_.name, p_);
                     }
                 } else {
-                    NWUtils.savePackage(null, p, true);
+                    NWUtils.dsCache.savePackage(null, p, true);
                     stats.pAppended++;
                     packagesCache.put(p.name, p);
                 }
@@ -202,14 +203,15 @@ public class RepUploadAction extends Action {
                     if (p == null) {
                         p = new Package(pv.package_);
                         p.title = p.name;
-                        NWUtils.savePackage(null, p, true);
+                        NWUtils.dsCache.savePackage(null, p, true);
                         stats.pAppended++;
                     }
 
                     if (existing != null) {
                         if (overwrite) {
-                            NWUtils.savePackageVersion(existing, pv, true,
-                                    true);
+                            DatastoreCache.
+                                    savePackageVersion(existing, pv, true,
+                                            true);
                             stats.pvOverwritten++;
                         } else {
                             messages.add("The package version " + pv.package_ +
@@ -217,7 +219,7 @@ public class RepUploadAction extends Action {
                                     " exists already. It will not be overwritten.");
                         }
                     } else {
-                        NWUtils.savePackageVersion(null, pv, true, true);
+                        DatastoreCache.savePackageVersion(null, pv, true, true);
                         stats.pvAppended++;
                     }
                 }

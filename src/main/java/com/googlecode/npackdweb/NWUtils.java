@@ -26,7 +26,6 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.db.Setting;
-import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
@@ -676,38 +675,6 @@ public class NWUtils {
     }
 
     /**
-     * Saves a package. The package can be new or an already existing one. The
-     * total number of packages and the index will be automatically updated.
-     *
-     * @param old old version of the package object or null
-     * @param p package
-     * @param changeLastModifiedAt change the last modification time
-     */
-    public static void savePackage(Package old, Package p,
-            boolean changeLastModifiedAt) {
-        if (changeLastModifiedAt) {
-            p.lastModifiedAt = NWUtils.newDate();
-            p.lastModifiedBy = UserServiceFactory.getUserService().
-                    getCurrentUser();
-        }
-
-        ofy().save().entity(p);
-        dsCache.incDataVersion();
-        Index index = NWUtils.getIndex();
-        index.put(p.createDocument());
-    }
-
-    /**
-     * Saves a repository.
-     *
-     * @param r repository
-     */
-    public static void saveRepository(Repository r) {
-        ofy().save().entity(r);
-        dsCache.incDataVersion();
-    }
-
-    /**
      * Compares 2 users.
      *
      * @param a first user
@@ -727,54 +694,6 @@ public class NWUtils {
      */
     public static boolean isEmailEqual(String a, String b) {
         return a.equalsIgnoreCase(b);
-    }
-
-    /**
-     * Saves a package version.
-     *
-     * @param old previous state in the database or null if not existent
-     * @param p package version
-     * @param changeLastModified last modified at/by will be changed, if true
-     * @param changeNotReviewed not-reviewed tag will be changed, if true
-     */
-    public static void savePackageVersion(PackageVersion old, PackageVersion p,
-            boolean changeLastModified, boolean changeNotReviewed) {
-        if (changeLastModified) {
-            p.lastModifiedAt = NWUtils.newDate();
-            p.lastModifiedBy =
-                    UserServiceFactory.getUserService().getCurrentUser();
-        }
-        if (changeNotReviewed) {
-            if (isAdminLoggedIn()) {
-                if (old != null && old.hasTag("not-reviewed")) {
-                    UserService us = UserServiceFactory.getUserService();
-
-                    if (!isEqual(us.getCurrentUser(), old.lastModifiedBy)) {
-                        NWUtils.sendMailTo("The package version " +
-                                p.getTitle() + " (" +
-                                PackageVersionDetailAction.getURL(p) +
-                                ") was marked as reviewed",
-                                old.lastModifiedBy.getEmail()
-                        );
-                    }
-                }
-
-                // "p" and "old" may be the same object
-                p.tags.remove("not-reviewed");
-            } else {
-                p.addTag("not-reviewed");
-
-                if (old == null || !old.hasTag("not-reviewed")) {
-                    NWUtils.sendMailToAdmin("The package version " +
-                            p.getTitle() + " (" +
-                            PackageVersionDetailAction.getURL(p) +
-                            ") was marked as not reviewed"
-                    );
-                }
-            }
-        }
-        ofy().save().entity(p);
-        dsCache.incDataVersion();
     }
 
     /**
@@ -1035,37 +954,6 @@ public class NWUtils {
         return d;
     }
 
-    /**
-     * Adds or removes a star from a package
-     *
-     * @param p a package
-     * @param e an editor/user
-     * @param star true = star, false = unstar
-     */
-    public static void starPackage(Package p, Editor e, boolean star) {
-        if (star) {
-            if (e.starredPackages.indexOf(p.name) < 0) {
-                com.googlecode.npackdweb.db.Package oldp = p.copy();
-                p.starred++;
-                NWUtils.savePackage(oldp, p, false);
-
-                e.starredPackages.add(p.name);
-                NWUtils.saveEditor(e);
-            }
-        } else {
-            if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
-                com.googlecode.npackdweb.db.Package oldp = p.copy();
-                p.starred--;
-                if (p.starred < 0) {
-                    p.starred = 0;
-                }
-                NWUtils.savePackage(oldp, p, false);
-
-                e.starredPackages.remove(p.name);
-                NWUtils.saveEditor(e);
-            }
-        }
-    }
 
     /**
      * Information about a downloaded file
@@ -1183,7 +1071,7 @@ public class NWUtils {
             Editor e = ofy().load().key(Key.create(Editor.class, email)).now();
             if (e == null) {
                 e = new Editor(email2user(email));
-                saveEditor(e);
+                DatastoreCache.saveEditor(e);
             }
             String before = email.substring(0, index);
             if (before.length() > 10) {
@@ -1198,29 +1086,6 @@ public class NWUtils {
             w.t(email);
         }
         return w.toString();
-    }
-
-    /**
-     * Reads a setting
-     *
-     * @param name setting name
-     * @param defaultValue default value returned if the setting does not exist
-     * @return setting value
-     */
-    public static String getSetting(String name, String defaultValue) {
-        Objectify ob = ofy();
-        Setting st =
-                ob.load().key(Key.create(Setting.class, name)).now();
-        String value;
-        if (st == null) {
-            st = new Setting();
-            st.name = name;
-            st.value = defaultValue;
-            ob.save().entity(st);
-        }
-        value = st.value;
-
-        return value;
     }
 
     /**
@@ -1252,28 +1117,6 @@ public class NWUtils {
                     .length())));
         }
         return sb.toString();
-    }
-
-    /**
-     * Saves an editor.
-     *
-     * @param e editor
-     */
-    public static void saveEditor(Editor e) {
-        if (e.id <= 0) {
-            e.createId();
-        }
-        ofy().save().entity(e);
-        dsCache.incDataVersion();
-    }
-
-    /**
-     * Searches for an editor.
-     *
-     * @param u a user
-     */
-    public static Editor findEditor(User u) {
-        return ofy().load().key(Key.create(Editor.class, u.getEmail())).now();
     }
 
     /**
@@ -1315,20 +1158,6 @@ public class NWUtils {
         Objectify ob = ofy();
         License p = ob.load().key(Key.create(License.class, name)).now();
         ob.delete().entity(p);
-        dsCache.incDataVersion();
-    }
-
-    /**
-     * Saves a license
-     *
-     * @param p license
-     * @param changeLastModifiedAt true = change the last modification time
-     */
-    public static void saveLicense(License p, boolean changeLastModifiedAt) {
-        if (changeLastModifiedAt) {
-            p.lastModifiedAt = NWUtils.newDate();
-        }
-        ofy().save().entity(p);
         dsCache.incDataVersion();
     }
 
@@ -1496,7 +1325,7 @@ public class NWUtils {
             Arrays.fill(result, "");
             URL u = new URL(
                     "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" +
-                    getSetting("PublicAPIKey", ""));
+                    DatastoreCache.getSetting("PublicAPIKey", ""));
             URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);

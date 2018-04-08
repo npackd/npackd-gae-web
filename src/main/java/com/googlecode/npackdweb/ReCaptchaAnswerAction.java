@@ -3,7 +3,7 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
-import static com.googlecode.npackdweb.NWUtils.getSetting;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -38,7 +38,8 @@ public class ReCaptchaAnswerAction extends Action {
 
         Objectify ob = ofy();
 
-        String secretParameter = getSetting("ReCaptchaPrivateKey", "");
+        String secretParameter = DatastoreCache.
+                getSetting("ReCaptchaPrivateKey", "");
         String recap = req.getParameter("g-recaptcha-response");
         URLFetchService us = URLFetchServiceFactory.getURLFetchService();
         URL url = new URL(

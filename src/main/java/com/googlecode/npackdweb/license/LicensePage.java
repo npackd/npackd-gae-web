@@ -5,9 +5,6 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
@@ -234,9 +231,7 @@ public class LicensePage extends MyPage {
 
         if (msg == null) {
             if (this.id == null || this.id.trim().length() == 0) {
-                Objectify ofy = ofy();
-                License r = ofy.load().key(Key.create(License.class, this.id)).
-                        now();
+                License r = NWUtils.dsCache.getLicense(this.id, false);
                 if (r != null) {
                     msg = "A license with this ID already exists";
                 }

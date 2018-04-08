@@ -16,6 +16,7 @@ import com.google.appengine.api.search.checkers.SearchApiLimits;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -221,7 +222,7 @@ public class PackagesPage extends MyPage {
             final User u = us.getCurrentUser();
             Editor e = null;
             if (u != null) {
-                e = NWUtils.findEditor(u);
+                e = DatastoreCache.findEditor(u);
             }
 
             for (Package p : this.getPackages()) {

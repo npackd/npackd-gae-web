@@ -5,14 +5,12 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,19 +42,17 @@ public class CopyPackageVersionConfirmedAction extends Action {
             err = "Error parsing the version number: " + e.getMessage();
         }
 
-        Objectify ofy = ofy();
-        PackageVersion p =
-                ofy.load().key(Key.create(PackageVersion.class, name)).now();
-        Package r = ofy.load().key(Key.create(Package.class, p.package_)).now();
+        PackageVersion p = NWUtils.dsCache.getPackageVersion(
+                name);
+        Package r = NWUtils.dsCache.getPackage(p.package_, false);
         Page page;
         if (!r.isCurrentUserPermittedToModify()) {
             page =
                     new MessagePage(
                             "You do not have permission to modify this package");
         } else {
-            PackageVersion copyFound =
-                    ofy.load().key(Key.create(PackageVersion.class,
-                                    p.package_ + "@" + version)).now();
+            PackageVersion copyFound = NWUtils.dsCache.getPackageVersion(
+                    p.package_ + "@" + version);
             if (copyFound != null) {
                 err =
                         "This version already exists: " + p.package_ + " " +
@@ -75,7 +71,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 copy.createdBy = us.getCurrentUser();
                 copy.addTag("untested");
 
-                NWUtils.savePackageVersion(null, copy, true, true);
+                DatastoreCache.savePackageVersion(null, copy, true, true);
                 resp.sendRedirect("/p/" + copy.package_ + "/" + copy.version);
                 page = null;
             }

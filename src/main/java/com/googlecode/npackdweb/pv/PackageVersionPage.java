@@ -12,8 +12,6 @@ import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import com.googlecode.objectify.Key;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -866,8 +864,7 @@ public class PackageVersionPage extends MyPage {
         if (this.license == null) {
             Package p = getPackage();
             if (!p.license.isEmpty()) {
-                this.license = ofy().load().key(Key.create(License.class,
-                        p.license)).now();
+                this.license = NWUtils.dsCache.getLicense(p.license, false);
                 if (this.license == null) {
                     NWUtils.LOG.log(Level.WARNING,
                             "License {0} not found for {1}", new Object[]{

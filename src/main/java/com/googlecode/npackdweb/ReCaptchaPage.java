@@ -1,6 +1,6 @@
 package com.googlecode.npackdweb;
 
-import static com.googlecode.npackdweb.NWUtils.getSetting;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +25,9 @@ public class ReCaptchaPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
         w.start("form", "action", "/recaptcha-answer", "method", "post");
-        w.e("div", "class", "g-recaptcha", "data-sitekey", getSetting(
-                "ReCaptchaPublicKey", ""));
+        w.e("div", "class", "g-recaptcha", "data-sitekey", DatastoreCache.
+                getSetting(
+                        "ReCaptchaPublicKey", ""));
         w.end("div");
         w.e("input", "type", "hidden", "name", "id", "value",
                 Integer.toString(id));

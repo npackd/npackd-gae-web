@@ -6,13 +6,11 @@ import com.google.appengine.api.oauth.OAuthServiceFactory;
 import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,9 +33,7 @@ public class NotifyAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = ofy();
-
-        String pw = NWUtils.getSetting("MarkTestedPassword", "");
+        String pw = DatastoreCache.getSetting("MarkTestedPassword", "");
         if (pw == null) {
             pw = "";
         }
@@ -51,10 +47,8 @@ public class NotifyAction extends Action {
         boolean install = "1".equals(req.getParameter("install"));
         boolean success = "1".equals(req.getParameter("success"));
 
-        com.googlecode.npackdweb.db.Package pa = ofy.load().key(
-                Key.create(
-                        com.googlecode.npackdweb.db.Package.class, package_)).
-                now();
+        com.googlecode.npackdweb.db.Package pa = NWUtils.dsCache.getPackage(
+                package_, false);
         boolean ok = pa.isCurrentUserPermittedToModify();
 
         if (!ok) {
@@ -79,9 +73,8 @@ public class NotifyAction extends Action {
             return null;
         }
 
-        PackageVersion r =
-                ofy.load().key(Key.create(PackageVersion.class,
-                                package_ + "@" + version)).now();
+        PackageVersion r = NWUtils.dsCache.getPackageVersion(
+                package_ + "@" + version);
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -103,7 +96,7 @@ public class NotifyAction extends Action {
             }
         }
 
-        NWUtils.savePackageVersion(oldr, r, false, false);
+        DatastoreCache.savePackageVersion(oldr, r, false, false);
 
         return null;
     }

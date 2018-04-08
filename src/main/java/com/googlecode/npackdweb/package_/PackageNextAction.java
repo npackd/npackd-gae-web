@@ -5,11 +5,7 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,24 +26,11 @@ public class PackageNextAction extends Action {
             throws IOException {
         String name = req.getParameter("name");
 
-        Objectify ofy = ofy();
         Package next = null;
 
-        Package p = ofy.load().key(Key.create(Package.class, name)).now();
+        Package p = NWUtils.dsCache.getPackage(name, false);
         if (p != null) {
-            List<Package> ps =
-                    ofy.load().type(Package.class).limit(5).filter("title >=",
-                            p.title).order("title").list();
-
-            // find the next package
-            for (int i = 0; i < ps.size() - 1; i++) {
-                Package n = ps.get(i);
-
-                if (n.name.equals(p.name)) {
-                    next = ps.get(i + 1);
-                    break;
-                }
-            }
+            next = NWUtils.dsCache.findNextPackage(p);
         }
 
         if (next != null) {

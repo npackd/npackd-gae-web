@@ -12,8 +12,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -616,7 +614,6 @@ public class Package {
      * @return created package version or null if the creation is not possible
      */
     public PackageVersion createDetectedVersion(Version version, long maxSize) {
-        Objectify ob = ofy();
         List<PackageVersion> versions = NWUtils.dsCache.getSortedVersions(name);
 
         PackageVersion copy;
@@ -657,7 +654,7 @@ public class Package {
         }
 
         if (hasTag("same-url") && pv != null) {
-            ob.delete().entities(pv);
+            NWUtils.dsCache.deletePackageVersion(pv);
 
             // the next call to savePackageVersion will do this
             // NWUtils.incDataVersion();
@@ -677,7 +674,7 @@ public class Package {
             }
         }
 
-        NWUtils.savePackageVersion(null, copy, true, changeNotReviewed);
+        DatastoreCache.savePackageVersion(null, copy, true, changeNotReviewed);
 
         return copy;
     }

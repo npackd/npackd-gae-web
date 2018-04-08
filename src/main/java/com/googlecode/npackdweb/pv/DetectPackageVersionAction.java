@@ -8,9 +8,6 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -41,8 +38,7 @@ public class DetectPackageVersionAction extends Action {
             throw new IOException("Invalid package name");
         }
 
-        Objectify ofy = ofy();
-        Package p = ofy.load().key(Key.create(Package.class, package_)).now();
+        Package p = NWUtils.dsCache.getPackage(package_, false);
         if (!p.isCurrentUserPermittedToModify()) {
             return new MessagePage(
                     "You do not have permission to modify this package");

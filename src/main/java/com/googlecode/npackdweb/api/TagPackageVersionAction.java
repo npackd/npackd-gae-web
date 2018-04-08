@@ -2,13 +2,11 @@ package com.googlecode.npackdweb.api;
 
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,8 +26,7 @@ public class TagPackageVersionAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Objectify ofy = ofy();
-        String pw = NWUtils.getSetting("MarkTestedPassword", "");
+        String pw = DatastoreCache.getSetting("MarkTestedPassword", "");
         if (pw == null) {
             pw = "";
         }
@@ -43,18 +40,15 @@ public class TagPackageVersionAction extends Action {
         String name = req.getParameter("name");
         String value = req.getParameter("value");
 
-        PackageVersion r =
-                ofy.load().key(Key.create(PackageVersion.class,
-                                package_ + "@" + version)).now();
+        PackageVersion r = NWUtils.dsCache.getPackageVersion(
+                package_ + "@" + version);
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
 
-        com.googlecode.npackdweb.db.Package pa = ofy.load().key(
-                Key.create(
-                        com.googlecode.npackdweb.db.Package.class, package_)).
-                now();
+        com.googlecode.npackdweb.db.Package pa = NWUtils.dsCache.getPackage(
+                package_, false);
         if (!pa.isCurrentUserPermittedToModify() && !pw.equals(password)) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;
@@ -67,7 +61,7 @@ public class TagPackageVersionAction extends Action {
         } else {
             r.tags.remove(name);
         }
-        NWUtils.savePackageVersion(oldr, r, false, false);
+        DatastoreCache.savePackageVersion(oldr, r, false, false);
 
         return null;
     }

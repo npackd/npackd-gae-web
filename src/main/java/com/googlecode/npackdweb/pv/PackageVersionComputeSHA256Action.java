@@ -3,14 +3,12 @@ package com.googlecode.npackdweb.pv;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.NWUtils.Info;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,22 +31,20 @@ public class PackageVersionComputeSHA256Action extends Action {
             throws IOException {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
-        Objectify ofy = ofy();
-        Package pa = ofy.load().key(Key.create(Package.class, package_)).now();
+        Package pa = NWUtils.dsCache.getPackage(package_, false);
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
             page =
                     new MessagePage(
                             "You do not have permission to modify this package");
         } else {
-            PackageVersion p =
-                    ofy.load().key(Key.create(PackageVersion.class,
-                                    package_ + "@" + version)).now();
+            PackageVersion p = NWUtils.dsCache.getPackageVersion(
+                    package_ + "@" + version);
             PackageVersion oldp = p.copy();
             try {
                 Info info = p.check(false, "SHA-256");
                 p.sha1 = NWUtils.byteArrayToHexString(info.sha1);
-                NWUtils.savePackageVersion(oldp, p, true, true);
+                DatastoreCache.savePackageVersion(oldp, p, true, true);
                 resp.sendRedirect("/p/" + p.package_ + "/" + p.version);
                 page = null;
             } catch (IOException e) {

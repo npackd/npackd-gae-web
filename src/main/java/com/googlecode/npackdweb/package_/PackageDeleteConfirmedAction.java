@@ -9,9 +9,6 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,8 +29,7 @@ public class PackageDeleteConfirmedAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String name = req.getParameter("name");
-        Objectify ofy = ofy();
-        Package r = ofy.load().key(Key.create(Package.class, name)).now();
+        Package r = NWUtils.dsCache.getPackage(name, false);
         Page page;
         if (!r.isCurrentUserPermittedToModify()) {
             page =

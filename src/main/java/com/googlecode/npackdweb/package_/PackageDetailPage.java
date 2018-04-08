@@ -8,6 +8,7 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackagesPage;
 import com.googlecode.npackdweb.QueryCache;
 import com.googlecode.npackdweb.Version;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -259,13 +260,11 @@ public class PackageDetailPage extends MyPage {
         }
         w.end("tr");
 
-        Objectify ofy = ofy();
-
         // versions
         w.start("tr");
         w.e("td", "Versions:");
         w.start("td");
-        List<PackageVersion> pvs = this.getVersions(ofy);
+        List<PackageVersion> pvs = this.getVersions();
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
@@ -443,7 +442,7 @@ public class PackageDetailPage extends MyPage {
             w.start("select", "class", "form-control", "name", "license",
                     "title", "Package licensing terms");
             w.e("option", "value", "");
-            for (License lic : this.getLicenses(ofy)) {
+            for (License lic : this.getLicenses()) {
                 w.e("option", "value", lic.name, "selected",
                         lic.name.equals(license) ? "selected" : null, lic.title);
             }
@@ -451,8 +450,7 @@ public class PackageDetailPage extends MyPage {
         } else {
             License license_ = null;
             if (!license.isEmpty()) {
-                license_ = ofy.load().key(Key.create(License.class, license)).
-                        now();
+                license_ = NWUtils.dsCache.getLicense(license, false);
             }
 
             if (license_ == null) {
@@ -762,13 +760,12 @@ public class PackageDetailPage extends MyPage {
     }
 
     /**
-     * @param ofy Objectify
      * @return versions of this package
      */
-    public List<PackageVersion> getVersions(Objectify ofy) {
+    public List<PackageVersion> getVersions() {
         ArrayList<PackageVersion> versions = new ArrayList<>();
         if (!id.isEmpty()) {
-            for (PackageVersion pv : ofy.load().type(PackageVersion.class)
+            for (PackageVersion pv : ofy().load().type(PackageVersion.class)
                     .filter("package_ =", id).list()) {
                 versions.add(pv);
             }
@@ -778,15 +775,15 @@ public class PackageDetailPage extends MyPage {
     }
 
     /**
-     * @param ofy Objectify
      * @return list of all licenses
      */
-    private List<License> getLicenses(Objectify ofy) {
+    private List<License> getLicenses() {
         List<License> licenses = new ArrayList<>();
         String cacheSuffix = "@" + NWUtils.dsCache.getDataVersion();
-        Query<License> q = ofy.load().type(License.class).order("title");
-        List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
-        Map<Key<License>, License> k2v = ofy.load().keys(keys);
+        Objectify ob = ofy();
+        Query<License> q = ob.load().type(License.class).order("title");
+        List<Key<License>> keys = QueryCache.getKeys(ob, q, cacheSuffix);
+        Map<Key<License>, License> k2v = ob.load().keys(keys);
         licenses.addAll(k2v.values());
         return licenses;
     }
@@ -832,7 +829,7 @@ public class PackageDetailPage extends MyPage {
             this.starFilled = false;
             User u = UserServiceFactory.getUserService().getCurrentUser();
             if (u != null) {
-                Editor e = NWUtils.findEditor(u);
+                Editor e = DatastoreCache.findEditor(u);
                 if (e != null && e.starredPackages.contains(id)) {
                     starFilled = true;
                 }
@@ -889,9 +886,7 @@ public class PackageDetailPage extends MyPage {
 
         if (msg == null) {
             if (mode == FormMode.CREATE) {
-                Objectify ofy = ofy();
-                Package r = ofy.load().key(Key.create(Package.class, this.id)).
-                        now();
+                Package r = NWUtils.dsCache.getPackage(this.id, false);
                 if (r != null) {
                     msg = "A package with this ID already exists";
                 }
@@ -1014,8 +1009,7 @@ public class PackageDetailPage extends MyPage {
         this.starFilled = false;
         User u = UserServiceFactory.getUserService().getCurrentUser();
         if (u != null) {
-            Objectify ofy = ofy();
-            Editor e = NWUtils.findEditor(u);
+            Editor e = DatastoreCache.findEditor(u);
             if (e != null && e.starredPackages.contains(id)) {
                 starFilled = true;
             }

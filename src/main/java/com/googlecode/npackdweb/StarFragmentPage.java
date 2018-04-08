@@ -3,6 +3,7 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
@@ -37,7 +38,7 @@ public class StarFragmentPage extends Page {
         final User u = us.getCurrentUser();
         Editor e = null;
         if (u != null) {
-            e = NWUtils.findEditor(u);
+            e = DatastoreCache.findEditor(u);
         }
 
         NWUtils.star(w, p.name, e != null && e.starredPackages.contains(

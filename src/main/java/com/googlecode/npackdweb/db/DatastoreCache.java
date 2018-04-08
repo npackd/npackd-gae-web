@@ -3,8 +3,13 @@ package com.googlecode.npackdweb.db;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.search.Index;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
+import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import static com.googlecode.objectify.ObjectifyService.ofy;
@@ -22,6 +27,169 @@ import java.util.logging.Level;
  * In-memory cache for the datastore entities.
  */
 public class DatastoreCache {
+
+    /**
+     * Saves a package. The package can be new or an already existing one. The
+     * total number of packages and the index will be automatically updated.
+     *
+     * @param old old version of the package object or null
+     * @param p package
+     * @param changeLastModifiedAt change the last modification time
+     */
+    public void savePackage(Package old,
+            Package p, boolean changeLastModifiedAt) {
+        if (changeLastModifiedAt) {
+            p.lastModifiedAt = NWUtils.newDate();
+            p.lastModifiedBy =
+                    UserServiceFactory.getUserService().getCurrentUser();
+        }
+        ofy().save().entity(p);
+        NWUtils.dsCache.incDataVersion();
+        Index index = NWUtils.getIndex();
+        index.put(p.createDocument());
+    }
+
+    /**
+     * Saves an editor.
+     *
+     * @param e editor
+     */
+    public static void saveEditor(Editor e) {
+        if (e.id <= 0) {
+            e.createId();
+        }
+        ofy().save().entity(e);
+        NWUtils.dsCache.incDataVersion();
+    }
+
+    /**
+     * Saves a license
+     *
+     * @param p license
+     * @param changeLastModifiedAt true = change the last modification time
+     */
+    public static void saveLicense(License p, boolean changeLastModifiedAt) {
+        if (changeLastModifiedAt) {
+            p.lastModifiedAt = NWUtils.newDate();
+        }
+        ofy().save().entity(p);
+        NWUtils.dsCache.incDataVersion();
+    }
+
+    /**
+     * Reads a setting
+     *
+     * @param name setting name
+     * @param defaultValue default value returned if the setting does not exist
+     * @return setting value
+     */
+    public static String getSetting(String name, String defaultValue) {
+        Objectify ob = ofy();
+        Setting st = ob.load().key(Key.create(Setting.class, name)).now();
+        String value;
+        if (st == null) {
+            st = new Setting();
+            st.name = name;
+            st.value = defaultValue;
+            ob.save().entity(st);
+        }
+        value = st.value;
+        return value;
+    }
+
+    /**
+     * Saves a package version.
+     *
+     * @param old previous state in the database or null if not existent
+     * @param p package version
+     * @param changeLastModified last modified at/by will be changed, if true
+     * @param changeNotReviewed not-reviewed tag will be changed, if true
+     */
+    public static void savePackageVersion(
+            PackageVersion old, PackageVersion p, boolean changeLastModified,
+            boolean changeNotReviewed) {
+        if (changeLastModified) {
+            p.lastModifiedAt = NWUtils.newDate();
+            p.lastModifiedBy =
+                    UserServiceFactory.getUserService().getCurrentUser();
+        }
+        if (changeNotReviewed) {
+            if (NWUtils.isAdminLoggedIn()) {
+                if (old != null && old.hasTag("not-reviewed")) {
+                    UserService us = UserServiceFactory.getUserService();
+                    if (!NWUtils.
+                            isEqual(us.getCurrentUser(), old.lastModifiedBy)) {
+                        NWUtils.sendMailTo(
+                                "The package version " + p.getTitle() +
+                                " (" + PackageVersionDetailAction.getURL(p) +
+                                ") was marked as reviewed",
+                                old.lastModifiedBy.getEmail());
+                    }
+                }
+                p.tags.remove("not-reviewed");
+            } else {
+                p.addTag("not-reviewed");
+                if (old == null || !old.hasTag("not-reviewed")) {
+                    NWUtils.sendMailToAdmin("The package version " + p.
+                            getTitle() +
+                            " (" + PackageVersionDetailAction.getURL(p) +
+                            ") was marked as not reviewed");
+                }
+            }
+        }
+        ofy().save().entity(p);
+        NWUtils.dsCache.incDataVersion();
+    }
+
+    /**
+     * Saves a repository.
+     *
+     * @param r repository
+     */
+    public static void saveRepository(Repository r) {
+        ofy().save().entity(r);
+        NWUtils.dsCache.incDataVersion();
+    }
+
+    /**
+     * Searches for an editor.
+     *
+     * @param u a user
+     */
+    public static Editor findEditor(User u) {
+        return ofy().load().key(Key.create(Editor.class, u.getEmail())).now();
+    }
+
+    /**
+     * Adds or removes a star from a package
+     *
+     * @param p a package
+     * @param e an editor/user
+     * @param star true = star, false = unstar
+     */
+    public void starPackage(Package p,
+            Editor e, boolean star) {
+        if (star) {
+            if (e.starredPackages.indexOf(p.name) < 0) {
+                Package oldp = p.copy();
+                p.starred++;
+                savePackage(oldp, p, false);
+                e.starredPackages.add(p.name);
+                DatastoreCache.saveEditor(e);
+            }
+        } else {
+            if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
+                Package oldp = p.copy();
+                p.starred--;
+                if (p.starred < 0) {
+                    p.starred = 0;
+                }
+                savePackage(oldp, p, false);
+                e.starredPackages.remove(p.name);
+                DatastoreCache.saveEditor(e);
+            }
+        }
+    }
 
     private ReentrantLock lock = new ReentrantLock();
 
@@ -323,5 +491,34 @@ public class DatastoreCache {
             lock.unlock();
         }
         return v;
+    }
+
+    /**
+     * Deletes a package version.
+     *
+     * @param p this package version will be deleted
+     */
+    public void deletePackageVersion(PackageVersion p) {
+        ofy().delete().entity(p);
+    }
+
+    public Package findNextPackage(Package p) {
+        List<Package> ps =
+                ofy().load().type(Package.class).limit(5).filter("title >=",
+                        p.title).order("title").list();
+
+        Package next = null;
+
+        // find the next package
+        for (int i = 0; i < ps.size() - 1; i++) {
+            Package n = ps.get(i);
+
+            if (n.name.equals(p.name)) {
+                next = ps.get(i + 1);
+                break;
+            }
+        }
+
+        return next;
     }
 }

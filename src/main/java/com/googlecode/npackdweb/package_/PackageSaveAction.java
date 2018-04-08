@@ -7,9 +7,6 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,12 +27,11 @@ public class PackageSaveAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String name = req.getParameter("name");
-        Objectify ofy = ofy();
         PackageDetailPage pdp = new PackageDetailPage(FormMode.EDIT);
         pdp.fill(req);
         String msg = pdp.validate();
         if (msg == null) {
-            Package p = ofy.load().key(Key.create(Package.class, name)).now();
+            Package p = NWUtils.dsCache.getPackage(name, false);
             Package old = p == null ? null : p.copy();
             if (p == null) {
                 p = new Package(name);
@@ -44,7 +40,7 @@ public class PackageSaveAction extends Action {
                         "You do not have permission to modify this package");
             }
             pdp.fillObject(p);
-            NWUtils.savePackage(old, p, true);
+            NWUtils.dsCache.savePackage(old, p, true);
             pdp = null;
             resp.sendRedirect("/p/" + p.name);
         } else {
