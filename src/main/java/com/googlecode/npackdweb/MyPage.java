@@ -164,6 +164,7 @@ public abstract class MyPage extends Page {
             res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
             res.t(".");
         } else {
+            NWUtils.LOG.info("Calling createLoginURL");
             res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
         }
         return res.toString();

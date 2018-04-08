@@ -100,6 +100,7 @@ public class DefaultServlet extends HttpServlet {
                 case LOGGED_IN:
                     if (us.getCurrentUser() == null) {
                         ok = false;
+                        NWUtils.LOG.info("Calling createLoginURL");
                         resp.
                                 sendRedirect(us.createLoginURL(req.
                                                 getRequestURI()));
@@ -108,6 +109,7 @@ public class DefaultServlet extends HttpServlet {
                 case ADMINISTRATOR:
                     if (us.getCurrentUser() == null) {
                         ok = false;
+                        NWUtils.LOG.info("Calling createLoginURL");
                         resp.
                                 sendRedirect(us.createLoginURL(req.
                                                 getRequestURI()));
