@@ -84,22 +84,6 @@ public class PackagesPage extends MyPage {
             this.category1 = null;
         }
 
-        Object[] results = findPackageIDs();
-        List<String> ids = (List<String>) results[0];
-        category0Values =
-                (List<FacetResultValue>) results[1];
-        category1Values =
-                (List<FacetResultValue>) results[2];
-
-        packages.addAll(NWUtils.dsCache.getPackages(ids));
-    }
-
-    @Override
-    public String createContent(HttpServletRequest request) throws IOException {
-        return internalCreateContent();
-    }
-
-    private Object[] findPackageIDs() {
         Index index = NWUtils.getIndex();
         QueryOptions.Builder ob =
                 QueryOptions.newBuilder().setFieldsToReturn(new String[0]).
@@ -151,19 +135,31 @@ public class PackagesPage extends MyPage {
                     category1));
         }
 
+        List<String> ids = new ArrayList<>();
         NWUtils.LOG.info("Starting search");
-        Results<ScoredDocument> r = index.search(qb.build(query));
-        found = r.getNumberFound();
+        try {
+            Results<ScoredDocument> r = index.search(qb.build(query));
+            found = r.getNumberFound();
 
-        // process facets
-        List<FacetResultValue> category0Values = null, category1Values = null;
-        for (FacetResult fi : r.getFacets()) {
-            if (fi.getName().equals("category0")) {
-                category0Values = fi.getValues();
-            } else if (fi.getName().equals("category1")) {
-                category1Values = fi.getValues();
+            for (FacetResult fi : r.getFacets()) {
+                if (fi.getName().equals("category0")) {
+                    category0Values = fi.getValues();
+                } else if (fi.getName().equals("category1")) {
+                    category1Values = fi.getValues();
+                }
             }
+            for (ScoredDocument sd : r) {
+                ids.add(sd.getId());
+
+                if (ids.size() > PAGE_SIZE) {
+                    break;
+                }
+            }
+            NWUtils.LOG.info("Search completed");
+        } catch (com.google.appengine.api.search.SearchQueryException e) {
+            this.error = e.getMessage();
         }
+
         if (category0Values == null) {
             category0Values = new ArrayList<>();
         }
@@ -171,16 +167,12 @@ public class PackagesPage extends MyPage {
             category1Values = new ArrayList<>();
         }
 
-        List<String> ids = new ArrayList<>();
-        for (ScoredDocument sd : r) {
-            ids.add(sd.getId());
+        packages.addAll(NWUtils.dsCache.getPackages(ids));
+    }
 
-            if (ids.size() > PAGE_SIZE) {
-                break;
-            }
-        }
-        NWUtils.LOG.info("Search completed");
-        return new Object[]{ids, category0Values, category1Values};
+    @Override
+    public String createContent(HttpServletRequest request) throws IOException {
+        return internalCreateContent();
     }
 
     private String internalCreateContent() {
