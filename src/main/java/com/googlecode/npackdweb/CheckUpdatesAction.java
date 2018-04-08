@@ -59,7 +59,8 @@ public class CheckUpdatesAction extends Action {
             if ("0".equals(req.getHeader("X-AppEngine-TaskRetryCount"))) {
                 try {
                     Version v = data.findNewestVersion();
-                    List<PackageVersion> versions = data.getSortedVersions(ob);
+                    List<PackageVersion> versions = NWUtils.dsCache.
+                            getSortedVersions(data.name);
                     if (versions.size() > 0) {
                         PackageVersion pv = versions.get(versions.size() - 1);
                         int r = v.compare(Version.parse(pv.version));

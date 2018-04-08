@@ -796,7 +796,8 @@ public class PackageVersionPage extends MyPage {
         w.start("tr");
         w.e("td", "Last modified by:");
         w.start("td");
-        w.unencoded(lastModifiedBy == null ? "" : NWUtils.obfuscateEmail(                lastModifiedBy.getEmail(), request.getServerName()));
+        w.unencoded(lastModifiedBy == null ? "" : NWUtils.obfuscateEmail(
+                lastModifiedBy.getEmail(), request.getServerName()));
         w.end("td");
         w.end("tr");
 
@@ -810,7 +811,8 @@ public class PackageVersionPage extends MyPage {
         w.start("tr");
         w.e("td", "Created by:");
         w.start("td");
-        w.unencoded(createdBy == null ? "" : NWUtils.obfuscateEmail(                createdBy.getEmail(), request.getServerName()));
+        w.unencoded(createdBy == null ? "" : NWUtils.obfuscateEmail(createdBy.
+                getEmail(), request.getServerName()));
         w.end("td");
         w.end("tr");
 
@@ -947,12 +949,6 @@ public class PackageVersionPage extends MyPage {
                 dependencyVersionRanges.add(versions);
                 dependencyEnvVars.add(envVar);
             }
-        }
-
-        if (!this.new_) {
-            Objectify ofy = ofy();
-            PackageVersion pv =
-                    PackageVersion.find(this.packageName, this.version);
         }
 
         UserService us = UserServiceFactory.getUserService();

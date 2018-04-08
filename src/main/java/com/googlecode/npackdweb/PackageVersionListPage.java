@@ -37,7 +37,7 @@ public class PackageVersionListPage extends MyPage {
         b.t(msg);
         b.start("ul");
         List<PackageVersion> pvs =
-                PackageVersion.find20PackageVersions(tag, order);
+                NWUtils.dsCache.find20PackageVersions(tag, order);
         for (int i = 0; i < pvs.size(); i++) {
             PackageVersion pv = pvs.get(i);
 

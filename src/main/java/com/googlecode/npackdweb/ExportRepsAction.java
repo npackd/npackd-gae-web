@@ -43,7 +43,7 @@ public class ExportRepsAction extends Action {
                 GcsServiceFactory.createGcsService(RetryParams
                         .getDefaultInstance());
 
-        List<Repository> rs = Repository.findAll();
+        List<Repository> rs = NWUtils.dsCache.findAllRepositories();
         for (Repository r : rs) {
             export(gcsService, r.name, true);
         }

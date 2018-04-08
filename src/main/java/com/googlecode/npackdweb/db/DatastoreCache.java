@@ -4,10 +4,14 @@ import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.Version;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import static com.googlecode.objectify.ObjectifyService.ofy;
+import com.googlecode.objectify.cmd.Query;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,81 @@ public class DatastoreCache {
 
     private Map<String, License> licensesCache =
             new HashMap<>();
+
+    /**
+     * @return all defined repositories
+     */
+    public List<Repository> findAllRepositories() {
+        return ofy().load().type(Repository.class).list();
+    }
+
+    /**
+     * Searches for the repository with the given tag.
+     *
+     * @param tag tag name
+     * @return found repository or null
+     */
+    public Repository findRepository(String tag) {
+        return ofy().load().key(Key.create(Repository.class, tag)).now();
+    }
+
+    /**
+     * @param tag a tag to filter the package versions or null
+     * @param order how to order the query (e.g. "-lastModifiedAt") or null
+     * @return first 20 package versions with errors downloading the binary
+     */
+    public List<PackageVersion> find20PackageVersions(
+            String tag, String order) {
+        Query<PackageVersion> q = ofy().load().type(PackageVersion.class).
+                limit(20);
+        if (tag != null) {
+            q = q.filter("tags ==", tag);
+        }
+        if (order != null) {
+            q = q.order(order);
+        }
+        return q.list();
+    }
+
+    /**
+     * Searches for a package version.
+     *
+     * @param packageName full package name
+     * @param v version number
+     * @return found version or null
+     */
+    public PackageVersion findPackageVersion(String packageName, String v) {
+        return ofy().load().key(Key.create(PackageVersion.class,
+                packageName + "@" + v)).now();
+    }
+
+    /**
+     * @param package_ package ID
+     * @return sorted versions (1.1, 1.2, 1.3) for this package
+     */
+    public List<PackageVersion> getSortedVersions(String package_) {
+        List<PackageVersion> versions = ofy().load().type(PackageVersion.class)
+                .filter("package_ =", package_).list();
+        Collections.sort(versions, new Comparator<PackageVersion>() {
+            @Override
+            public int compare(PackageVersion a, PackageVersion b) {
+                Version va = Version.parse(a.version);
+                Version vb = Version.parse(b.version);
+                return va.compare(vb);
+            }
+        });
+        return versions;
+    }
+
+    /**
+     * Searches for a license with the given full license ID.
+     *
+     * @param id full license ID
+     * @return found license or null
+     */
+    public License findLicense(String id) {
+        return ofy().load().key(Key.create(License.class, id)).now();
+    }
 
     /**
      * Increments the version of the data.

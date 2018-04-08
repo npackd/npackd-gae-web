@@ -2,8 +2,6 @@ package com.googlecode.npackdweb.db;
 
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -21,16 +19,6 @@ import org.w3c.dom.Element;
 @Cache
 @Index
 public class License {
-
-    /**
-     * Searches for a license with the given full license ID.
-     *
-     * @param id full license ID
-     * @return found license or null
-     */
-    public static License findByName(String id) {
-        return ofy().load().key(Key.create(License.class, id)).now();
-    }
 
     @Id
     public String name;

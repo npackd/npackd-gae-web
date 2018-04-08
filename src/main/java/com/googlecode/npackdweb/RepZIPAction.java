@@ -26,7 +26,7 @@ public class RepZIPAction extends Action {
         String tag = req.getParameter("tag");
 
         if (tag != null && !tag.isEmpty()) {
-            Repository r = Repository.findByTag(tag);
+            Repository r = NWUtils.dsCache.findRepository(tag);
             if (r == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository " +
                         tag + " not found");

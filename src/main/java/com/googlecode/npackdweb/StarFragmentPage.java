@@ -30,8 +30,8 @@ public class StarFragmentPage extends Page {
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-        com.googlecode.npackdweb.db.Package p =
-                com.googlecode.npackdweb.db.Package.findByName(package_);
+        com.googlecode.npackdweb.db.Package p = NWUtils.dsCache.getPackage(
+                package_, false);
         HTMLWriter w = new HTMLWriter();
         UserService us = UserServiceFactory.getUserService();
         final User u = us.getCurrentUser();

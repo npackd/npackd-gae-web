@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb.pv;
 
 import com.googlecode.npackdweb.MessagePage;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -71,7 +72,8 @@ public class DetectPackageVersionAction extends Action {
             return new MessagePage(msg);
         }
 
-        List<PackageVersion> versions = p.getSortedVersions(ofy);
+        List<PackageVersion> versions = NWUtils.dsCache.
+                getSortedVersions(p.name);
 
         if (versions.size() > 0) {
             PackageVersion pv = versions.get(versions.size() - 1);

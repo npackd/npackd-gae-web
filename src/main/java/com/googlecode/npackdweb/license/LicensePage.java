@@ -213,8 +213,7 @@ public class LicensePage extends MyPage {
         if (this.id == null || this.id.trim().length() == 0) {
             this.modifiedAt = NWUtils.newDate();
         } else {
-            Objectify ofy = ofy();
-            License p = License.findByName(this.id);
+            License p = NWUtils.dsCache.getLicense(id, false);
             this.modifiedAt = p.lastModifiedAt;
         }
     }

@@ -7,8 +7,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -17,7 +15,6 @@ import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.OnLoad;
 import com.googlecode.objectify.annotation.OnSave;
 import com.googlecode.objectify.annotation.Unindex;
-import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -461,36 +458,6 @@ public class PackageVersion {
      */
     public int getFileCount() {
         return this.filePaths.size();
-    }
-
-    /**
-     * Searches for a package version.
-     *
-     * @param packageName full package name
-     * @param v version number
-     * @return found version or null
-     */
-    public static PackageVersion find(String packageName, String v) {
-        return ofy().load().key(Key.create(PackageVersion.class,
-                packageName + "@" + v)).now();
-    }
-
-    /**
-     * @param tag a tag to filter the package versions or null
-     * @param order how to order the query (e.g. "-lastModifiedAt") or null
-     * @return first 20 package versions with errors downloading the binary
-     */
-    public static List<PackageVersion> find20PackageVersions(
-            String tag, String order) {
-        Query<PackageVersion> q = ofy().load().type(PackageVersion.class).
-                limit(20);
-        if (tag != null) {
-            q = q.filter("tags ==", tag);
-        }
-        if (order != null) {
-            q = q.order(order);
-        }
-        return q.list();
     }
 
     /**

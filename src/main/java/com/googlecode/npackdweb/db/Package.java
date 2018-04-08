@@ -29,8 +29,6 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -78,16 +76,6 @@ public class Package {
         "automatically replace the newest available.",
         "the development was stopped. There will be no new versions of this software."
     };
-
-    /**
-     * Searches for a package with the given full package ID.
-     *
-     * @param id full package ID
-     * @return found package or null
-     */
-    public static Package findByName(String id) {
-        return ofy().load().key(Key.create(Package.class, id)).now();
-    }
 
     @Id
     /* internal name of the package like com.example.Test */
@@ -618,24 +606,6 @@ public class Package {
     }
 
     /**
-     * @param ofy Objectify
-     * @return sorted versions (1.1, 1.2, 1.3) for this package
-     */
-    public List<PackageVersion> getSortedVersions(Objectify ofy) {
-        List<PackageVersion> versions = ofy.load().type(PackageVersion.class)
-                .filter("package_ =", this.name).list();
-        Collections.sort(versions, new Comparator<PackageVersion>() {
-            @Override
-            public int compare(PackageVersion a, PackageVersion b) {
-                Version va = Version.parse(a.version);
-                Version vb = Version.parse(b.version);
-                return va.compare(vb);
-            }
-        });
-        return versions;
-    }
-
-    /**
      * Creates a new version of this package using the newest available version
      * as a template and saves it.
      *
@@ -647,7 +617,7 @@ public class Package {
      */
     public PackageVersion createDetectedVersion(Version version, long maxSize) {
         Objectify ob = ofy();
-        List<PackageVersion> versions = getSortedVersions(ob);
+        List<PackageVersion> versions = NWUtils.dsCache.getSortedVersions(name);
 
         PackageVersion copy;
         PackageVersion pv = null;

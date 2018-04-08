@@ -632,7 +632,7 @@ public class PackageDetailPage extends MyPage {
             w.start("td");
             User u = UserServiceFactory.getUserService().getCurrentUser();
             if (mode != FormMode.CREATE) {
-                Package p = Package.findByName(this.id);
+                Package p = NWUtils.dsCache.getPackage(this.id, false);
                 if (NWUtils.isAdminLoggedIn()) {
                     w.e("textarea",
                             "class",
@@ -654,7 +654,8 @@ public class PackageDetailPage extends MyPage {
                         if (NWUtils.isEqual(u, p.permissions.get(i))) {
                             w.t(u.getEmail());
                         } else {
-                            w.unencoded(NWUtils.obfuscateEmail(                                    p.permissions.get(i).getEmail(), request.
+                            w.unencoded(NWUtils.obfuscateEmail(p.permissions.
+                                    get(i).getEmail(), request.
                                     getServerName()));
                         }
                     }
@@ -691,7 +692,8 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.e("td", "Created by:");
         w.start("td");
-        w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(                createdBy.getEmail(), request.getServerName()) : "");
+        w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(createdBy.
+                getEmail(), request.getServerName()) : "");
         w.end("td");
         w.end("tr");
 
@@ -822,8 +824,7 @@ public class PackageDetailPage extends MyPage {
                     UserServiceFactory.getUserService().getCurrentUser();
             this.noUpdatesCheck = null;
         } else {
-            Objectify ofy = ofy();
-            Package p = Package.findByName(this.id);
+            Package p = NWUtils.dsCache.getPackage(this.id, false);
             this.createdAt = p.createdAt;
             this.createdBy = p.createdBy;
             this.noUpdatesCheck = p.noUpdatesCheck;

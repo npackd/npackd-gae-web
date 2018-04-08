@@ -17,7 +17,7 @@ public class RepPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter b = new HTMLWriter();
 
-        List<Repository> reps = Repository.findAll();
+        List<Repository> reps = NWUtils.dsCache.findAllRepositories();
         if (reps.size() > 0) {
             b.
                     t("These repositories are re-created daily, the packages were reviewed and are safe to use:");
