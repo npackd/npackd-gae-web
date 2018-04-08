@@ -53,7 +53,7 @@ public class RepXMLPage extends Page {
         GcsFileMetadata md = gcsService.getMetadata(fileName);
 
         if (md == null) {
-            ExportRepsAction.export(gcsService, ofy, tag, false);
+            ExportRepsAction.export(gcsService, tag, false);
             md = gcsService.getMetadata(fileName);
         }
 

@@ -245,7 +245,7 @@ public class PackagesPage extends MyPage {
             for (Package p : this.getPackages()) {
                 License lic;
                 if (!p.license.isEmpty()) {
-                    lic = NWUtils.dsCache.getLicense(p.license);
+                    lic = NWUtils.dsCache.getLicense(p.license, true);
                 } else {
                     lic = null;
                 }
