@@ -6,24 +6,18 @@ import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.PackagesPage;
-import com.googlecode.npackdweb.QueryCache;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
-import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.servlet.http.HttpServletRequest;
@@ -764,8 +758,7 @@ public class PackageDetailPage extends MyPage {
     public List<PackageVersion> getVersions() {
         ArrayList<PackageVersion> versions = new ArrayList<>();
         if (!id.isEmpty()) {
-            for (PackageVersion pv : ofy().load().type(PackageVersion.class)
-                    .filter("package_ =", id).list()) {
+            for (PackageVersion pv : NWUtils.dsCache.getPackageVersions(id)) {
                 versions.add(pv);
             }
 
@@ -777,14 +770,7 @@ public class PackageDetailPage extends MyPage {
      * @return list of all licenses
      */
     private List<License> getLicenses() {
-        List<License> licenses = new ArrayList<>();
-        String cacheSuffix = "@" + NWUtils.dsCache.getDataVersion();
-        Objectify ob = ofy();
-        Query<License> q = ob.load().type(License.class).order("title");
-        List<Key<License>> keys = QueryCache.getKeys(ob, q, cacheSuffix);
-        Map<Key<License>, License> k2v = ob.load().keys(keys);
-        licenses.addAll(k2v.values());
-        return licenses;
+        return NWUtils.dsCache.getAllLicenses();
     }
 
     /**

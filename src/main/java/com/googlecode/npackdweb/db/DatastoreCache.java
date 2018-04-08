@@ -9,6 +9,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.QueryCache;
 import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.objectify.Key;
@@ -596,5 +597,35 @@ public class DatastoreCache {
         Objectify ofy = ofy();
         ofy.delete().key(Key.create(Repository.class, id));
         NWUtils.dsCache.incDataVersion();
+    }
+
+    /**
+     * @return all packages
+     */
+    public Query<Package> getAllPackages() {
+        return ofy().load().type(Package.class);
+    }
+
+    /**
+     * @param id package ID
+     * @return all versions for the package
+     */
+    public Iterable<PackageVersion> getPackageVersions(String id) {
+        return ofy().load().type(PackageVersion.class)
+                .filter("package_ =", id).list();
+    }
+
+    /**
+     * @return all licenses
+     */
+    public List<License> getAllLicenses() {
+        List<License> licenses = new ArrayList<>();
+        String cacheSuffix = "@" + NWUtils.dsCache.getDataVersion();
+        Objectify ob = ofy();
+        Query<License> q = ob.load().type(License.class).order("title");
+        List<Key<License>> keys = QueryCache.getKeys(ob, q, cacheSuffix);
+        Map<Key<License>, License> k2v = ob.load().keys(keys);
+        licenses.addAll(k2v.values());
+        return licenses;
     }
 }

@@ -27,9 +27,7 @@ import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.db.Setting;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -664,8 +662,7 @@ public class NWUtils {
      * Re-creates the index for packages
      */
     public static void recreateIndex() {
-        Objectify ofy = ofy();
-        Query<Package> q = ofy.load().type(Package.class);
+        Query<Package> q = NWUtils.dsCache.getAllPackages();
         Index index = getIndex();
         for (Package p : q) {
             index.put(p.createDocument());

@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb.admin;
 
 import com.googlecode.npackdweb.MessagePage;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -28,7 +29,7 @@ public class ResavePackagesAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         Objectify ofy = ofy();
-        List<Package> q = ofy.load().type(Package.class).list();
+        List<Package> q = NWUtils.dsCache.getAllPackages().list();
         ofy.save().entities(q);
         return new MessagePage("The packages were successfully re-saved");
     }
