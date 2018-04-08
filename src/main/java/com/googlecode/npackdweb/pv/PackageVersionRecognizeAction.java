@@ -14,9 +14,6 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -51,17 +48,15 @@ public class PackageVersionRecognizeAction extends Action {
             throws IOException {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
-        Objectify ofy = ofy();
-        Package pa = ofy.load().key(Key.create(Package.class, package_)).now();
+        Package pa = NWUtils.dsCache.getPackage(package_, false);
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {
             page =
                     new MessagePage(
                             "You do not have permission to modify this package");
         } else {
-            PackageVersion p =
-                    ofy.load().key(Key.create(PackageVersion.class,
-                                    package_ + "@" + version)).now();
+            PackageVersion p = NWUtils.dsCache.getPackageVersion(
+                    package_ + "@" + version);
             PackageVersion oldp = p.copy();
             String err = recognize(p);
             if (err != null) {

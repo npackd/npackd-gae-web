@@ -13,7 +13,6 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.InputStream;
@@ -216,9 +215,8 @@ public class PackageVersionPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
 
-        Objectify ofy = ofy();
         Package p = getPackage();
-        License lic = getLicense(ofy);
+        License lic = getLicense();
 
         if (tags.contains("not-reviewed")) {
             w.e("p", "class", "bg-danger",
@@ -543,10 +541,8 @@ public class PackageVersionPage extends MyPage {
             w.start("td");
             w.start("ul", "itemprop", "requirements");
             for (int i = 0; i < dependencyPackages.size(); i++) {
-                Package dp =
-                        ofy.load().key(Key.create(
-                                        Package.class, dependencyPackages.get(i))).
-                        now();
+                Package dp = NWUtils.dsCache.getPackage(
+                        dependencyPackages.get(i), false);
 
                 w.start("li");
                 w.e("a", "href", "/p/" + dependencyPackages.get(i),
@@ -847,9 +843,8 @@ public class PackageVersionPage extends MyPage {
      */
     public Package getPackage() {
         if (this.package_ == null) {
-            Objectify objectify = ofy();
-            this.package_ = objectify.load().key(Key.create(Package.class,
-                    packageName)).now();
+            this.package_ = NWUtils.dsCache.getPackage(
+                    packageName, false);
             if (this.package_ == null) {
                 this.package_ = new Package("unknown");
             }
@@ -865,14 +860,13 @@ public class PackageVersionPage extends MyPage {
     }
 
     /**
-     * @param ofy Objectify
      * @return associated license or null
      */
-    public License getLicense(Objectify ofy) {
+    public License getLicense() {
         if (this.license == null) {
             Package p = getPackage();
             if (!p.license.isEmpty()) {
-                this.license = ofy.load().key(Key.create(License.class,
+                this.license = ofy().load().key(Key.create(License.class,
                         p.license)).now();
                 if (this.license == null) {
                     NWUtils.LOG.log(Level.WARNING,
@@ -985,11 +979,8 @@ public class PackageVersionPage extends MyPage {
             if (new_) {
                 Version v = Version.parse(version);
                 v.normalize();
-                Objectify ofy = ofy();
-                PackageVersion p =
-                        ofy.load().key(Key.create(PackageVersion.class,
-                                        packageName.trim() + "@" + v.toString())).
-                        now();
+                PackageVersion p = NWUtils.dsCache.getPackageVersion(
+                        packageName.trim() + "@" + v.toString());
                 if (p != null) {
                     r = "Package version " + v + " already exists";
                 }

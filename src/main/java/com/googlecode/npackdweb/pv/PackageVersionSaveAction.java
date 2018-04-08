@@ -7,9 +7,6 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,17 +33,14 @@ public class PackageVersionSaveAction extends Action {
         if (error == null) {
             String package_ = pvp.getPackageName();
             final String version = pvp.getVersion();
-            Objectify ofy = ofy();
-            Package pa = ofy.load().key(Key.create(Package.class, package_)).
-                    now();
+            Package pa = NWUtils.dsCache.getPackage(package_, false);
             if (!pa.isCurrentUserPermittedToModify()) {
                 page =
                         new MessagePage(
                                 "You do not have permission to modify this package");
             } else {
-                PackageVersion p =
-                        ofy.load().key(Key.create(PackageVersion.class,
-                                        package_ + "@" + version)).now();
+                PackageVersion p = NWUtils.dsCache.getPackageVersion(package_ +
+                        "@" + version);
                 PackageVersion old;
                 if (p == null) {
                     old = null;
