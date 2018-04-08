@@ -406,7 +406,7 @@ public class PackageVersion {
 
     @OnSave
     void onPersist() {
-        NWUtils.incDataVersion();
+        NWUtils.dsCache.incDataVersion();
     }
 
     /**

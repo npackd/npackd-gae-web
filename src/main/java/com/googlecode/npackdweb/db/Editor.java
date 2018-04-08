@@ -74,7 +74,7 @@ public class Editor {
 
     @OnSave
     void onPersist() {
-        NWUtils.incDataVersion();
+        NWUtils.dsCache.incDataVersion();
         this.lastModifiedAt = NWUtils.newDate();
     }
 

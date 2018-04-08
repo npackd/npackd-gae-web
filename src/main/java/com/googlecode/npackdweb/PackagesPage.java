@@ -108,19 +108,7 @@ public class PackagesPage extends MyPage {
         category1Values =
                 (List<FacetResultValue>) results[2];
 
-        packages.addAll(NWUtils.getPackages(ids));
-        /*Objectify obj = DefaultServlet.getObjectify();
-         List<Key<Package>> keys = new ArrayList<>();
-         for (String id : ids) {
-         keys.add(Key.create(Package.class, id));
-         }
-
-         Map<Key<Package>, Package> map = obj.load().values(keys);
-         for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
-         if (e.getValue() != null) {
-         packages.add(e.getValue());
-         }
-         }*/
+        packages.addAll(NWUtils.dsCache.getPackages(ids));
     }
 
     @Override
@@ -131,7 +119,8 @@ public class PackagesPage extends MyPage {
     private Object[] findPackageIDs() {
         Index index = NWUtils.getIndex();
         QueryOptions.Builder ob =
-                QueryOptions.newBuilder().setLimit(PAGE_SIZE + 1).setOffset(
+                QueryOptions.newBuilder().setFieldsToReturn(new String[0]).
+                setLimit(PAGE_SIZE + 1).setOffset(
                         start).setNumberFoundAccuracy(2000);
 
         SortExpression se;
@@ -256,8 +245,7 @@ public class PackagesPage extends MyPage {
             for (Package p : this.getPackages()) {
                 License lic;
                 if (!p.license.isEmpty()) {
-                    lic = ofy.load().key(Key.create(License.class, p.license)).
-                            now();
+                    lic = NWUtils.dsCache.getLicense(p.license);
                 } else {
                     lic = null;
                 }

@@ -38,7 +38,8 @@ public class RecentRepXMLPage extends Page {
         resp.setContentType("application/xml");
 
         final String key =
-                this.getClass().getName() + "@" + NWUtils.getDataVersion() +
+                this.getClass().getName() + "@" + NWUtils.dsCache.
+                getDataVersion() +
                 "@" + user + "@" + tag;
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
         syncCache.setErrorHandler(ErrorHandlers

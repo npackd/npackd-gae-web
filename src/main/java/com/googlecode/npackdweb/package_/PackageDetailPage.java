@@ -783,7 +783,7 @@ public class PackageDetailPage extends MyPage {
      */
     private List<License> getLicenses(Objectify ofy) {
         List<License> licenses = new ArrayList<>();
-        String cacheSuffix = "@" + NWUtils.getDataVersion();
+        String cacheSuffix = "@" + NWUtils.dsCache.getDataVersion();
         Query<License> q = ofy.load().type(License.class).order("title");
         List<Key<License>> keys = QueryCache.getKeys(ofy, q, cacheSuffix);
         Map<Key<License>, License> k2v = ofy.load().keys(keys);

@@ -45,7 +45,7 @@ public class Repository {
 
     @OnSave
     void onPersist() {
-        NWUtils.incDataVersion();
+        NWUtils.dsCache.incDataVersion();
         this.lastModifiedAt = NWUtils.newDate();
     }
 

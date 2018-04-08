@@ -41,7 +41,7 @@ public class PackageVersionDeleteConfirmedAction extends Action {
                     "You do not have permission to modify this package");
         } else {
             ofy.delete().entity(p);
-            NWUtils.incDataVersion();
+            NWUtils.dsCache.incDataVersion();
             resp.sendRedirect("/p/" + p.package_);
             page = null;
         }

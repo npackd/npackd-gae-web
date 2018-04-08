@@ -127,7 +127,7 @@ public class UpdateSafeBrowsingInfoAction extends Action {
 
             if (toSave.size() > 0) {
                 ob.save().entities(toSave);
-                NWUtils.incDataVersion();
+                NWUtils.dsCache.incDataVersion();
             }
         }
 

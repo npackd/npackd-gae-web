@@ -42,6 +42,7 @@ public class License {
      */
     public Date lastModifiedAt;
 
+    // WARNING: update copy()!
     public String getTitle() {
         return title;
     }
@@ -63,7 +64,7 @@ public class License {
 
     @OnSave
     void onPersist() {
-        NWUtils.incDataVersion();
+        NWUtils.dsCache.incDataVersion();
         this.lastModifiedAt = NWUtils.newDate();
     }
 
@@ -95,5 +96,17 @@ public class License {
      */
     public boolean isCurrentUserPermittedToModify() {
         return NWUtils.isAdminLoggedIn();
+    }
+
+    /**
+     * @return copy of this object
+     */
+    public License copy() {
+        License r = new License();
+        r.name = this.name;
+        r.title = this.title;
+        r.url = this.url;
+        r.lastModifiedAt = this.lastModifiedAt;
+        return r;
     }
 }
