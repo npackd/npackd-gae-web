@@ -7,12 +7,9 @@ import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
@@ -35,8 +32,6 @@ public class ReCaptchaAnswerAction extends Action {
             throws IOException {
         int id = Integer.parseInt(req.getParameter("id"));
 
-        Objectify ob = ofy();
-
         String secretParameter = NWUtils.dsCache.
                 getSetting("ReCaptchaPrivateKey", "");
         String recap = req.getParameter("g-recaptcha-response");
@@ -53,9 +48,8 @@ public class ReCaptchaAnswerAction extends Action {
 
             String s;
             if (json.getBoolean("success")) {
-                List<Editor> editors = ob.load().type(Editor.class).filter(
-                        "id =", id).limit(1).list();
-                s = "Email address: " + editors.get(0).name;
+                Editor e = NWUtils.dsCache.findEditor(id);
+                s = "Email address: " + e.name;
             } else {
                 s = "Answer is wrong";
             }

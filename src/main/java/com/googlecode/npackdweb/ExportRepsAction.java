@@ -10,9 +10,6 @@ import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
@@ -63,8 +60,7 @@ public class ExportRepsAction extends Action {
     public static Repository export(GcsService gcsService,
             String tag, boolean recreate)
             throws IOException {
-        Objectify ob = ofy();
-        Repository r = ob.load().key(Key.create(Repository.class, tag)).now();
+        Repository r = NWUtils.dsCache.findRepository(tag);
         if (r == null) {
             r = new Repository();
             r.name = tag;
@@ -77,7 +73,7 @@ public class ExportRepsAction extends Action {
         if (r.blobFile == null || recreate ||
                 gcsService.getMetadata(fileName) == null ||
                 gcsService.getMetadata(fileNameZIP) == null) {
-            Document d = RepXMLPage.toXML(ob, tag, true);
+            Document d = RepXMLPage.toXML(tag, true);
 
             GcsOutputChannel outputChannel =
                     gcsService.createOrReplace(fileName,

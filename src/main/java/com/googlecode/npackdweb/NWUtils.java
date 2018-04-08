@@ -3,7 +3,6 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
@@ -28,7 +27,6 @@ import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.db.Setting;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 import static com.googlecode.objectify.ObjectifyService.ofy;
@@ -730,24 +728,6 @@ public class NWUtils {
     }
 
     /**
-     * Deletes a package
-     *
-     * @param name package name
-     */
-    public static void deletePackage(String name) {
-        Objectify ob = ofy();
-        Package p = ob.load().key(Key.create(Package.class, name)).now();
-        ob.delete().entity(p);
-        QueryResultIterable<Key<PackageVersion>> k =
-                ob.load().type(PackageVersion.class).filter("package_ =", name)
-                .keys();
-        ob.delete().keys(k);
-        Index index = NWUtils.getIndex();
-        index.delete(p.name);
-        dsCache.incDataVersion();
-    }
-
-    /**
      * Validates an URL. Only http: and https: are allowed as protocol.
      *
      * @param url_ the entered text
@@ -1067,7 +1047,7 @@ public class NWUtils {
         HTMLWriter w = new HTMLWriter();
         int index = email.indexOf('@');
         if (index > 0) {
-            Editor e = ofy().load().key(Key.create(Editor.class, email)).now();
+            Editor e = NWUtils.dsCache.findEditor(NWUtils.email2user(email));
             if (e == null) {
                 e = new Editor(email2user(email));
                 NWUtils.dsCache.saveEditor(e);
@@ -1085,24 +1065,6 @@ public class NWUtils {
             w.t(email);
         }
         return w.toString();
-    }
-
-    /**
-     * Writes a setting
-     *
-     * @param name setting name
-     * @param value new setting value
-     */
-    public static void setSetting(String name, String value) {
-        Objectify ob = ofy();
-        Setting st =
-                ob.load().key(Key.create(Setting.class, name)).now();
-        if (st == null) {
-            st = new Setting();
-            st.name = name;
-        }
-        st.value = value;
-        ob.save().entity(st);
     }
 
     /**
@@ -1146,18 +1108,6 @@ public class NWUtils {
         } catch (IOException e) {
             throw new InternalError(e.getMessage());
         }
-    }
-
-    /**
-     * Deletes a license
-     *
-     * @param name license ID
-     */
-    public static void deleteLicense(String name) {
-        Objectify ob = ofy();
-        License p = ob.load().key(Key.create(License.class, name)).now();
-        ob.delete().entity(p);
-        dsCache.incDataVersion();
     }
 
     /**

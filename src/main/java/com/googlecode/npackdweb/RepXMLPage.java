@@ -11,6 +11,7 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,16 +61,16 @@ public class RepXMLPage extends Page {
     }
 
     /**
-     * @param ofy Objectify
      * @param tag package versions tag or null for "everything"
      * @param onlyReviewed true = only export reviewed package versions
      * @return XML for the whole repository definition
      */
     public static Document
-            toXML(Objectify ofy, String tag, boolean onlyReviewed) {
+            toXML(String tag, boolean onlyReviewed) {
         ArrayList<PackageVersion> pvs = new ArrayList<>();
+        Objectify ob = ofy();
         Query<PackageVersion> q =
-                ofy.load().type(PackageVersion.class).chunk(500);
+                ob.load().type(PackageVersion.class).chunk(500);
         if (tag != null) {
             q = q.filter("tags =", tag);
         }
@@ -84,7 +85,7 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(ofy, pvs, onlyReviewed, tag);
+        return toXML(ob, pvs, onlyReviewed, tag);
     }
 
     /**

@@ -4,9 +4,6 @@ import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,9 +43,8 @@ public class AddEditorPage extends MyPage {
         String err = NWUtils.validateEmail(this.email);
 
         if (err == null) {
-            Objectify ofy = ofy();
-            Editor existing = ofy.load().key(Key.create(Editor.class, email)).
-                    now();
+            Editor existing = NWUtils.dsCache.findEditor(NWUtils.email2user(
+                    email));
             if (existing != null) {
                 err = "An editor with the email " + email + " already exists";
             }

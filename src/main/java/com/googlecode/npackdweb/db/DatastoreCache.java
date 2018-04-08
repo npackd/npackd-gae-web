@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -73,6 +74,53 @@ public class DatastoreCache {
         }
         ofy().save().entity(e);
         incDataVersion();
+    }
+
+    /**
+     * Deletes a license
+     *
+     * @param name license ID
+     */
+    public void deleteLicense(String name) {
+        Objectify ob = ofy();
+        License p = ob.load().key(Key.create(License.class, name)).now();
+        ob.delete().entity(p);
+        NWUtils.dsCache.incDataVersion();
+    }
+
+    /**
+     * Writes a setting
+     *
+     * @param name setting name
+     * @param value new setting value
+     */
+    public void setSetting(String name, String value) {
+        Objectify ob = ofy();
+        Setting st = ob.load().key(Key.create(Setting.class, name)).now();
+        if (st == null) {
+            st = new Setting();
+            st.name = name;
+        }
+        st.value = value;
+        ob.save().entity(st);
+    }
+
+    /**
+     * Deletes a package
+     *
+     * @param name package name
+     */
+    public void deletePackage(String name) {
+        Objectify ob = ofy();
+        Package p = ob.load().key(Key.create(Package.class, name)).now();
+        ob.delete().entity(p);
+        QueryResultIterable<Key<PackageVersion>> k =
+                ob.load().type(PackageVersion.class).filter("package_ =", name).
+                keys();
+        ob.delete().keys(k);
+        Index index = NWUtils.getIndex();
+        index.delete(p.name);
+        NWUtils.dsCache.incDataVersion();
     }
 
     /**
@@ -521,5 +569,32 @@ public class DatastoreCache {
         }
 
         return next;
+    }
+
+    /**
+     * Finds an editor by its ID.
+     *
+     * @param id ID
+     * @return found editor or null
+     */
+    public Editor findEditor(int id) {
+        List<Editor> editors = ofy().load().type(Editor.class).filter(
+                "id =", id).limit(1).list();
+        if (editors.size() > 0) {
+            return editors.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Deletes a repository.
+     *
+     * @param id repository ID
+     */
+    public void deleteRepository(long id) {
+        Objectify ofy = ofy();
+        ofy.delete().key(Key.create(Repository.class, id));
+        NWUtils.dsCache.incDataVersion();
     }
 }

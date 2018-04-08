@@ -6,8 +6,6 @@ import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +32,6 @@ public class AddEditorConfirmedAction extends Action {
         String err = p.validate();
         if (err == null) {
             Editor e = new Editor(NWUtils.email2user(p.email));
-            Objectify ofy = ofy();
             NWUtils.dsCache.saveEditor(e);
             res = new MessagePage("Editor " + p.email +
                     " was added successfully");
