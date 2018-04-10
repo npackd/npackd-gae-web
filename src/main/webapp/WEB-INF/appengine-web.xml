@@ -17,7 +17,7 @@
 
 
     <static-files>
-      <include path="/**.png" expiration="4d 5h" />
+      <include path="/**" expiration="4d 5h" />
     </static-files>
 
     <!--
