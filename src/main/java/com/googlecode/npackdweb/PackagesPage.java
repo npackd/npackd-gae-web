@@ -76,6 +76,7 @@ public class PackagesPage extends MyPage {
         this.recent = recent;
         this.start = start;
         this.category0 = category0;
+
         if (this.category0 != null && this.category0.trim().isEmpty()) {
             this.category0 = null;
         }
@@ -126,13 +127,13 @@ public class PackagesPage extends MyPage {
                 .addReturnFacet(fr1.build()).setOptions(ob.build())
                 .setFacetOptions(fob.build());
 
-        if (category0 != null) {
+        if (this.category0 != null) {
             qb.addFacetRefinement(FacetRefinement.withValue("category0",
-                    category0));
+                    this.category0));
         }
-        if (category1 != null) {
+        if (this.category1 != null) {
             qb.addFacetRefinement(FacetRefinement.withValue("category1",
-                    category1));
+                    this.category1));
         }
 
         List<String> ids = new ArrayList<>();
