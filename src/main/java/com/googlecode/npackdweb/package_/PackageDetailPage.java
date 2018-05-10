@@ -211,6 +211,12 @@ public class PackageDetailPage extends MyPage {
                         "/p/" + id + "/detect",
                         "Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package",
                         this.isDetectionPossible());
+                NWUtils.jsButton(
+                        w,
+                        "Request access",
+                        "/request-permissions?package=" + id,
+                        "Request write access to this package",
+                        true);
                 NWUtils.jsButton(w, "Next package", "/package/next?name=" + id,
                         "Shows the next package ordered by title");
             }
