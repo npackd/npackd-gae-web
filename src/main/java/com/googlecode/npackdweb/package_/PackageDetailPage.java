@@ -173,8 +173,6 @@ public class PackageDetailPage extends MyPage {
 
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
-        boolean editable = mode == FormMode.EDIT || mode == FormMode.CREATE;
-
         HTMLWriter w = new HTMLWriter();
         if (error != null) {
             w.e("p", "class", "bg-danger", this.error);
@@ -198,28 +196,33 @@ public class PackageDetailPage extends MyPage {
             w.start("div", "class", "btn-group");
             w.e("input", "class", "btn btn-default", "type", "submit", "value",
                     "Save");
-            if (mode != FormMode.CREATE) {
-                NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
-                        id, "Edit this package as repository XML");
-                NWUtils.jsButton_(w, "Delete", "deleteOnClick()",
-                        "Deletes this package and all associated versions");
-                NWUtils.jsButton(w, "New version", "/p/" + id + "/new",
-                        "Creates new version");
-                NWUtils.jsButton(
-                        w,
-                        "Detect new version",
-                        "/p/" + id + "/detect",
-                        "Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package",
-                        this.isDetectionPossible());
-                NWUtils.jsButton(
-                        w,
-                        "Request access",
-                        "/request-permissions?package=" + id,
-                        "Request write access to this package",
-                        true);
-                NWUtils.jsButton(w, "Next package", "/package/next?name=" + id,
-                        "Shows the next package ordered by title");
-            }
+        }
+
+        if (mode == FormMode.EDIT) {
+            NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
+                    id, "Edit this package as repository XML");
+            NWUtils.jsButton_(w, "Delete", "deleteOnClick()",
+                    "Deletes this package and all associated versions");
+            NWUtils.jsButton(w, "New version", "/p/" + id + "/new",
+                    "Creates new version");
+            NWUtils.jsButton(
+                    w,
+                    "Detect new version",
+                    "/p/" + id + "/detect",
+                    "Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package",
+                    this.isDetectionPossible());
+            Package p = NWUtils.dsCache.getPackage(id, false);
+            NWUtils.jsButton(
+                    w,
+                    "Request access",
+                    "/request-permissions?package=" + id,
+                    "Request write access to this package",
+                    !p.isCurrentUserPermittedToModify());
+            NWUtils.jsButton(w, "Next package", "/package/next?name=" + id,
+                    "Shows the next package ordered by title");
+        }
+
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.end("div");
         }
 
@@ -293,7 +296,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.start("td");
         w.t("Product home page");
-        if (editable) {
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("small", " (optional)");
         }
         w.t(":");
@@ -321,7 +324,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.start("td");
         w.t("Change log");
-        if (editable) {
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("small", " (optional)");
         }
         w.t(":");
@@ -362,7 +365,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.start("td");
         w.t("Screen shots");
-        if (editable) {
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("small", " (optional)");
         }
         w.t(":");
@@ -396,7 +399,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.start("td");
         w.t("Description");
-        if (editable) {
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("small", " (optional)");
         }
         w.t(":");
@@ -431,7 +434,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.start("td");
         w.t("License");
-        if (editable) {
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("small", " (optional)");
         }
         w.t(":");
@@ -465,7 +468,7 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.start("td");
         w.t("Categories/tags");
-        if (editable) {
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("small", " (optional)");
         }
         w.t(":");

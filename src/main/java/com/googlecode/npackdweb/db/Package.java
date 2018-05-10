@@ -338,6 +338,14 @@ public class Package {
      * @return document for the search index
      */
     public com.google.appengine.api.search.Document createDocument() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < this.permissions.size(); i++) {
+            if (i != 0) {
+                sb.append(' ');
+            }
+            sb.append(this.permissions.get(i).getEmail());
+        }
+
         Builder b = com.google.appengine.api.search.Document.newBuilder();
         b.setId(this.name)
                 .addField(
@@ -351,7 +359,10 @@ public class Package {
                 .addField(Field.newBuilder().setName("name").setText(this.name))
                 .addField(
                         Field.newBuilder().setName("category")
-                        .setText(NWUtils.join(" ", tags)));
+                        .setText(NWUtils.join(" ", tags)))
+                .addField(
+                        Field.newBuilder().setName("permission")
+                        .setText(sb.toString()));
 
         String category0 = null, category1 = null;
         if (tags.size() > 0) {

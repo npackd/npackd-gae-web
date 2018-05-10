@@ -663,9 +663,21 @@ public class NWUtils {
      */
     public static void recreateIndex() {
         Query<Package> q = NWUtils.dsCache.getAllPackages();
+        List<com.google.appengine.api.search.Document> documents =
+                new ArrayList<>();
+
         Index index = getIndex();
         for (Package p : q) {
-            index.put(p.createDocument());
+            documents.add(p.createDocument());
+
+            if (documents.size() > 100) {
+                index.put(documents);
+                documents.clear();
+            }
+        }
+
+        if (documents.size() > 0) {
+            index.put(documents);
         }
     }
 

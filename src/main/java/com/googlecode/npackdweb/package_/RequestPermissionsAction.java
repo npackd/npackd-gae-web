@@ -40,7 +40,8 @@ public class RequestPermissionsAction extends Action {
             UserService us = UserServiceFactory.getUserService();
 
             NWUtils.sendMailToAdmin("User " + us.getCurrentUser().getEmail() +
-                    " requests access to modify the package " + package_);
+                    " requests access to modify the package " + NWUtils.WEB_SITE +
+                    "/p/" + package_);
             return new MessagePage(
                     "Your request was sent to the admins. We will contact you via " +
                     us.getCurrentUser().getEmail());
