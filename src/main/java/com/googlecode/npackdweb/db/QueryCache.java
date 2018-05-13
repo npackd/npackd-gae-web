@@ -1,8 +1,9 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.cmd.Query;

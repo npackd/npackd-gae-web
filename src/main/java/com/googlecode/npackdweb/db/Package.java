@@ -10,9 +10,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.Version;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -43,7 +41,6 @@ import org.w3c.dom.NodeList;
  * A package.
  */
 @Entity
-@Cache
 @Index
 public class Package {
 

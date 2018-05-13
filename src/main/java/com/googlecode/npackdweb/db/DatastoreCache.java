@@ -9,8 +9,6 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.QueryCache;
-import com.googlecode.npackdweb.Version;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;

@@ -2,7 +2,6 @@ package com.googlecode.npackdweb.db;
 
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -16,7 +15,6 @@ import org.w3c.dom.Element;
  * A license definition.
  */
 @Entity
-@Cache
 @Index
 public class License {
 

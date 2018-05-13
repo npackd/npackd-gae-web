@@ -4,7 +4,6 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.Dependency;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.AlsoLoad;

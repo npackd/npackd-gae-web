@@ -1,7 +1,5 @@
 package com.googlecode.npackdweb.db;
 
-import com.googlecode.npackdweb.EntityCounter;
-import com.googlecode.npackdweb.EntityCounterShard;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import static com.googlecode.objectify.ObjectifyService.ofy;

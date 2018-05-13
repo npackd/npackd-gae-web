@@ -3,7 +3,7 @@ package com.googlecode.npackdweb.admin;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
-import com.googlecode.npackdweb.Dependency;
+import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.objectify.Key;

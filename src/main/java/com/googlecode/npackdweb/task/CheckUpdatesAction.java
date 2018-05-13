@@ -1,10 +1,12 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.task;
 
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.db.Version;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;

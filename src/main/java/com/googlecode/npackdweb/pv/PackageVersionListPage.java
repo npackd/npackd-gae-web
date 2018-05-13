@@ -1,5 +1,7 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.pv;
 
+import com.googlecode.npackdweb.MyPage;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import java.io.IOException;

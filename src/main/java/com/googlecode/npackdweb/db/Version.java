@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 /**
  * 1.2.3

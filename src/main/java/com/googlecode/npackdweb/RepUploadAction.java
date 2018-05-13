@@ -111,19 +111,20 @@ public class RepUploadAction extends Action {
                 pv.addTag(tag);
             }
 
-            // determine the keys for all objects
             Objectify ofy = ofy();
-            List<Key<?>> keys = new ArrayList<>();
-            for (License lic : f.lics) {
-                keys.add(lic.createKey());
-            }
-            for (PackageVersion pv : f.pvs) {
-                keys.add(pv.createKey());
-            }
-            for (Package p : f.ps) {
-                keys.add(p.createKey());
-            }
-
+            // determine the keys for all objects
+            /* implement caching later
+             List<Key<?>> keys = new ArrayList<>();
+             for (License lic : f.lics) {
+             keys.add(lic.createKey());
+             }
+             for (PackageVersion pv : f.pvs) {
+             keys.add(pv.createKey());
+             }
+             for (Package p : f.ps) {
+             keys.add(p.createKey());
+             }
+             */
             Stats stats = new Stats();
 
             // process licenses first. Only admins can change the license.

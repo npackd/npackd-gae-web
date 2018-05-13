@@ -1,5 +1,6 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.license;
 
+import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.objectify.Objectify;

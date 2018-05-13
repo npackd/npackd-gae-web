@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;

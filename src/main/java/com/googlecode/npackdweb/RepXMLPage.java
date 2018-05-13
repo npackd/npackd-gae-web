@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb;
 
+import com.googlecode.npackdweb.db.Version;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;

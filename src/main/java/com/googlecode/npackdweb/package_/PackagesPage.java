@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.package_;
 
 import com.google.appengine.api.search.FacetOptions;
 import com.google.appengine.api.search.FacetOptions.Builder;
@@ -16,6 +16,9 @@ import com.google.appengine.api.search.checkers.SearchApiLimits;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.DefaultServlet;
+import com.googlecode.npackdweb.MyPage;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;

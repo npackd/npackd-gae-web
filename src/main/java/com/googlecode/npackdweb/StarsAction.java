@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb;
 
+import com.googlecode.npackdweb.package_.PackagesPage;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Editor;

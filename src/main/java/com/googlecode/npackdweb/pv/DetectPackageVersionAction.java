@@ -2,7 +2,7 @@ package com.googlecode.npackdweb.pv;
 
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.Version;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;

@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.db;
 
 /**
  * Dependency on another package.

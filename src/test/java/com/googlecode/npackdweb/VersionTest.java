@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb;
 
+import com.googlecode.npackdweb.db.Version;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 

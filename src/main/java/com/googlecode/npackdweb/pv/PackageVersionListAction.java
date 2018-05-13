@@ -1,4 +1,4 @@
-package com.googlecode.npackdweb;
+package com.googlecode.npackdweb.pv;
 
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
