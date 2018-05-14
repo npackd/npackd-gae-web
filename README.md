@@ -12,3 +12,6 @@ _(pronounced "unpacked") is an application store/package manager/marketplace for
 
 Windows is a registered trademark of Microsoft Corporation in the United States and other countries.
 
+# Important commands
+
+* Let Git detect the moved/renamed files: git add -A .  

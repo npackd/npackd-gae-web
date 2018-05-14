@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- see https://cloud.google.com/appengine/docs/standard/java/config/cronref?hl=de -->
 <cronentries>
     <cron>
         <url>/cron/export-reps</url>
         <description>Export repositories</description>
         <schedule>every day 04:00</schedule>
+        <timezone>Europe/Berlin</timezone>
+    </cron>
+    <cron>
+        <url>/cron/update-safe-browsing-info</url>
+        <description>Update Safe Browsing information</description>
+        <schedule>every monday 08:30</schedule>
         <timezone>Europe/Berlin</timezone>
     </cron>
 </cronentries>

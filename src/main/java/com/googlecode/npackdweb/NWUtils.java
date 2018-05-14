@@ -1,7 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.googlecode.npackdweb.db.EntityCounter;
-import com.googlecode.npackdweb.db.EntityCounterShard;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
@@ -22,6 +20,8 @@ import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
+import com.googlecode.npackdweb.db.EntityCounter;
+import com.googlecode.npackdweb.db.EntityCounterShard;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -1289,7 +1289,7 @@ public class NWUtils {
             URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);
-            LOG.info(request.toString());
+            //LOG.info(request.toString());
             ht.setHeader(new HTTPHeader("Content-Type", "application/json"));
             ht.setPayload(request.toString().getBytes("UTF-8"));
             HTTPResponse r = s.fetch(ht);
@@ -1299,7 +1299,8 @@ public class NWUtils {
             if (rc == 200) {
                 JSONObject json = new JSONObject(new String(r.getContent(),
                         Charset.forName("UTF-8")));
-                JSONArray matches = json.getJSONArray("matches");
+                //LOG.info(json.toString());
+                JSONArray matches = json.optJSONArray("matches");
                 if (matches != null) {
                     for (int i = 0; i < matches.length(); i++) {
                         JSONObject match = matches.getJSONObject(i);
