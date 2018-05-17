@@ -3,7 +3,7 @@ package com.googlecode.npackdweb;
 import com.googlecode.npackdweb.pv.PackageVersionListAction;
 import com.googlecode.npackdweb.package_.PackagesAction;
 import com.googlecode.npackdweb.license.LicensesAction;
-import com.googlecode.npackdweb.task.CheckUpdatesAction;
+import com.googlecode.npackdweb.admin.CheckUpdatesAction;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.admin.AddEditorAction;

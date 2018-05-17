@@ -36,7 +36,7 @@ public class UpdateSafeBrowsingInfoAction extends Action {
 
         MapSpecification<Entity, Void, Void> ms =
                 new MapSpecification.Builder<>(new DatastoreInput(
-                                "PackageVersion", 50),
+                                "PackageVersion", 100),
                         new UpdateSafeBrowsingInfoMapper(),
                         new NoOutput<Void, Void>()).build();
         String jobId = MapJob.start(ms, settings);
