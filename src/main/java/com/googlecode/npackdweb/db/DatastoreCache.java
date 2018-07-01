@@ -1,5 +1,10 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
@@ -115,7 +120,7 @@ public class DatastoreCache {
         ob.delete().entity(p);
         QueryResultIterable<Key<PackageVersion>> k =
                 ob.load().type(PackageVersion.class).filter("package_ =", name).
-                keys();
+                        keys();
         ob.delete().keys(k);
         Index index = NWUtils.getIndex();
         index.delete(p.name);
@@ -384,38 +389,46 @@ public class DatastoreCache {
      * Returns packages by their IDs.
      *
      * @param ids internal package names
+     * @param useCache true = use cache
      * @return found packages
      */
-    public List<Package> getPackages(List<String> ids) {
+    public List<Package> getPackages(List<String> ids, boolean useCache) {
         List<Package> packages = new ArrayList<>();
 
         if (ids.size() > 0) {
-            lock.lock();
-            try {
-                for (String id : ids) {
-                    Package p = packagesCache.get(id);
-                    if (p == null) {
-                        packages.clear();
-                        break;
+            if (useCache) {
+                lock.lock();
+                try {
+                    for (String id : ids) {
+                        Package p = packagesCache.get(id);
+                        if (p == null) {
+                            packages.clear();
+                            break;
+                        }
+                        packages.add(p);
                     }
-                    packages.add(p);
+                } finally {
+                    lock.unlock();
                 }
-            } finally {
-                lock.unlock();
             }
 
             if (packages.size() == 0) {
-                Objectify obj = ofy();
-                List<Key<Package>> keys = new ArrayList<>();
+                DatastoreService datastore = DatastoreServiceFactory.
+                        getDatastoreService();
+
+                List<com.google.appengine.api.datastore.Key> keys =
+                        new ArrayList<>();
                 for (String id : ids) {
-                    keys.add(Key.create(Package.class, id));
+                    keys.add(KeyFactory.createKey("Package", id));
                 }
 
-                Map<Key<Package>, Package> map = obj.load().values(keys);
-                for (Map.Entry<Key<Package>, Package> e : map.entrySet()) {
-                    Package p = e.getValue();
+                final Map<com.google.appengine.api.datastore.Key, Entity> map =
+                        datastore.get(keys);
+                for (Map.Entry<com.google.appengine.api.datastore.Key, Entity> e
+                        : map.entrySet()) {
+                    Entity p = e.getValue();
                     if (p != null) {
-                        packages.add(p);
+                        packages.add(new Package(p));
                     }
                 }
 
@@ -509,8 +522,15 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
-            ret = ofy().load().key(Key.create(Package.class, id)).
-                    now();
+            DatastoreService datastore = DatastoreServiceFactory.
+                    getDatastoreService();
+            try {
+                ret = new Package(datastore.get(KeyFactory.createKey("Package",
+                        id)));
+            } catch (EntityNotFoundException ex) {
+                // ignore
+                //NWUtils.LOG.info("Cannot find the package " + id);
+            }
 
             if (ret != null) {
                 lock.lock();

@@ -5,11 +5,11 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -211,12 +211,14 @@ public class PackageDetailPage extends MyPage {
                     "Uses the discovery page (URL) and discovery regular expression to identify a newer version of the package",
                     this.isDetectionPossible());
             Package p = NWUtils.dsCache.getPackage(id, false);
-            NWUtils.jsButton(
-                    w,
-                    "Request access",
-                    "/request-permissions?package=" + id,
-                    "Request write access to this package",
-                    !p.isCurrentUserPermittedToModify());
+            if (p != null) {
+                NWUtils.jsButton(
+                        w,
+                        "Request access",
+                        "/request-permissions?package=" + id,
+                        "Request write access to this package",
+                        !p.isCurrentUserPermittedToModify());
+            }
             NWUtils.jsButton(w, "Next package", "/package/next?name=" + id,
                     "Shows the next package ordered by title");
         }

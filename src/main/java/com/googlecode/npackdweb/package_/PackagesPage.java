@@ -57,7 +57,7 @@ public class PackagesPage extends MyPage {
      * @param ids IDs of the packages
      */
     public PackagesPage(List<String> ids) {
-        packages.addAll(NWUtils.dsCache.getPackages(ids));
+        packages.addAll(NWUtils.dsCache.getPackages(ids, true));
         packages.
                 sort((Package o1, Package o2) -> o1.title.compareTo(o2.title));
 
@@ -171,7 +171,7 @@ public class PackagesPage extends MyPage {
             category1Values = new ArrayList<>();
         }
 
-        packages.addAll(NWUtils.dsCache.getPackages(ids));
+        packages.addAll(NWUtils.dsCache.getPackages(ids, true));
     }
 
     @Override

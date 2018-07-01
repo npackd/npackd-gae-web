@@ -158,7 +158,19 @@ public class Package {
      */
     public int starred;
 
-    // PLEASE ALSO UPDATE #copy()
+    // PLEASE ALSO UPDATE #copy() and #Package(Entity)
+    private static String getString(com.google.appengine.api.datastore.Entity e,
+            String propertyName) {
+        Object obj = e.getProperty(propertyName);
+        String result;
+        if (obj instanceof com.google.appengine.api.datastore.Text) {
+            result = ((com.google.appengine.api.datastore.Text) obj).getValue();
+        } else {
+            result = (String) obj;
+        }
+        return result;
+    }
+
     /**
      * For Objectify.
      */
@@ -180,6 +192,35 @@ public class Package {
         createdBy = lastModifiedBy;
         this.name = name;
         this.permissions.add(createdBy);
+    }
+
+    Package(com.google.appengine.api.datastore.Entity p) {
+        this.name = p.getKey().getName();
+        this.title = getString(p, "title");
+        this.url = getString(p, "url");
+        this.changelog = getString(p, "changelog");
+        this.description = getString(p, "description");
+        this.icon = getString(p, "icon");
+        this.license = getString(p, "license");
+        this.comment = getString(p, "comment");
+        this.lastModifiedAt = (Date) p.getProperty("lastModifiedAt");
+        this.lastModifiedBy = (User) p.getProperty("lastModifiedBy");
+        this.createdAt = (Date) p.getProperty("createdAt");
+        this.discoveryPage = getString(p, "discoveryPage");
+        this.discoveryRE = getString(p, "discoveryRE");
+        this.discoveryURLPattern = getString(p, "discoveryURLPattern");
+        this.tags = (List<String>) p.getProperty("tags");
+        this.createdBy = (User) p.getProperty("createdBy");
+        this.permissions = (List<User>) p.getProperty("permissions");
+        this.screenshots = (List<String>) p.getProperty("screenshots");
+        this.noUpdatesCheck = (Date) p.getProperty("noUpdatesCheck");
+
+        Long s = (Long) p.getProperty("starred");
+        if (s != null) {
+            this.starred = s.intValue();
+        }
+
+        postLoad();
     }
 
     /**
@@ -349,17 +390,17 @@ public class Package {
                         Field.newBuilder().setName("title").setText(this.title))
                 .addField(
                         Field.newBuilder().setName("description")
-                        .setText(this.description))
+                                .setText(this.description))
                 .addField(
                         Field.newBuilder().setName("createdAt")
-                        .setDate(this.createdAt))
+                                .setDate(this.createdAt))
                 .addField(Field.newBuilder().setName("name").setText(this.name))
                 .addField(
                         Field.newBuilder().setName("category")
-                        .setText(NWUtils.join(" ", tags)))
+                                .setText(NWUtils.join(" ", tags)))
                 .addField(
                         Field.newBuilder().setName("permission")
-                        .setText(sb.toString()));
+                                .setText(sb.toString()));
 
         String category0 = null, category1 = null;
         if (tags.size() > 0) {
@@ -411,7 +452,7 @@ public class Package {
                     char c = part.charAt(0);
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c >= 'a' && c <= 'z') || Character
-                            .isLetter(c))) {
+                                    .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position 1 in {0}", part);
                     }
@@ -422,7 +463,7 @@ public class Package {
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c == '-') || (c >= 'a' && c <= 'z') ||
                             Character
-                            .isLetter(c))) {
+                                    .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position {0} in {1}",
                                 i + 1, part);
@@ -433,7 +474,7 @@ public class Package {
                     char c = part.charAt(part.length() - 1);
                     if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                             (c == '_') || (c >= 'a' && c <= 'z') || Character
-                            .isLetter(c))) {
+                                    .isLetter(c))) {
                         return MessageFormat.format(
                                 "Wrong character at position {0} in {1}",
                                 part.length(), part);
@@ -469,8 +510,8 @@ public class Package {
             r = s.fetch(new URL(discoveryPage));
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(
-                                    new ByteArrayInputStream(r.getContent()),
-                                    "UTF-8"));
+                            new ByteArrayInputStream(r.getContent()),
+                            "UTF-8"));
             String line;
             Pattern vp = Pattern.compile(discoveryRE);
             while ((line = br.readLine()) != null) {
@@ -482,8 +523,8 @@ public class Package {
             }
         } catch (MalformedURLException e) {
             throw new IOException(e);
-        } catch (IOException |
-                com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
+        } catch (IOException
+                | com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
             throw new IOException(e);
         }
 
