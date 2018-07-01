@@ -1103,7 +1103,7 @@ public class NWUtils {
             try {
                 Reader reader =
                         new BufferedReader(new InputStreamReader(stream,
-                                        "UTF-8"));
+                                "UTF-8"));
                 char[] buffer = new char[8192];
                 int read;
                 while ((read = reader.read(buffer, 0, buffer.length)) > 0) {
@@ -1289,7 +1289,7 @@ public class NWUtils {
             URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);
-            //LOG.info(request.toString());
+            LOG.info(request.toString());
             ht.setHeader(new HTTPHeader("Content-Type", "application/json"));
             ht.setPayload(request.toString().getBytes("UTF-8"));
             HTTPResponse r = s.fetch(ht);

@@ -32,11 +32,11 @@ public class UpdateSafeBrowsingInfoAction extends Action {
             throws IOException {
         MapReduceSettings settings =
                 new MapReduceSettings.Builder().setWorkerQueueName("default")
-                .setBucketName("npackd").build();
+                        .setBucketName("npackd").build();
 
         MapSpecification<Entity, Void, Void> ms =
                 new MapSpecification.Builder<>(new DatastoreInput(
-                                "PackageVersion", 100),
+                        "PackageVersion", 1000),
                         new UpdateSafeBrowsingInfoMapper(),
                         new NoOutput<Void, Void>()).build();
         String jobId = MapJob.start(ms, settings);

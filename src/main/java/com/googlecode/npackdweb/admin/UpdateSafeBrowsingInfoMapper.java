@@ -51,6 +51,15 @@ public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     private void process(List<PackageVersion> list) throws IOException {
+        while (!list.isEmpty()) {
+            List<PackageVersion> subList = list.subList(0, Math.min(10, list.
+                    size()));
+            processBatch(subList);
+            subList.clear();
+        }
+    }
+
+    private void processBatch(List<PackageVersion> list) throws IOException {
         NWUtils.LOG.log(Level.INFO, "Checking from {0} {1}", new Object[]{
             list.get(0).getPackage(),
             list.get(0).getVersion()});
