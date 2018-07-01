@@ -660,28 +660,6 @@ public class NWUtils {
         return index;
     }
 
-    /**
-     * Re-creates the index for packages
-     */
-    public static void recreateIndex() {
-        Query<Package> q = NWUtils.dsCache.getAllPackages();
-        List<com.google.appengine.api.search.Document> documents =
-                new ArrayList<>();
-
-        Index index = getIndex();
-        for (Package p : q) {
-            documents.add(p.createDocument());
-
-            if (documents.size() > 100) {
-                index.put(documents);
-                documents.clear();
-            }
-        }
-
-        if (documents.size() > 0) {
-            index.put(documents);
-        }
-    }
 
     /**
      * Compares 2 users.

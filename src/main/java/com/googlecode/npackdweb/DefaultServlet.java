@@ -11,9 +11,7 @@ import com.googlecode.npackdweb.admin.AddEditorConfirmedAction;
 import com.googlecode.npackdweb.admin.AddPermissionsAction;
 import com.googlecode.npackdweb.admin.AddPermissionsConfirmedAction;
 import com.googlecode.npackdweb.admin.CleanDependenciesAction;
-import com.googlecode.npackdweb.admin.RecreateIndexAction;
 import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
-import com.googlecode.npackdweb.admin.ResavePackagesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
 import com.googlecode.npackdweb.api.NotifyAction;
 import com.googlecode.npackdweb.api.StarAction;
@@ -108,7 +106,7 @@ public class DefaultServlet extends HttpServlet {
                         NWUtils.LOG.info("Calling createLoginURL");
                         resp.
                                 sendRedirect(us.createLoginURL(req.
-                                                getRequestURI()));
+                                        getRequestURI()));
                     }
                     break;
                 case ADMINISTRATOR:
@@ -117,7 +115,7 @@ public class DefaultServlet extends HttpServlet {
                         NWUtils.LOG.info("Calling createLoginURL");
                         resp.
                                 sendRedirect(us.createLoginURL(req.
-                                                getRequestURI()));
+                                        getRequestURI()));
                     } else if (!us.isUserAdmin()) {
                         ok = false;
                         resp.setContentType("text/plain");
@@ -197,8 +195,6 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new SendStatusAction("^/cron/tick$", 200));
         registerAction(new ExportRepsAction());
         // registerAction(new StoreDataAction());
-        registerAction(new RecreateIndexAction());
-        registerAction(new ResavePackagesAction());
         registerAction(new AddEditorAction());
         registerAction(new AddEditorConfirmedAction());
         registerAction(new InfoAction());

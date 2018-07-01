@@ -93,7 +93,7 @@ public class DatastoreCache {
         Objectify ob = ofy();
         License p = ob.load().key(Key.create(License.class, name)).now();
         ob.delete().entity(p);
-        NWUtils.dsCache.incDataVersion();
+        incDataVersion();
     }
 
     /**
@@ -128,7 +128,7 @@ public class DatastoreCache {
         ob.delete().keys(k);
         Index index = NWUtils.getIndex();
         index.delete(p.name);
-        NWUtils.dsCache.incDataVersion();
+        incDataVersion();
     }
 
     /**
@@ -207,7 +207,7 @@ public class DatastoreCache {
             }
         }
         ofy().save().entity(p);
-        NWUtils.dsCache.incDataVersion();
+        incDataVersion();
     }
 
     /**
@@ -217,7 +217,7 @@ public class DatastoreCache {
      */
     public void saveRepository(Repository r) {
         ofy().save().entity(r);
-        NWUtils.dsCache.incDataVersion();
+        incDataVersion();
     }
 
     /**
@@ -245,7 +245,7 @@ public class DatastoreCache {
                 p.starred++;
                 savePackage(oldp, p, false);
                 e.starredPackages.add(p.name);
-                NWUtils.dsCache.saveEditor(e);
+                saveEditor(e);
             }
         } else {
             if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
@@ -256,7 +256,7 @@ public class DatastoreCache {
                 }
                 savePackage(oldp, p, false);
                 e.starredPackages.remove(p.name);
-                NWUtils.dsCache.saveEditor(e);
+                saveEditor(e);
             }
         }
     }
@@ -621,14 +621,7 @@ public class DatastoreCache {
     public void deleteRepository(long id) {
         Objectify ofy = ofy();
         ofy.delete().key(Key.create(Repository.class, id));
-        NWUtils.dsCache.incDataVersion();
-    }
-
-    /**
-     * @return all packages
-     */
-    public Query<Package> getAllPackages() {
-        return ofy().load().type(Package.class);
+        incDataVersion();
     }
 
     /**
