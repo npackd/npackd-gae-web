@@ -28,6 +28,18 @@ public class License {
      */
     public Date lastModifiedAt;
 
+    public License() {
+
+    }
+
+    License(com.google.appengine.api.datastore.Entity e) {
+        this.name = e.getKey().getName();
+        this.title = NWUtils.getString(e, "title");
+        this.url = NWUtils.getString(e, "url");
+
+        postLoad();
+    }
+
     // WARNING: update copy()!
     public String getTitle() {
         return title;

@@ -4,7 +4,9 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
@@ -45,6 +47,8 @@ public class DatastoreCache {
 
     private Map<String, License> licensesCache =
             new HashMap<>();
+
+    private boolean allLicensesRead;
 
     /**
      * Saves a package. The package can be new or an already existing one. The
@@ -352,6 +356,7 @@ public class DatastoreCache {
             dataVersion = v;
             packagesCache.clear();
             licensesCache.clear();
+            allLicensesRead = false;
         } finally {
             lock.unlock();
         }
@@ -640,12 +645,42 @@ public class DatastoreCache {
      */
     public List<License> getAllLicenses() {
         List<License> licenses = new ArrayList<>();
-        String cacheSuffix = "@" + NWUtils.dsCache.getDataVersion();
-        Objectify ob = ofy();
-        Query<License> q = ob.load().type(License.class).order("title");
-        List<Key<License>> keys = QueryCache.getKeys(ob, q, cacheSuffix);
-        Map<Key<License>, License> k2v = ob.load().keys(keys);
-        licenses.addAll(k2v.values());
+        lock.lock();
+        try {
+            if (allLicensesRead) {
+                for (License lic : licensesCache.values()) {
+                    licenses.add(lic.copy());
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+
+        if (licenses.size() == 0) {
+            DatastoreService datastore = DatastoreServiceFactory.
+                    getDatastoreService();
+
+            com.google.appengine.api.datastore.Query query =
+                    new com.google.appengine.api.datastore.Query("License");
+            query.addSort("title");
+            PreparedQuery pq = datastore.prepare(query);
+            final List<Entity> list =
+                    pq.asList(FetchOptions.Builder.withDefaults());
+
+            lock.lock();
+            try {
+                licensesCache.clear();
+                allLicensesRead = true;
+                for (Entity e : list) {
+                    License lic = new License(e);
+                    licensesCache.put(lic.name, lic);
+                    licenses.add(lic.copy());
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+
         return licenses;
     }
 }

@@ -1349,4 +1349,24 @@ public class NWUtils {
 
         return r;
     }
+
+    /**
+     * Retrieve a string from an Datastore entity.
+     *
+     * @param e an entity
+     * @param propertyName name of the property
+     * @return property value
+     */
+    public static String getString(com.google.appengine.api.datastore.Entity e,
+            String propertyName) {
+        Object obj = e.getProperty(propertyName);
+        String result;
+        if (obj instanceof com.google.appengine.api.datastore.Text) {
+            result = ((com.google.appengine.api.datastore.Text) obj).getValue();
+        } else {
+            result = (String) obj;
+        }
+        return result;
+    }
+
 }

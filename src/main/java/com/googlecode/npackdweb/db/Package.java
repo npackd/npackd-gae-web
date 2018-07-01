@@ -159,18 +159,6 @@ public class Package {
     public int starred;
 
     // PLEASE ALSO UPDATE #copy() and #Package(Entity)
-    private static String getString(com.google.appengine.api.datastore.Entity e,
-            String propertyName) {
-        Object obj = e.getProperty(propertyName);
-        String result;
-        if (obj instanceof com.google.appengine.api.datastore.Text) {
-            result = ((com.google.appengine.api.datastore.Text) obj).getValue();
-        } else {
-            result = (String) obj;
-        }
-        return result;
-    }
-
     /**
      * For Objectify.
      */
@@ -196,19 +184,19 @@ public class Package {
 
     Package(com.google.appengine.api.datastore.Entity p) {
         this.name = p.getKey().getName();
-        this.title = getString(p, "title");
-        this.url = getString(p, "url");
-        this.changelog = getString(p, "changelog");
-        this.description = getString(p, "description");
-        this.icon = getString(p, "icon");
-        this.license = getString(p, "license");
-        this.comment = getString(p, "comment");
+        this.title = NWUtils.getString(p, "title");
+        this.url = NWUtils.getString(p, "url");
+        this.changelog = NWUtils.getString(p, "changelog");
+        this.description = NWUtils.getString(p, "description");
+        this.icon = NWUtils.getString(p, "icon");
+        this.license = NWUtils.getString(p, "license");
+        this.comment = NWUtils.getString(p, "comment");
         this.lastModifiedAt = (Date) p.getProperty("lastModifiedAt");
         this.lastModifiedBy = (User) p.getProperty("lastModifiedBy");
         this.createdAt = (Date) p.getProperty("createdAt");
-        this.discoveryPage = getString(p, "discoveryPage");
-        this.discoveryRE = getString(p, "discoveryRE");
-        this.discoveryURLPattern = getString(p, "discoveryURLPattern");
+        this.discoveryPage = NWUtils.getString(p, "discoveryPage");
+        this.discoveryRE = NWUtils.getString(p, "discoveryRE");
+        this.discoveryURLPattern = NWUtils.getString(p, "discoveryURLPattern");
         this.tags = (List<String>) p.getProperty("tags");
         this.createdBy = (User) p.getProperty("createdBy");
         this.permissions = (List<User>) p.getProperty("permissions");
