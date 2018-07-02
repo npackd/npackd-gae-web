@@ -184,6 +184,54 @@ public class PackageVersion {
         this.detectPackageVersions = new ArrayList<>();
     }
 
+    PackageVersion(com.google.appengine.api.datastore.Entity e) {
+        this.fileContents = (List<Object>) e.getProperty("fileContents");
+        if (this.fileContents == null) {
+            this.fileContents = new ArrayList<>();
+        }
+        this.name = e.getKey().getName();
+        this.package_ = NWUtils.getString(e, "package_");
+        if (this.package_ == null) {
+            this.package_ = NWUtils.getString(e, "package");
+        }
+        this.version = NWUtils.getString(e, "version");
+        this.oneFile = (Boolean) e.getProperty("oneFile");
+        this.url = NWUtils.getString(e, "url");
+        this.sha1 = NWUtils.getString(e, "sha1");
+        this.importantFileTitles = NWUtils.getStringList(e,
+                "importantFileTitles");
+        this.importantFilePaths = NWUtils.getStringList(e,
+                "importantFilePaths");
+        this.cmdFilePaths = NWUtils.getStringList(e, "cmdFilePaths");
+        this.filePaths = NWUtils.getStringList(e, "filePaths");
+        this.dependencyPackages = NWUtils.getStringList(e,
+                "dependencyPackages");
+        this.dependencyVersionRanges = NWUtils.getStringList(e,
+                "dependencyVersionRanges");
+        this.dependencyEnvVars = NWUtils.getStringList(e,
+                "dependencyEnvVars");
+        this.detectFilePaths = NWUtils.getStringList(e, "detectFilePaths");
+        this.detectFileSHA1s = NWUtils.getStringList(e, "detectFileSHA1s");
+        this.detectPackageNames = NWUtils.getStringList(e,
+                "detectPackageNames");
+        this.detectPackageVersions = NWUtils.getStringList(e,
+                "detectPackageVersions");
+        this.tags = NWUtils.getStringList(e, "tags");
+        this.lastModifiedAt = (Date) e.getProperty("lastModifiedAt");
+        this.lastModifiedBy = (User) e.getProperty("lastModifiedBy");
+        this.createdAt = (Date) e.getProperty("createdAt");
+        this.createdBy = (User) e.getProperty("createdBy");
+        this.installSucceeded = ((Long) e.getProperty("installSucceeded")).
+                intValue();
+        this.installFailed = ((Long) e.getProperty("installFailed")).intValue();
+        this.uninstallSucceeded = ((Long) e.getProperty("uninstallSucceeded")).
+                intValue();
+        this.uninstallFailed = ((Long) e.getProperty("uninstallFailed")).
+                intValue();
+
+        postLoad();
+    }
+
     public String getName() {
         return name;
     }

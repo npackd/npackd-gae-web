@@ -30,7 +30,6 @@ import com.googlecode.npackdweb.db.Setting;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.cmd.Query;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -659,7 +658,6 @@ public class NWUtils {
         Index index = SearchServiceFactory.getSearchService().getIndex(spec);
         return index;
     }
-
 
     /**
      * Compares 2 users.
@@ -1329,11 +1327,11 @@ public class NWUtils {
     }
 
     /**
-     * Retrieve a string from an Datastore entity.
+     * Retrieve a string from a Datastore entity.
      *
      * @param e an entity
      * @param propertyName name of the property
-     * @return property value
+     * @return property value or null
      */
     public static String getString(com.google.appengine.api.datastore.Entity e,
             String propertyName) {
@@ -1347,4 +1345,37 @@ public class NWUtils {
         return result;
     }
 
+    /**
+     * Retrieve a string list from a Datastore entity.
+     *
+     * @param e an entity
+     * @param propertyName name of the property
+     * @return property value != null
+     */
+    public static List<String> getStringList(
+            com.google.appengine.api.datastore.Entity e,
+            String propertyName) {
+        List<String> obj = (List<String>) e.getProperty(propertyName);
+        if (obj == null) {
+            obj = new ArrayList<>();
+        }
+        return obj;
+    }
+
+    /**
+     * Retrieve a user list from a Datastore entity.
+     *
+     * @param e an entity
+     * @param propertyName name of the property
+     * @return property value != null
+     */
+    public static List<User> getUserList(
+            com.google.appengine.api.datastore.Entity e,
+            String propertyName) {
+        List<User> obj = (List<User>) e.getProperty(propertyName);
+        if (obj == null) {
+            obj = new ArrayList<>();
+        }
+        return obj;
+    }
 }

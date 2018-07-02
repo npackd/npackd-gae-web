@@ -7,6 +7,7 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
@@ -629,8 +630,25 @@ public class DatastoreCache {
      * @return all versions for the package
      */
     public Iterable<PackageVersion> getPackageVersions(String id) {
-        return ofy().load().type(PackageVersion.class)
-                .filter("package_ =", id).list();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("PackageVersion");
+        query.setFilter(
+                new com.google.appengine.api.datastore.Query.FilterPredicate(
+                        "package_", FilterOperator.EQUAL, id));
+
+        PreparedQuery pq = datastore.prepare(query);
+        final List<Entity> list =
+                pq.asList(FetchOptions.Builder.withDefaults());
+
+        List<PackageVersion> res = new ArrayList<>();
+        for (Entity e : list) {
+            res.add(new PackageVersion(e));
+        }
+
+        return res;
     }
 
     /**

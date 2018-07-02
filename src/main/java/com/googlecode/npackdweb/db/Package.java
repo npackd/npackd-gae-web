@@ -197,10 +197,10 @@ public class Package {
         this.discoveryPage = NWUtils.getString(p, "discoveryPage");
         this.discoveryRE = NWUtils.getString(p, "discoveryRE");
         this.discoveryURLPattern = NWUtils.getString(p, "discoveryURLPattern");
-        this.tags = (List<String>) p.getProperty("tags");
+        this.tags = NWUtils.getStringList(p, "tags");
         this.createdBy = (User) p.getProperty("createdBy");
-        this.permissions = (List<User>) p.getProperty("permissions");
-        this.screenshots = (List<String>) p.getProperty("screenshots");
+        this.permissions = NWUtils.getUserList(p, "permissions");
+        this.screenshots = NWUtils.getStringList(p, "screenshots");
         this.noUpdatesCheck = (Date) p.getProperty("noUpdatesCheck");
 
         Long s = (Long) p.getProperty("starred");
