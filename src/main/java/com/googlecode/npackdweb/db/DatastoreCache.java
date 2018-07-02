@@ -579,18 +579,28 @@ public class DatastoreCache {
     }
 
     public Package findNextPackage(Package p) {
-        List<Package> ps =
-                ofy().load().type(Package.class).limit(5).filter("title >=",
-                        p.title).order("title").list();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("Package");
+        query.setFilter(
+                new com.google.appengine.api.datastore.Query.FilterPredicate(
+                        "title", FilterOperator.GREATER_THAN_OR_EQUAL, p.title));
+        query.addSort("title");
+
+        PreparedQuery pq = datastore.prepare(query);
+        final List<Entity> ps =
+                pq.asList(FetchOptions.Builder.withLimit(5));
 
         Package next = null;
 
         // find the next package
         for (int i = 0; i < ps.size() - 1; i++) {
-            Package n = ps.get(i);
+            Entity n = ps.get(i);
 
-            if (n.name.equals(p.name)) {
-                next = ps.get(i + 1);
+            if (n.getKey().getName().equals(p.name)) {
+                next = new Package(ps.get(i + 1));
                 break;
             }
         }
