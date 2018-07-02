@@ -57,6 +57,17 @@ public class Editor {
     public Editor() {
     }
 
+    Editor(com.google.appengine.api.datastore.Entity p) {
+        this.name = p.getKey().getName();
+        this.lastModifiedAt = (Date) p.getProperty("lastModifiedAt");
+        this.createdAt = (Date) p.getProperty("createdAt");
+        this.createdBy = (User) p.getProperty("createdBy");
+        this.starredPackages = NWUtils.getStringList(p, "starredPackages");
+        this.id = ((Long) p.getProperty("id")).intValue();
+
+        postLoad();
+    }
+
     /**
      * @param user editor
      */

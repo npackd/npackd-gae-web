@@ -605,10 +605,21 @@ public class DatastoreCache {
      * @return found editor or null
      */
     public Editor findEditor(int id) {
-        List<Editor> editors = ofy().load().type(Editor.class).filter(
-                "id =", id).limit(1).list();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("Editor");
+        query.setFilter(
+                new com.google.appengine.api.datastore.Query.FilterPredicate(
+                        "id", FilterOperator.EQUAL, id));
+
+        PreparedQuery pq = datastore.prepare(query);
+        final List<Entity> editors =
+                pq.asList(FetchOptions.Builder.withDefaults());
+
         if (editors.size() > 0) {
-            return editors.get(0);
+            return new Editor(editors.get(0));
         } else {
             return null;
         }
@@ -620,8 +631,12 @@ public class DatastoreCache {
      * @param id repository ID
      */
     public void deleteRepository(long id) {
-        Objectify ofy = ofy();
-        ofy.delete().key(Key.create(Repository.class, id));
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.delete(KeyFactory.createKey("Repository", id));
+
+        ofy().clear();
+
         incDataVersion();
     }
 
