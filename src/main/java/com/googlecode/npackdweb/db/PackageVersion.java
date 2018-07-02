@@ -232,6 +232,46 @@ public class PackageVersion {
         postLoad();
     }
 
+    com.google.appengine.api.datastore.Entity createEntity() {
+        onPersist();
+
+        com.google.appengine.api.datastore.Entity e =
+                new com.google.appengine.api.datastore.Entity("PackageVersion",
+                        this.name);
+
+        e.setIndexedProperty("url", this.url);
+        e.setProperty("fileContents", this.fileContents);
+        e.setIndexedProperty("package_", this.package_);
+        e.setIndexedProperty("version", this.version);
+        e.setIndexedProperty("oneFile", this.oneFile);
+        e.setIndexedProperty("url", this.url);
+        e.setIndexedProperty("sha1", this.sha1);
+        e.setIndexedProperty("importantFileTitles", this.importantFileTitles);
+        e.setIndexedProperty("importantFilePaths", this.importantFilePaths);
+        e.setIndexedProperty("cmdFilePaths", this.cmdFilePaths);
+        e.setIndexedProperty("filePaths", this.filePaths);
+        e.setIndexedProperty("dependencyPackages", this.dependencyPackages);
+        e.setIndexedProperty("dependencyVersionRanges",
+                this.dependencyVersionRanges);
+        e.setIndexedProperty("dependencyEnvVars", this.dependencyEnvVars);
+        e.setIndexedProperty("detectFilePaths", this.detectFilePaths);
+        e.setIndexedProperty("detectFileSHA1s", this.detectFileSHA1s);
+        e.setIndexedProperty("detectPackageNames", this.detectPackageNames);
+        e.setIndexedProperty("detectPackageVersions",
+                this.detectPackageVersions);
+        e.setIndexedProperty("tags", this.tags);
+        e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
+        e.setIndexedProperty("lastModifiedBy", this.lastModifiedBy);
+        e.setIndexedProperty("createdAt", this.createdAt);
+        e.setIndexedProperty("createdBy", this.createdBy);
+        e.setIndexedProperty("installSucceeded", this.installSucceeded);
+        e.setIndexedProperty("installFailed", this.installFailed);
+        e.setIndexedProperty("uninstallSucceeded", this.uninstallSucceeded);
+        e.setIndexedProperty("uninstallFailed", this.uninstallFailed);
+
+        return e;
+    }
+
     public String getName() {
         return name;
     }

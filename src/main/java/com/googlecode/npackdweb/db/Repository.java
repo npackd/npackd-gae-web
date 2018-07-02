@@ -34,6 +34,31 @@ public class Repository {
      */
     public String blobFile;
 
+    public Repository() {
+
+    }
+
+    Repository(com.google.appengine.api.datastore.Entity e) {
+        this.name = e.getKey().getName();
+        this.lastModifiedAt = (Date) e.getProperty("lastModifiedAt");
+        this.blobFile = NWUtils.getString(e, "blobFile");
+
+        postLoad();
+    }
+
+    com.google.appengine.api.datastore.Entity createEntity() {
+        onPersist();
+
+        com.google.appengine.api.datastore.Entity e =
+                new com.google.appengine.api.datastore.Entity("Repository",
+                        this.name);
+
+        e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
+        e.setIndexedProperty("blobFile", this.blobFile);
+
+        return e;
+    }
+
     @OnLoad
     public void postLoad() {
         if (this.lastModifiedAt == null) {

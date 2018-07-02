@@ -40,6 +40,19 @@ public class License {
         postLoad();
     }
 
+    com.google.appengine.api.datastore.Entity createEntity() {
+        onPersist();
+
+        com.google.appengine.api.datastore.Entity e =
+                new com.google.appengine.api.datastore.Entity("License",
+                        this.name);
+
+        e.setIndexedProperty("title", this.title);
+        e.setIndexedProperty("url", this.url);
+
+        return e;
+    }
+
     // WARNING: update copy()!
     public String getTitle() {
         return title;

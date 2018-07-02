@@ -79,6 +79,22 @@ public class Editor {
         this.name = user.getEmail();
     }
 
+    com.google.appengine.api.datastore.Entity createEntity() {
+        onPersist();
+
+        com.google.appengine.api.datastore.Entity e =
+                new com.google.appengine.api.datastore.Entity("Editor",
+                        this.name);
+
+        e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
+        e.setIndexedProperty("createdAt", this.createdAt);
+        e.setIndexedProperty("createdBy", this.createdBy);
+        e.setIndexedProperty("starredPackages", this.starredPackages);
+        e.setIndexedProperty("id", new Long(this.id));
+
+        return e;
+    }
+
     public String getName() {
         return name;
     }

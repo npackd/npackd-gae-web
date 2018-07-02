@@ -211,6 +211,36 @@ public class Package {
         postLoad();
     }
 
+    com.google.appengine.api.datastore.Entity createEntity() {
+        // onPersist();
+
+        com.google.appengine.api.datastore.Entity e =
+                new com.google.appengine.api.datastore.Entity("Package",
+                        this.name);
+
+        e.setIndexedProperty("title", this.title);
+        e.setIndexedProperty("url", this.url);
+        e.setIndexedProperty("changelog", this.changelog);
+        e.setProperty("description", this.description);
+        e.setIndexedProperty("icon", this.icon);
+        e.setIndexedProperty("license", this.license);
+        e.setProperty("comment", this.comment);
+        e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
+        e.setIndexedProperty("lastModifiedBy", this.lastModifiedBy);
+        e.setIndexedProperty("createdAt", this.createdAt);
+        e.setIndexedProperty("discoveryPage", this.discoveryPage);
+        e.setIndexedProperty("discoveryRE", this.discoveryRE);
+        e.setIndexedProperty("discoveryURLPattern", this.discoveryURLPattern);
+        e.setIndexedProperty("tags", this.tags);
+        e.setIndexedProperty("createdBy", this.createdBy);
+        e.setIndexedProperty("permissions", this.permissions);
+        e.setIndexedProperty("screenshots", this.screenshots);
+        e.setIndexedProperty("noUpdatesCheck", this.noUpdatesCheck);
+        e.setIndexedProperty("starred", new Long(this.starred));
+
+        return e;
+    }
+
     /**
      * @return true if the current user may modify the package
      */

@@ -8,7 +8,6 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -21,7 +20,6 @@ import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
 import static com.googlecode.objectify.ObjectifyService.ofy;
-import com.googlecode.objectify.cmd.Query;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,7 +64,10 @@ public class DatastoreCache {
             p.lastModifiedBy =
                     UserServiceFactory.getUserService().getCurrentUser();
         }
-        ofy().save().entity(p);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.put(p.createEntity());
+        ofy().clear();
         incDataVersion();
         Index index = NWUtils.getIndex();
         index.put(p.createDocument());
@@ -81,7 +82,10 @@ public class DatastoreCache {
         if (e.id <= 0) {
             e.createId();
         }
-        ofy().save().entity(e);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.put(e.createEntity());
+        ofy().clear();
         incDataVersion();
     }
 
@@ -91,9 +95,12 @@ public class DatastoreCache {
      * @param name license ID
      */
     public void deleteLicense(String name) {
-        Objectify ob = ofy();
-        License p = ob.load().key(Key.create(License.class, name)).now();
-        ob.delete().entity(p);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.delete(KeyFactory.createKey("License", name));
+
+        ofy().clear();
+
         incDataVersion();
     }
 
@@ -111,7 +118,10 @@ public class DatastoreCache {
             st.name = name;
         }
         st.value = value;
-        ob.save().entity(st);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.put(st.createEntity());
+        ob.clear();
     }
 
     /**
@@ -120,15 +130,32 @@ public class DatastoreCache {
      * @param name package name
      */
     public void deletePackage(String name) {
-        Objectify ob = ofy();
-        Package p = ob.load().key(Key.create(Package.class, name)).now();
-        ob.delete().entity(p);
-        QueryResultIterable<Key<PackageVersion>> k =
-                ob.load().type(PackageVersion.class).filter("package_ =", name).
-                        keys();
-        ob.delete().keys(k);
+        // delete the package
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.delete(KeyFactory.createKey("Package", name));
+
+        // delete package versions
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("PackageVersion");
+        query.setFilter(
+                new com.google.appengine.api.datastore.Query.FilterPredicate(
+                        "package_", FilterOperator.EQUAL, name));
+        query.setKeysOnly();
+
+        PreparedQuery pq = datastore.prepare(query);
+        final List<Entity> list = pq.asList(FetchOptions.Builder.withDefaults());
+        ArrayList<com.google.appengine.api.datastore.Key> keys =
+                new ArrayList<>();
+        for (Entity e : list) {
+            keys.add(e.getKey());
+        }
+        datastore.delete(keys);
+
+        ofy().clear();
+
         Index index = NWUtils.getIndex();
-        index.delete(p.name);
+        index.delete(name);
         incDataVersion();
     }
 
@@ -142,7 +169,10 @@ public class DatastoreCache {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
         }
-        ofy().save().entity(p);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.put(p.createEntity());
+        ofy().clear();
         incDataVersion();
     }
 
@@ -154,14 +184,22 @@ public class DatastoreCache {
      * @return setting value
      */
     public String getSetting(String name, String defaultValue) {
-        Objectify ob = ofy();
-        Setting st = ob.load().key(Key.create(Setting.class, name)).now();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        Setting st = null;
+        try {
+            st = new Setting(datastore.get(KeyFactory.createKey(
+                    "Setting", name)));
+        } catch (EntityNotFoundException ex) {
+            // ignore
+        }
+
         String value;
         if (st == null) {
             st = new Setting();
             st.name = name;
             st.value = defaultValue;
-            ob.save().entity(st);
+            ofy().save().entity(st);
         }
         value = st.value;
         return value;
@@ -207,7 +245,10 @@ public class DatastoreCache {
                 }
             }
         }
-        ofy().save().entity(p);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.put(p.createEntity());
+        ofy().clear();
         incDataVersion();
     }
 
@@ -217,7 +258,10 @@ public class DatastoreCache {
      * @param r repository
      */
     public void saveRepository(Repository r) {
-        ofy().save().entity(r);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.put(r.createEntity());
+        ofy().clear();
         incDataVersion();
     }
 
@@ -228,7 +272,17 @@ public class DatastoreCache {
      * @return the found editor or null
      */
     public Editor findEditor(User u) {
-        return ofy().load().key(Key.create(Editor.class, u.getEmail())).now();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        Editor ret = null;
+        try {
+            ret = new Editor(datastore.get(KeyFactory.createKey(
+                    "Editor",
+                    u.getEmail())));
+        } catch (EntityNotFoundException ex) {
+            // ignore
+        }
+        return ret;
     }
 
     /**
@@ -266,7 +320,22 @@ public class DatastoreCache {
      * @return all defined repositories
      */
     public List<Repository> findAllRepositories() {
-        return ofy().load().type(Repository.class).list();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("Repository");
+
+        PreparedQuery pq = datastore.prepare(query);
+        final List<Entity> list =
+                pq.asList(FetchOptions.Builder.withDefaults());
+
+        List<Repository> res = new ArrayList<>();
+        for (Entity e : list) {
+            res.add(new Repository(e));
+        }
+
+        return res;
     }
 
     /**
@@ -276,7 +345,17 @@ public class DatastoreCache {
      * @return found repository or null
      */
     public Repository findRepository(String tag) {
-        return ofy().load().key(Key.create(Repository.class, tag)).now();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        Repository ret = null;
+        try {
+            ret = new Repository(datastore.get(KeyFactory.createKey(
+                    "Repository",
+                    tag)));
+        } catch (EntityNotFoundException ex) {
+            // ignore
+        }
+        return ret;
     }
 
     /**
@@ -286,27 +365,30 @@ public class DatastoreCache {
      */
     public List<PackageVersion> find20PackageVersions(
             String tag, String order) {
-        Query<PackageVersion> q = ofy().load().type(PackageVersion.class).
-                limit(20);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("PackageVersion");
         if (tag != null) {
-            q = q.filter("tags ==", tag);
+            query.setFilter(
+                    new com.google.appengine.api.datastore.Query.FilterPredicate(
+                            "tags", FilterOperator.EQUAL, tag));
         }
         if (order != null) {
-            q = q.order(order);
+            query.addSort(order);
         }
-        return q.list();
-    }
 
-    /**
-     * Searches for a package version.
-     *
-     * @param packageName full package name
-     * @param v version number
-     * @return found version or null
-     */
-    public PackageVersion findPackageVersion(String packageName, String v) {
-        return ofy().load().key(Key.create(PackageVersion.class,
-                packageName + "@" + v)).now();
+        PreparedQuery pq = datastore.prepare(query);
+        final List<Entity> list =
+                pq.asList(FetchOptions.Builder.withLimit(20));
+
+        List<PackageVersion> res = new ArrayList<>();
+        for (Entity e : list) {
+            res.add(new PackageVersion(e));
+        }
+
+        return res;
     }
 
     /**
@@ -314,8 +396,7 @@ public class DatastoreCache {
      * @return sorted versions (1.1, 1.2, 1.3) for this package
      */
     public List<PackageVersion> getSortedVersions(String package_) {
-        List<PackageVersion> versions = ofy().load().type(PackageVersion.class)
-                .filter("package_ =", package_).list();
+        List<PackageVersion> versions = getPackageVersions(package_);
         Collections.sort(versions, new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
@@ -325,16 +406,6 @@ public class DatastoreCache {
             }
         });
         return versions;
-    }
-
-    /**
-     * Searches for a license with the given full license ID.
-     *
-     * @param id full license ID
-     * @return found license or null
-     */
-    public License findLicense(String id) {
-        return ofy().load().key(Key.create(License.class, id)).now();
     }
 
     /**
@@ -477,8 +548,15 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
-            ret = ofy().load().key(Key.create(License.class, id)).
-                    now();
+            DatastoreService datastore = DatastoreServiceFactory.
+                    getDatastoreService();
+            try {
+                ret = new License(datastore.get(KeyFactory.createKey(
+                        "License",
+                        id)));
+            } catch (EntityNotFoundException ex) {
+                // ignore
+            }
 
             if (ret != null) {
                 lock.lock();
@@ -504,8 +582,15 @@ public class DatastoreCache {
      * @return found package version or null
      */
     public PackageVersion getPackageVersion(String id) {
-        return ofy().load().key(Key.create(
-                PackageVersion.class, id)).now();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        try {
+            return new PackageVersion(datastore.get(KeyFactory.createKey(
+                    "PackageVersion",
+                    id)));
+        } catch (EntityNotFoundException ex) {
+            return null;
+        }
     }
 
     /**
@@ -575,7 +660,13 @@ public class DatastoreCache {
      * @param p this package version will be deleted
      */
     public void deletePackageVersion(PackageVersion p) {
-        ofy().delete().entity(p);
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.delete(KeyFactory.createKey("PackageVersion", p.name));
+
+        ofy().clear();
+
+        incDataVersion();
     }
 
     public Package findNextPackage(Package p) {
@@ -654,7 +745,7 @@ public class DatastoreCache {
      * @param id package ID
      * @return all versions for the package
      */
-    public Iterable<PackageVersion> getPackageVersions(String id) {
+    public List<PackageVersion> getPackageVersions(String id) {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
