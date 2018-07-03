@@ -39,7 +39,7 @@ public class PackageVersionListPage extends MyPage {
         b.t(msg);
         b.start("ul");
         List<PackageVersion> pvs =
-                NWUtils.dsCache.find20PackageVersions(tag, order);
+                NWUtils.dsCache.findPackageVersions(tag, order, 20);
         for (int i = 0; i < pvs.size(); i++) {
             PackageVersion pv = pvs.get(i);
 

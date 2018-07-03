@@ -3,12 +3,9 @@ package com.googlecode.npackdweb.admin;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
-import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.util.List;
 
 public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
@@ -33,10 +30,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     private void moveSourceForgeToOneServer(Entity value) {
-        Objectify ofy = ofy();
-
-        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
-                getKey().toString())).now();
+        PackageVersion pv = new PackageVersion(value);
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -54,10 +48,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     private void moveFromGoogleCodeFiles(Entity value) {
-        Objectify ofy = ofy();
-
-        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
-                getKey().toString())).now();
+        PackageVersion pv = new PackageVersion(value);
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -80,10 +71,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     private void moveToFilesNpackdOrg(Entity value) {
-        Objectify ofy = ofy();
-
-        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
-                getKey().toString())).now();
+        PackageVersion pv = new PackageVersion(value);
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -102,10 +90,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
     }
 
     public void removeNpackdCLCalls(Entity value) {
-        Objectify ofy = ofy();
-
-        PackageVersion pv = (PackageVersion) ofy.load().key(Key.create(value.
-                getKey().toString())).now();
+        PackageVersion pv = new PackageVersion(value);
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -125,7 +110,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
                         if (index >= 0 &&
                                 (pv.dependencyEnvVars.get(index).isEmpty() ||
                                 pv.dependencyEnvVars
-                                .get(index).equals(npackdCLParams[2]))) {
+                                        .get(index).equals(npackdCLParams[2]))) {
                             lines.remove(j);
                             lines.remove(j);
                             pv.dependencyEnvVars.set(index, npackdCLParams[2]);

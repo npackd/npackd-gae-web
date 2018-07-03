@@ -6,9 +6,6 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -111,7 +108,6 @@ public class RepUploadAction extends Action {
                 pv.addTag(tag);
             }
 
-            Objectify ofy = ofy();
             // determine the keys for all objects
             /* implement caching later
              List<Key<?>> keys = new ArrayList<>();
@@ -131,7 +127,8 @@ public class RepUploadAction extends Action {
             if (f.lics.size() > 0) {
                 if (isAdmin) {
                     for (License lic : f.lics) {
-                        License existing = ofy.load().key(lic.createKey()).now();
+                        License existing = NWUtils.dsCache.getLicense(lic.name,
+                                true);
                         if (existing != null) {
                             if (overwrite) {
                                 NWUtils.dsCache.saveLicense(lic, true);
@@ -153,8 +150,7 @@ public class RepUploadAction extends Action {
             // process packages before the package versions
             Map<String, Package> packagesCache = new HashMap<>();
             for (Package p : f.ps) {
-                Package p_ = ofy.load().key(Key.create(Package.class, p.name)).
-                        now();
+                Package p_ = NWUtils.dsCache.getPackage(p.name, true);
 
                 if (p_ != null && !p_.isCurrentUserPermittedToModify()) {
                     messages.add(
@@ -186,11 +182,9 @@ public class RepUploadAction extends Action {
             for (PackageVersion pv : f.pvs) {
                 pv.addTag("untested");
 
-                Package p =
-                        ofy.load().key(Key.create(Package.class, pv.package_)).
-                        now();
-                PackageVersion existing =
-                        ofy.load().key(pv.createKey()).now();
+                Package p = NWUtils.dsCache.getPackage(pv.package_, true);
+                PackageVersion existing = NWUtils.dsCache.getPackageVersion(
+                        pv.name);
                 if (p != null && !p.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
@@ -243,7 +237,7 @@ public class RepUploadAction extends Action {
         try {
             DocumentBuilder db =
                     javax.xml.parsers.DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder();
+                            .newDocumentBuilder();
             Document d = db.parse(stream);
             f = process(d);
         } catch (SAXParseException e) {

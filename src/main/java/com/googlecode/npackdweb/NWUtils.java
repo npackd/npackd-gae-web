@@ -20,16 +20,8 @@ import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
-import com.googlecode.npackdweb.db.EntityCounter;
-import com.googlecode.npackdweb.db.EntityCounterShard;
-import com.googlecode.npackdweb.db.License;
-import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.npackdweb.db.Repository;
-import com.googlecode.npackdweb.db.Setting;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.ObjectifyService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -142,8 +134,6 @@ public class NWUtils {
 
     private static final String ID_LETTERS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-    private static boolean objectifyInitialized;
 
     /**
      * Initializes FreeMarker. This method can be called multiple times from
@@ -311,23 +301,6 @@ public class NWUtils {
         map.put(key, value);
         map.put(key2, value2);
         return map;
-    }
-
-    /**
-     * Initializes Objectify.
-     */
-    public static synchronized void initObjectify() {
-        if (!objectifyInitialized) {
-            ObjectifyService.register(Repository.class);
-            ObjectifyService.register(Package.class);
-            ObjectifyService.register(PackageVersion.class);
-            ObjectifyService.register(License.class);
-            ObjectifyService.register(EntityCounter.class);
-            ObjectifyService.register(EntityCounterShard.class);
-            ObjectifyService.register(Editor.class);
-            ObjectifyService.register(Setting.class);
-            objectifyInitialized = true;
-        }
     }
 
     /**

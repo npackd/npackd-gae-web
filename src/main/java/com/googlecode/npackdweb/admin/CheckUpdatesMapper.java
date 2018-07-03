@@ -7,9 +7,6 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Version;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -33,10 +30,7 @@ public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
 
     @Override
     public void map(Entity value) {
-        Objectify ofy = ofy();
-
-        Package data = (Package) ofy.load().key(Key.create(value.
-                getKey())).now();
+        Package data = new Package(value);
 
         com.googlecode.npackdweb.db.Package old = data.copy();
         NWUtils.LOG.log(Level.INFO, "check-update for {0}", data.name);

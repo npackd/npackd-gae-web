@@ -17,9 +17,6 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,7 +64,6 @@ public class DatastoreCache {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         datastore.put(p.createEntity());
-        ofy().clear();
         incDataVersion();
         Index index = NWUtils.getIndex();
         index.put(p.createDocument());
@@ -85,7 +81,6 @@ public class DatastoreCache {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         datastore.put(e.createEntity());
-        ofy().clear();
         incDataVersion();
     }
 
@@ -99,8 +94,6 @@ public class DatastoreCache {
                 getDatastoreService();
         datastore.delete(KeyFactory.createKey("License", name));
 
-        ofy().clear();
-
         incDataVersion();
     }
 
@@ -111,17 +104,26 @@ public class DatastoreCache {
      * @param value new setting value
      */
     public void setSetting(String name, String value) {
-        Objectify ob = ofy();
-        Setting st = ob.load().key(Key.create(Setting.class, name)).now();
-        if (st == null) {
-            st = new Setting();
-            st.name = name;
-        }
-        st.value = value;
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
+
+        Entity e = null;
+        try {
+            e = datastore.get(KeyFactory.createKey("Setting", name));
+        } catch (EntityNotFoundException ex) {
+            // ignore
+        }
+
+        Setting st;
+        if (e == null) {
+            st = new Setting();
+            st.name = name;
+        } else {
+            st = new Setting(e);
+        }
+        st.value = value;
+
         datastore.put(st.createEntity());
-        ob.clear();
     }
 
     /**
@@ -152,8 +154,6 @@ public class DatastoreCache {
         }
         datastore.delete(keys);
 
-        ofy().clear();
-
         Index index = NWUtils.getIndex();
         index.delete(name);
         incDataVersion();
@@ -172,7 +172,6 @@ public class DatastoreCache {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         datastore.put(p.createEntity());
-        ofy().clear();
         incDataVersion();
     }
 
@@ -199,7 +198,7 @@ public class DatastoreCache {
             st = new Setting();
             st.name = name;
             st.value = defaultValue;
-            ofy().save().entity(st);
+            datastore.put(st.createEntity());
         }
         value = st.value;
         return value;
@@ -248,7 +247,6 @@ public class DatastoreCache {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         datastore.put(p.createEntity());
-        ofy().clear();
         incDataVersion();
     }
 
@@ -261,7 +259,6 @@ public class DatastoreCache {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         datastore.put(r.createEntity());
-        ofy().clear();
         incDataVersion();
     }
 
@@ -359,12 +356,34 @@ public class DatastoreCache {
     }
 
     /**
+     * Searches for the repository with the given tag.
+     *
+     * @param id ID of the entity
+     * @return found repository or null
+     */
+    public Repository getRepository(long id) {
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        Repository ret = null;
+        try {
+            ret = new Repository(datastore.get(KeyFactory.createKey(
+                    "Repository",
+                    id)));
+        } catch (EntityNotFoundException ex) {
+            // ignore
+        }
+        return ret;
+    }
+
+    /**
      * @param tag a tag to filter the package versions or null
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
+     * @param limit maximum number of returned package versions or 0 for
+     * "unlimited"
      * @return first 20 package versions with errors downloading the binary
      */
-    public List<PackageVersion> find20PackageVersions(
-            String tag, String order) {
+    public List<PackageVersion> findPackageVersions(
+            String tag, String order, int limit) {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -380,8 +399,12 @@ public class DatastoreCache {
         }
 
         PreparedQuery pq = datastore.prepare(query);
+        final FetchOptions fo = FetchOptions.Builder.withDefaults();
+        if (limit > 0) {
+            fo.limit(limit);
+        }
         final List<Entity> list =
-                pq.asList(FetchOptions.Builder.withLimit(20));
+                pq.asList(fo);
 
         List<PackageVersion> res = new ArrayList<>();
         for (Entity e : list) {
@@ -664,8 +687,6 @@ public class DatastoreCache {
                 getDatastoreService();
         datastore.delete(KeyFactory.createKey("PackageVersion", p.name));
 
-        ofy().clear();
-
         incDataVersion();
     }
 
@@ -735,8 +756,6 @@ public class DatastoreCache {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         datastore.delete(KeyFactory.createKey("Repository", id));
-
-        ofy().clear();
 
         incDataVersion();
     }

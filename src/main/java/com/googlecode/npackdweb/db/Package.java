@@ -1,5 +1,7 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Facet;
 import com.google.appengine.api.search.Field;
@@ -10,12 +12,6 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.OnLoad;
-import com.googlecode.objectify.annotation.Unindex;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,8 +36,6 @@ import org.w3c.dom.NodeList;
 /**
  * A package.
  */
-@Entity
-@Index
 public class Package {
 
     /**
@@ -72,8 +66,10 @@ public class Package {
         "the development was stopped. There will be no new versions of this software."
     };
 
-    @Id
-    /* internal name of the package like com.example.Test */
+    /**
+     * internal name of the package like com.example.Test. This is the ID of the
+     * entity
+     */
     public String name = "";
 
     public String title = "";
@@ -84,13 +80,17 @@ public class Package {
      */
     public String changelog;
 
-    @Unindex
+    /**
+     * This is stored unindexed
+     */
     public String description = "";
 
     public String icon = "";
     public String license = "";
 
-    @Unindex
+    /**
+     * This is stored unindexed
+     */
     public String comment = "";
 
     /**
@@ -182,7 +182,12 @@ public class Package {
         this.permissions.add(createdBy);
     }
 
-    Package(com.google.appengine.api.datastore.Entity p) {
+    /**
+     * Creates an object from a Datastore entity.
+     *
+     * @param p an entity
+     */
+    public Package(com.google.appengine.api.datastore.Entity p) {
         this.name = p.getKey().getName();
         this.title = NWUtils.getString(p, "title");
         this.url = NWUtils.getString(p, "url");
@@ -208,7 +213,42 @@ public class Package {
             this.starred = s.intValue();
         }
 
-        postLoad();
+        if (this.comment == null) {
+            this.comment = "";
+        }
+        if (this.lastModifiedAt == null) {
+            this.lastModifiedAt = NWUtils.newDate();
+        }
+        if (this.createdAt == null) {
+            this.createdAt = new Date(1355048474); // December 9, 2012, 11:21:14
+        }
+        if (this.discoveryPage == null) {
+            this.discoveryPage = "";
+        }
+        if (this.discoveryRE == null) {
+            this.discoveryRE = "";
+        }
+        if (this.discoveryURLPattern == null) {
+            this.discoveryURLPattern = "";
+        }
+        if (this.createdBy == null) {
+            this.createdBy = new User(NWUtils.THE_EMAIL, "gmail.com");
+        }
+        if (lastModifiedBy == null) {
+            this.lastModifiedBy = this.createdBy;
+        }
+        if (this.tags == null) {
+            this.tags = new ArrayList<>();
+        }
+        if (permissions == null) {
+            this.permissions = new ArrayList<>();
+        }
+        if (permissions.size() == 0) {
+            this.permissions.add(this.createdBy);
+        }
+        if (this.screenshots == null) {
+            this.screenshots = new ArrayList<>();
+        }
     }
 
     com.google.appengine.api.datastore.Entity createEntity() {
@@ -304,46 +344,6 @@ public class Package {
         return comment;
     }
 
-    @OnLoad
-    public void postLoad() {
-        if (this.comment == null) {
-            this.comment = "";
-        }
-        if (this.lastModifiedAt == null) {
-            this.lastModifiedAt = NWUtils.newDate();
-        }
-        if (this.createdAt == null) {
-            this.createdAt = new Date(1355048474); // December 9, 2012, 11:21:14
-        }
-        if (this.discoveryPage == null) {
-            this.discoveryPage = "";
-        }
-        if (this.discoveryRE == null) {
-            this.discoveryRE = "";
-        }
-        if (this.discoveryURLPattern == null) {
-            this.discoveryURLPattern = "";
-        }
-        if (this.createdBy == null) {
-            this.createdBy = new User(NWUtils.THE_EMAIL, "gmail.com");
-        }
-        if (lastModifiedBy == null) {
-            this.lastModifiedBy = this.createdBy;
-        }
-        if (this.tags == null) {
-            this.tags = new ArrayList<>();
-        }
-        if (permissions == null) {
-            this.permissions = new ArrayList<>();
-        }
-        if (permissions.size() == 0) {
-            this.permissions.add(this.createdBy);
-        }
-        if (this.screenshots == null) {
-            this.screenshots = new ArrayList<>();
-        }
-    }
-
     /**
      * &lt;package&gt;
      *
@@ -386,8 +386,8 @@ public class Package {
     /**
      * @return created Key for this object
      */
-    public Key<Package> createKey() {
-        return Key.create(Package.class, this.name);
+    public Key createKey() {
+        return KeyFactory.createKey("Package", this.name);
     }
 
     /**

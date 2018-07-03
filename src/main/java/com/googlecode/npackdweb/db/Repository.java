@@ -1,27 +1,18 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Cache;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.OnLoad;
-import com.googlecode.objectify.annotation.OnSave;
 import java.util.Date;
 
 /**
  * A repository.
  */
-@Entity
-@Cache
-@Index
 public class Repository {
 
     /**
-     * name of the repository
+     * name of the repository. This is the ID of the entity.
      */
-    @Id
     public String name;
 
     /**
@@ -43,11 +34,13 @@ public class Repository {
         this.lastModifiedAt = (Date) e.getProperty("lastModifiedAt");
         this.blobFile = NWUtils.getString(e, "blobFile");
 
-        postLoad();
+        if (this.lastModifiedAt == null) {
+            this.lastModifiedAt = NWUtils.newDate();
+        }
     }
 
     com.google.appengine.api.datastore.Entity createEntity() {
-        onPersist();
+        this.lastModifiedAt = NWUtils.newDate();
 
         com.google.appengine.api.datastore.Entity e =
                 new com.google.appengine.api.datastore.Entity("Repository",
@@ -59,23 +52,10 @@ public class Repository {
         return e;
     }
 
-    @OnLoad
-    public void postLoad() {
-        if (this.lastModifiedAt == null) {
-            this.lastModifiedAt = NWUtils.newDate();
-        }
-    }
-
-    @OnSave
-    void onPersist() {
-        NWUtils.dsCache.incDataVersion();
-        this.lastModifiedAt = NWUtils.newDate();
-    }
-
     /**
      * @return created Key for this object
      */
-    public Key<Repository> createKey() {
-        return Key.create(Repository.class, name);
+    public Key createKey() {
+        return KeyFactory.createKey("Repository", name);
     }
 }

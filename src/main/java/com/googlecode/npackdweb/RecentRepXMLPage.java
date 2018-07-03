@@ -1,17 +1,20 @@
 package com.googlecode.npackdweb;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
-import com.googlecode.objectify.cmd.Query;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -48,23 +51,40 @@ public class RecentRepXMLPage extends Page {
         if (value == null) {
             NWUtils.LOG.warning("Found no value in cache");
             try {
-                Objectify ofy = ofy();
-                ArrayList<PackageVersion> pvs = new ArrayList<>();
-                Query<PackageVersion> q =
-                        ofy.load().type(PackageVersion.class).limit(20)
-                        .order("-lastModifiedAt");
+                DatastoreService datastore = DatastoreServiceFactory.
+                        getDatastoreService();
+
+                com.google.appengine.api.datastore.Query query =
+                        new com.google.appengine.api.datastore.Query(
+                                "PackageVersion");
                 if (user != null) {
-                    q =
-                            q.filter(
-                                    "lastModifiedBy =",
+                    query.setFilter(
+                            new com.google.appengine.api.datastore.Query.FilterPredicate(
+                                    "lastModifiedBy",
+                                    com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
                                     new User(user, user.substring(user
-                                                    .indexOf('@'))));
+                                            .indexOf('@')))));
                 }
                 if (tag != null) {
-                    q = q.filter("tags =", tag);
+                    query.setFilter(
+                            new com.google.appengine.api.datastore.Query.FilterPredicate(
+                                    "tags",
+                                    com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
+                                    tag));
                 }
-                pvs.addAll(q.list());
-                Document d = RepXMLPage.toXML(ofy, pvs, false, null);
+                query.addSort("-lastModifiedAt");
+
+                PreparedQuery pq = datastore.prepare(query);
+
+                final List<Entity> list =
+                        pq.asList(FetchOptions.Builder.withLimit(20));
+
+                ArrayList<PackageVersion> res = new ArrayList<>();
+                for (Entity e : list) {
+                    res.add(new PackageVersion(e));
+                }
+
+                Document d = RepXMLPage.toXML(res, false, null);
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 NWUtils.serializeXML(d, baos);

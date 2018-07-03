@@ -1,15 +1,10 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Cache;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.OnLoad;
-import com.googlecode.objectify.annotation.OnSave;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,13 +12,9 @@ import java.util.List;
 /**
  * An editor/user.
  */
-@Entity
-@Cache
-@Index
 public class Editor {
 
-    @Id
-    /* User.getEmail() */
+    /* User.getEmail(). This is the ID of the Datastore entity. */
     public String name = "";
 
     /**
@@ -49,7 +40,7 @@ public class Editor {
     /**
      * ID > 0
      */
-    public int id;
+    public long id;
 
     /**
      * For Objectify.
@@ -63,7 +54,7 @@ public class Editor {
         this.createdAt = (Date) p.getProperty("createdAt");
         this.createdBy = (User) p.getProperty("createdBy");
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
-        this.id = ((Long) p.getProperty("id")).intValue();
+        this.id = (Long) p.getProperty("id");
 
         postLoad();
     }
@@ -80,7 +71,7 @@ public class Editor {
     }
 
     com.google.appengine.api.datastore.Entity createEntity() {
-        onPersist();
+        this.lastModifiedAt = NWUtils.newDate();
 
         com.google.appengine.api.datastore.Entity e =
                 new com.google.appengine.api.datastore.Entity("Editor",
@@ -99,29 +90,22 @@ public class Editor {
         return name;
     }
 
-    @OnSave
-    void onPersist() {
-        NWUtils.dsCache.incDataVersion();
-        this.lastModifiedAt = NWUtils.newDate();
-    }
-
     /**
      * @return created Key for this object
      */
-    public Key<Editor> createKey() {
-        return Key.create(Editor.class, this.name);
+    public Key createKey() {
+        return KeyFactory.createKey("Editor", this.name);
     }
 
     /**
      * Creates an ID for this Editor.
      */
     public void createId() {
-        ShardedCounter sc = ShardedCounter.getOrCreateCounter("EditorID", 20);
+        ShardedCounter sc = new ShardedCounter("EditorID");
         sc.increment();
         this.id = sc.getCount();
     }
 
-    @OnLoad
     public void postLoad() {
         if (this.starredPackages == null) {
             this.starredPackages = new ArrayList<>();

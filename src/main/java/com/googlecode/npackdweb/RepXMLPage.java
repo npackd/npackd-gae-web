@@ -1,6 +1,9 @@
 package com.googlecode.npackdweb;
 
-import com.googlecode.npackdweb.db.Version;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
@@ -9,11 +12,8 @@ import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Page;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
-import com.googlecode.objectify.cmd.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,14 +68,8 @@ public class RepXMLPage extends Page {
      */
     public static Document
             toXML(String tag, boolean onlyReviewed) {
-        ArrayList<PackageVersion> pvs = new ArrayList<>();
-        Objectify ob = ofy();
-        Query<PackageVersion> q =
-                ob.load().type(PackageVersion.class).chunk(500);
-        if (tag != null) {
-            q = q.filter("tags =", tag);
-        }
-        pvs.addAll(q.list());
+        List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(tag,
+                null, 0);
 
         // remove untested package versions
         Iterator<PackageVersion> it = pvs.iterator();
@@ -86,17 +80,16 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(ob, pvs, onlyReviewed, tag);
+        return toXML(pvs, onlyReviewed, tag);
     }
 
     /**
-     * @param ofy Objectify
      * @param pvs package versions
      * @param onlyReviewed true = only export reviewed package versions
      * @param tag package versions tag or null for "everything"
      * @return XML for the specified package versions
      */
-    public static Document toXML(Objectify ofy, ArrayList<PackageVersion> pvs,
+    public static Document toXML(List<PackageVersion> pvs,
             boolean onlyReviewed, String tag) {
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             @Override
@@ -116,13 +109,21 @@ public class RepXMLPage extends Page {
                 pns.add(pv.package_);
             }
         }
-        List<Key<Package>> keys = new ArrayList<>();
+        List<com.google.appengine.api.datastore.Key> keys = new ArrayList<>();
         for (String s : pns) {
-            keys.add(Key.create(Package.class, s));
+            keys.add(KeyFactory.createKey("Package", s));
         }
-        Map<Key<Package>, Package> ps_ = ofy.load().keys(keys);
+
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        Map<com.google.appengine.api.datastore.Key, Entity> ps2 = datastore.get(
+                keys);
+
         List<Package> ps = new ArrayList<>();
-        ps.addAll(ps_.values());
+        for (Entity e : ps2.values()) {
+            ps.add(new Package(e));
+        }
+
         Collections.sort(ps, new Comparator<Package>() {
             @Override
             public int compare(Package a, Package b) {
@@ -135,13 +136,17 @@ public class RepXMLPage extends Page {
                 lns.add(p.license);
             }
         }
-        List<Key<License>> lkeys = new ArrayList<>();
+        List<com.google.appengine.api.datastore.Key> lkeys = new ArrayList<>();
         for (String s : lns) {
-            lkeys.add(Key.create(License.class, s));
+            lkeys.add(KeyFactory.createKey("License", s));
         }
-        Map<Key<License>, License> ls = ofy.load().keys(lkeys);
+        Map<com.google.appengine.api.datastore.Key, Entity> ls = datastore.get(
+                lkeys);
         List<License> licenses = new ArrayList<>();
-        licenses.addAll(ls.values());
+        for (Entity e : ls.values()) {
+            licenses.add(new License(e));
+        }
+
         Collections.sort(licenses, new Comparator<License>() {
             @Override
             public int compare(License a, License b) {

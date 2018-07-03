@@ -1,10 +1,13 @@
 package com.googlecode.npackdweb.license;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +40,26 @@ public class LicensesPage extends MyPage {
     }
 
     private String internalCreateContent() {
-        licenses = new ArrayList<>();
-        Objectify obj = ofy();
-        licenses.addAll(obj.load().type(License.class).limit(PAGE_SIZE + 1)
-                .offset(start).list());
 
-        found = obj.load().type(License.class).count();
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        // find licenses
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("License");
+        query.addSort("title");
+        PreparedQuery pq = datastore.prepare(query);
+        FetchOptions fo = FetchOptions.Builder.withOffset(start);
+        fo.limit(PAGE_SIZE + 1);
+        final List<Entity> list = pq.asList(fo);
+        licenses = new ArrayList<>();
+        for (Entity e : list) {
+            licenses.add(new License(e));
+        }
+
+        query = new com.google.appengine.api.datastore.Query("License");
+        pq = datastore.prepare(query);
+        found = pq.countEntities(FetchOptions.Builder.withDefaults());
 
         return createContent2() +
                 createPager(start, licenses.size() > PAGE_SIZE);

@@ -1,30 +1,28 @@
 package com.googlecode.npackdweb.admin;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
 import java.io.IOError;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
 
     private static final long serialVersionUID = 1L;
 
-    private List<com.googlecode.objectify.Key<PackageVersion>> keys =
+    private List<Entity> entities =
             new ArrayList<>();
 
     @Override
     public void beginSlice() {
-        this.keys.clear();
+        this.entities.clear();
     }
 
     @Override
@@ -38,15 +36,14 @@ public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
 
     @Override
     public void map(Entity value) {
-        keys.add(Key.create(value.getKey()));
+        entities.add(value);
     }
 
     private void process() throws IOException {
-        Objectify ofy = ofy();
-        Map<Key<PackageVersion>, PackageVersion> items = ofy.load().keys(keys);
-
         List<PackageVersion> list = new ArrayList<>();
-        list.addAll(items.values());
+        for (Entity e : entities) {
+            list.add(new PackageVersion(e));
+        }
         process(list);
     }
 
@@ -116,9 +113,13 @@ public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
         }
 
         if (toSave.size() > 0) {
-            Objectify ofy = ofy();
-
-            ofy.save().entities(toSave);
+            List<Entity> toSave_ = new ArrayList<>();
+            for (PackageVersion pv : toSave) {
+                toSave_.add(pv.createEntity());
+            }
+            DatastoreService datastore = DatastoreServiceFactory.
+                    getDatastoreService();
+            datastore.put(toSave_);
             NWUtils.dsCache.incDataVersion();
         }
     }

@@ -1,17 +1,11 @@
 package com.googlecode.npackdweb;
 
-import com.googlecode.npackdweb.pv.PackageVersionListAction;
-import com.googlecode.npackdweb.package_.PackagesAction;
-import com.googlecode.npackdweb.license.LicensesAction;
-import com.googlecode.npackdweb.admin.CheckUpdatesAction;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.admin.AddEditorAction;
 import com.googlecode.npackdweb.admin.AddEditorConfirmedAction;
-import com.googlecode.npackdweb.admin.AddPermissionsAction;
-import com.googlecode.npackdweb.admin.AddPermissionsConfirmedAction;
+import com.googlecode.npackdweb.admin.CheckUpdatesAction;
 import com.googlecode.npackdweb.admin.CleanDependenciesAction;
-import com.googlecode.npackdweb.admin.ResavePackageVersionsAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
 import com.googlecode.npackdweb.api.NotifyAction;
 import com.googlecode.npackdweb.api.StarAction;
@@ -19,11 +13,13 @@ import com.googlecode.npackdweb.api.TagPackageVersionAction;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
 import com.googlecode.npackdweb.license.LicenseSaveAction;
+import com.googlecode.npackdweb.license.LicensesAction;
 import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
 import com.googlecode.npackdweb.package_.PackageNewAction;
 import com.googlecode.npackdweb.package_.PackageNextAction;
 import com.googlecode.npackdweb.package_.PackageSaveAction;
+import com.googlecode.npackdweb.package_.PackagesAction;
 import com.googlecode.npackdweb.package_.RequestPermissionsAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
@@ -31,6 +27,7 @@ import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA256Action;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
+import com.googlecode.npackdweb.pv.PackageVersionListAction;
 import com.googlecode.npackdweb.pv.PackageVersionNewAction;
 import com.googlecode.npackdweb.pv.PackageVersionRecognizeAction;
 import com.googlecode.npackdweb.pv.PackageVersionSaveAction;
@@ -52,10 +49,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @SuppressWarnings("serial")
 public class DefaultServlet extends HttpServlet {
-
-    static {
-        NWUtils.initObjectify();
-    }
 
     /**
      * @param req an HTTP request
@@ -190,7 +183,6 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new HomeAction());
         registerAction(new StarsAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
-        registerAction(new ResavePackageVersionsAction());
         registerAction(new CheckUpdatesAction());
         registerAction(new SendStatusAction("^/cron/tick$", 200));
         registerAction(new ExportRepsAction());
@@ -201,8 +193,6 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new StarFragmentAction());
         registerAction(new ReCaptchaAnswerAction());
         registerAction(new ReCaptchaAction());
-        registerAction(new AddPermissionsAction());
-        registerAction(new AddPermissionsConfirmedAction());
         registerAction(new CleanDependenciesAction());
         registerAction(new UpdateSafeBrowsingInfoAction());
 

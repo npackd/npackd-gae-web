@@ -1,12 +1,8 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.OnLoad;
-import com.googlecode.objectify.annotation.OnSave;
 import java.util.Date;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,12 +10,13 @@ import org.w3c.dom.Element;
 /**
  * A license definition.
  */
-@Entity
-@Index
 public class License {
 
-    @Id
+    /**
+     * This is the ID of the entity.
+     */
     public String name;
+
     public String title;
     public String url;
 
@@ -32,16 +29,23 @@ public class License {
 
     }
 
-    License(com.google.appengine.api.datastore.Entity e) {
+    /**
+     * Creates a license from a Datastore entity.
+     *
+     * @param e an entity
+     */
+    public License(com.google.appengine.api.datastore.Entity e) {
         this.name = e.getKey().getName();
         this.title = NWUtils.getString(e, "title");
         this.url = NWUtils.getString(e, "url");
 
-        postLoad();
+        if (this.lastModifiedAt == null) {
+            this.lastModifiedAt = NWUtils.newDate();
+        }
     }
 
     com.google.appengine.api.datastore.Entity createEntity() {
-        onPersist();
+        this.lastModifiedAt = NWUtils.newDate();
 
         com.google.appengine.api.datastore.Entity e =
                 new com.google.appengine.api.datastore.Entity("License",
@@ -66,24 +70,11 @@ public class License {
         return name;
     }
 
-    @OnLoad
-    public void postLoad() {
-        if (this.lastModifiedAt == null) {
-            this.lastModifiedAt = NWUtils.newDate();
-        }
-    }
-
-    @OnSave
-    void onPersist() {
-        NWUtils.dsCache.incDataVersion();
-        this.lastModifiedAt = NWUtils.newDate();
-    }
-
     /**
      * @return created Key for this object
      */
-    public Key<License> createKey() {
-        return Key.create(License.class, name);
+    public Key createKey() {
+        return KeyFactory.createKey("License", name);
     }
 
     /**

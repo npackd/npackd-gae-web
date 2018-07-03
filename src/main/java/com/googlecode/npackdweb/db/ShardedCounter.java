@@ -1,229 +1,225 @@
 package com.googlecode.npackdweb.db;
 
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Objectify;
-import static com.googlecode.objectify.ObjectifyService.ofy;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.Unindex;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Transaction;
+import com.google.appengine.api.memcache.Expiration;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheService.SetPolicy;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import java.util.ConcurrentModificationException;
-import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Stores a count in shards.
+ * A counter which can be incremented rapidly.
  *
- * From http://thoughtsofthree.com/2011/03/implementing-a-sharded-counter-using-
- * objectify/
+ * Capable of incrementing the counter and increasing the number of shards. When
+ * incrementing, a random shard is selected to prevent a single shard from being
+ * written too frequently. If increments are being made too quickly, increase
+ * the number of shards to divide the load. Performs datastore operations using
+ * the low level datastore API.
  */
-@Entity
-@Index
-public class ShardedCounter implements Serializable {
+public class ShardedCounter {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Convenience class which contains constants related to a named sharded
+     * counter. The counter name provided in the constructor is used as the
+     * entity key.
+     */
+    private static final class Counter {
 
-    @Unindex
-    private String name;
+        /**
+         * Entity kind representing a named sharded counter.
+         */
+        private static final String KIND = "Counter";
 
-    private ShardedCounter() {
+        /**
+         * Property to store the number of shards in a given {@value #KIND}
+         * named sharded counter.
+         */
+        private static final String SHARD_COUNT = "shard_count";
     }
 
-    private ShardedCounter(String name) {
-        this();
-        this.name = name;
+    /**
+     * Convenience class which contains constants related to the counter shards.
+     * The shard number (as a String) is used as the entity key.
+     */
+    private static final class CounterShard {
+
+        /**
+         * Entity kind prefix, which is concatenated with the counter name to
+         * form the final entity kind, which represents counter shards.
+         */
+        private static final String KIND_PREFIX = "CounterShard_";
+
+        /**
+         * Property to store the current count within a counter shard.
+         */
+        private static final String COUNT = "count";
     }
 
-    public String getName() {
-        return name;
+    /**
+     * DatastoreService object for Datastore access.
+     */
+    private static final DatastoreService DS = DatastoreServiceFactory
+            .getDatastoreService();
+
+    /**
+     * Default number of shards.
+     */
+    private static final int INITIAL_SHARDS = 5;
+
+    /**
+     * Cache duration for memcache.
+     */
+    private static final int CACHE_PERIOD = 60;
+
+    /**
+     * The name of this counter.
+     */
+    private final String counterName;
+
+    /**
+     * A random number generating, for distributing writes across shards.
+     */
+    private final Random generator = new Random();
+
+    /**
+     * The counter shard kind for this counter.
+     */
+    private String kind;
+
+    /**
+     * Memcache service object for Memcache access.
+     */
+    private final MemcacheService mc = MemcacheServiceFactory
+            .getMemcacheService();
+
+    /**
+     * A logger object.
+     */
+    private static final Logger LOG = Logger.getLogger(ShardedCounter.class
+            .getName());
+
+    /**
+     * Constructor which creates a sharded counter using the provided counter
+     * name.
+     *
+     * @param name name of the sharded counter
+     */
+    public ShardedCounter(final String name) {
+        counterName = name;
+        kind = CounterShard.KIND_PREFIX + counterName;
     }
 
-    public void increment() {
-        increment(1);
+    /**
+     * Increase the number of shards for a given sharded counter. Will never
+     * decrease the number of shards.
+     *
+     * @param count Number of new shards to build and store
+     */
+    public final void addShards(final int count) {
+        Key counterKey = KeyFactory.createKey(Counter.KIND, counterName);
+        incrementPropertyTx(counterKey, Counter.SHARD_COUNT, count,
+                INITIAL_SHARDS + count);
     }
 
-    public void increment(int add) {
-        // fetch the counter to determine the number of shards
-        EntityCounter counter = ofy().load().key(Key.create(
-                EntityCounter.class, name)).now();
+    /**
+     * Retrieve the value of this sharded counter.
+     *
+     * @return Summed total of all shards' counts
+     */
+    public final long getCount() {
+        Long value = (Long) mc.get(kind);
+        if (value != null) {
+            return value;
+        }
 
-        // pick a random shard
-        Random generator = new Random();
-        int shardNum = generator.nextInt(counter.numShards);
+        long sum = 0;
+        Query query = new Query(kind);
+        for (Entity shard : DS.prepare(query).asIterable()) {
+            sum += (Long) shard.getProperty(CounterShard.COUNT);
+        }
+        mc.put(kind, sum, Expiration.byDeltaSeconds(CACHE_PERIOD),
+                SetPolicy.ADD_ONLY_IF_NOT_PRESENT);
 
-        // get the shard from the datastore, increment its value by 'add' and
-        // persist it if the shard was modified in the datastore between the get
-        // and the persist, retry the operation
-        ofy().transact(() -> {
-            int triesLeft = 3;
-            while (true) {
-                try {
-
-                    EntityCounterShard shard = ofy()
-                            .load().key(Key.create(
-                                            EntityCounterShard.class, name +
-                                            shardNum)).now();
-
-                    shard.value += add;
-
-                    ofy().save().entity(shard);
-                    break;
-                } catch (ConcurrentModificationException e) {
-                    if (triesLeft == 0) {
-                        throw e;
-                    }
-                    --triesLeft;
-                }
-            }
-            return null;
-        });
-
+        return sum;
     }
 
-    public void decrement() {
-        decrement(1);
+    /**
+     * Increment the value of this sharded counter.
+     */
+    public final void increment() {
+        // Find how many shards are in this counter.
+        int numShards = getShardCount();
+
+        // Choose the shard randomly from the available shards.
+        long shardNum = generator.nextInt(numShards);
+
+        Key shardKey = KeyFactory.createKey(kind, Long.toString(shardNum));
+        incrementPropertyTx(shardKey, CounterShard.COUNT, 1, 1);
+        mc.increment(kind, 1);
     }
 
-    public void decrement(int subs) {
-        increment(subs * -1);
-    }
-
-    public void addShard() {
-        addShards(1);
-    }
-
-    public void addShards(int newShards) {
-        int[] nextShardNumber = {-1};
-        EntityCounter[] counter = {null};
-
-        ofy().transact(() -> {
-
-            // fetch the counter to determine the number of existing shards
-            // and increment the shard count
-            int tries = 3;
-            while (true) {
-                try {
-                    counter[0] = ofy().load().key(Key.create(
-                            EntityCounter.class, name)).now();
-                    if (counter[0] == null) {
-                        counter[0] = new EntityCounter(name);
-                    }
-                    nextShardNumber[0] = counter[0].numShards;
-                    counter[0].numShards += newShards;
-                    ofy().save().entity(counter[0]);
-                } catch (ConcurrentModificationException e) {
-                    if (tries == 0) {
-                        throw e;
-                    }
-                    --tries;
-                }
-                break;
-            }
-            return null;
-        });
-
-        // by increasing counter.numShards, this thread reserved
-        // a shard 'range', so this thread is the only one
-        // that could add shards with the shard numbers we're about to add:
-        // add newShard number shards
-        int shardsAdded = 0;
-        while (shardsAdded < newShards) {
-            EntityCounterShard newShard = new EntityCounterShard(counter[0],
-                    nextShardNumber[0]);
-            ofy().save().entity(newShard);
-            shardsAdded++;
-            nextShardNumber[0]++;
+    /**
+     * Get the number of shards in this counter.
+     *
+     * @return shard count
+     */
+    private int getShardCount() {
+        try {
+            Key counterKey = KeyFactory.createKey(Counter.KIND, counterName);
+            Entity counter = DS.get(counterKey);
+            Long shardCount = (Long) counter.getProperty(Counter.SHARD_COUNT);
+            return shardCount.intValue();
+        } catch (EntityNotFoundException ignore) {
+            return INITIAL_SHARDS;
         }
     }
 
-    public int getCount() {
-        EntityCounter counter = ofy().load().key(Key.create(
-                EntityCounter.class, name)).now();
-
-        List<Key<EntityCounterShard>> shardKeys =
-                new ArrayList<>();
-        for (int shard = 0; shard < counter.numShards; shard++) {
-            shardKeys.add(Key.create(EntityCounterShard.class,
-                    String.format("%s%d", name, shard)));
-        }
-
-        Collection<EntityCounterShard> shards = ofy().load().keys(shardKeys).
-                values();
-        int count = 0;
-        for (EntityCounterShard shard : shards) {
-            count += shard.value;
-        }
-
-        return count;
-    }
-
-    public static ShardedCounter getOrCreateCounter(String name, int numShards) {
-        ShardedCounter shardedCounter = new ShardedCounter(name);
-        ofy().transact(() -> {
-            int tries = 3;
-            while (true) {
-                try {
-                    EntityCounter counter = ofy().load().key(Key.create(
-                            EntityCounter.class, name)).now();
-                    if (counter == null) {
-                        // create new counter
-                        counter = new EntityCounter(name);
-                        ofy().save().entity(counter);
-                        shardedCounter.addShards(numShards);
-                    }
-
-                    break;
-                } catch (ConcurrentModificationException e) {
-                    if (tries == 0) {
-                        throw e;
-                    }
-                    --tries;
-                }
+    /**
+     * Increment datastore property value inside a transaction. If the entity
+     * with the provided key does not exist, instead create an entity with the
+     * supplied initial property value.
+     *
+     * @param key the entity key to update or create
+     * @param prop the property name to be incremented
+     * @param increment the amount by which to increment
+     * @param initialValue the value to use if the entity does not exist
+     */
+    private void incrementPropertyTx(final Key key, final String prop,
+            final long increment, final long initialValue) {
+        Transaction tx = DS.beginTransaction();
+        Entity thing;
+        long value;
+        try {
+            try {
+                thing = DS.get(tx, key);
+                value = (Long) thing.getProperty(prop) + increment;
+            } catch (EntityNotFoundException e) {
+                thing = new Entity(key);
+                value = initialValue;
             }
-            return null;
-        });
-        return shardedCounter;
-    }
-
-    public static ShardedCounter createCounter(String name, int numShards) {
-        ShardedCounter shardedCounter = new ShardedCounter(name);
-        ofy().transact(() -> {
-            int tries = 3;
-            while (true) {
-                try {
-                    EntityCounter counter = ofy().load().key(Key.create(
-                            EntityCounter.class, name)).now();
-                    if (counter == null) {
-                        // create new counter
-                        counter = new EntityCounter(name);
-                        ofy().save().entity(counter);
-                        shardedCounter.addShards(numShards);
-                    } else {
-                        throw new IllegalArgumentException(
-                                "A counter with name " +
-                                name + " does already exist!");
-                    }
-
-                    break;
-                } catch (ConcurrentModificationException e) {
-                    if (tries == 0) {
-                        throw e;
-                    }
-                    --tries;
-                }
+            thing.setUnindexedProperty(prop, value);
+            DS.put(tx, thing);
+            tx.commit();
+        } catch (ConcurrentModificationException e) {
+            LOG.log(Level.WARNING,
+                    "You may need more shards. Consider adding more shards.");
+            LOG.log(Level.WARNING, e.toString(), e);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, e.toString(), e);
+        } finally {
+            if (tx.isActive()) {
+                tx.rollback();
             }
-            return null;
-        });
-        return shardedCounter;
-    }
-
-    public static ShardedCounter getCounter(String name) {
-        Objectify ofy = ofy();
-        if (ofy.load().key(Key.create(EntityCounter.class, name)).now() != null) {
-            return new ShardedCounter(name);
         }
-        return null;
     }
 }

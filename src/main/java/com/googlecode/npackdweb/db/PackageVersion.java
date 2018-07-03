@@ -1,19 +1,12 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.objectify.Key;
-import com.googlecode.objectify.annotation.AlsoLoad;
-import com.googlecode.objectify.annotation.Cache;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.OnLoad;
-import com.googlecode.objectify.annotation.OnSave;
-import com.googlecode.objectify.annotation.Unindex;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,9 +19,6 @@ import org.w3c.dom.Element;
 /**
  * A package version.
  */
-@Entity
-@Cache
-@Index
 public class PackageVersion {
 
     /**
@@ -67,16 +57,19 @@ public class PackageVersion {
         }
     }
 
-    @Unindex
+    /**
+     * this is unindexed
+     */
     private List<Object> fileContents = new ArrayList<>();
 
     /**
-     * abc@2.4
+     * abc@2.4. This is the ID of the entity.
      */
-    @Id
     public String name = "";
 
-    @AlsoLoad("package")
+    /**
+     * old versions used the name of the property "package"
+     */
     public String package_ = "";
 
     /**
@@ -184,7 +177,12 @@ public class PackageVersion {
         this.detectPackageVersions = new ArrayList<>();
     }
 
-    PackageVersion(com.google.appengine.api.datastore.Entity e) {
+    /**
+     * Creates an object from a Datastore entity.
+     *
+     * @param e an entity
+     */
+    public PackageVersion(com.google.appengine.api.datastore.Entity e) {
         this.fileContents = (List<Object>) e.getProperty("fileContents");
         if (this.fileContents == null) {
             this.fileContents = new ArrayList<>();
@@ -229,12 +227,82 @@ public class PackageVersion {
         this.uninstallFailed = ((Long) e.getProperty("uninstallFailed")).
                 intValue();
 
-        postLoad();
+        if (this.sha1 == null) {
+            this.sha1 = "";
+        }
+
+        // Bugfix: the content was stored as <String> which lead to the
+        // conversion of long strings (> 500 characters) to Text and changing
+        // their position in the list
+        for (int i = 0; i < this.fileContents.size(); i++) {
+            Object obj = this.fileContents.get(i);
+            if (obj instanceof String) {
+                this.fileContents.set(i, new Text((String) obj));
+            }
+        }
+
+        while (this.fileContents.size() < this.filePaths.size()) {
+            this.fileContents.add(new Text(""));
+        }
+
+        if (this.lastModifiedAt == null) {
+            this.lastModifiedAt = NWUtils.newDate();
+        }
+
+        if (this.createdAt == null) {
+            this.createdAt = this.lastModifiedAt;
+        }
+
+        while (this.dependencyEnvVars.size() < this.dependencyPackages.size()) {
+            this.dependencyEnvVars.add("");
+        }
+
+        if (lastModifiedBy == null) {
+            UserService us = UserServiceFactory.getUserService();
+            if (us.isUserLoggedIn()) {
+                this.lastModifiedBy = us.getCurrentUser();
+            } else {
+                this.lastModifiedBy =
+                        new User(NWUtils.THE_EMAIL, "gmail.com");
+            }
+        }
+
+        if (createdBy == null) {
+            this.createdBy = this.lastModifiedBy;
+        }
+
+        if (this.tags == null) {
+            this.tags = new ArrayList<>();
+        }
+
+        if (this.detectPackageNames == null) {
+            this.detectPackageNames = new ArrayList<>();
+        }
+        if (this.detectPackageVersions == null) {
+            this.detectPackageVersions = new ArrayList<>();
+        }
+        int m = Math.min(this.detectPackageNames.size(),
+                this.detectPackageVersions.size());
+        NWUtils.resize(this.detectPackageNames, m);
+        NWUtils.resize(this.detectPackageVersions, m);
+
+        if (detectMSI != null) {
+            if (NWUtils.validateGUID(detectMSI) == null) {
+                this.detectPackageNames.add("msi." + detectMSI.substring(1, 37).
+                        toLowerCase());
+                this.detectPackageVersions.add(this.version);
+            }
+        }
+
+        this.detectMSI = "";
     }
 
-    com.google.appengine.api.datastore.Entity createEntity() {
-        onPersist();
-
+    /**
+     * Creates an entity for saving in the Datastore.
+     *
+     * @return the created entity
+     */
+    public com.google.appengine.api.datastore.Entity createEntity() {
         com.google.appengine.api.datastore.Entity e =
                 new com.google.appengine.api.datastore.Entity("PackageVersion",
                         this.name);
@@ -417,83 +485,6 @@ public class PackageVersion {
         }
     }
 
-    @OnLoad
-    public void postLoad() {
-        if (this.sha1 == null) {
-            this.sha1 = "";
-        }
-
-        // Bugfix: the content was stored as <String> which lead to the
-        // conversion of long strings (> 500 characters) to Text and changing
-        // their position in the list
-        for (int i = 0; i < this.fileContents.size(); i++) {
-            Object obj = this.fileContents.get(i);
-            if (obj instanceof String) {
-                this.fileContents.set(i, new Text((String) obj));
-            }
-        }
-
-        while (this.fileContents.size() < this.filePaths.size()) {
-            this.fileContents.add(new Text(""));
-        }
-
-        if (this.lastModifiedAt == null) {
-            this.lastModifiedAt = NWUtils.newDate();
-        }
-
-        if (this.createdAt == null) {
-            this.createdAt = this.lastModifiedAt;
-        }
-
-        while (this.dependencyEnvVars.size() < this.dependencyPackages.size()) {
-            this.dependencyEnvVars.add("");
-        }
-
-        if (lastModifiedBy == null) {
-            UserService us = UserServiceFactory.getUserService();
-            if (us.isUserLoggedIn()) {
-                this.lastModifiedBy = us.getCurrentUser();
-            } else {
-                this.lastModifiedBy =
-                        new User(NWUtils.THE_EMAIL, "gmail.com");
-            }
-        }
-
-        if (createdBy == null) {
-            this.createdBy = this.lastModifiedBy;
-        }
-
-        if (this.tags == null) {
-            this.tags = new ArrayList<>();
-        }
-
-        if (this.detectPackageNames == null) {
-            this.detectPackageNames = new ArrayList<>();
-        }
-        if (this.detectPackageVersions == null) {
-            this.detectPackageVersions = new ArrayList<>();
-        }
-        int m = Math.min(this.detectPackageNames.size(),
-                this.detectPackageVersions.size());
-        NWUtils.resize(this.detectPackageNames, m);
-        NWUtils.resize(this.detectPackageVersions, m);
-
-        if (detectMSI != null) {
-            if (NWUtils.validateGUID(detectMSI) == null) {
-                this.detectPackageNames.add("msi." + detectMSI.substring(1, 37).
-                        toLowerCase());
-                this.detectPackageVersions.add(this.version);
-            }
-        }
-
-        this.detectMSI = "";
-    }
-
-    @OnSave
-    void onPersist() {
-        NWUtils.dsCache.incDataVersion();
-    }
-
     /**
      * Removes the file with the specified index.
      *
@@ -528,8 +519,8 @@ public class PackageVersion {
     /**
      * @return created Key for this object
      */
-    public Key<PackageVersion> createKey() {
-        return Key.create(PackageVersion.class, this.name);
+    public Key createKey() {
+        return KeyFactory.createKey("PackageVersion", this.name);
     }
 
     /**
