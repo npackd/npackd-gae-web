@@ -2,7 +2,7 @@ package com.googlecode.npackdweb.admin;
 
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Editor;
+import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -11,15 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Adds an editor.
+ * Adds a repository.
  */
-public class AddEditorConfirmedAction extends Action {
+public class AddRepositoryConfirmedAction extends Action {
 
     /**
      * -
      */
-    public AddEditorConfirmedAction() {
-        super("^/add-editor-confirmed$", ActionSecurityType.ADMINISTRATOR);
+    public AddRepositoryConfirmedAction() {
+        super("^/add-repository-confirmed$", ActionSecurityType.ADMINISTRATOR);
     }
 
     @Override
@@ -27,13 +27,14 @@ public class AddEditorConfirmedAction extends Action {
             throws IOException {
         Page res;
 
-        AddEditorPage p = new AddEditorPage();
+        AddRepositoryPage p = new AddRepositoryPage();
         p.fill(req);
         String err = p.validate();
         if (err == null) {
-            Editor e = new Editor(NWUtils.email2user(p.email));
-            NWUtils.dsCache.saveEditor(e);
-            res = new MessagePage("Editor " + p.email +
+            Repository r = new Repository();
+            r.name = p.tag;
+            NWUtils.dsCache.saveRepository(r);
+            res = new MessagePage("Repository " + p.tag +
                     " was added successfully");
         } else {
             p.error = err;

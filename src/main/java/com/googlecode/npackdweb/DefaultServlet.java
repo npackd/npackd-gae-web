@@ -2,8 +2,8 @@ package com.googlecode.npackdweb;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.admin.AddEditorAction;
-import com.googlecode.npackdweb.admin.AddEditorConfirmedAction;
+import com.googlecode.npackdweb.admin.AddRepositoryAction;
+import com.googlecode.npackdweb.admin.AddRepositoryConfirmedAction;
 import com.googlecode.npackdweb.admin.CheckUpdatesAction;
 import com.googlecode.npackdweb.admin.CleanDependenciesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
@@ -187,8 +187,8 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new SendStatusAction("^/cron/tick$", 200));
         registerAction(new ExportRepsAction());
         // registerAction(new StoreDataAction());
-        registerAction(new AddEditorAction());
-        registerAction(new AddEditorConfirmedAction());
+        registerAction(new AddRepositoryAction());
+        registerAction(new AddRepositoryConfirmedAction());
         registerAction(new InfoAction());
         registerAction(new StarFragmentAction());
         registerAction(new ReCaptchaAnswerAction());

@@ -1,29 +1,28 @@
 package com.googlecode.npackdweb.admin;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
- * Adds an editor.
+ * Adds a repository.
  */
-public class AddEditorAction extends Action {
+public class AddRepositoryAction extends Action {
+
     /**
      * -
      */
-    public AddEditorAction() {
-        super("^/add-editor$", ActionSecurityType.ADMINISTRATOR);
+    public AddRepositoryAction() {
+        super("^/add-repository", ActionSecurityType.ADMINISTRATOR);
     }
 
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        return new AddEditorPage();
+        return new AddRepositoryPage();
     }
 }

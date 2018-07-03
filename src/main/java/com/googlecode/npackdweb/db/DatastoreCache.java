@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb.db;
 
+import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -7,7 +8,9 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -376,6 +379,38 @@ public class DatastoreCache {
     }
 
     /**
+     * Returns all entities for a query fetching them in batches.
+     *
+     * @param q a query
+     * @return found entities
+     */
+    public List<Entity> getAllEntities(Query q) {
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        List<Entity> r = new ArrayList<>();
+        final FetchOptions fo = FetchOptions.Builder.withDefaults();
+        PreparedQuery pq = datastore.prepare(q);
+        fo.limit(500);
+
+        Cursor cursor = null;
+        while (true) {
+            if (cursor != null) {
+                fo.startCursor(cursor);
+            }
+            QueryResultList<Entity> list = pq.asQueryResultList(fo);
+            if (list.size() == 0) {
+                break;
+            }
+            cursor = list.getCursor();
+
+            r.addAll(list);
+        }
+
+        return r;
+    }
+
+    /**
      * @param tag a tag to filter the package versions or null
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
      * @param limit maximum number of returned package versions or 0 for
@@ -398,13 +433,17 @@ public class DatastoreCache {
             query.addSort(order);
         }
 
-        PreparedQuery pq = datastore.prepare(query);
-        final FetchOptions fo = FetchOptions.Builder.withDefaults();
-        if (limit > 0) {
-            fo.limit(limit);
+        List<Entity> list;
+        if (limit <= 0) {
+            list = getAllEntities(query);
+        } else {
+            PreparedQuery pq = datastore.prepare(query);
+            final FetchOptions fo = FetchOptions.Builder.withDefaults();
+            if (limit > 0) {
+                fo.limit(limit);
+            }
+            list = pq.asList(fo);
         }
-        final List<Entity> list =
-                pq.asList(fo);
 
         List<PackageVersion> res = new ArrayList<>();
         for (Entity e : list) {
