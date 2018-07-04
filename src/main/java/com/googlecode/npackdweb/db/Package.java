@@ -2,6 +2,7 @@ package com.googlecode.npackdweb.db;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Facet;
 import com.google.appengine.api.search.Field;
@@ -261,10 +262,12 @@ public class Package {
         e.setIndexedProperty("title", this.title);
         e.setIndexedProperty("url", this.url);
         e.setIndexedProperty("changelog", this.changelog);
-        e.setProperty("description", this.description);
+        e.setUnindexedProperty("description", this.description == null ? null :
+                new Text(this.description));
         e.setIndexedProperty("icon", this.icon);
         e.setIndexedProperty("license", this.license);
-        e.setProperty("comment", this.comment);
+        e.setUnindexedProperty("comment", this.comment == null ? null :
+                new Text(this.comment));
         e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
         e.setIndexedProperty("lastModifiedBy", this.lastModifiedBy);
         e.setIndexedProperty("createdAt", this.createdAt);
