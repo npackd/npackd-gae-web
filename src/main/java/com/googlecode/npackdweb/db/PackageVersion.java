@@ -219,13 +219,10 @@ public class PackageVersion {
         this.lastModifiedBy = (User) e.getProperty("lastModifiedBy");
         this.createdAt = (Date) e.getProperty("createdAt");
         this.createdBy = (User) e.getProperty("createdBy");
-        this.installSucceeded = ((Long) e.getProperty("installSucceeded")).
-                intValue();
-        this.installFailed = ((Long) e.getProperty("installFailed")).intValue();
-        this.uninstallSucceeded = ((Long) e.getProperty("uninstallSucceeded")).
-                intValue();
-        this.uninstallFailed = ((Long) e.getProperty("uninstallFailed")).
-                intValue();
+        this.installSucceeded = (int) NWUtils.getLong(e, "installSucceeded");
+        this.installFailed = (int) NWUtils.getLong(e, "installFailed");
+        this.uninstallSucceeded = (int) NWUtils.getLong(e, "uninstallSucceeded");
+        this.uninstallFailed = (int) NWUtils.getLong(e, "uninstallFailed");
 
         if (this.sha1 == null) {
             this.sha1 = "";

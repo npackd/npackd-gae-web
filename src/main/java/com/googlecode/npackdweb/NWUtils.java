@@ -1319,6 +1319,25 @@ public class NWUtils {
     }
 
     /**
+     * Retrieve a long from a Datastore entity.
+     *
+     * @param e an entity
+     * @param propertyName name of the property
+     * @return property value or 0
+     */
+    public static long getLong(com.google.appengine.api.datastore.Entity e,
+            String propertyName) {
+        Long obj = (Long) e.getProperty(propertyName);
+        long result;
+        if (obj == null) {
+            result = 0;
+        } else {
+            result = obj.longValue();
+        }
+        return result;
+    }
+
+    /**
      * Retrieve a string list from a Datastore entity.
      *
      * @param e an entity

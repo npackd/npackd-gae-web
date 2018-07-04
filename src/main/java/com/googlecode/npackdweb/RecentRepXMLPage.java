@@ -5,6 +5,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -72,7 +73,7 @@ public class RecentRepXMLPage extends Page {
                                     com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
                                     tag));
                 }
-                query.addSort("-lastModifiedAt");
+                query.addSort("lastModifiedAt", Query.SortDirection.DESCENDING);
 
                 PreparedQuery pq = datastore.prepare(query);
 

@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * An editor/user.
  */
-public class Editor {
+public class Editor implements Cloneable {
 
     /* User.getEmail(). This is the ID of the Datastore entity. */
     public String name = "";
@@ -56,7 +56,9 @@ public class Editor {
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
         this.id = (Long) p.getProperty("id");
 
-        postLoad();
+        if (this.starredPackages == null) {
+            this.starredPackages = new ArrayList<>();
+        }
     }
 
     /**
@@ -106,9 +108,16 @@ public class Editor {
         this.id = sc.getCount();
     }
 
-    public void postLoad() {
-        if (this.starredPackages == null) {
-            this.starredPackages = new ArrayList<>();
+    @Override
+    protected Editor clone() {
+        Editor r;
+        try {
+            r = (Editor) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new InternalError(ex);
         }
+        r.starredPackages = new ArrayList<>();
+        r.starredPackages.addAll(this.starredPackages);
+        return r;
     }
 }

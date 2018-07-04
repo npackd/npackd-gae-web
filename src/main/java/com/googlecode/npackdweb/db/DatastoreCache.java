@@ -47,6 +47,8 @@ public class DatastoreCache {
     private Map<String, License> licensesCache =
             new HashMap<>();
 
+    private Map<String, Editor> editorsCache = new HashMap<>();
+
     private boolean allLicensesRead;
 
     /**
@@ -272,15 +274,34 @@ public class DatastoreCache {
      * @return the found editor or null
      */
     public Editor findEditor(User u) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
+        final String email = u.getEmail();
         Editor ret = null;
+
+        lock.lock();
         try {
-            ret = new Editor(datastore.get(KeyFactory.createKey(
-                    "Editor",
-                    u.getEmail())));
-        } catch (EntityNotFoundException ex) {
-            // ignore
+            ret = editorsCache.get(email);
+        } finally {
+            lock.unlock();
+        }
+        if (ret != null) {
+            ret = ret.clone();
+        }
+
+        if (ret == null) {
+            DatastoreService datastore = DatastoreServiceFactory.
+                    getDatastoreService();
+            try {
+                ret = new Editor(datastore.
+                        get(KeyFactory.createKey("Editor", email)));
+                lock.lock();
+                try {
+                    editorsCache.put(email, ret.clone());
+                } finally {
+                    lock.unlock();
+                }
+            } catch (EntityNotFoundException ex) {
+                // ignore
+            }
         }
         return ret;
     }
@@ -490,6 +511,7 @@ public class DatastoreCache {
             dataVersion = v;
             packagesCache.clear();
             licensesCache.clear();
+            editorsCache.clear();
             allLicensesRead = false;
         } finally {
             lock.unlock();
@@ -518,6 +540,7 @@ public class DatastoreCache {
                 dataVersion = v;
                 packagesCache.clear();
                 licensesCache.clear();
+                editorsCache.clear();
             }
         } finally {
             lock.unlock();
