@@ -586,9 +586,8 @@ public class DatastoreCache {
 
                 final Map<com.google.appengine.api.datastore.Key, Entity> map =
                         datastore.get(keys);
-                for (Map.Entry<com.google.appengine.api.datastore.Key, Entity> e
-                        : map.entrySet()) {
-                    Entity p = e.getValue();
+                for (com.google.appengine.api.datastore.Key key : keys) {
+                    Entity p = map.get(key);
                     if (p != null) {
                         packages.add(new Package(p));
                     }

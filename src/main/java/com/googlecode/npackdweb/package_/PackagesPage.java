@@ -332,6 +332,8 @@ public class PackagesPage extends MyPage {
 
         w.t(" Category: ");
         if (category0Values.size() > 1) {
+            // we assume there were no category filter here. It should not
+            // be possible.
             w.start("select", "class", "form-control", "name", "category0",
                     "id", "category0");
             w.e("option", "value", "", "Any");
@@ -340,32 +342,37 @@ public class PackagesPage extends MyPage {
                         c0.getLabel() + " (" + c0.getCount() + ")");
             }
             w.end("select");
-        } else if (category0Values.size() == 1) {
-            String v = category0Values.get(0).
-                    getLabel();
-            if (v.equals(this.category0)) {
+        } else {
+            if (this.category0 != null) {
                 w.e("input", "type", "hidden", "name", "category0", "value",
-                        v, "id", "category0");
+                        this.category0, "id", "category0");
                 w.start("a", "href", "javascript:removeCategory0Filter()",
                         "title", "Remove this filter");
-                w.t(v);
+                w.t(this.category0);
                 w.end("a");
             } else {
-                w.t(v);
+                if (category0Values.size() > 0) {
+                    w.t(category0Values.get(0).getLabel());
+                } else {
+                    w.t("-");
+                }
             }
-        } else {
-            w.t("-");
         }
 
-        w.t(" ");
-        w.e("input", "class", "btn btn-default", "type", "submit", "value",
+        w.t(
+                " ");
+        w.e(
+                "input", "class", "btn btn-default", "type", "submit", "value",
                 "Search");
-        w.t(" ");
-        w.e("a",
+        w.t(
+                " ");
+        w.e(
+                "a",
                 "href",
                 "https://developers.google.com/appengine/docs/java/search/overview#Building_Queries",
                 "target", "_blank", "Help");
-        w.end("form");
+        w.end(
+                "form");
         return w.toString();
     }
 
