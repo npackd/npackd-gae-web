@@ -4,13 +4,13 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
-import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Version;
+import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +48,7 @@ public class PackageVersionPage extends MyPage {
     private Date createdAt;
     private User createdBy;
     private int installSucceeded, installFailed, uninstallSucceeded, uninstallFailed;
+    private boolean currentUserIsAdmin;
 
     /**
      * -
@@ -71,8 +72,10 @@ public class PackageVersionPage extends MyPage {
         this.lastModifiedAt = null;
 
         UserService us = UserServiceFactory.getUserService();
+
         if (us.isUserLoggedIn()) {
             this.lastModifiedBy = us.getCurrentUser();
+            this.currentUserIsAdmin = us.isUserAdmin();
         } else {
             this.lastModifiedBy =
                     new User(NWUtils.THE_EMAIL, "gmail.com");
@@ -269,6 +272,19 @@ public class PackageVersionPage extends MyPage {
                         "downloads the binary and tries to recognize the used installer and create the necessary dependencies and scripts automatically");
                 createScripts(w);
                 w.end("div");
+
+                if (currentUserIsAdmin) {
+                    w.t(" ");
+                    w.start("div", "class", "btn-group");
+                    NWUtils.jsButton(
+                            w,
+                            "Mark as reviewed",
+                            "/package-version/mark-reviewed?package=" +
+                            packageName +
+                            "&version=" + version,
+                            "Marks this package version as reviewed");
+                    w.end("div");
+                }
             } else {
                 w.start("div", "class", "btn-group");
                 w.e("input", "class", "btn btn-default", "type", "submit",
@@ -297,7 +313,7 @@ public class PackageVersionPage extends MyPage {
                 "Microsoft Windows");
         w.e("meta", "itemprop", "applicationCategory", "content",
                 p.tags.size() > 0 ? NWUtils.join(", ", p.tags) :
-                        "Uncategorized");
+                "Uncategorized");
         w.end("td");
         w.end("tr");
 
@@ -1168,10 +1184,10 @@ public class PackageVersionPage extends MyPage {
         w.start("script");
         InputStream stream =
                 DefaultServlet
-                .getInstance(request)
-                .getServletContext()
-                .getResourceAsStream(
-                        "/WEB-INF/templates/PackageVersionDetail.js");
+                        .getInstance(request)
+                        .getServletContext()
+                        .getResourceAsStream(
+                                "/WEB-INF/templates/PackageVersionDetail.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
 
