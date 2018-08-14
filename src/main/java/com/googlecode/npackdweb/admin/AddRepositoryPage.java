@@ -47,7 +47,7 @@ public class AddRepositoryPage extends MyPage {
         }
 
         if (err == null) {
-            Repository existing = NWUtils.dsCache.findRepository(tag);
+            Repository existing = NWUtils.dsCache.findRepository(tag, true);
             if (existing != null) {
                 err = "A repository with the tag " + tag + " already exists";
             }

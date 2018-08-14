@@ -58,4 +58,16 @@ public class Repository {
     public Key createKey() {
         return KeyFactory.createKey("Repository", name);
     }
+
+    /**
+     * @return copy of this object
+     */
+    public Repository copy() {
+        Repository r = new Repository();
+        r.name = this.name;
+        r.lastModifiedAt = this.lastModifiedAt;
+        r.blobFile = this.blobFile;
+
+        return r;
+    }
 }

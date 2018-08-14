@@ -26,7 +26,7 @@ public class RepXMLAction extends Action {
         String tag = req.getParameter("tag");
 
         if (tag != null && !tag.isEmpty()) {
-            Repository r = NWUtils.dsCache.findRepository(tag);
+            Repository r = NWUtils.dsCache.findRepository(tag, true);
             if (r == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Repository " +
                         tag + " not found");

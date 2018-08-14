@@ -60,7 +60,7 @@ public class ExportRepsAction extends Action {
     public static Repository export(GcsService gcsService,
             String tag, boolean recreate)
             throws IOException {
-        Repository r = NWUtils.dsCache.findRepository(tag);
+        Repository r = NWUtils.dsCache.findRepository(tag, true);
         if (r == null) {
             r = new Repository();
             r.name = tag;

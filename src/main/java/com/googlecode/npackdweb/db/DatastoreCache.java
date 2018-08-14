@@ -49,6 +49,8 @@ public class DatastoreCache {
 
     private Map<String, Editor> editorsCache = new HashMap<>();
 
+    private Map<String, Repository> repositoriesCache = new HashMap<>();
+
     private boolean allLicensesRead;
 
     /**
@@ -363,19 +365,47 @@ public class DatastoreCache {
      * Searches for the repository with the given tag.
      *
      * @param tag tag name
+     * @param useCache true = use cache
      * @return found repository or null
      */
-    public Repository findRepository(String tag) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
+    public Repository findRepository(String tag, boolean useCache) {
         Repository ret = null;
-        try {
-            ret = new Repository(datastore.get(KeyFactory.createKey(
-                    "Repository",
-                    tag)));
-        } catch (EntityNotFoundException ex) {
-            // ignore
+
+        if (useCache) {
+            lock.lock();
+            try {
+                ret = repositoriesCache.get(tag);
+            } finally {
+                lock.unlock();
+            }
         }
+
+        if (ret == null) {
+            DatastoreService datastore = DatastoreServiceFactory.
+                    getDatastoreService();
+            try {
+                ret = new Repository(datastore.get(KeyFactory.createKey(
+                        "Repository",
+                        tag)));
+            } catch (EntityNotFoundException ex) {
+                // ignore
+                //NWUtils.LOG.info("Cannot find the package " + id);
+            }
+
+            if (ret != null) {
+                lock.lock();
+                try {
+                    repositoriesCache.put(tag, ret);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+
+        if (ret != null) {
+            ret = ret.copy();
+        }
+
         return ret;
     }
 
@@ -512,6 +542,7 @@ public class DatastoreCache {
             packagesCache.clear();
             licensesCache.clear();
             editorsCache.clear();
+            repositoriesCache.clear();
             allLicensesRead = false;
         } finally {
             lock.unlock();
@@ -541,6 +572,7 @@ public class DatastoreCache {
                 packagesCache.clear();
                 licensesCache.clear();
                 editorsCache.clear();
+                repositoriesCache.clear();
             }
         } finally {
             lock.unlock();
