@@ -997,6 +997,54 @@ public class NWUtils {
     }
 
     /**
+     * Upload a file to archive.org. See https://archive.org/help/abouts3.txt
+     *
+     * @param url http: or https: URL
+     * @param archiveURL URL on s3.us.archive.org
+     * @param accessKey access key for s3.us.archive.org
+     * @param password password on archive.org
+     * @throws IOException file cannot be downloaded
+     */
+    public static void archive(String url, String archiveURL, String accessKey,
+            String password)
+            throws IOException {
+        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
+
+        HTTPRequest ht = new HTTPRequest(new URL(url));
+        ht.setHeader(new HTTPHeader("User-Agent",
+                "NpackdWeb/1 (compatible; MSIE 9.0)"));
+        ht.getFetchOptions().followRedirects();
+        ht.getFetchOptions().setDeadline(10 * 60.0);
+        HTTPResponse r = s.fetch(ht);
+        if (r.getResponseCode() / 100 != 2) {
+            throw new IOException("Download request failed: " + r.
+                    getResponseCode());
+        }
+
+        HTTPRequest archive = new HTTPRequest(new URL(archiveURL),
+                HTTPMethod.PUT);
+        archive.setHeader(new HTTPHeader("User-Agent",
+                "NpackdWeb/1 (compatible; MSIE 9.0)"));
+        archive.setHeader(new HTTPHeader("Authorization",
+                "LOW " + accessKey + ":" + password));
+        archive.setHeader(new HTTPHeader("x-amz-auto-make-bucket",
+                "1"));
+        archive.setHeader(new HTTPHeader("x-archive-meta01-collection",
+                "open_source_software"));
+        archive.setHeader(new HTTPHeader("x-archive-meta-title",
+                "File"));
+        archive.getFetchOptions().setDeadline(10 * 60.0);
+        archive.getFetchOptions().followRedirects();
+        archive.setPayload(r.getContent());
+        NWUtils.LOG.info("payload: " + r.getContent().length);
+        HTTPResponse archiver = s.fetch(archive);
+        if (archiver.getResponseCode() / 100 != 2) {
+            throw new IOException("Archive.org request failed: " + archiver.
+                    getResponseCode() + new String(archiver.getContent()));
+        }
+    }
+
+    /**
      * Changes an email address so it cannot be easily parsed.
      *
      * @param email an email address

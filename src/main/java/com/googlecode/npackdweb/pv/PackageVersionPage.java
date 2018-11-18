@@ -283,6 +283,14 @@ public class PackageVersionPage extends MyPage {
                             packageName +
                             "&version=" + version,
                             "Marks this package version as reviewed");
+
+                    NWUtils.jsButton(
+                            w,
+                            "Archive",
+                            "/package-version/archive?package=" +
+                            packageName +
+                            "&version=" + version,
+                            "Uploads the binary to archive.org");
                     w.end("div");
                 }
             } else {

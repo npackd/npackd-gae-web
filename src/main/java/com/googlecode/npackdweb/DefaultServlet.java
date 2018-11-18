@@ -23,6 +23,7 @@ import com.googlecode.npackdweb.package_.PackagesAction;
 import com.googlecode.npackdweb.package_.RequestPermissionsAction;
 import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
 import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
+import com.googlecode.npackdweb.pv.PackageVersionArchiveAction;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
 import com.googlecode.npackdweb.pv.PackageVersionComputeSHA256Action;
 import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
@@ -173,6 +174,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new PackageVersionComputeSHA256Action());
         registerAction(new PackageVersionRecognizeAction());
         registerAction(new PackageVersionMarkReviewedAction());
+        registerAction(new PackageVersionArchiveAction());
 
         /* license */
         registerAction(new LicensesAction());
