@@ -633,7 +633,6 @@ public class PackageDetailPage extends MyPage {
             w.start("td");
             User u = UserServiceFactory.getUserService().getCurrentUser();
             if (mode != FormMode.CREATE) {
-                Package p = NWUtils.dsCache.getPackage(this.id, false);
                 if (NWUtils.isAdminLoggedIn()) {
                     w.e("textarea",
                             "class",
@@ -648,15 +647,16 @@ public class PackageDetailPage extends MyPage {
                             "list of email addresses for people that are allowed to change this package and its versions",
                             permissions);
                 } else {
-                    for (int i = 0; i < p.permissions.size(); i++) {
+                    List<String> pm = NWUtils.split(permissions, '\n');
+                    for (int i = 0; i < pm.size(); i++) {
                         if (i != 0) {
                             w.unencoded("<br>");
                         }
-                        if (NWUtils.isEqual(u, p.permissions.get(i))) {
-                            w.t(u.getEmail());
+                        if (NWUtils.isEmailEqual(u.getEmail(), pm.get(i))) {
+                            w.t(pm.get(i));
                         } else {
-                            w.unencoded(NWUtils.obfuscateEmail(p.permissions.
-                                    get(i).getEmail(), request.
+                            w.unencoded(NWUtils.obfuscateEmail(pm.
+                                    get(i), request.
                                     getServerName()));
                         }
                     }
