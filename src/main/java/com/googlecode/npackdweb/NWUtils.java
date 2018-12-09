@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -996,6 +997,71 @@ public class NWUtils {
         return info;
     }
 
+    private static void copyData(InputStream in, OutputStream out) throws
+            IOException {
+        byte[] buffer = new byte[8 * 1024];
+        int len;
+        while ((len = in.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
+        }
+    }
+
+    /**
+     * Downloads a file. This methods ignores protocol switches http <->
+     * https. HTTPURLConnection cannot handle this by default. URLFetchService
+     * only can download 32 MiB
+     *
+     * @param url URL
+     * @return the data
+     * @throws IOException failure
+     */
+    private static void upload(URL url, OutputStream os)
+            throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setInstanceFollowRedirects(false);
+
+        for (int i = 0; i < 5; i++) {
+            conn.setRequestProperty("User-Agent",
+                    "NpackdWeb/1 (compatible; MSIE 9.0)");
+
+            boolean redirect = false;
+
+            // normally, 3xx is redirect
+            int status = conn.getResponseCode();
+            if (status != HttpURLConnection.HTTP_OK) {
+                if (status == HttpURLConnection.HTTP_MOVED_TEMP ||
+                        status == HttpURLConnection.HTTP_MOVED_PERM ||
+                        status == HttpURLConnection.HTTP_SEE_OTHER) {
+                    redirect = true;
+                }
+            }
+
+            // System.out.println("Response Code ... " + status);
+            if (redirect) {
+                // get redirect url from "location" header field
+                String newUrl = conn.getHeaderField("Location");
+
+                // get the cookie if need, for login
+                String cookies = conn.getHeaderField("Set-Cookie");
+
+                // open the new connnection again
+                conn = (HttpURLConnection) new URL(newUrl).openConnection();
+                conn.setInstanceFollowRedirects(false);
+                conn.setRequestProperty("Cookie", cookies);
+
+                // System.out.println("Redirect to URL : " + newUrl);
+            } else {
+                InputStream is = conn.getInputStream();
+                copyData(is, os);
+                is.close();
+                os.close();
+                return;
+            }
+        }
+
+        throw new IOException("There were too many redirects.");
+    }
+
     /**
      * Upload a file to archive.org. See https://archive.org/help/abouts3.txt
      *
@@ -1008,39 +1074,25 @@ public class NWUtils {
     public static void archive(String url, String archiveURL, String accessKey,
             String password)
             throws IOException {
-        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
-
-        HTTPRequest ht = new HTTPRequest(new URL(url));
-        ht.setHeader(new HTTPHeader("User-Agent",
-                "NpackdWeb/1 (compatible; MSIE 9.0)"));
-        ht.getFetchOptions().followRedirects();
-        ht.getFetchOptions().setDeadline(10 * 60.0);
-        HTTPResponse r = s.fetch(ht);
-        if (r.getResponseCode() / 100 != 2) {
-            throw new IOException("Download request failed: " + r.
+        HttpURLConnection archive = (HttpURLConnection) new URL(archiveURL).
+                openConnection();
+        archive.setDoOutput(true);
+        archive.setRequestMethod("PUT");
+        archive.setRequestProperty("User-Agent",
+                "NpackdWeb/1 (compatible; MSIE 9.0)");
+        archive.setRequestProperty("Authorization",
+                "LOW " + accessKey + ":" + password);
+        archive.setRequestProperty("x-amz-auto-make-bucket",
+                "1");
+        archive.setRequestProperty("x-archive-meta01-collection",
+                "open_source_software");
+        archive.setRequestProperty("x-archive-meta-title",
+                "File");
+        archive.setInstanceFollowRedirects(true);
+        upload(new URL(url), archive.getOutputStream());
+        if (archive.getResponseCode() / 100 != 2) {
+            throw new IOException("Archive.org request failed: " + archive.
                     getResponseCode());
-        }
-
-        HTTPRequest archive = new HTTPRequest(new URL(archiveURL),
-                HTTPMethod.PUT);
-        archive.setHeader(new HTTPHeader("User-Agent",
-                "NpackdWeb/1 (compatible; MSIE 9.0)"));
-        archive.setHeader(new HTTPHeader("Authorization",
-                "LOW " + accessKey + ":" + password));
-        archive.setHeader(new HTTPHeader("x-amz-auto-make-bucket",
-                "1"));
-        archive.setHeader(new HTTPHeader("x-archive-meta01-collection",
-                "open_source_software"));
-        archive.setHeader(new HTTPHeader("x-archive-meta-title",
-                "File"));
-        archive.getFetchOptions().setDeadline(10 * 60.0);
-        archive.getFetchOptions().followRedirects();
-        archive.setPayload(r.getContent());
-        NWUtils.LOG.info("payload: " + r.getContent().length);
-        HTTPResponse archiver = s.fetch(archive);
-        if (archiver.getResponseCode() / 100 != 2) {
-            throw new IOException("Archive.org request failed: " + archiver.
-                    getResponseCode() + new String(archiver.getContent()));
         }
     }
 

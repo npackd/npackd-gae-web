@@ -15,6 +15,9 @@ public class InfoPage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
 
+        w.e("div", "Max memory: " + Runtime.getRuntime().maxMemory());
+        w.e("div", "Free memory: " + Runtime.getRuntime().freeMemory());
+
         DefaultServlet ds = DefaultServlet.getInstance(request);
         List<Action> as = ds.getActions();
         w.start("ul");
