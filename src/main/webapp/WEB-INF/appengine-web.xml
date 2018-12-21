@@ -3,7 +3,9 @@
     <application>npackd</application>
     <version>${project.version}</version>
 
+    <!-- too expensive
     <instance-class>F2</instance-class>
+    -->
 
     <runtime>java8</runtime>
 
