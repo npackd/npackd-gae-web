@@ -43,7 +43,7 @@ public class Editor implements Cloneable {
     public long id;
 
     /**
-     * For Objectify.
+     * -
      */
     public Editor() {
     }

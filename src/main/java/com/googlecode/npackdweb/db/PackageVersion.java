@@ -146,7 +146,7 @@ public class PackageVersion {
     public int uninstallFailed;
 
     /**
-     * For Objectify.
+     * -.
      */
     public PackageVersion() {
     }

@@ -20,7 +20,7 @@ public class Setting {
     public String value = "";
 
     /**
-     * For Objectify.
+     * -
      */
     public Setting() {
     }

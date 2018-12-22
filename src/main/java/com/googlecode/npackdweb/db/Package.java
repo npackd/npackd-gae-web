@@ -161,7 +161,7 @@ public class Package {
 
     // PLEASE ALSO UPDATE #copy() and #Package(Entity)
     /**
-     * For Objectify.
+     * -
      */
     public Package() {
     }
