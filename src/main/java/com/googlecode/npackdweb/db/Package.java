@@ -452,54 +452,54 @@ public class Package {
     public static String checkName(String n) {
         if (n.length() == 0) {
             return "Empty package name";
-        } else {
-            int pos = n.indexOf("..");
-            if (pos >= 0) {
-                return MessageFormat.format(
-                        "Empty segment at position {0} in {1}", pos + 1, n);
+        }
+
+        int pos = n.indexOf("..");
+        if (pos >= 0) {
+            return MessageFormat.format(
+                    "Empty segment at position {0} in {1}", pos + 1, n);
+        }
+
+        pos = n.indexOf("--");
+        if (pos >= 0) {
+            return MessageFormat.format("-- at position {0} in {1}",
+                    pos + 1, n);
+        }
+
+        String[] parts = n.split("\\.", -1);
+        for (int j = 0; j < parts.length; j++) {
+            String part = parts[j];
+
+            if (!part.isEmpty()) {
+                char c = part.charAt(0);
+                if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+                        (c == '_') || (c >= 'a' && c <= 'z') || Character
+                                .isLetter(c))) {
+                    return MessageFormat.format(
+                            "Wrong character at position 1 in {0}", part);
+                }
             }
 
-            pos = n.indexOf("--");
-            if (pos >= 0) {
-                return MessageFormat.format("-- at position {0} in {1}",
-                        pos + 1, n);
+            for (int i = 1; i < part.length() - 1; i++) {
+                char c = part.charAt(i);
+                if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+                        (c == '_') || (c == '-') || (c >= 'a' && c <= 'z') ||
+                        Character
+                                .isLetter(c))) {
+                    return MessageFormat.format(
+                            "Wrong character at position {0} in {1}",
+                            i + 1, part);
+                }
             }
 
-            String[] parts = n.split("\\.", -1);
-            for (int j = 0; j < parts.length; j++) {
-                String part = parts[j];
-
-                if (!part.isEmpty()) {
-                    char c = part.charAt(0);
-                    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
-                            (c == '_') || (c >= 'a' && c <= 'z') || Character
-                                    .isLetter(c))) {
-                        return MessageFormat.format(
-                                "Wrong character at position 1 in {0}", part);
-                    }
-                }
-
-                for (int i = 1; i < part.length() - 1; i++) {
-                    char c = part.charAt(i);
-                    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
-                            (c == '_') || (c == '-') || (c >= 'a' && c <= 'z') ||
-                            Character
-                                    .isLetter(c))) {
-                        return MessageFormat.format(
-                                "Wrong character at position {0} in {1}",
-                                i + 1, part);
-                    }
-                }
-
-                if (!part.isEmpty()) {
-                    char c = part.charAt(part.length() - 1);
-                    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
-                            (c == '_') || (c >= 'a' && c <= 'z') || Character
-                                    .isLetter(c))) {
-                        return MessageFormat.format(
-                                "Wrong character at position {0} in {1}",
-                                part.length(), part);
-                    }
+            if (!part.isEmpty()) {
+                char c = part.charAt(part.length() - 1);
+                if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+                        (c == '_') || (c >= 'a' && c <= 'z') || Character
+                                .isLetter(c))) {
+                    return MessageFormat.format(
+                            "Wrong character at position {0} in {1}",
+                            part.length(), part);
                 }
             }
         }
