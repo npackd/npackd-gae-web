@@ -5,6 +5,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.db.Arch;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -36,6 +37,11 @@ public class PackageDetailPage extends MyPage {
      * package title
      */
     public String title;
+
+    /**
+     * package architecture
+     */
+    public Arch arch;
 
     /**
      * package home page
@@ -126,6 +132,7 @@ public class PackageDetailPage extends MyPage {
     public PackageDetailPage(FormMode mode) {
         this.mode = mode;
 
+        arch = Arch.ANY;
         id = "";
         title = "";
         url = "";
@@ -317,6 +324,28 @@ public class PackageDetailPage extends MyPage {
              */
         } else {
             w.e("a", "href", url, url);
+        }
+        w.end("td");
+        w.end("tr");
+
+        // architecture
+        w.start("tr");
+        w.start("td");
+        w.t("Architecture");
+        w.t(":");
+        w.end("td");
+        w.start("td");
+        String archs = arch.toString();
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
+            w.start("select", "class", "form-control", "name", "arch",
+                    "title", "Architecture for the binaries");
+            for (String arch : new String[]{"any", "i686", "x86_64"}) {
+                w.e("option", "value", arch, "selected",
+                        arch.equals(archs) ? "selected" : null, arch);
+            }
+            w.end("select");
+        } else {
+            w.t(archs);
         }
         w.end("td");
         w.end("tr");
@@ -796,6 +825,7 @@ public class PackageDetailPage extends MyPage {
             this.mode = FormMode.EDIT;
         }
         id = req.getParameter("name");
+        arch = Arch.fromString(req.getParameter("arch"));
         title = req.getParameter("title");
         url = req.getParameter("url");
         changelog = req.getParameter("changelog");
@@ -840,6 +870,7 @@ public class PackageDetailPage extends MyPage {
      * @param p the data will be stored here
      */
     public void fillObject(Package p) {
+        p.arch = arch;
         p.description = description.trim();
         p.icon = icon.trim();
         p.title = title.trim();
@@ -975,6 +1006,7 @@ public class PackageDetailPage extends MyPage {
         description = r.description.trim();
         icon = r.icon.trim();
         title = r.title.trim();
+        arch = r.arch;
         url = r.url.trim();
         changelog = r.changelog == null ? "" : r.changelog;
         license = r.license.trim();

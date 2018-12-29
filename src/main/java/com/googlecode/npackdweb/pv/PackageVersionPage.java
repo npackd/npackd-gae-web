@@ -389,6 +389,14 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // architecture
+        w.start("tr");
+        w.e("td", "Architecture:");
+        w.start("td");
+        w.t(p.arch.toString());
+        w.end("td");
+        w.end("tr");
+
         // change log
         w.start("tr");
         w.e("td", "Change log:");
@@ -589,13 +597,13 @@ public class PackageVersionPage extends MyPage {
         w.start("td", "itemprop", "keywords");
         if (editable) {
             for (int i = 0; i < PackageVersion.TAGS.length; i++) {
-                String s = PackageVersion.TAGS[i];
+                String st = PackageVersion.TAGS[i];
                 String title = PackageVersion.TAG_TOOLTIPS[i];
                 w.start("label", "class", "checkbox-inline", "title", title);
                 w.e("input", "type", "checkbox", "class", "nw-tag-checkbox",
                         "id", "tag-" +
-                        s, "value", s);
-                w.t(" " + s);
+                        st, "value", st);
+                w.t(" " + st);
                 w.end("label");
             }
             w.start("input", "class", "form-control", "type", "text", "name",
