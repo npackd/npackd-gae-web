@@ -4,7 +4,6 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Arch;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import java.util.List;
@@ -43,11 +42,13 @@ public class ProcessPackagesMapper extends MapOnlyMapper<Entity, Void> {
         if (versions.size() > 0) {
             PackageVersion pv = versions.get(versions.size() - 1);
             if (pv.hasTag("stable64")) {
-                data.arch = Arch.X86_64;
+                data.addTag("stable64");
             } else if (pv.hasTag("stable")) {
-                data.arch = Arch.I686;
-            } else {
-                data.arch = Arch.ANY;
+                data.addTag("stable");
+            } else if (pv.hasTag("libs")) {
+                data.addTag("libs");
+            } else if (pv.hasTag("unstable")) {
+                data.addTag("unstable");
             }
             NWUtils.dsCache.savePackage(old, data, false);
         }

@@ -44,7 +44,9 @@ public class Package {
      *
      * WARNING: also update PackageDetail.js and TAG_TOOLTIPS
      */
-    public static final String[] TAGS = {"Communications", "Development",
+    public static final String[] TAGS = {"stable", "stable64", "libs",
+        "unstable",
+        "Communications", "Development",
         "Education", "Finance", "Games", "Music", "News", "Photo",
         "Productivity", "Security", "Text", "Tools", "Video",
         "same-url", "end-of-life"};
@@ -55,6 +57,10 @@ public class Package {
      * WARNING: also update PackageDetail.js and TAGS
      */
     public static final String[] TAG_TOOLTIPS = {
+        "this package version should be included in the default 32 bit repository for stable software",
+        "this package version should be included in the default 64 bit repository for stable software",
+        "this package version should be included in the default repository for software libraries",
+        "this package version should be included in the default repository for unstable software",
         "tools for communication", "software development tools",
         "educational programs", "finance related programs", "games",
         "music related software", "news", "image processing",
