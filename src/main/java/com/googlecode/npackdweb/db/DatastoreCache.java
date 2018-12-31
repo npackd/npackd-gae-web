@@ -466,7 +466,7 @@ public class DatastoreCache {
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
      * @param limit maximum number of returned package versions or 0 for
      * "unlimited"
-     * @return first 20 package versions with errors downloading the binary
+     * @return the package versions
      */
     public List<PackageVersion> findPackageVersions(
             String tag, String order, int limit) {
@@ -499,6 +499,49 @@ public class DatastoreCache {
         List<PackageVersion> res = new ArrayList<>();
         for (Entity e : list) {
             res.add(new PackageVersion(e));
+        }
+
+        return res;
+    }
+
+    /**
+     * @param tag a tag to filter the package or null
+     * @param order how to order the query (e.g. "-lastModifiedAt") or null
+     * @param limit maximum number of returned package versions or 0 for
+     * "unlimited"
+     * @return the packages
+     */
+    public List<Package> findPackages(
+            String tag, String order, int limit) {
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query("Package");
+        if (tag != null) {
+            query.setFilter(
+                    new com.google.appengine.api.datastore.Query.FilterPredicate(
+                            "tags", FilterOperator.EQUAL, tag));
+        }
+        if (order != null) {
+            query.addSort(order);
+        }
+
+        List<Entity> list;
+        if (limit <= 0) {
+            list = getAllEntities(query);
+        } else {
+            PreparedQuery pq = datastore.prepare(query);
+            final FetchOptions fo = FetchOptions.Builder.withDefaults();
+            if (limit > 0) {
+                fo.limit(limit);
+            }
+            list = pq.asList(fo);
+        }
+
+        List<Package> res = new ArrayList<>();
+        for (Entity e : list) {
+            res.add(new Package(e));
         }
 
         return res;

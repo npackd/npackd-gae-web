@@ -73,7 +73,13 @@ public class ExportRepsAction extends Action {
         if (r.blobFile == null || recreate ||
                 gcsService.getMetadata(fileName) == null ||
                 gcsService.getMetadata(fileNameZIP) == null) {
-            Document d = RepXMLPage.toXML(tag, true);
+            Document d;
+
+            if (tag.equals("unstable")) {
+                d = RepXMLPage.toXML(tag, true);
+            } else {
+                d = RepXMLPage.toXMLByPackageTag(tag, true);
+            }
 
             GcsOutputChannel outputChannel =
                     gcsService.createOrReplace(fileName,
