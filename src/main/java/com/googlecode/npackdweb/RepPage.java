@@ -27,7 +27,7 @@ public class RepPage extends MyPage {
 
                 b.start("li");
                 b.e("a", "href", "/rep/xml?tag=" + r.name, r.name);
-                b.t(" (since Npackd 1.20 also available in ");
+                b.t(" (also available in ");
                 b.e("a", "href", "/rep/zip?tag=" + r.name, "ZIP format");
                 b.t(")");
                 b.end("li");

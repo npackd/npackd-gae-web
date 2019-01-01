@@ -52,6 +52,7 @@ public class DatastoreCache {
     private Map<String, Repository> repositoriesCache = new HashMap<>();
 
     private boolean allLicensesRead;
+    private boolean allRepositoriesRead;
 
     /**
      * Saves a package. The package can be new or an already existing one. The
@@ -340,25 +341,48 @@ public class DatastoreCache {
     }
 
     /**
-     * @return all defined repositories
+     * @return all repositories
      */
     public List<Repository> findAllRepositories() {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query("Repository");
-
-        PreparedQuery pq = datastore.prepare(query);
-        final List<Entity> list =
-                pq.asList(FetchOptions.Builder.withDefaults());
-
-        List<Repository> res = new ArrayList<>();
-        for (Entity e : list) {
-            res.add(new Repository(e));
+        List<Repository> repositories = new ArrayList<>();
+        boolean read = false;
+        lock.lock();
+        try {
+            if (allRepositoriesRead) {
+                for (Repository r : repositoriesCache.values()) {
+                    repositories.add(r.copy());
+                }
+                read = true;
+            }
+        } finally {
+            lock.unlock();
         }
 
-        return res;
+        if (!read) {
+            DatastoreService datastore = DatastoreServiceFactory.
+                    getDatastoreService();
+
+            com.google.appengine.api.datastore.Query query =
+                    new com.google.appengine.api.datastore.Query("Repository");
+            PreparedQuery pq = datastore.prepare(query);
+            final List<Entity> list =
+                    pq.asList(FetchOptions.Builder.withDefaults());
+
+            lock.lock();
+            try {
+                repositoriesCache.clear();
+                allRepositoriesRead = true;
+                for (Entity e : list) {
+                    Repository r = new Repository(e);
+                    repositoriesCache.put(r.name, r);
+                    repositories.add(r.copy());
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        return repositories;
     }
 
     /**
@@ -579,19 +603,26 @@ public class DatastoreCache {
             v = 1L;
         }
 
+        setDataVersion(v);
+
+        return v;
+    }
+
+    private void setDataVersion(long v) {
         lock.lock();
         try {
-            dataVersion = v;
-            packagesCache.clear();
-            licensesCache.clear();
-            editorsCache.clear();
-            repositoriesCache.clear();
-            allLicensesRead = false;
+            if (dataVersion != v) {
+                dataVersion = v;
+                packagesCache.clear();
+                licensesCache.clear();
+                editorsCache.clear();
+                repositoriesCache.clear();
+                allLicensesRead = false;
+                allRepositoriesRead = false;
+            }
         } finally {
             lock.unlock();
         }
-
-        return v;
     }
 
     /**
@@ -608,18 +639,7 @@ public class DatastoreCache {
             v = 1L;
         }
 
-        lock.lock();
-        try {
-            if (dataVersion != v) {
-                dataVersion = v;
-                packagesCache.clear();
-                licensesCache.clear();
-                editorsCache.clear();
-                repositoriesCache.clear();
-            }
-        } finally {
-            lock.unlock();
-        }
+        setDataVersion(v);
     }
 
     /**
@@ -927,18 +947,20 @@ public class DatastoreCache {
      */
     public List<License> getAllLicenses() {
         List<License> licenses = new ArrayList<>();
+        boolean read = false;
         lock.lock();
         try {
             if (allLicensesRead) {
                 for (License lic : licensesCache.values()) {
                     licenses.add(lic.copy());
                 }
+                read = true;
             }
         } finally {
             lock.unlock();
         }
 
-        if (licenses.size() == 0) {
+        if (!read) {
             DatastoreService datastore = DatastoreServiceFactory.
                     getDatastoreService();
 
