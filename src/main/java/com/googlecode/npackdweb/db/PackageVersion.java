@@ -26,7 +26,7 @@ public class PackageVersion {
      *
      * WARNING: update TAG_TOOLTIPS!
      */
-    public static final String[] TAGS = {"stable", "stable64", "libs",
+    public static final String[] TAGS = {
         "unstable", "untested", "non-admin",
         "not-reviewed", "phishing", "malware", "unwanted"};
 
@@ -34,9 +34,6 @@ public class PackageVersion {
      * Help for the tags.
      */
     public static final String[] TAG_TOOLTIPS = {
-        "this package version should be included in the default 32 bit repository for stable software",
-        "this package version should be included in the default 64 bit repository for stable software",
-        "this package version should be included in the default repository for software libraries",
         "this package version should be included in the default repository for unstable software",
         "the installation and removal of this package version was not yet tested. This package will not be included in the default repositories.",
         "can be installed without administrative privileges",
