@@ -74,7 +74,7 @@ public class DatastoreCache {
         datastore.put(p.createEntity());
         incDataVersion();
         Index index = NWUtils.getIndex();
-        index.put(p.createDocument());
+        index.put(p.createDocument(findAllRepositories()));
     }
 
     /**

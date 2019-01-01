@@ -5,8 +5,6 @@ import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
 import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.PackageVersion;
-import java.util.List;
 import java.util.logging.Level;
 
 public class ProcessPackagesMapper extends MapOnlyMapper<Entity, Void> {
@@ -37,7 +35,7 @@ public class ProcessPackagesMapper extends MapOnlyMapper<Entity, Void> {
 
         com.googlecode.npackdweb.db.Package old = data.copy();
 
-        List<PackageVersion> versions = NWUtils.dsCache.
+        /*List<PackageVersion> versions = NWUtils.dsCache.
                 getSortedVersions(data.name);
         if (versions.size() > 0) {
             PackageVersion pv = versions.get(versions.size() - 1);
@@ -50,7 +48,7 @@ public class ProcessPackagesMapper extends MapOnlyMapper<Entity, Void> {
             } else if (pv.hasTag("unstable")) {
                 data.addTag("unstable");
             }
-            NWUtils.dsCache.savePackage(old, data, false);
-        }
+        }*/
+        NWUtils.dsCache.savePackage(old, data, false);
     }
 }

@@ -43,8 +43,10 @@ public class PackagesPage extends MyPage {
     private long found;
     private String category0;
     private String category1;
+    private String repository;
     private List<FacetResultValue> category0Values = new ArrayList<>();
     private List<FacetResultValue> category1Values = new ArrayList<>();
+    private List<FacetResultValue> repositoryValues = new ArrayList<>();
 
     /**
      * true = show the search text field
@@ -72,17 +74,24 @@ public class PackagesPage extends MyPage {
      * @param start initial offset
      * @param category0 filter for the top-level category or null or ""
      * @param category1 filter for the second level level or null or ""
+     * @param repository filter for the repository or null or ""
      */
     public PackagesPage(String query, boolean recent, int start,
-            String category0, String category1) {
+            String category0, String category1, String repository) {
         this.query = query;
         this.recent = recent;
         this.start = start;
-        this.category0 = category0;
 
+        this.repository = repository;
+        if (this.repository != null && this.repository.trim().isEmpty()) {
+            this.repository = null;
+        }
+
+        this.category0 = category0;
         if (this.category0 != null && this.category0.trim().isEmpty()) {
             this.category0 = null;
         }
+
         this.category1 = category1;
         if (this.category1 != null && this.category1.trim().isEmpty()) {
             this.category1 = null;
@@ -123,9 +132,12 @@ public class PackagesPage extends MyPage {
                 FacetRequest.newBuilder().setName("category0");
         FacetRequest.Builder fr1 =
                 FacetRequest.newBuilder().setName("category1");
+        FacetRequest.Builder rep =
+                FacetRequest.newBuilder().setName("repository");
 
         com.google.appengine.api.search.Query.Builder qb =
                 com.google.appengine.api.search.Query.newBuilder()
+                        .addReturnFacet(rep.build())
                         .addReturnFacet(fr0.build())
                         .addReturnFacet(fr1.build()).setOptions(ob.build())
                         .setFacetOptions(fob.build());
@@ -137,6 +149,10 @@ public class PackagesPage extends MyPage {
         if (this.category1 != null) {
             qb.addFacetRefinement(FacetRefinement.withValue("category1",
                     this.category1));
+        }
+        if (this.repository != null) {
+            qb.addFacetRefinement(FacetRefinement.withValue("repository",
+                    this.repository));
         }
 
         List<String> ids = new ArrayList<>();
@@ -150,6 +166,8 @@ public class PackagesPage extends MyPage {
                     category0Values = fi.getValues();
                 } else if (fi.getName().equals("category1")) {
                     category1Values = fi.getValues();
+                } else if (fi.getName().equals("repository")) {
+                    repositoryValues = fi.getValues();
                 }
             }
             for (ScoredDocument sd : r) {
@@ -170,6 +188,9 @@ public class PackagesPage extends MyPage {
         if (category1Values == null) {
             category1Values = new ArrayList<>();
         }
+        if (repositoryValues == null) {
+            repositoryValues = new ArrayList<>();
+        }
 
         packages.addAll(NWUtils.dsCache.getPackages(ids, true));
     }
@@ -180,18 +201,15 @@ public class PackagesPage extends MyPage {
     }
 
     private String internalCreateContent() {
-        return createContent2(category0Values, category1Values) +
+        return createContent2() +
                 createPager(start, packages.size() > PAGE_SIZE);
     }
 
-    private String createContent2(List<FacetResultValue> category0Values,
-            List<FacetResultValue> category1Values) {
+    private String createContent2() {
         HTMLWriter w = new HTMLWriter();
 
         if (showSearch) {
-            w.unencoded(createSearchForm(this.query, this.recent,
-                    category0Values,
-                    category1Values));
+            w.unencoded(createSearchForm(this.query, this.recent));
         }
 
         if (this.getPackages().isEmpty()) {
@@ -308,13 +326,9 @@ public class PackagesPage extends MyPage {
      * @param query search text
      * @param recent true = select "sort by creation date", false = "sort by
      * title"
-     * @param category1Values
-     * @param category0Values
      * @return HTML for the search form
      */
-    public String createSearchForm(String query, boolean recent,
-            List<FacetResultValue> category0Values,
-            List<FacetResultValue> category1Values) {
+    public String createSearchForm(String query, boolean recent) {
         HTMLWriter w = new HTMLWriter();
         w.start("form", "class", "form-inline", "method", "get", "action",
                 "/p", "id", "searchForm");
@@ -353,6 +367,33 @@ public class PackagesPage extends MyPage {
             } else {
                 if (category0Values.size() > 0) {
                     w.t(category0Values.get(0).getLabel());
+                } else {
+                    w.t("-");
+                }
+            }
+        }
+
+        w.t(" Repository: ");
+        if (repositoryValues.size() > 1) {
+            w.start("select", "class", "form-control", "name", "repository",
+                    "id", "repository");
+            w.e("option", "value", "", "Any");
+            for (FacetResultValue c0 : repositoryValues) {
+                w.e("option", "value", c0.getLabel(),
+                        c0.getLabel() + " (" + c0.getCount() + ")");
+            }
+            w.end("select");
+        } else {
+            if (this.repository != null) {
+                w.e("input", "type", "hidden", "name", "repository", "value",
+                        this.repository, "id", "repository");
+                w.start("a", "href", "javascript:removeRepositoryFilter()",
+                        "title", "Remove this filter");
+                w.t(this.repository);
+                w.end("a");
+            } else {
+                if (repositoryValues.size() > 0) {
+                    w.t(repositoryValues.get(0).getLabel());
                 } else {
                     w.t("-");
                 }

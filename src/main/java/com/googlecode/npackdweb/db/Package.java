@@ -405,15 +405,25 @@ public class Package {
     }
 
     /**
+     * @param repositories list of all available repositories
      * @return document for the search index
      */
-    public com.google.appengine.api.search.Document createDocument() {
+    public com.google.appengine.api.search.Document createDocument(
+            List<Repository> repositories) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.permissions.size(); i++) {
             if (i != 0) {
                 sb.append(' ');
             }
             sb.append(this.permissions.get(i).getEmail());
+        }
+
+        String rep = null;
+        for (Repository r : repositories) {
+            if (hasTag(r.name)) {
+                rep = r.name;
+                break;
+            }
         }
 
         Builder b = com.google.appengine.api.search.Document.newBuilder();
@@ -436,6 +446,9 @@ public class Package {
                 .addField(
                         Field.newBuilder().setName("permission")
                                 .setText(sb.toString()));
+
+        b.addFacet(Facet.withAtom("repository", rep != null ? rep :
+                "unknown"));
 
         String category0 = null, category1 = null;
         if (tags.size() > 0) {
