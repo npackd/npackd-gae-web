@@ -389,14 +389,6 @@ public class PackageVersionPage extends MyPage {
         w.end("td");
         w.end("tr");
 
-        // architecture
-        w.start("tr");
-        w.e("td", "Architecture:");
-        w.start("td");
-        w.t(p.arch.toString());
-        w.end("td");
-        w.end("tr");
-
         // change log
         w.start("tr");
         w.e("td", "Change log:");

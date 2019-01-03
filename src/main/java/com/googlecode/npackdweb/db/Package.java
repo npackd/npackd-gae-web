@@ -79,11 +79,6 @@ public class Package {
      */
     public String name = "";
 
-    /**
-     * package architecture != null
-     */
-    public Arch arch;
-
     public String title = "";
     public String url = "";
 
@@ -175,7 +170,6 @@ public class Package {
      * @param name full internal name of the package
      */
     public Package(String name) {
-        this.arch = Arch.ANY;
         final UserService us = UserServiceFactory.getUserService();
         if (us.isUserLoggedIn()) {
             this.lastModifiedBy = us.getCurrentUser();
@@ -196,7 +190,6 @@ public class Package {
      */
     public Package(com.google.appengine.api.datastore.Entity p) {
         this.name = p.getKey().getName();
-        this.arch = Arch.fromDatastore(NWUtils.getLong(p, "arch"));
         this.title = NWUtils.getString(p, "title");
         this.url = NWUtils.getString(p, "url");
         this.changelog = NWUtils.getString(p, "changelog");
@@ -267,7 +260,6 @@ public class Package {
                         this.name);
 
         e.setIndexedProperty("title", this.title);
-        e.setIndexedProperty("arch", this.arch.toDatastore());
         e.setIndexedProperty("url", this.url);
         e.setIndexedProperty("changelog", this.changelog);
         e.setUnindexedProperty("description", this.description == null ? null :
@@ -368,9 +360,6 @@ public class Package {
         if (!p.title.isEmpty()) {
             NWUtils.e(package_, "title", p.title);
         }
-        if (p.arch != Arch.ANY) {
-            NWUtils.e(package_, "arch", this.arch.toString());
-        }
         if (!p.url.isEmpty()) {
             NWUtils.e(package_, "url", p.url);
         }
@@ -430,9 +419,6 @@ public class Package {
         b.setId(this.name)
                 .addField(
                         Field.newBuilder().setName("title").setText(this.title))
-                .addField(
-                        Field.newBuilder().setName("arch").setText(this.arch.
-                                toString()))
                 .addField(
                         Field.newBuilder().setName("description")
                                 .setText(this.description))
@@ -615,7 +601,6 @@ public class Package {
     public static Package parse(Element e) {
         Package p = new Package(e.getAttribute("name"));
         p.title = NWUtils.getSubTagContent(e, "title", "");
-        p.arch = Arch.fromString(NWUtils.getSubTagContent(e, "arch", "any"));
         p.url = NWUtils.getSubTagContent(e, "url", "");
         p.description = NWUtils.getSubTagContent(e, "description", "");
         p.license = NWUtils.getSubTagContent(e, "license", "");
@@ -656,7 +641,6 @@ public class Package {
     public Package copy() {
         Package p = new Package(this.name);
         p.title = this.title;
-        p.arch = this.arch;
         p.url = this.url;
         p.changelog = this.changelog;
         p.description = this.description;
