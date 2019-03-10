@@ -312,15 +312,6 @@ public class RepUploadAction extends Action {
         p.oneFile = e.getAttribute("type").equals("one-file");
         p.url = NWUtils.getSubTagContent(e, "url", "");
         p.sha1 = NWUtils.getSubTagContent(e, "sha1", "");
-        String detectMSI = NWUtils.getSubTagContent(e, "detect-msi", null);
-        if (detectMSI != null) {
-            String err = NWUtils.validateGUID(detectMSI);
-            if (err == null) {
-                p.detectPackageNames.add("msi." + detectMSI.substring(1, 37).
-                        toLowerCase());
-                p.detectPackageVersions.add(p.version);
-            }
-        }
 
         NodeList children = e.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -340,9 +331,6 @@ public class RepUploadAction extends Action {
                     p.dependencyVersionRanges.add(che.getAttribute("versions"));
                     p.dependencyEnvVars.add(NWUtils.getSubTagContent(che,
                             "variable", ""));
-                } else if (che.getNodeName().equals("detect")) {
-                    p.detectPackageNames.add(che.getAttribute("package"));
-                    p.detectPackageVersions.add(che.getAttribute("versions"));
                 }
             }
         }

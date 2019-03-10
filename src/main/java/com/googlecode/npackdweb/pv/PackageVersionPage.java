@@ -130,13 +130,6 @@ public class PackageVersionPage extends MyPage {
         this.installFailed = pv.installFailed;
         this.uninstallSucceeded = pv.uninstallSucceeded;
         this.uninstallFailed = pv.uninstallFailed;
-
-        StringBuilder detect = new StringBuilder();
-        for (int i = 0; i < pv.detectPackageNames.size(); i++) {
-            detect.append(pv.detectPackageNames.get(i)).append(' ').append(
-                    pv.detectPackageVersions.get(i)).append('\n');
-        }
-        this.params.put("detect", detect.toString());
     }
 
     private void createScripts(HTMLWriter w) {
@@ -683,7 +676,8 @@ public class PackageVersionPage extends MyPage {
             w.end("td");
             w.end("tr");
         }
-
+        
+        // text files
         w.start("tr");
         w.start("td");
         w.t("Text files");
@@ -757,49 +751,6 @@ public class PackageVersionPage extends MyPage {
 
             w.end("div");
             w.end("div");
-        }
-        w.end("td");
-        w.end("tr");
-
-        // <detect>
-        w.start("tr");
-        w.start("td");
-        w.t("Detection");
-        w.e("small", " (optional)");
-        w.t(":");
-        w.end("td");
-        w.start("td");
-        if (editable) {
-            w.start("textarea",
-                    "class",
-                    "form-control nw-autosize",
-                    "rows",
-                    "5",
-                    "name",
-                    "detect",
-                    "cols",
-                    "80",
-                    "title",
-                    "List of package names and versions from other package managers. " +
-                    "These entries will be used to detect this package version since Npackd 1.22. " +
-                    "Each line should contain " +
-                    "one package name and version separated by a " +
-                    "space character. The package names detected by Npackd are " +
-                    "in form msi._xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_ for MSI " +
-                    "packages or control-panel.xxxxxx for packages detected " +
-                    "from the Software control panel in Windows.");
-            w.t(params.get("detect"));
-            w.end("textarea");
-        } else {
-            w.start("ul");
-            String detect = params.get("detect");
-            if (detect == null) {
-                detect = "";
-            }
-            for (String line : NWUtils.splitLines(detect)) {
-                w.e("li", line);
-            }
-            w.end("ul");
         }
         w.end("td");
         w.end("tr");
@@ -1159,21 +1110,6 @@ public class PackageVersionPage extends MyPage {
         }
 
         pv.lastModifiedBy = this.lastModifiedBy;
-
-        pv.detectPackageNames.clear();
-        pv.detectPackageVersions.clear();
-        String detect = this.params.get("detect");
-        if (detect == null) {
-            detect = "";
-        }
-        List<String> lines = NWUtils.splitLines(detect);
-        for (String line : lines) {
-            if (!line.trim().isEmpty()) {
-                String[] parts = NWUtils.partition(line, " ");
-                pv.detectPackageNames.add(parts[0].trim());
-                pv.detectPackageVersions.add(parts[1].trim());
-            }
-        }
     }
 
     /**

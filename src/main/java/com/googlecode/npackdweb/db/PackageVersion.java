@@ -77,11 +77,6 @@ public class PackageVersion {
     public String url = "";
     public String sha1 = "";
 
-    /**
-     * @deprecated use detectPackageNames/detectPackageVersions instead
-     */
-    private String detectMSI = "";
-
     public List<String> importantFileTitles = new ArrayList<>();
     public List<String> importantFilePaths = new ArrayList<>();
 
@@ -96,9 +91,6 @@ public class PackageVersion {
     public List<String> dependencyEnvVars = new ArrayList<>();
     public List<String> detectFilePaths = new ArrayList<>();
     public List<String> detectFileSHA1s = new ArrayList<>();
-
-    public List<String> detectPackageNames = new ArrayList<>();
-    public List<String> detectPackageVersions = new ArrayList<>();
 
     public List<String> tags;
 
@@ -168,9 +160,6 @@ public class PackageVersion {
         this.createdBy = this.lastModifiedBy;
         tags = new ArrayList<>();
         tags.add("not-reviewed");
-
-        this.detectPackageNames = new ArrayList<>();
-        this.detectPackageVersions = new ArrayList<>();
     }
 
     /**
@@ -206,10 +195,6 @@ public class PackageVersion {
                 "dependencyEnvVars");
         this.detectFilePaths = NWUtils.getStringList(e, "detectFilePaths");
         this.detectFileSHA1s = NWUtils.getStringList(e, "detectFileSHA1s");
-        this.detectPackageNames = NWUtils.getStringList(e,
-                "detectPackageNames");
-        this.detectPackageVersions = NWUtils.getStringList(e,
-                "detectPackageVersions");
         this.tags = NWUtils.getStringList(e, "tags");
         this.lastModifiedAt = (Date) e.getProperty("lastModifiedAt");
         this.lastModifiedBy = (User) e.getProperty("lastModifiedBy");
@@ -267,27 +252,6 @@ public class PackageVersion {
         if (this.tags == null) {
             this.tags = new ArrayList<>();
         }
-
-        if (this.detectPackageNames == null) {
-            this.detectPackageNames = new ArrayList<>();
-        }
-        if (this.detectPackageVersions == null) {
-            this.detectPackageVersions = new ArrayList<>();
-        }
-        int m = Math.min(this.detectPackageNames.size(),
-                this.detectPackageVersions.size());
-        NWUtils.resize(this.detectPackageNames, m);
-        NWUtils.resize(this.detectPackageVersions, m);
-
-        if (detectMSI != null) {
-            if (NWUtils.validateGUID(detectMSI) == null) {
-                this.detectPackageNames.add("msi." + detectMSI.substring(1, 37).
-                        toLowerCase());
-                this.detectPackageVersions.add(this.version);
-            }
-        }
-
-        this.detectMSI = "";
     }
 
     /**
@@ -317,9 +281,6 @@ public class PackageVersion {
         e.setIndexedProperty("dependencyEnvVars", this.dependencyEnvVars);
         e.setIndexedProperty("detectFilePaths", this.detectFilePaths);
         e.setIndexedProperty("detectFileSHA1s", this.detectFileSHA1s);
-        e.setIndexedProperty("detectPackageNames", this.detectPackageNames);
-        e.setIndexedProperty("detectPackageVersions",
-                this.detectPackageVersions);
         e.setIndexedProperty("tags", this.tags);
         e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
         e.setIndexedProperty("lastModifiedBy", this.lastModifiedBy);
@@ -374,7 +335,6 @@ public class PackageVersion {
         c.oneFile = this.oneFile;
         c.url = this.url;
         c.sha1 = this.sha1;
-        c.detectMSI = this.detectMSI;
         c.importantFileTitles.addAll(this.importantFileTitles);
         c.importantFilePaths.addAll(this.importantFilePaths);
         c.cmdFilePaths.addAll(this.cmdFilePaths);
@@ -390,8 +350,6 @@ public class PackageVersion {
         c.lastModifiedBy = this.lastModifiedBy;
         c.createdAt = this.createdAt;
         c.createdBy = this.createdBy;
-        c.detectPackageNames.addAll(this.detectPackageNames);
-        c.detectPackageVersions.addAll(this.detectPackageVersions);
         return c;
     }
 
@@ -455,12 +413,6 @@ public class PackageVersion {
             v.appendChild(detectFile);
             NWUtils.e(detectFile, "path", pv.detectFilePaths.get(i));
             NWUtils.e(detectFile, "sha1", pv.detectFileSHA1s.get(i));
-        }
-        for (int i = 0; i < pv.detectPackageNames.size(); i++) {
-            Element detect = d.createElement("detect");
-            v.appendChild(detect);
-            detect.setAttribute("package", pv.detectPackageNames.get(i));
-            detect.setAttribute("version", pv.detectPackageVersions.get(i));
         }
         return v;
     }
