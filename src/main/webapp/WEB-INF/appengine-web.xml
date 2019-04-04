@@ -38,4 +38,9 @@
       stale session data. For details, see
       https://cloud.google.com/appengine/docs/standard/java/config/appref?csw=1#Enabling_Sessions
     -->
+    
+    <!-- see https://cloud.google.com/profiler/docs/profiling-java -->
+    <env-variables>
+        <env-var name="GAE_PROFILER_MODE" value="cpu,heap" />
+    </env-variables>
 </appengine-web-app>
