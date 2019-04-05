@@ -9,6 +9,7 @@ import com.googlecode.npackdweb.admin.CleanDependenciesAction;
 import com.googlecode.npackdweb.admin.ProcessPackagesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
 import com.googlecode.npackdweb.api.NotifyAction;
+import com.googlecode.npackdweb.api.SetURLPackageVersionAction;
 import com.googlecode.npackdweb.api.StarAction;
 import com.googlecode.npackdweb.api.TagPackageVersionAction;
 import com.googlecode.npackdweb.license.LicenseAction;
@@ -206,6 +207,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new TagPackageVersionAction());
         registerAction(new NotifyAction());
         registerAction(new StarAction());
+        registerAction(new SetURLPackageVersionAction());
     }
 
     /**
