@@ -2,7 +2,7 @@ var defaultTags = ["stable", "stable64", "libs",
         "unstable", "Communications", "Development",
         "Education", "Finance", "Games", "Music", "News", "Photo",
         "Productivity", "Security", "Text", "Tools", "Video",
-        "same-url", "end-of-life", "archive"];
+        "same-url", "end-of-life", "reupload"];
                                     
 function updateTagCheckboxes() {
     var allTags = defaultTags.slice();

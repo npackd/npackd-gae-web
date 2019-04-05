@@ -49,7 +49,7 @@ public class Package {
         "Communications", "Development",
         "Education", "Finance", "Games", "Music", "News", "Photo",
         "Productivity", "Security", "Text", "Tools", "Video",
-        "same-url", "end-of-life", "archive"};
+        "same-url", "end-of-life", "reupload"};
 
     /**
      * Help for the tags.
@@ -71,7 +71,7 @@ public class Package {
         "The download is always up-to-date. New versions will " +
         "automatically replace the newest available.",
         "the development was stopped. There will be no new versions of this software.",
-        "the binaries should be re-uploaded to archive.org, if possible"
+        "the binaries should be re-uploaded (currently to https://github.com/tim-lebedkov/packages/releases)"
     };
 
     /**
