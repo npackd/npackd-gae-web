@@ -43,8 +43,13 @@ public class PackagesAction extends Action {
                 q = "";
             }
 
-            return new PackagesPage(q, "created".
-                    equals(req.getParameter("sort")),
+            String sort = req.getParameter("sort");
+            if (!"created".equals(sort) && !"title".equals(sort) && !"stars".
+                    equals(sort)) {
+                sort = "title";
+            }
+
+            return new PackagesPage(q, sort,
                     start, req.getParameter("category0"),
                     req.getParameter("category1"), req.
                     getParameter("repository"));

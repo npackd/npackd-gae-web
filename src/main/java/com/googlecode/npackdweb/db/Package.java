@@ -432,7 +432,8 @@ public class Package {
                                 .setText(NWUtils.join(" ", tags)))
                 .addField(
                         Field.newBuilder().setName("permission")
-                                .setText(sb.toString()));
+                                .setText(sb.toString())).addField(Field.
+                newBuilder().setName("starred").setNumber(this.starred));
 
         b.addFacet(Facet.withAtom("repository", rep != null ? rep :
                 "unknown"));

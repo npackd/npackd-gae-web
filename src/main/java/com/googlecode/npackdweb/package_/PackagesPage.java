@@ -37,7 +37,7 @@ public class PackagesPage extends MyPage {
 
     private static final int PAGE_SIZE = 20;
     private List<Package> packages = new ArrayList<>();
-    private boolean recent;
+    private String sort;
     private int start;
     private String query = "";
     private long found;
@@ -70,16 +70,16 @@ public class PackagesPage extends MyPage {
      * -
      *
      * @param query search query. Example: "title:Python"
-     * @param recent true = sort by creation time, false = sort by title
+     * @param sort "created", "title" or "stars" sorting order
      * @param start initial offset
      * @param category0 filter for the top-level category or null or ""
      * @param category1 filter for the second level level or null or ""
      * @param repository filter for the repository or null or ""
      */
-    public PackagesPage(String query, boolean recent, int start,
+    public PackagesPage(String query, String sort, int start,
             String category0, String category1, String repository) {
         this.query = query;
-        this.recent = recent;
+        this.sort = sort;
         this.start = start;
 
         this.repository = repository;
@@ -104,15 +104,7 @@ public class PackagesPage extends MyPage {
                         start).setNumberFoundAccuracy(2000);
 
         SortExpression se;
-        if (!recent) {
-            se =
-                    SortExpression
-                            .newBuilder()
-                            .setExpression("title")
-                            .setDirection(
-                                    SortExpression.SortDirection.ASCENDING)
-                            .setDefaultValue("").build();
-        } else {
+        if ("created".equals(sort)) {
             se =
                     SortExpression
                             .newBuilder()
@@ -121,6 +113,22 @@ public class PackagesPage extends MyPage {
                                     SortExpression.SortDirection.DESCENDING)
                             .setDefaultValueDate(
                                     SearchApiLimits.MINIMUM_DATE_VALUE).build();
+        } else if ("stars".equals(sort)) {
+            se =
+                    SortExpression
+                            .newBuilder()
+                            .setExpression("starred")
+                            .setDirection(
+                                    SortExpression.SortDirection.DESCENDING)
+                            .setDefaultValueNumeric(0).build();
+        } else {
+            se =
+                    SortExpression
+                            .newBuilder()
+                            .setExpression("title")
+                            .setDirection(
+                                    SortExpression.SortDirection.ASCENDING)
+                            .setDefaultValue("").build();
         }
         ob =
                 ob.setSortOptions(SortOptions.newBuilder()
@@ -209,7 +217,7 @@ public class PackagesPage extends MyPage {
         HTMLWriter w = new HTMLWriter();
 
         if (showSearch) {
-            w.unencoded(createSearchForm(this.query, this.recent));
+            w.unencoded(createSearchForm());
         }
 
         if (this.getPackages().isEmpty()) {
@@ -323,12 +331,9 @@ public class PackagesPage extends MyPage {
     }
 
     /**
-     * @param query search text
-     * @param recent true = select "sort by creation date", false = "sort by
-     * title"
      * @return HTML for the search form
      */
-    public String createSearchForm(String query, boolean recent) {
+    public String createSearchForm() {
         HTMLWriter w = new HTMLWriter();
         w.start("form", "class", "form-inline", "method", "get", "action",
                 "/p", "id", "searchForm");
@@ -336,12 +341,17 @@ public class PackagesPage extends MyPage {
         w.e("input", "class", "form-control", "type", "text", "name", "q",
                 "value", query, "size", "50");
 
-        w.t(" Sort: ");
+        // sort order
+        w.t(" Sort by: ");
         w.start("select", "class", "form-control", "name", "sort", "id", "sort");
         w.e("option", "value", "title", "selected",
-                !recent ? "selected" : null, "By title");
-        w.e("option", "value", "created", "selected", recent ? "selected" :
-                null, "By creation date");
+                "title".equals(sort) ? "selected" : null, "Title");
+        w.e("option", "value", "created", "selected", "created".equals(sort) ?
+                "selected" :
+                null, "Creation date");
+        w.e("option", "value", "stars", "selected", "stars".equals(sort) ?
+                "selected" :
+                null, "Stars");
         w.end("select");
 
         w.t(" Category: ");
@@ -421,7 +431,7 @@ public class PackagesPage extends MyPage {
         HTMLWriter w = new HTMLWriter();
         w.start("ul", "class", "pager");
         String p =
-                (recent ? "&sort=created" : "") + "&q=" +
+                ("title".equals(sort) ? "" : "&sort=" + sort) + "&q=" +
                 NWUtils.encode(this.query);
         if (category0 != null) {
             p += "&category0=" + NWUtils.encode(this.category0);
@@ -454,8 +464,10 @@ public class PackagesPage extends MyPage {
 
     @Override
     public String getTitle() {
-        if (recent) {
+        if ("created".equals(sort)) {
             return found + " packages sorted by creation time";
+        } else if ("stars".equals(sort)) {
+            return found + " packages sorted by the number of stars";
         } else {
             return found + " packages sorted by title";
         }
