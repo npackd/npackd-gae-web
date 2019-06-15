@@ -202,6 +202,8 @@ public class PackageDetailPage extends MyPage {
                     id, "Edit this package as repository XML");
             NWUtils.jsButton_(w, "Delete", "deleteOnClick()",
                     "Deletes this package and all associated versions");
+            NWUtils.jsButton_(w, "Rename", "renameOnClick()",
+                    "Rename this package");
             NWUtils.jsButton(w, "New version", "/p/" + id + "/new",
                     "Creates new version");
             NWUtils.jsButton(

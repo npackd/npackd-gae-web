@@ -20,6 +20,7 @@ import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageDetailAction;
 import com.googlecode.npackdweb.package_.PackageNewAction;
 import com.googlecode.npackdweb.package_.PackageNextAction;
+import com.googlecode.npackdweb.package_.PackageRenameConfirmedAction;
 import com.googlecode.npackdweb.package_.PackageSaveAction;
 import com.googlecode.npackdweb.package_.PackagesAction;
 import com.googlecode.npackdweb.package_.RequestPermissionsAction;
@@ -163,6 +164,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new PackageDeleteConfirmedAction());
         registerAction(new PackageNextAction());
         registerAction(new RequestPermissionsAction());
+        registerAction(new PackageRenameConfirmedAction());
 
         /* package version */
         registerAction(new PackageVersionDetailAction());

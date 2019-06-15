@@ -75,6 +75,7 @@ function initEvents() {
     $('#title').on('input', function(event) {
     	var s = $.trim($(this).val());
     	s = s.toLowerCase().replace(/[^-0..9\w]/g, "-");
+    	s = s.replace(/\./g, "-");
     	s = s.replace(/\-+/g, "-");
     	if (s.indexOf("-") === 0)
     		s = s.substring(1);
@@ -128,6 +129,16 @@ function starClick(event) {
         });
     });
 }
-    
+
+function renameOnClick() {
+    var id = $('#name').val();
+    var msg = prompt("Please enter the new package name.", id);
+    if (msg !== null) {
+        window.location.href='/package/rename-confirmed?new-name=' + 
+                msg + "&name=" + id;
+    }
+}
+
+
 $(document).ready(initEvents);
 

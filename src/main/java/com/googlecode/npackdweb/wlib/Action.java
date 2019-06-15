@@ -45,7 +45,7 @@ public abstract class Action {
      * @param req request
      * @param resp response
      * @return page to write or null if a sendRedirect() was used
-     * @throws IOException
+     * @throws IOException internal error
      */
     public abstract Page perform(HttpServletRequest req,
             HttpServletResponse resp) throws IOException;

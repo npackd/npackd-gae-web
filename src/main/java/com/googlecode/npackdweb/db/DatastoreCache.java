@@ -135,7 +135,7 @@ public class DatastoreCache {
     }
 
     /**
-     * Deletes a package
+     * Deletes a package. The corresponding package versions are also deleted.
      *
      * @param name package name
      */
