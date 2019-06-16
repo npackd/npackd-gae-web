@@ -67,6 +67,12 @@ function initEvents() {
         event.preventDefault();
     });
     
+    $('#name-link').click(function(event) {
+        window.open("https://repology.org/projects/?search=" + 
+                encodeURIComponent($('#name').val()));
+        event.preventDefault();
+    });
+    
     $('#changelog-link').click(function(event) {
         window.open($('#changelog').val());
         event.preventDefault();
@@ -81,7 +87,7 @@ function initEvents() {
     		s = s.substring(1);
     	if (s.lastIndexOf('-') === s.length - 1)
     		s = s.substring(0, s.length - 1);
-    	$('#id').val(s);
+    	$('#name').val(s);
     });
 
     updateTagCheckboxes();

@@ -247,12 +247,24 @@ public class PackageDetailPage extends MyPage {
         w.start("tr");
         w.e("td", "ID:");
         if (mode != FormMode.CREATE) {
-            w.e("td", id);
+            w.start("td");
+            w.t(id);
+            w.e("div", "class", "glyphicon glyphicon-link", "id", "name-link",
+                    "style",
+                    "cursor: pointer; font-size: 20px; font-weight: bold",
+                    "title", "Search on Repology");
+            w.end("td");
         } else {
             w.start("td");
             w.e("input", "class", "form-control", "type", "text", "name",
-                    "name", "value", id, "size", "80", "id", "id", "title",
+                    "name", "value", id, "size", "80", "id", "name",
+                    "style", "display: inline; width: 50%",
+                    "title",
                     "Package name");
+            w.e("div", "class", "glyphicon glyphicon-link", "id", "name-link",
+                    "style",
+                    "cursor: pointer; font-size: 20px; font-weight: bold",
+                    "title", "Search on Repology");
             w.start("p", "class", "nw-help");
             w.t(" See ");
             w.e("a",
