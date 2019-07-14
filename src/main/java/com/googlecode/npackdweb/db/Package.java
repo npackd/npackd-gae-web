@@ -376,6 +376,9 @@ public class Package {
         for (String tag : tags) {
             NWUtils.e(package_, "category", tag);
         }
+        for (String tag : tags) {
+            NWUtils.e(package_, "tag", tag);
+        }
         if (p.changelog != null && !p.changelog.trim().isEmpty()) {
             NWUtils.e(package_, "link", "rel", "changelog", "href",
                     p.changelog, "");
