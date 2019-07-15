@@ -1,7 +1,5 @@
 var defaultTags = ["stable", "stable64", "libs",
-        "unstable", "Communications", "Development",
-        "Education", "Finance", "Games", "Music", "News", "Photo",
-        "Productivity", "Security", "Text", "Tools", "Video",
+        "unstable", 
         "same-url", "end-of-life", "reupload"];
                                     
 function updateTagCheckboxes() {

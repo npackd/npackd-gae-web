@@ -288,9 +288,9 @@ public class PackagesPage extends MyPage {
                             ex.getMessage());
                 }
                 w.e("div",
-                        "Categories: " +
-                        (p.tags.size() == 0 ? "-" : NWUtils.join(", ",
-                        p.tags)) + "; License: " +
+                        "Category: " +
+                        (p.category.isEmpty() ? "-" : p.category) +
+                        "; License: " +
                         (lic == null ? "unknown" : lic.title));
                 w.end("div");
                 w.end("div");

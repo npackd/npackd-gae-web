@@ -40,20 +40,45 @@ import org.w3c.dom.NodeList;
 public class Package {
 
     /**
+     * Default categories.
+     *
+     * WARNING: also update PackageDetail.js and CATEGORIES_TOOLTIPS
+     */
+    public static final String[] CATEGORIES = {"Communications", "Development",
+        "Education", "Finance", "Games",
+        "Music", "News", "Photo", "Productivity", "Security", "Text", "Tools",
+        "Video"};
+
+    /**
+     * Help for the categories.
+     *
+     * WARNING: also update PackageDetail.js and CATEGORIES
+     */
+    public static final String[] CATEGORIES_TOOLTIPS = {
+        "tools for communication", "software development tools",
+        "educational programs", "finance related programs", "games",
+        "music related software",
+        "news", "image processing", "productivity", "security related software",
+        "text related software (text editors, etc.)", "other tools", "video"};
+
+    /**
      * Default tags.
      *
-     * WARNING: also update PackageDetail.js and TAG_TOOLTIPS
+     * "Communications", "Development", "Education", "Finance", "Games",
+     * "Music", "News", "Photo", "Productivity", "Security", "Text", "Tools",
+     * "Video", WARNING: also update PackageDetail.js and TAG_TOOLTIPS
      */
     public static final String[] TAGS = {"stable", "stable64", "libs",
         "unstable",
-        "Communications", "Development",
-        "Education", "Finance", "Games", "Music", "News", "Photo",
-        "Productivity", "Security", "Text", "Tools", "Video",
         "same-url", "end-of-life", "reupload"};
 
     /**
      * Help for the tags.
      *
+     * "tools for communication", "software development tools", "educational
+     * programs", "finance related programs", "games", "music related software",
+     * "news", "image processing", "productivity", "security related software",
+     * "text related software (text editors, etc.)", "other tools", "video",
      * WARNING: also update PackageDetail.js and TAGS
      */
     public static final String[] TAG_TOOLTIPS = {
@@ -61,12 +86,6 @@ public class Package {
         "this package version should be included in the default 64 bit repository for stable software",
         "this package version should be included in the default repository for software libraries",
         "this package version should be included in the default repository for unstable software",
-        "tools for communication", "software development tools",
-        "educational programs", "finance related programs", "games",
-        "music related software", "news", "image processing",
-        "productivity", "security related software",
-        "text related software (text editors, etc.)",
-        "other tools", "video",
         "different versions are distributed from the same address. " +
         "The download is always up-to-date. New versions will " +
         "automatically replace the newest available.",
@@ -137,6 +156,11 @@ public class Package {
     public String discoveryURLPattern = "";
 
     /**
+     * category. Example: "Entertainment/Travel" or ""
+     */
+    public String category = "";
+
+    /**
      * categories. Example: "Entertainment/Travel"
      */
     public List<String> tags = new ArrayList<>();
@@ -204,6 +228,7 @@ public class Package {
         this.discoveryPage = NWUtils.getString(p, "discoveryPage");
         this.discoveryRE = NWUtils.getString(p, "discoveryRE");
         this.discoveryURLPattern = NWUtils.getString(p, "discoveryURLPattern");
+        this.category = NWUtils.getString(p, "category");
         this.tags = NWUtils.getStringList(p, "tags");
         this.createdBy = (User) p.getProperty("createdBy");
         this.permissions = NWUtils.getUserList(p, "permissions");
@@ -242,6 +267,14 @@ public class Package {
         if (this.tags == null) {
             this.tags = new ArrayList<>();
         }
+        if (this.category == null) {
+            if (tags.size() > 0) {
+                this.category = this.tags.get(0);
+                this.tags.remove(0);
+            } else {
+                this.category = "";
+            }
+        }
         if (permissions == null) {
             this.permissions = new ArrayList<>();
         }
@@ -275,6 +308,7 @@ public class Package {
         e.setIndexedProperty("discoveryPage", this.discoveryPage);
         e.setIndexedProperty("discoveryRE", this.discoveryRE);
         e.setIndexedProperty("discoveryURLPattern", this.discoveryURLPattern);
+        e.setIndexedProperty("category", this.category);
         e.setIndexedProperty("tags", this.tags);
         e.setIndexedProperty("createdBy", this.createdBy);
         e.setIndexedProperty("permissions", this.permissions);
@@ -355,33 +389,32 @@ public class Package {
      * @return &lt;package&gt;
      */
     public Element toXML(Document d) {
-        Package p = this;
         Element package_ = d.createElement("package");
-        package_.setAttribute("name", p.name);
-        if (!p.title.isEmpty()) {
-            NWUtils.e(package_, "title", p.title);
+        package_.setAttribute("name", name);
+        if (!title.isEmpty()) {
+            NWUtils.e(package_, "title", title);
         }
-        if (!p.url.isEmpty()) {
-            NWUtils.e(package_, "url", p.url);
+        if (!url.isEmpty()) {
+            NWUtils.e(package_, "url", url);
         }
-        if (!p.description.isEmpty()) {
-            NWUtils.e(package_, "description", p.description);
+        if (!description.isEmpty()) {
+            NWUtils.e(package_, "description", description);
         }
-        if (!p.icon.isEmpty()) {
-            NWUtils.e(package_, "icon", p.icon);
+        if (!icon.isEmpty()) {
+            NWUtils.e(package_, "icon", icon);
         }
-        if (!p.license.isEmpty()) {
-            NWUtils.e(package_, "license", p.license);
+        if (!license.isEmpty()) {
+            NWUtils.e(package_, "license", license);
         }
-        for (String tag : tags) {
-            NWUtils.e(package_, "category", tag);
+        if (!category.isEmpty()) {
+            NWUtils.e(package_, "category", category);
         }
         for (String tag : tags) {
             NWUtils.e(package_, "tag", tag);
         }
-        if (p.changelog != null && !p.changelog.trim().isEmpty()) {
+        if (changelog != null && !changelog.trim().isEmpty()) {
             NWUtils.e(package_, "link", "rel", "changelog", "href",
-                    p.changelog, "");
+                    changelog, "");
         }
         for (String s : screenshots) {
             NWUtils.e(package_, "link", "rel", "screenshot", "href", s, "");
@@ -442,9 +475,8 @@ public class Package {
                 "unknown"));
 
         String category0 = null, category1 = null;
-        if (tags.size() > 0) {
-            String c = tags.get(0);
-            List<String> parts = NWUtils.split(c, '/');
+        if (!category.isEmpty()) {
+            List<String> parts = NWUtils.split(category, '/');
             if (parts.size() > 0) {
                 category0 = parts.get(0);
             }
@@ -609,10 +641,7 @@ public class Package {
         p.url = NWUtils.getSubTagContent(e, "url", "");
         p.description = NWUtils.getSubTagContent(e, "description", "");
         p.license = NWUtils.getSubTagContent(e, "license", "");
-        String category = NWUtils.getSubTagContent(e, "category", null);
-        if (category != null) {
-            p.tags.add(category);
-        }
+        p.category = NWUtils.getSubTagContent(e, "category", "");
 
         NodeList children = e.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -629,6 +658,12 @@ public class Package {
                     p.screenshots.add(href);
                 } else if (rel.equals("icon") && p.icon.isEmpty()) {
                     p.icon = href;
+                }
+            } else if (ch.getNodeType() == Element.ELEMENT_NODE &&
+                    ch.getNodeName().equals("tag")) {
+                String c = NWUtils.getTagContent_((Element) ch).trim();
+                if (!c.isEmpty()) {
+                    p.tags.add(c);
                 }
             }
         }
@@ -658,6 +693,7 @@ public class Package {
         p.discoveryPage = this.discoveryPage;
         p.discoveryRE = this.discoveryRE;
         p.discoveryURLPattern = this.discoveryURLPattern;
+        p.category = this.category;
         p.tags.clear();
         p.tags.addAll(this.tags);
         p.createdBy = this.createdBy;

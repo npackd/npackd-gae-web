@@ -73,6 +73,11 @@ public class PackageDetailPage extends MyPage {
     public String discoveryRE;
 
     /**
+     * package category
+     */
+    public String category;
+
+    /**
      * pattern for the download URL
      */
     public String discoveryURLPattern;
@@ -137,6 +142,7 @@ public class PackageDetailPage extends MyPage {
         discoveryRE = "";
         discoveryURLPattern = "";
         license = "";
+        this.category = "";
         this.tags = new ArrayList<>();
         screenshots = "";
         permissions = "";
@@ -479,10 +485,50 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
-        // categories/tags
+        // category
         w.start("tr");
         w.start("td");
-        w.t("Categories/tags");
+        w.t("Category");
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
+        w.end("td");
+        w.start("td");
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
+            w.start("input",
+                    "list",
+                    "category-datalist",
+                    "class",
+                    "form-control",
+                    "type",
+                    "text",
+                    "name",
+                    "category",
+                    "value",
+                    category,
+                    "size",
+                    "40",
+                    "title",
+                    "package category. Sub-categories can be defined using slashes as in Video/Encoders.");
+            w.start("datalist", "id", "category-datalist");
+            for (int i = 0; i < Package.CATEGORIES.length; i++) {
+                String s = Package.CATEGORIES[i];
+                String title_ = Package.CATEGORIES_TOOLTIPS[i];
+                w.e("option", "value", s, "title", title_);
+            }
+            w.end("datalist");
+            w.end("input");
+        } else {
+            w.t(category);
+        }
+        w.end("td");
+        w.end("tr");
+
+        // tags
+        w.start("tr");
+        w.start("td");
+        w.t("Tags");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("small", " (optional)");
         }
@@ -820,6 +866,7 @@ public class PackageDetailPage extends MyPage {
         discoveryRE = req.getParameter("discoveryRE");
         discoveryURLPattern = req.getParameter("discoveryURLPattern");
         license = req.getParameter("license");
+        category = req.getParameter("category");
         tags = NWUtils.split(req.getParameter("tags"), ',');
         screenshots = req.getParameter("screenshots");
         permissions = req.getParameter("permissions");
@@ -864,6 +911,7 @@ public class PackageDetailPage extends MyPage {
         p.discoveryPage = discoveryURL.trim();
         p.discoveryRE = discoveryRE.trim();
         p.discoveryURLPattern = discoveryURLPattern.trim();
+        p.category = category.trim();
         p.tags = new ArrayList<>();
         p.tags.addAll(this.tags);
 
@@ -998,6 +1046,7 @@ public class PackageDetailPage extends MyPage {
         discoveryURLPattern = r.discoveryURLPattern.trim();
         createdAt = r.createdAt;
         createdBy = r.createdBy;
+        category = r.category;
         this.tags = new ArrayList<>();
         this.tags.addAll(r.tags);
         screenshots = NWUtils.join("\n", r.screenshots);
