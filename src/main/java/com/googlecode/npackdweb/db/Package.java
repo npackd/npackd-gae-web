@@ -75,17 +75,13 @@ public class Package {
     /**
      * Help for the tags.
      *
-     * "tools for communication", "software development tools", "educational
-     * programs", "finance related programs", "games", "music related software",
-     * "news", "image processing", "productivity", "security related software",
-     * "text related software (text editors, etc.)", "other tools", "video",
      * WARNING: also update PackageDetail.js and TAGS
      */
     public static final String[] TAG_TOOLTIPS = {
-        "this package version should be included in the default 32 bit repository for stable software",
-        "this package version should be included in the default 64 bit repository for stable software",
-        "this package version should be included in the default repository for software libraries",
-        "this package version should be included in the default repository for unstable software",
+        "this package should be included in the default 32 bit repository for stable software",
+        "this package should be included in the default 64 bit repository for stable software",
+        "this package should be included in the default repository for software libraries",
+        "this package should be included in the default repository for unstable software",
         "different versions are distributed from the same address. " +
         "The download is always up-to-date. New versions will " +
         "automatically replace the newest available.",
@@ -410,7 +406,10 @@ public class Package {
             NWUtils.e(package_, "category", category);
         }
         for (String tag : tags) {
-            NWUtils.e(package_, "tag", tag);
+            // some tag names are actually categories and contain "/"
+            if (checkName(tag) == null) {
+                NWUtils.e(package_, "tag", tag);
+            }
         }
         if (changelog != null && !changelog.trim().isEmpty()) {
             NWUtils.e(package_, "link", "rel", "changelog", "href",

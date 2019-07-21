@@ -503,7 +503,7 @@ public class NWUtils {
             root.appendChild(comment);
         }
 
-        NWUtils.e(root, "spec-version", "3.1");
+        NWUtils.e(root, "spec-version", "3.5");
         return d;
     }
 
