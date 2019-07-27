@@ -411,6 +411,9 @@ public class Package {
                 NWUtils.e(package_, "tag", tag);
             }
         }
+        if (this.starred > 0) {
+            NWUtils.e(package_, "stars", Integer.toString(this.starred));
+        }
         if (changelog != null && !changelog.trim().isEmpty()) {
             NWUtils.e(package_, "link", "rel", "changelog", "href",
                     changelog, "");
