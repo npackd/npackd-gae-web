@@ -186,6 +186,11 @@ public class Package {
      */
     public int starred;
 
+    /**
+     * issue tracker URL or null
+     */
+    public String issues;
+
     // PLEASE ALSO UPDATE #copy() and #Package(Entity)
     /**
      * @param name full internal name of the package
@@ -280,6 +285,7 @@ public class Package {
         if (this.screenshots == null) {
             this.screenshots = new ArrayList<>();
         }
+        this.issues = NWUtils.getString(p, "issues");
     }
 
     com.google.appengine.api.datastore.Entity createEntity() {
@@ -311,6 +317,7 @@ public class Package {
         e.setIndexedProperty("screenshots", this.screenshots);
         e.setIndexedProperty("noUpdatesCheck", this.noUpdatesCheck);
         e.setIndexedProperty("starred", new Long(this.starred));
+        e.setIndexedProperty("issues", this.issues);
 
         return e;
     }
@@ -420,6 +427,10 @@ public class Package {
         }
         for (String s : screenshots) {
             NWUtils.e(package_, "link", "rel", "screenshot", "href", s, "");
+        }
+        if (issues != null && !issues.trim().isEmpty()) {
+            NWUtils.e(package_, "link", "rel", "issues", "href",
+                    changelog, "");
         }
 
         return package_;
@@ -660,6 +671,9 @@ public class Package {
                     p.screenshots.add(href);
                 } else if (rel.equals("icon") && p.icon.isEmpty()) {
                     p.icon = href;
+                } else if (rel.equals("issues") &&
+                        (p.issues == null || p.issues.isEmpty())) {
+                    p.issues = href;
                 }
             } else if (ch.getNodeType() == Element.ELEMENT_NODE &&
                     ch.getNodeName().equals("tag")) {
@@ -705,6 +719,7 @@ public class Package {
         p.screenshots.addAll(this.screenshots);
         p.noUpdatesCheck = this.noUpdatesCheck;
         p.starred = this.starred;
+        p.issues = this.issues;
         return p;
     }
 

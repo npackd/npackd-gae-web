@@ -76,6 +76,11 @@ function initEvents() {
         event.preventDefault();
     });
     
+    $('#issues-link').click(function(event) {
+        window.open($('#issues').val());
+        event.preventDefault();
+    });
+    
     $('#title').on('input', function(event) {
         if (document.getElementById('name').getAttribute("type") !== "hidden") {
             var s = $.trim($(this).val());

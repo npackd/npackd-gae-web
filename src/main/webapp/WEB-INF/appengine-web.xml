@@ -24,7 +24,7 @@
       <include path="/**" expiration="4d 5h" />
     </static-files>
 
-    <!--
+<!--
     HTTP Sessions are disabled by default. To enable HTTP sessions specify:
 
       <sessions-enabled>true</sessions-enabled>

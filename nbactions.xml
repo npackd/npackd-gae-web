@@ -49,4 +49,15 @@
             <goal>appengine:update_queues</goal>
         </goals>
     </action>
+    <action>
+            <actionName>debug</actionName>
+            <packagings>
+                <packaging>war</packaging>
+            </packagings>
+            <properties>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</exec.args>
+                <jpda.listen>true</jpda.listen>
+                <netbeans.deploy.debugmode>true</netbeans.deploy.debugmode>
+            </properties>
+        </action>
 </actions>

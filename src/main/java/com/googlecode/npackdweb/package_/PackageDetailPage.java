@@ -416,6 +416,31 @@ public class PackageDetailPage extends MyPage {
         w.end("td");
         w.end("tr");
 
+        // issues
+        w.start("tr");
+        w.start("td");
+        w.t("Issue tracker");
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
+        w.end("td");
+        w.start("td");
+        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
+            w.e("input", "id", "issues", "style",
+                    "display: inline; width: 90%", "class", "form-control",
+                    "type", "url", "name", "issues", "value", params.get("issues"),
+                    "size", "120", "title",
+                    "http: or https: address of the package issue tracker");
+            w.e("div", "class", "glyphicon glyphicon-link", "id",
+                    "issues-link", "style",
+                    "cursor: pointer; font-size: 20px; font-weight: bold");
+        } else {
+            w.e("a", "href", params.get("issues"), params.get("issues"));
+        }
+        w.end("td");
+        w.end("tr");
+
         // description
         w.start("tr");
         w.start("td");
@@ -850,6 +875,7 @@ public class PackageDetailPage extends MyPage {
      */
     @Override
     public void fill(HttpServletRequest req) {
+        super.fill(req);
         if ("true".equals(req.getParameter("new"))) {
             this.mode = FormMode.CREATE;
         } else {
@@ -935,6 +961,8 @@ public class PackageDetailPage extends MyPage {
                 p.screenshots.add(s);
             }
         }
+        
+        p.issues = params.get("issues");
     }
 
     @Override
@@ -979,6 +1007,11 @@ public class PackageDetailPage extends MyPage {
                         break;
                     }
                 }
+            }
+        }
+        if (msg == null) {
+            if (params.get("issues") != null && !params.get("issues").trim().isEmpty()) {
+                msg = NWUtils.validateURL(params.get("issues"));
             }
         }
         if (msg == null) {
@@ -1040,6 +1073,7 @@ public class PackageDetailPage extends MyPage {
         url = r.url.trim();
         changelog = r.changelog == null ? "" : r.changelog;
         license = r.license.trim();
+        params.put("issues", r.issues);
         comment = r.comment.trim();
         discoveryURL = r.discoveryPage.trim();
         discoveryRE = r.discoveryRE.trim();
