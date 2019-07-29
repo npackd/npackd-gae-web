@@ -325,16 +325,9 @@ public class PackageDetailPage extends MyPage {
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("input", "id", "url", "style", "display: inline; width: 90%",
-                    "class", "form-control", "type", "url", "name", "url",
+                    "class", "form-control nw-input-url", "type", "url", "name", "url",
                     "value", url, "size", "120", "title",
                     "http: or https: address of the product home page");
-            w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
-                    "style",
-                    "cursor: pointer; font-size: 20px; font-weight: bold");
-            /*
-             * w.start("a", "id", "url-link", "href", "#", "target", "_blank");
-             * w.e("img", "src", "/Link.png"); w.end("a");
-             */
         } else {
             w.e("a", "href", url, url);
         }
@@ -353,13 +346,10 @@ public class PackageDetailPage extends MyPage {
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("input", "id", "changelog", "style",
-                    "display: inline; width: 90%", "class", "form-control",
+                    "display: inline; width: 90%", "class", "form-control nw-input-url",
                     "type", "url", "name", "changelog", "value", changelog,
                     "size", "120", "title",
                     "http: or https: address of the package change log");
-            w.e("div", "class", "glyphicon glyphicon-link", "id",
-                    "changelog-link", "style",
-                    "cursor: pointer; font-size: 20px; font-weight: bold");
         } else {
             w.e("a", "href", changelog, changelog);
         }
@@ -375,8 +365,11 @@ public class PackageDetailPage extends MyPage {
             w.t(":");
             w.end("td");
             w.start("td");
-            w.e("input", "class", "form-control", "type", "url", "name",
-                    "icon", "value", icon, "size", "120", "title",
+
+            w.e("input", "style", "display: inline; width: 90%", 
+                    "class", "form-control nw-input-url",
+                    "type", "url", "name", "icon", "value", icon,
+                    "size", "120", "title",
                     "http: or https: address of a 32x32 PNG icon representing this package");
             w.end("td");
             w.end("tr");
@@ -428,13 +421,10 @@ public class PackageDetailPage extends MyPage {
         w.start("td");
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.e("input", "id", "issues", "style",
-                    "display: inline; width: 90%", "class", "form-control",
+                    "display: inline; width: 90%", "class", "form-control nw-input-url",
                     "type", "url", "name", "issues", "value", params.get("issues"),
                     "size", "120", "title",
                     "http: or https: address of the package issue tracker");
-            w.e("div", "class", "glyphicon glyphicon-link", "id",
-                    "issues-link", "style",
-                    "cursor: pointer; font-size: 20px; font-weight: bold");
         } else {
             w.e("a", "href", params.get("issues"), params.get("issues"));
         }
@@ -619,18 +609,10 @@ public class PackageDetailPage extends MyPage {
             w.t(":");
             w.end("td");
             w.start("td");
-            w.e("input",
-                    "class",
-                    "form-control",
-                    "type",
-                    "url",
-                    "name",
-                    "discoveryPage",
-                    "value",
-                    discoveryURL,
-                    "size",
-                    "120",
-                    "title",
+            w.e("input", "style", "display: inline; width: 90%", 
+                    "class", "form-control nw-input-url",
+                    "type", "url", "name", "discoveryPage", "value", discoveryURL,
+                    "size", "120", "title",
                     "http: or https: URL of an HTML or text page that contains the newest version number as text");
             w.end("td");
             w.end("tr");

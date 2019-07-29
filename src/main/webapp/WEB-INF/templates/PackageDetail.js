@@ -60,26 +60,28 @@ function deleteOnClick() {
 }
 
 function initEvents() {
-    $('#url-link').click(function(event) {
-        window.open($('#url').val());
-        event.preventDefault();
-    });
-    
     $('#name-link').click(function(event) {
         window.open("https://repology.org/projects/?search=" + 
                 encodeURIComponent($('#name').val()));
         event.preventDefault();
     });
     
-    $('#changelog-link').click(function(event) {
-        window.open($('#changelog').val());
-        event.preventDefault();
-    });
-    
-    $('#issues-link').click(function(event) {
-        window.open($('#issues').val());
-        event.preventDefault();
-    });
+    var inputURLs = document.getElementsByClassName("nw-input-url");
+    for (var i = 0; i < inputURLs.length; i++) {
+        (function() {
+            var el = inputURLs[i];
+            var link = document.createElement("div");
+            link.setAttribute("class", "glyphicon glyphicon-link");
+            link.setAttribute("style", 
+                    "cursor: pointer; font-size: 20px; font-weight: bold");
+            el.parentNode.insertBefore(link, el.nextSibling);
+
+            link.addEventListener("click", function() {
+                window.open(el.value);
+                event.preventDefault();
+            }); 
+        })();
+    }
     
     $('#title').on('input', function(event) {
         if (document.getElementById('name').getAttribute("type") !== "hidden") {
