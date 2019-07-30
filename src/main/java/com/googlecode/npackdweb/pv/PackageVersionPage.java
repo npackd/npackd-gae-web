@@ -348,13 +348,8 @@ public class PackageVersionPage extends MyPage {
         w.e("td", "Download:");
         w.start("td");
         if (editable) {
-            w.e("input", "style", "display: inline; width: 90%", "class",
-                    "form-control", "type", "url", "name", "url", "value",
-                    url, "size", "120", "id", "url", "title",
+            NWUtils.inputURL(w, "url", url, 
                     "http: or https: address of the package binary");
-            w.e("div", "class", "glyphicon glyphicon-link", "id", "url-link",
-                    "style",
-                    "cursor: pointer; font-size: 20px; font-weight: bold");
             w.e("div",
                     "Example: https://ayera.dl.sourceforge.net/project/x64dbg/snapshots/snapshot_2018-03-04_22-52.zip");
         } else {
@@ -1126,13 +1121,8 @@ public class PackageVersionPage extends MyPage {
             throws IOException {
         HTMLWriter w = new HTMLWriter();
         w.start("script");
-        InputStream stream =
-                DefaultServlet
-                        .getInstance(request)
-                        .getServletContext()
-                        .getResourceAsStream(
-                                "/WEB-INF/templates/PackageVersionDetail.js");
-        w.unencoded(NWUtils.readUTF8Resource(stream));
+        w.unencoded(NWUtils.tmpl("PackageVersionDetail.js"));
+        w.unencoded(NWUtils.tmpl("Common.js"));
         w.end("script");
 
         NWUtils.linkScript(w, "/autosize.min.js");

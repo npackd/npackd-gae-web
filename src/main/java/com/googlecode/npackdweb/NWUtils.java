@@ -547,6 +547,23 @@ public class NWUtils {
                 txt, "onclick", "window.location.href='" + url + "'", "title",
                 title);
     }
+    
+    /**
+     * Creates a text field for URL input.
+     * 
+     * @param w HTML output
+     * @param name input name
+     * @param value value of the input field
+     * @param title title
+     */
+    public static void inputURL(HTMLWriter w, String name, String value, String title) {
+        w.e("input", "style",
+                "display: inline; width: 90%", "class", "form-control nw-input-url",
+                "type", "url", "name", name, "value", value,
+                "size", "120", "title", title);
+        w.e("div", "class", "glyphicon glyphicon-link",
+            "style", "cursor: pointer; font-size: 20px; font-weight: bold");
+    }
 
     /**
      * Creates an &lt;input type="button"&gt; that changes window.location.href

@@ -25,13 +25,13 @@ public class HTMLWriter {
     }
 
     /**
-     * Creates a tag and goes into it.
+     * Creates a tag and closes it.
      *
      * @param tag name of the tag. Example: "textarea"
      * @return this
      */
     public HTMLWriter e(final String tag) {
-        b.append('<').append(tag).append("></").append(tag).append('>');
+        b.append('<').append(tag).append("/>");
         return this;
     }
 
