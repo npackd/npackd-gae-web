@@ -41,7 +41,8 @@ public class HTMLWriter {
      * @param tag name of the tag. Example: "textarea"
      * @param attrsAndContent names and values for the attributes. The text
      * content of the tag may be the last element. An attribute is not created
-     * if either the name or the value is null.
+     * if either the name or the value is null. The null content is handled as
+     * empty.
      * @return this
      */
     public HTMLWriter e(final String tag, String... attrsAndContent) {
@@ -154,24 +155,32 @@ public class HTMLWriter {
         return this;
     }
 
+    /**
+     * Encodes as HTML.
+     * 
+     * @param sb output
+     * @param v text or null
+     */
     private static void encodeHTML(StringBuilder sb, String v) {
-        for (int i = 0; i < v.length(); i++) {
-            char c = v.charAt(i);
-            switch (c) {
-                case '"':
-                    sb.append("&quot;");
-                    break;
-                case '>':
-                    sb.append("&gt;");
-                    break;
-                case '<':
-                    sb.append("&lt;");
-                    break;
-                case '&':
-                    sb.append("&amp;");
-                    break;
-                default:
-                    sb.append(c);
+        if (v != null) {
+            for (int i = 0; i < v.length(); i++) {
+                char c = v.charAt(i);
+                switch (c) {
+                    case '"':
+                        sb.append("&quot;");
+                        break;
+                    case '>':
+                        sb.append("&gt;");
+                        break;
+                    case '<':
+                        sb.append("&lt;");
+                        break;
+                    case '&':
+                        sb.append("&amp;");
+                        break;
+                    default:
+                        sb.append(c);
+                }
             }
         }
     }
