@@ -184,10 +184,8 @@ public class PackageDetailPage extends MyPage {
             w.e("p", "class", "bg-danger", this.error);
         }
 
-        if (mode == FormMode.CREATE || mode == FormMode.EDIT) {
-            w.start("form", "class", "form-horizontal", "method", "post",
-                    "action", "/package/save", "id", "package-form");
-        }
+        w.start("form", "class", "form-horizontal", "method", "post",
+                "action", "/package/save", "id", "package-form");
 
         if (mode == FormMode.EDIT) {
             w.e("input", "type", "hidden", "id", "name", "name", "name",
@@ -199,7 +197,7 @@ public class PackageDetailPage extends MyPage {
         }
 
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.start("div", "class", "btn-group");
+            w.start("div", "class", "btn-group", "style", "margin-bottom: 12px");
             w.e("input", "class", "btn btn-default", "type", "submit", "value",
                     "Save");
         }
@@ -236,33 +234,26 @@ public class PackageDetailPage extends MyPage {
             w.end("div");
         }
 
-        w.start("table", "border", "0");
-
         // title
         if (mode != FormMode.VIEW) {
-            w.start("tr");
-            w.e("td", "Title:");
-            w.start("td");
+            startRow(w, "Title", false);
             w.e("input", "class", "form-control", "type", "text", "name",
                     "title", "value", title, "size", "80", "title",
                     "Name of the package", "id", "title");
-            w.end("td");
-            w.end("tr");
+            endRow(w);
         }
 
         // package name
-        w.start("tr");
-        w.e("td", "ID:");
+        startRow(w, "ID", false);
         if (mode != FormMode.CREATE) {
-            w.start("td");
+            w.start("p", "class", "form-control-static");
             w.t(id);
-            w.e("div", "class", "glyphicon glyphicon-link", "id", "name-link",
+            w.e("span", "class", "glyphicon glyphicon-link", "id", "name-link",
                     "style",
                     "cursor: pointer; font-size: 20px; font-weight: bold",
                     "title", "Search on Repology");
-            w.end("td");
+            w.end("p");
         } else {
-            w.start("td");
             w.e("input", "class", "form-control", "type", "text", "name",
                     "name", "value", id, "size", "80", "id", "name",
                     "style", "display: inline; width: 50%",
@@ -280,19 +271,17 @@ public class PackageDetailPage extends MyPage {
                     "target", "_blank", "Package naming rules");
             w.t(" for more details");
             w.end("p");
-            w.end("td");
         }
-        w.end("tr");
+        endRow(w);
 
         // versions
-        w.start("tr");
-        w.e("td", "Versions:");
-        w.start("td");
+        startRow(w, "Versions", false);
+        w.start("p", "class", "form-control-static");
         List<PackageVersion> pvs = this.getVersions();
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
-                Version va = Version.parse(a.version);
+                Version va  = Version.parse(a.version);
                 Version vb = Version.parse(b.version);
                 return -va.compare(vb);
             }
@@ -311,73 +300,46 @@ public class PackageDetailPage extends MyPage {
         } else {
             info = null;
         }
-        w.end("td");
-        w.end("tr");
+        w.end("p");
+        endRow(w);
 
         // home page
-        w.start("tr");
-        w.start("td");
-        w.t("Product home page");
+        startRow(w, "Product home page", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            NWUtils.inputURL(w, "url", url, 
+            NWUtils.inputURL(w, "url", url,
                     "http: or https: address of the product home page");
         } else {
+            w.start("p", "class", "form-control-static");
             w.e("a", "href", url, url);
+            w.end("p");
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         // change log
-        w.start("tr");
-        w.start("td");
-        w.t("Change log");
+        startRow(w, "Change log", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            NWUtils.inputURL(w, "changelog", changelog, 
+            NWUtils.inputURL(w, "changelog", changelog,
                     "http: or https: address of the package change log");
         } else {
+            w.start("p", "class", "form-control-static");
             w.e("a", "href", changelog, changelog);
+            w.end("p");
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         // icon
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.start("tr");
-            w.start("td");
-            w.t("Icon");
-            w.e("small", " (optional)");
-            w.t(":");
-            w.end("td");
-            w.start("td");
-
-            NWUtils.inputURL(w, "icon", icon, 
+            startRow(w, "Icon", true);
+            NWUtils.inputURL(w, "icon", icon,
                     "http: or https: address of a 32x32 PNG icon representing this package");
-            w.end("td");
-            w.end("tr");
+            endRow(w);
         }
 
         // screen shots
-        w.start("tr");
-        w.start("td");
-        w.t("Screen shots");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
+        startRow(w, "Screen shots", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         w.start("div", "class", "row");
         for (String s : NWUtils.splitLines(this.screenshots)) {
             if (!s.trim().isEmpty()) {
@@ -399,38 +361,24 @@ public class PackageDetailPage extends MyPage {
                     "Only https: and http: protocols are allowed. " +
                     "Only PNG images are allowed.", screenshots);
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         // issues
-        w.start("tr");
-        w.start("td");
-        w.t("Issue tracker");
+        startRow(w, "Issue tracker", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            NWUtils.inputURL(w, "issues", params.get("issues"), 
+            NWUtils.inputURL(w, "issues", params.get("issues"),
                     "http: or https: address of the package issue tracker");
         } else {
+            w.start("p", "class", "form-control-static");
             w.e("a", "href", params.get("issues"), params.get("issues"));
+            w.end("p");
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         // description
-        w.start("tr");
-        w.start("td");
-        w.t("Description");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
+        startRow(w, "Description", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("p", "class", "nw-help");
             w.e("a", "href",
@@ -453,19 +401,11 @@ public class PackageDetailPage extends MyPage {
                         e.getMessage());
             }
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         // license
-        w.start("tr");
-        w.start("td");
-        w.t("License");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
+        startRow(w, "License", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("select", "class", "form-control", "name", "license",
                     "title", "Package licensing terms");
@@ -476,6 +416,7 @@ public class PackageDetailPage extends MyPage {
             }
             w.end("select");
         } else {
+            w.start("p", "class", "form-control-static");
             License license_ = null;
             if (!license.isEmpty()) {
                 license_ = NWUtils.dsCache.getLicense(license, false);
@@ -486,20 +427,13 @@ public class PackageDetailPage extends MyPage {
             } else {
                 w.e("a", "href", license_.url, license_.title);
             }
+            w.end("p");
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         // category
-        w.start("tr");
-        w.start("td");
-        w.t("Category");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
+        startRow(w, "Category", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("input",
                     "list",
@@ -525,21 +459,15 @@ public class PackageDetailPage extends MyPage {
             w.end("datalist");
             w.end("input");
         } else {
+            w.start("p", "class", "form-control-static");
             w.t(category);
+            w.end("p");
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         // tags
-        w.start("tr");
-        w.start("td");
-        w.t("Tags");
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.e("small", " (optional)");
-        }
-        w.t(":");
-        w.end("td");
-        w.start("td");
+        startRow(w, "Tags", mode == FormMode.EDIT ||
+                mode == FormMode.CREATE);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             // PackageDetail.js should also be updated if the list of
             // default categories/tags changes
@@ -551,29 +479,27 @@ public class PackageDetailPage extends MyPage {
                 w.t(" " + s);
                 w.end("label");
             }
-            w.start("input", "class", "form-control", "type", "text", "name",
+            w.start("input", "class", "form-control",
+                    "style", "margin-top: 24px",
+                    "type", "text", "name",
                     "tags", "id", "tags", "autocomplete", "off", "value",
                     NWUtils.join(", ", tags), "size", "80", "title",
                     "Comma separated list of tags/categories associated with " +
                     "this package version. " +
                     "Sub-categories can be defined using slashes as in Video/Encoders. " +
+
                     "Please note that only the first category and sub-category will be used in Npackd."
             );
             w.end("input");
         } else {
+            w.start("p", "class", "form-control-static");
             w.t(NWUtils.join(", ", tags));
+            w.end("p");
         }
-        w.end("td");
-        w.end("tr");
+        endRow(w);
 
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.start("tr");
-            w.start("td");
-            w.t("Comment");
-            w.e("small", " (optional)");
-            w.t(":");
-            w.end("td");
-            w.start("td");
+            startRow(w, "Comment", true);
             w.e("textarea",
                     "class",
                     "form-control nw-autosize",
@@ -586,31 +512,17 @@ public class PackageDetailPage extends MyPage {
                     "title",
                     "Internal comments normally only visible to the package editors",
                     comment);
-            w.end("td");
-            w.end("tr");
+            endRow(w);
         }
 
         // discovery page
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.start("tr");
-            w.start("td");
-            w.t("Discovery page (URL)");
-            w.e("small", " (optional)");
-            w.t(":");
-            w.end("td");
-            w.start("td");
-            NWUtils.inputURL(w, "discoveryPage", discoveryURL, 
+            startRow(w, "Discovery page (URL)", true);
+            NWUtils.inputURL(w, "discoveryPage", discoveryURL,
                     "http: or https: URL of an HTML or text page that contains the newest version number as text");
-            w.end("td");
-            w.end("tr");
+            endRow(w);
 
-            w.start("tr");
-            w.start("td");
-            w.t("Discovery regular expression");
-            w.e("small", " (optional)");
-            w.t(":");
-            w.end("td");
-            w.start("td");
+            startRow(w, "Discovery regular expression", true);
             w.start("input",
                     "list",
                     "discovery-res",
@@ -634,16 +546,9 @@ public class PackageDetailPage extends MyPage {
             w.e("option", "value", ">v([\\d\\.]+)<");
             w.end("datalist");
             w.end("input");
-            w.end("td");
-            w.end("tr");
+            endRow(w);
 
-            w.start("tr");
-            w.start("td");
-            w.t("Discovery package download URL pattern");
-            w.e("small", " (optional)");
-            w.t(":");
-            w.end("td");
-            w.start("td");
+            startRow(w, "Discovery package download URL pattern", true);
             w.start("input",
                     "list",
                     "discovery-url",
@@ -677,14 +582,11 @@ public class PackageDetailPage extends MyPage {
              */
             w.end("datalist");
             w.end("input");
-            w.end("td");
-            w.end("tr");
+            endRow(w);
         }
 
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.start("tr");
-            w.e("td", "Permissions:");
-            w.start("td");
+            startRow(w, "Permissions", false);
             User u = UserServiceFactory.getUserService().getCurrentUser();
             if (mode != FormMode.CREATE) {
                 if (NWUtils.isAdminLoggedIn()) {
@@ -701,6 +603,7 @@ public class PackageDetailPage extends MyPage {
                             "list of email addresses for people that are allowed to change this package and its versions",
                             permissions);
                 } else {
+                    w.start("p", "class", "form-control-static");
                     List<String> pm = NWUtils.split(permissions, '\n');
                     for (int i = 0; i < pm.size(); i++) {
                         if (i != 0) {
@@ -714,49 +617,43 @@ public class PackageDetailPage extends MyPage {
                                     getServerName()));
                         }
                     }
+                    w.end("p");
                 }
             } else {
+                w.start("p", "class", "form-control-static");
                 w.t(u.getEmail());
+                w.end("p");
             }
-            w.end("td");
-            w.end("tr");
+            endRow(w);
         }
 
-        w.start("tr");
-        w.e("td", "Last modified:");
-        w.start("td");
+        startRow(w, "Last modified", false);
+        w.start("p", "class", "form-control-static");
         w.t(params.get("modified"));
-        w.end("td");
-        w.end("tr");
+        w.end("p");
+        endRow(w);
 
-        w.start("tr");
-        w.e("td", "Last modified by:");
-        w.start("td");
+        startRow(w, "Last modified by", false);
+        w.start("p", "class", "form-control-static");
         w.unencoded(NWUtils.obfuscateEmail(params.get("modifiedBy"),
                 request.getServerName()));
-        w.end("td");
-        w.end("tr");
+        w.end("p");
+        endRow(w);
 
-        w.start("tr");
-        w.e("td", "Created:");
-        w.start("td");
+        startRow(w, "Created", false);
+        w.start("p", "class", "form-control-static");
         w.t(createdAt == null ? "" : createdAt.toString());
-        w.end("td");
-        w.end("tr");
+        w.end("p");
+        endRow(w);
 
-        w.start("tr");
-        w.e("td", "Created by:");
-        w.start("td");
+        startRow(w, "Created by", false);
+        w.start("p", "class", "form-control-static");
         w.unencoded(createdBy != null ? NWUtils.obfuscateEmail(createdBy.
                 getEmail(), request.getServerName()) : "");
-        w.end("td");
-        w.end("tr");
+        w.end("p");
+        endRow(w);
 
-        w.end("table");
-
-        if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.end("form");
-        }
+        w.end("form");
 
         return w.toString();
     }
@@ -930,7 +827,7 @@ public class PackageDetailPage extends MyPage {
                 p.screenshots.add(s);
             }
         }
-        
+
         p.issues = params.get("issues");
     }
 
@@ -979,7 +876,8 @@ public class PackageDetailPage extends MyPage {
             }
         }
         if (msg == null) {
-            if (params.get("issues") != null && !params.get("issues").trim().isEmpty()) {
+            if (params.get("issues") != null && !params.get("issues").trim().
+                    isEmpty()) {
                 msg = NWUtils.validateURL(params.get("issues"));
             }
         }
@@ -1077,5 +975,22 @@ public class PackageDetailPage extends MyPage {
         }
 
         this.starred = r.starred;
+    }
+
+    private void startRow(HTMLWriter w, String title, boolean optional) {
+        w.start("div", "class", "form-group");
+        w.start("label", "class", "col-sm-2 control-label");
+        w.t(title);
+        if (optional) {
+            w.e("small", " (optional)");
+        }
+        w.t(":");
+        w.end("label");
+        w.start("div", "class", "col-sm-10");
+    }
+
+    private void endRow(HTMLWriter w) {
+        w.end("div");
+        w.end("div");
     }
 }

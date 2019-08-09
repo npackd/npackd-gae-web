@@ -120,16 +120,16 @@ public class HTMLWriter {
      * Starts a tag.
      *
      * @param tag name of the tag. Example: "textarea"
-     * @param attrsAndContent names and values for the attributes. The text
-     * content of the tag may be the last element. An attribute is not created
+     * @param attrs names and values for the attributes.
+     * An attribute is not created
      * if either the name or the value is null.
      * @return this
      */
-    public HTMLWriter start(final String tag, String... attrsAndContent) {
+    public HTMLWriter start(final String tag, String... attrs) {
         b.append('<').append(tag);
-        for (int i = 0; i < attrsAndContent.length; i += 2) {
-            String name = attrsAndContent[i];
-            String value = attrsAndContent[i + 1];
+        for (int i = 0; i < attrs.length; i += 2) {
+            String name = attrs[i];
+            String value = attrs[i + 1];
             if (name != null && value != null) {
                 b.append(' ');
                 b.append(name);
@@ -157,7 +157,7 @@ public class HTMLWriter {
 
     /**
      * Encodes as HTML.
-     * 
+     *
      * @param sb output
      * @param v text or null
      */

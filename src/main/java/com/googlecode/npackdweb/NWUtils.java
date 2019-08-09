@@ -547,10 +547,10 @@ public class NWUtils {
                 txt, "onclick", "window.location.href='" + url + "'", "title",
                 title);
     }
-    
+
     /**
      * Creates a text field for URL input.
-     * 
+     *
      * @param w HTML output
      * @param name input name
      * @param value value of the input field
@@ -561,7 +561,7 @@ public class NWUtils {
                 "display: inline; width: 90%", "class", "form-control nw-input-url",
                 "type", "url", "name", name, "value", value,
                 "size", "120", "title", title);
-        w.e("div", "class", "glyphicon glyphicon-link",
+        w.e("span", "class", "glyphicon glyphicon-link",
             "style", "cursor: pointer; font-size: 20px; font-weight: bold");
     }
 
@@ -617,7 +617,7 @@ public class NWUtils {
             t = TransformerFactory.newInstance().newTransformer();
             t.setOutputProperty(OutputKeys.INDENT, "yes");
             t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
-                    "4");
+                    "1");
             t.setOutputProperty("{http://xml.apache.org/xalan}line-separator",
                     "\r\n");
             t.transform(new DOMSource(d.getDocumentElement()),
