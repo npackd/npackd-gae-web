@@ -115,8 +115,8 @@ $(document).ready(function() {
         addFile(".Npackd\\Install.bat",
                 "for /f \"delims=\" %%x in ('dir /b " + $('#package').val() + 
                 "*') do set name=%%x\r\n" + 
-		"call \"%nih%\\Extract.bat\" \"%name%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
-        addDependency("com.googlecode.windows-package-manager.NpackdInstallerHelper", "[1.19, 2)", "nih");
+		"\"%clu%\\clu\" unwrap-dir -p \"%name%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+        addDependency("com.googlecode.windows-package-manager.CLU", "[1.25, 2)", "clu");
         $('#zip').prop('checked', true);
         event.preventDefault();        
     });
