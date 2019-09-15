@@ -123,8 +123,8 @@ $(document).ready(function() {
 
     $('#addSevenZIPFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
-		"call \"%nih%\\Extract.bat\" \"%npackd_package_binary%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
-        addDependency("com.googlecode.windows-package-manager.NpackdInstallerHelper", "[1.19, 2)", "nih");
+		"\"%sevenzipa%\\7za\" \"%npackd_package_binary%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+        addDependency("org.7-zip.SevenZIPA", "[19, 100)", "sevenzipa");
         $('#oneFile').prop('checked', true);
         event.preventDefault();        
     });
