@@ -115,7 +115,7 @@ $(document).ready(function() {
         addFile(".Npackd\\Install.bat",
                 "for /f \"delims=\" %%x in ('dir /b " + $('#package').val() + 
                 "*') do set name=%%x\r\n" + 
-		"\"%clu%\\clu\" unwrap-dir -p \"%name%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+		"\"%clu%\\clu\" unwrap-dir -p \"%name%\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
         addDependency("com.googlecode.windows-package-manager.CLU", "[1.25, 2)", "clu");
         $('#zip').prop('checked', true);
         event.preventDefault();        
@@ -123,7 +123,7 @@ $(document).ready(function() {
 
     $('#addSevenZIPFiles').click(function(event) {
         addFile(".Npackd\\Install.bat",
-		"\"%sevenzipa%\\7za\" \"%npackd_package_binary%\" \".\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+		"\"%sevenzipa%\\7za\" x \"%npackd_package_binary%\"> .Npackd\\Output.txt && type .Npackd\\Output.txt && del /f /q \"%npackd_package_binary%\"\r\n");
         addDependency("org.7-zip.SevenZIPA", "[19, 100)", "sevenzipa");
         $('#oneFile').prop('checked', true);
         event.preventDefault();        
