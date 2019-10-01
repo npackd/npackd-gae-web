@@ -129,6 +129,13 @@ $(document).ready(function() {
         event.preventDefault();        
     });
 
+    $('#addRemoveSCPFiles').click(function(event) {
+        addFile(".Npackd\\Uninstall.bat",
+		"\"%ncl%\\ncl\" remove-scp --title \"/%npackd_package_name% %npackd_package_version%/i\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+        addDependency("com.googlecode.windows-package-manager.NpackdCL", "[1.25, 2)", "ncl");
+        event.preventDefault();        
+    });
+
     $('#addDep').click(function(event) {
     	addDependency("", "", "");
     });

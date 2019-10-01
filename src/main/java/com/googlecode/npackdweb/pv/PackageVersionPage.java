@@ -3,7 +3,6 @@ package com.googlecode.npackdweb.pv;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Dependency;
@@ -13,7 +12,6 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -172,6 +170,12 @@ public class PackageVersionPage extends MyPage {
                 "Adds the files and dependencies necessary to install and " +
                 "uninstall a .7z archive", "id",
                 "addSevenZIPFiles", ".7z");
+        w.end("li");
+        w.start("li");
+        w.e("a", "href", "#", "title",
+                "Adds the files and dependencies necessary to uninstall a " +
+                "program via its title in the Software Control Panel", "id",
+                "addRemoveSCPFiles", "Uninstall via Software Control Panel");
         w.end("li");
         w.end("ul");
     }
@@ -348,7 +352,7 @@ public class PackageVersionPage extends MyPage {
         w.e("td", "Download:");
         w.start("td");
         if (editable) {
-            NWUtils.inputURL(w, "url", url, 
+            NWUtils.inputURL(w, "url", url,
                     "http: or https: address of the package binary");
             w.e("div",
                     "Example: https://ayera.dl.sourceforge.net/project/x64dbg/snapshots/snapshot_2018-03-04_22-52.zip");
@@ -671,7 +675,7 @@ public class PackageVersionPage extends MyPage {
             w.end("td");
             w.end("tr");
         }
-        
+
         // text files
         w.start("tr");
         w.start("td");
