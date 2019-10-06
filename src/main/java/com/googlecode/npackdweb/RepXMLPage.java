@@ -202,8 +202,8 @@ public class RepXMLPage extends Page {
             }
 
             if (p.hasTag("end-of-life")) {
-                p.description = "WARNING: the development was stopped. " +
-                        "There will be no new versions of this software.\n" +
+                p.description = "WARNING: " +
+                        "there will be no new versions of this package.\n" +
                         p.description;
             }
             if (p.hasTag("same-url")) {

@@ -325,7 +325,7 @@ public class PackagesPage extends MyPage {
             w.t(" ");
             w.e("span", "class", "label label-warning",
                     "title",
-                    "The development was stopped. There will be no new versions of this software.",
+                    "There will be no new versions of this pckage.",
                     "end-of-life");
         }
     }

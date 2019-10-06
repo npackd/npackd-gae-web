@@ -85,7 +85,7 @@ public class Package {
         "different versions are distributed from the same address. " +
         "The download is always up-to-date. New versions will " +
         "automatically replace the newest available.",
-        "the development was stopped. There will be no new versions of this software.",
+        "there will be no new versions of this package.",
         "the binaries should be re-uploaded (currently to https://github.com/tim-lebedkov/packages/releases)"
     };
 
