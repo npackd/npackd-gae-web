@@ -286,11 +286,14 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.addFile(".Npackd\\Install.bat",
                         "\"%npackd_package_binary%\" && del /f /q \"%npackd_package_binary%\"\r\n");
                 pv.addFile(".Npackd\\Uninstall.bat",
-                        "\"%myun%\\myuninst.exe\" /uninstall \"" + pv.package_ +
-                        "\"\r\n");
+                        "\"%ncl%\\ncl.exe\" remove-scp --title " +
+                        "\"/%npackd_package_name% %npackd_package_version%/i\"> " +
+                        ".Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
 
-                pv.addDependency("net.nirsoft.MyUninstaller", "[1.74, 2)",
-                        "myun");
+                pv.addDependency(
+                        "com.googlecode.windows-package-manager.NpackdCL",
+                        "[1.25, 2)",
+                        "ncl");
                 break;
             default:
                 pv.oneFile = true;
