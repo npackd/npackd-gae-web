@@ -39,7 +39,7 @@ public class RepZIPPage extends Page {
             md = gcsService.getMetadata(fileName);
         }
 
-        NWUtils.serveFileFromGCS(gcsService, md, request, resp,
+        NWUtils.serveFileFromGCS(md, request, resp,
                 "application/zip");
     }
 }

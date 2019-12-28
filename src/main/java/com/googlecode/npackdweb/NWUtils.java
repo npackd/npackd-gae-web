@@ -17,7 +17,6 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsService;
 import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
@@ -556,13 +555,15 @@ public class NWUtils {
      * @param value value of the input field
      * @param title title
      */
-    public static void inputURL(HTMLWriter w, String name, String value, String title) {
+    public static void inputURL(HTMLWriter w, String name, String value,
+            String title) {
         w.e("input", "style",
-                "display: inline; width: 90%", "class", "form-control nw-input-url",
+                "display: inline; width: 90%", "class",
+                "form-control nw-input-url",
                 "type", "url", "name", name, "value", value,
                 "size", "120", "title", title);
         w.e("span", "class", "glyphicon glyphicon-link",
-            "style", "cursor: pointer; font-size: 20px; font-weight: bold");
+                "style", "cursor: pointer; font-size: 20px; font-weight: bold");
     }
 
     /**
@@ -1192,15 +1193,13 @@ public class NWUtils {
      * If-Modified-Since and similar HTTP headers and sends 304 if the file was
      * not changed.
      *
-     * @param gcsService GCS
      * @param md GCS file meta data
      * @param request HTTP request
      * @param resp HTTP response
      * @param contentType MIME type of the response
      * @throws IOException error reading or sending the file
      */
-    public static void serveFileFromGCS(GcsService gcsService,
-            GcsFileMetadata md,
+    public static void serveFileFromGCS(GcsFileMetadata md,
             HttpServletRequest request, HttpServletResponse resp,
             String contentType) throws IOException {
         SimpleDateFormat httpDateFormat =
