@@ -1,12 +1,9 @@
 package com.googlecode.npackdweb;
 
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
 import com.googlecode.npackdweb.wlib.Page;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,19 +24,13 @@ public class RepZIPPage extends Page {
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-        final GcsService gcsService =
-                GcsServiceFactory.createGcsService(RetryParams
-                        .getDefaultInstance());
-
-        GcsFilename fileName = new GcsFilename("npackd", tag + ".zip");
-        GcsFileMetadata md = gcsService.getMetadata(fileName);
-
-        if (md == null) {
-            ExportRepsAction.export(gcsService, tag, false);
-            md = gcsService.getMetadata(fileName);
+        final GcsFileMetadata md;
+        try {
+            md = NWUtils.getMetadata(tag + ".zip");
+            NWUtils.serveFileFromGCS(md, request, resp,
+                    "application/zip");
+        } catch (ExecutionException ex) {
+            throw new IOException(ex.getMessage());
         }
-
-        NWUtils.serveFileFromGCS(md, request, resp,
-                "application/zip");
     }
 }

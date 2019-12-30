@@ -24,7 +24,7 @@ public class AddRepositoryPage extends MyPage {
             w.e("p", "class", "bg-danger", this.error);
         }
         w.start("form", "method", "post", "action", "/add-repository-confirmed");
-        w.t("Email: ");
+        w.t("Tag: ");
         w.e("input", "type", "text", "name", "tag", "value", tag, "size",
                 "40");
         w.e("br");

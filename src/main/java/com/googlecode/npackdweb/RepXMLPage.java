@@ -5,13 +5,6 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -27,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Document;
@@ -37,36 +29,6 @@ import org.w3c.dom.Element;
  * XML for a repository.
  */
 public class RepXMLPage extends Page {
-
-    /**
-     * gcsService.getMetadata takes about 16ms (28.12.2019)
-     */
-    private static LoadingCache<String, GcsFileMetadata> metadata =
-            CacheBuilder.
-                    newBuilder()
-                    .expireAfterWrite(10, TimeUnit.MINUTES)
-                    .build(
-                            new CacheLoader<String, GcsFileMetadata>() {
-                        @Override
-                        public GcsFileMetadata load(String key) throws Exception {
-                            final GcsService gcsService =
-                                    GcsServiceFactory.createGcsService(
-                                            RetryParams
-                                                    .getDefaultInstance());
-
-                            GcsFilename fileName = new GcsFilename("npackd",
-                                    key +
-                                    ".xml");
-                            GcsFileMetadata md = gcsService.
-                                    getMetadata(fileName);
-                            if (md == null) {
-                                ExportRepsAction.export(gcsService, key, false);
-                                md = gcsService.getMetadata(fileName);
-                            }
-
-                            return md;
-                        }
-                    });
 
     private final String tag;
 
@@ -83,7 +45,7 @@ public class RepXMLPage extends Page {
 
         final GcsFileMetadata md;
         try {
-            md = metadata.get(tag);
+            md = NWUtils.getMetadata(tag + ".xml");
             NWUtils.serveFileFromGCS(md, request, resp,
                     "application/xml");
         } catch (ExecutionException ex) {
