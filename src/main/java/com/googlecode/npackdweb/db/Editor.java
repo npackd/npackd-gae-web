@@ -43,6 +43,11 @@ public class Editor implements Cloneable {
     public long id;
 
     /**
+     * Last time this user was seen using the application or null.
+     */
+    public Date lastLogin;
+
+    /**
      * -
      */
     public Editor() {
@@ -55,9 +60,14 @@ public class Editor implements Cloneable {
         this.createdBy = (User) p.getProperty("createdBy");
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
         this.id = (Long) p.getProperty("id");
+        this.lastLogin = (Date) p.getProperty("lastLogin");
 
         if (this.starredPackages == null) {
             this.starredPackages = new ArrayList<>();
+        }
+
+        if (this.lastLogin == null) {
+            this.lastLogin = NWUtils.newDay();
         }
     }
 
@@ -84,6 +94,7 @@ public class Editor implements Cloneable {
         e.setIndexedProperty("createdBy", this.createdBy);
         e.setIndexedProperty("starredPackages", this.starredPackages);
         e.setIndexedProperty("id", new Long(this.id));
+        e.setIndexedProperty("lastLogin", this.lastLogin);
 
         return e;
     }

@@ -1,5 +1,6 @@
 package com.googlecode.npackdweb;
 
+import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.admin.AddRepositoryAction;
@@ -12,6 +13,7 @@ import com.googlecode.npackdweb.api.NotifyAction;
 import com.googlecode.npackdweb.api.SetURLPackageVersionAction;
 import com.googlecode.npackdweb.api.StarAction;
 import com.googlecode.npackdweb.api.TagPackageVersionAction;
+import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
 import com.googlecode.npackdweb.license.LicenseSaveAction;
@@ -42,6 +44,7 @@ import com.googlecode.npackdweb.wlib.SendRedirectAction;
 import com.googlecode.npackdweb.wlib.SendStatusAction;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -94,12 +97,26 @@ public class DefaultServlet extends HttpServlet {
 
         if (found != null) {
             UserService us = UserServiceFactory.getUserService();
+            final User currentUser = us.getCurrentUser();
+            if (currentUser != null) {
+                Editor e = NWUtils.dsCache.findEditor(currentUser);
+                if (e == null) {
+                    e = new Editor(currentUser);
+                    NWUtils.dsCache.saveEditor(e);
+                } else {
+                    Date when = NWUtils.newDay();
+                    if (e.lastLogin == null || e.lastLogin.before(when)) {
+                        e.lastLogin = when;
+                        NWUtils.dsCache.saveEditor(e);
+                    }
+                }
+            }
             boolean ok = true;
             switch (found.getSecurityType()) {
                 case ANONYMOUS:
                     break;
                 case LOGGED_IN:
-                    if (us.getCurrentUser() == null) {
+                    if (currentUser == null) {
                         ok = false;
                         NWUtils.LOG.info("Calling createLoginURL");
                         resp.
@@ -108,7 +125,7 @@ public class DefaultServlet extends HttpServlet {
                     }
                     break;
                 case ADMINISTRATOR:
-                    if (us.getCurrentUser() == null) {
+                    if (currentUser == null) {
                         ok = false;
                         NWUtils.LOG.info("Calling createLoginURL");
                         resp.

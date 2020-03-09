@@ -966,6 +966,19 @@ public class NWUtils {
     }
 
     /**
+     * @return 00:00 today
+     */
+    public static Date newDay() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }
+
+    /**
      * Information about a downloaded file
      */
     public static class Info {

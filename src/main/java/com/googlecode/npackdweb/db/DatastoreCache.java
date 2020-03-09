@@ -86,6 +86,9 @@ public class DatastoreCache {
         if (e.id <= 0) {
             e.createId();
         }
+        if (e.lastLogin == null) {
+            e.lastLogin = NWUtils.newDay();
+        }
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         datastore.put(e.createEntity());
@@ -580,7 +583,7 @@ public class DatastoreCache {
         Collections.sort(versions, new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
-                Version va = Version.parse(a.version);
+                Version va  = Version.parse(a.version);
                 Version vb = Version.parse(b.version);
                 return va.compare(vb);
             }
