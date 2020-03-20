@@ -470,8 +470,11 @@ public class Package {
                 this.title + " " + this.description + " " +
                 this.name + " " + this.category + " " + NWUtils.join(" ", tags));
 
+        // the field "title" is necessary for sorting
         Builder b = com.google.appengine.api.search.Document.newBuilder();
         b.setId(this.name).setLocale(Locale.US)
+                .addField(Field.newBuilder().setName("title").
+                        setText(this.title))
                 .addField(Field.newBuilder().setName("text").setText(
                         analyzed)).
                 addField(Field.newBuilder().setName("createdAt")
