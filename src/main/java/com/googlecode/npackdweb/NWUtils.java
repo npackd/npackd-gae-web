@@ -79,6 +79,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -976,6 +979,34 @@ public class NWUtils {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
         return c.getTime();
+    }
+
+    /**
+     * Analyze the text via a Lucene analyzer.
+     *
+     * @param txt any English text
+     * @return analyzed text for searching
+     */
+    public static String analyzeText(String txt) {
+        EnglishAnalyzer a = new EnglishAnalyzer();
+        TokenStream ts = a.tokenStream("text", txt);
+        CharTermAttribute charTermAttribute =
+                ts.addAttribute(CharTermAttribute.class);
+        StringBuilder sb = new StringBuilder();
+        try {
+            ts.reset();
+            while (ts.incrementToken()) {
+                String term = charTermAttribute.toString();
+                sb.append(' ').append(term);
+            }
+            ts.end();
+            ts.close();
+            //NWUtils.LOG.warning("Analyzed " + txt + ": " + sb.toString());
+            return sb.toString();
+        } catch (IOException ex) {
+            NWUtils.LOG.log(Level.WARNING, "Analyzing " + txt, ex);
+            return txt;
+        }
     }
 
     /**

@@ -166,7 +166,8 @@ public class PackagesPage extends MyPage {
         List<String> ids = new ArrayList<>();
         NWUtils.LOG.info("Starting search");
         try {
-            Results<ScoredDocument> r = index.search(qb.build(query));
+            Results<ScoredDocument> r = index.search(qb.
+                    build(NWUtils.analyzeText(query)));
             found = r.getNumberFound();
 
             for (FacetResult fi : r.getFacets()) {
@@ -339,8 +340,17 @@ public class PackagesPage extends MyPage {
         w.start("form", "class", "form-inline", "method", "get", "action",
                 "/p", "id", "searchForm");
         w.t("Search: ");
+
+        // from the C++ GUI:
+        //
+        // The words prefixed with a minus act as negative filters.
+        // No special characters are filtered out.
         w.e("input", "class", "form-control", "type", "text", "name", "q",
-                "value", query, "size", "50");
+                "value", query, "size", "50", "title",
+                "Enter here your search text. " +
+                "You can enter multiple words if a package should contain all of them. " +
+                "The search is case insensitive. " +
+                "Singular and plural word forms can be used.");
 
         // sort order
         w.t(" Sort by: ");
@@ -411,20 +421,11 @@ public class PackagesPage extends MyPage {
             }
         }
 
-        w.t(
-                " ");
-        w.e(
-                "input", "class", "btn btn-default", "type", "submit", "value",
+        w.t(" ");
+        w.e("input", "class", "btn btn-default", "type", "submit", "value",
                 "Search");
-        w.t(
-                " ");
-        w.e(
-                "a",
-                "href",
-                "https://developers.google.com/appengine/docs/java/search/overview#Building_Queries",
-                "target", "_blank", "Help");
-        w.end(
-                "form");
+        w.t(" ");
+        w.end("form");
         return w.toString();
     }
 

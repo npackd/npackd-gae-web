@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -466,22 +467,19 @@ public class Package {
         }
 
         Builder b = com.google.appengine.api.search.Document.newBuilder();
-        b.setId(this.name)
-                .addField(
-                        Field.newBuilder().setName("title").setText(this.title))
-                .addField(
-                        Field.newBuilder().setName("description")
-                                .setText(this.description))
-                .addField(
-                        Field.newBuilder().setName("createdAt")
-                                .setDate(this.createdAt))
+        b.setId(this.name).setLocale(Locale.US).addField(
+                Field.newBuilder().setName("title").setText(this.title))
+                .addField(Field.newBuilder().setName("description").setText(
+                        this.description))
+                .addField(Field.newBuilder().setName("text").setText(NWUtils.
+                        analyzeText(this.title + " " + this.description))).
+                addField(Field.newBuilder().setName("createdAt")
+                        .setDate(this.createdAt))
                 .addField(Field.newBuilder().setName("name").setText(this.name))
-                .addField(
-                        Field.newBuilder().setName("category")
-                                .setText(NWUtils.join(" ", tags)))
-                .addField(
-                        Field.newBuilder().setName("permission")
-                                .setText(sb.toString())).addField(Field.
+                .addField(Field.newBuilder().setName("category")
+                        .setText(NWUtils.join(" ", tags)))
+                .addField(Field.newBuilder().setName("permission")
+                        .setText(sb.toString())).addField(Field.
                 newBuilder().setName("starred").setNumber(this.starred));
 
         b.addFacet(Facet.withAtom("repository", rep != null ? rep :
