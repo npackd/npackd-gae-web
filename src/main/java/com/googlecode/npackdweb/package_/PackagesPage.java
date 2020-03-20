@@ -350,7 +350,8 @@ public class PackagesPage extends MyPage {
                 "Enter here your search text. " +
                 "You can enter multiple words if a package should contain all of them. " +
                 "The search is case insensitive. " +
-                "Singular and plural word forms can be used.");
+                "Singular and plural word forms can be used. " +
+                "Change in letter case or digits create a new search word.");
 
         // sort order
         w.t(" Sort by: ");

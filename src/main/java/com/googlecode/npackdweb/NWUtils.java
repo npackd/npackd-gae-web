@@ -80,7 +80,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -988,7 +987,7 @@ public class NWUtils {
      * @return analyzed text for searching
      */
     public static String analyzeText(String txt) {
-        EnglishAnalyzer a = new EnglishAnalyzer();
+        MyEnglishAnalyzer a = new MyEnglishAnalyzer();
         TokenStream ts = a.tokenStream("text", txt);
         CharTermAttribute charTermAttribute =
                 ts.addAttribute(CharTermAttribute.class);
