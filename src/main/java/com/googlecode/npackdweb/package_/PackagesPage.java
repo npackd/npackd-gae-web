@@ -205,15 +205,11 @@ public class PackagesPage extends MyPage {
 
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
-        return internalCreateContent();
-    }
-
-    private String internalCreateContent() {
-        return createContent2() +
+        return createContent2(request) +
                 createPager(start, packages.size() > PAGE_SIZE);
     }
 
-    private String createContent2() {
+    private String createContent2(HttpServletRequest request) {
         HTMLWriter w = new HTMLWriter();
 
         if (showSearch) {
@@ -287,11 +283,16 @@ public class PackagesPage extends MyPage {
                             " Failed to parse the Markdown syntax: " +
                             ex.getMessage());
                 }
-                w.e("div",
-                        "Category: " +
+                w.start("div");
+                w.t("Category: " +
                         (p.category.isEmpty() ? "-" : p.category) +
                         "; License: " +
-                        (lic == null ? "unknown" : lic.title));
+                        (lic == null ? "unknown" : lic.title) +
+                        "; Created by: ");
+
+                w.unencoded(NWUtils.obfuscateEmail(p.createdBy.getEmail(),
+                        request.getServerName()));
+                w.end("div");
                 w.end("div");
                 w.end("div");
             }
