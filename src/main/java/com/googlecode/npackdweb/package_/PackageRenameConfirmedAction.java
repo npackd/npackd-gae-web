@@ -1,5 +1,8 @@
 package com.googlecode.npackdweb.package_;
 
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -73,7 +76,7 @@ public class PackageRenameConfirmedAction extends Action {
             copy = p.copy();
             copy.name = newName;
 
-            NWUtils.dsCache.savePackage(null, copy, false);
+            NWUtils.dsCache.savePackage(null, copy, true);
 
             // die Versionen abspeichern
             List<PackageVersion> pvs = NWUtils.dsCache.
@@ -85,6 +88,16 @@ public class PackageRenameConfirmedAction extends Action {
             }
 
             NWUtils.dsCache.deletePackage(p.name);
+
+            UserService us = UserServiceFactory.getUserService();
+            User u = us.getCurrentUser();
+
+            if (!NWUtils.isEmailEqual(u.getEmail(), p.lastModifiedBy.getEmail())) {
+                NWUtils.sendMailTo(
+                        "The package \"" + name + "\" was renamed to \"" +
+                        newName +
+                        "\" by \"" + u.getEmail(), p.lastModifiedBy.getEmail());
+            }
 
             resp.sendRedirect("/p/" + copy.name);
             page = null;
