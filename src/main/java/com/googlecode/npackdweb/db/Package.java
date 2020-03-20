@@ -466,13 +466,14 @@ public class Package {
             }
         }
 
+        String analyzed = NWUtils.analyzeText(
+                this.title + " " + this.description + " " +
+                this.name + " " + this.category + " " + NWUtils.join(" ", tags));
+
         Builder b = com.google.appengine.api.search.Document.newBuilder();
-        b.setId(this.name).setLocale(Locale.US).addField(
-                Field.newBuilder().setName("title").setText(this.title))
-                .addField(Field.newBuilder().setName("description").setText(
-                        this.description))
-                .addField(Field.newBuilder().setName("text").setText(NWUtils.
-                        analyzeText(this.title + " " + this.description))).
+        b.setId(this.name).setLocale(Locale.US)
+                .addField(Field.newBuilder().setName("text").setText(
+                        analyzed)).
                 addField(Field.newBuilder().setName("createdAt")
                         .setDate(this.createdAt))
                 .addField(Field.newBuilder().setName("name").setText(this.name))
