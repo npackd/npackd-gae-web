@@ -601,13 +601,15 @@ public class NWUtils {
      */
     public static void inputURL(HTMLWriter w, String name, String value,
             String title) {
+        w.start("div", "class", "nw-input-url");
         w.e("input", "style",
                 "display: inline; width: 90%", "class",
-                "form-control nw-input-url",
+                "form-control",
                 "type", "url", "name", name, "value", value,
                 "size", "120", "title", title);
         w.e("span", "class", "glyphicon glyphicon-link",
                 "style", "cursor: pointer; font-size: 20px; font-weight: bold");
+        w.end("div");
     }
 
     /**
