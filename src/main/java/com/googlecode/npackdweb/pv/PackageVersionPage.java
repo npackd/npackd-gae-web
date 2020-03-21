@@ -30,7 +30,7 @@ public class PackageVersionPage extends MyPage {
 
     private String packageName;
     private String version;
-    private String url, sha;
+    private String url;
     private List<String> dependencyPackages;
     private List<String> dependencyVersionRanges;
     private List<String> dependencyEnvVars;
@@ -55,7 +55,6 @@ public class PackageVersionPage extends MyPage {
         this.packageName = "";
         this.version = "";
         this.url = "";
-        this.sha = "";
         this.dependencyPackages = new ArrayList<>();
         this.dependencyVersionRanges = new ArrayList<>();
         this.dependencyEnvVars = new ArrayList<>();
@@ -98,7 +97,7 @@ public class PackageVersionPage extends MyPage {
         this.packageName = pv.package_;
         this.version = pv.version;
         this.url = pv.url;
-        this.sha = pv.sha1;
+        this.params.put("sha1", pv.sha1);
         this.dependencyPackages = new ArrayList<>();
         this.dependencyPackages.addAll(pv.dependencyPackages);
         this.dependencyVersionRanges = new ArrayList<>();
@@ -458,7 +457,7 @@ public class PackageVersionPage extends MyPage {
                     "name",
                     "sha1",
                     "value",
-                    sha,
+                    getTrimmedParam("sha1"),
                     "size",
                     "50",
                     "title",
@@ -466,7 +465,7 @@ public class PackageVersionPage extends MyPage {
                     "Leave this field empty if different binaries are " +
                     "distributed from the same address.");
         } else {
-            w.t(sha);
+            w.t(getTrimmedParam("sha1"));
         }
         w.end("td");
         w.end("tr");
@@ -858,7 +857,6 @@ public class PackageVersionPage extends MyPage {
         version = req.getParameter("version");
 
         url = req.getParameter("url");
-        sha = req.getParameter("sha1");
         oneFile = "one-file".equals(req.getParameter("type"));
         tags = NWUtils.split(req.getParameter("tags"), ',');
 
@@ -965,10 +963,11 @@ public class PackageVersionPage extends MyPage {
         }
 
         if (r == null) {
-            if (!this.sha.trim().isEmpty()) {
-                r = NWUtils.validateSHA1(this.sha);
+            String sha = getTrimmedParam("sha1");
+            if (!sha.isEmpty()) {
+                r = NWUtils.validateSHA1(sha);
                 if (r != null) {
-                    r = NWUtils.validateSHA256(this.sha);
+                    r = NWUtils.validateSHA256(sha);
                 }
             }
         }
@@ -1085,7 +1084,7 @@ public class PackageVersionPage extends MyPage {
         pv.version = this.version;
         pv.name = this.packageName + "@" + this.version;
         pv.url = this.url;
-        pv.sha1 = this.sha;
+        pv.sha1 = getTrimmedParam("sha1");
         pv.dependencyPackages = new ArrayList<>();
         pv.dependencyPackages.addAll(this.dependencyPackages);
         pv.dependencyVersionRanges = new ArrayList<>();

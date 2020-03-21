@@ -186,4 +186,15 @@ public abstract class MyPage extends Page {
         }
         return res.toString();
     }
+
+    /**
+     * Returns the value of a parameter without whitespace at the beginning or
+     * at the end.
+     *
+     * @param name parameter name
+     * @return trimmed parameter value or ""
+     */
+    public String getTrimmedParam(String name) {
+        return params.getOrDefault(name, "").trim();
+    }
 }
