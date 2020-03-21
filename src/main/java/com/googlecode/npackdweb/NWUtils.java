@@ -1386,16 +1386,16 @@ public class NWUtils {
             txt = "";
         }
 
-        String n = String.valueOf(filled ? starred - 1 : starred);
-        w.start("span");
+        String n = String.valueOf(starred);
+        w.start("span", "class", "nw-star");
         if (filled) {
             w.e("span", "class", "star glyphicon glyphicon-star", "style",
                     "cursor: pointer; color:#337ab7", "data-package", package_,
-                    "data-starred", n);
+                    "data-starred", n, "data-filled", Boolean.toString(filled));
         } else {
             w.e("span", "class", "star glyphicon glyphicon-star-empty", "style",
                     "cursor: pointer", "data-package", package_,
-                    "data-starred", n);
+                    "data-starred", n, "data-filled", Boolean.toString(filled));
         }
         w.e("small", txt);
         w.end("span");
