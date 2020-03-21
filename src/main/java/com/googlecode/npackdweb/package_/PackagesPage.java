@@ -70,7 +70,7 @@ public class PackagesPage extends MyPage {
      * -
      *
      * @param query search query. Example: "title:Python"
-     * @param sort "created", "title" or "stars" sorting order
+     * @param sort "" (relevancy), "created", "title" or "stars" sorting order
      * @param start initial offset
      * @param category0 filter for the top-level category or null or ""
      * @param category1 filter for the second level level or null or ""
@@ -121,7 +121,7 @@ public class PackagesPage extends MyPage {
                             .setDirection(
                                     SortExpression.SortDirection.DESCENDING)
                             .setDefaultValueNumeric(0).build();
-        } else {
+        } else if ("title".equals(sort)) {
             se =
                     SortExpression
                             .newBuilder()
@@ -129,10 +129,17 @@ public class PackagesPage extends MyPage {
                             .setDirection(
                                     SortExpression.SortDirection.ASCENDING)
                             .setDefaultValue("").build();
+        } else {
+            se = null;
         }
-        ob =
-                ob.setSortOptions(SortOptions.newBuilder()
-                        .addSortExpression(se).setLimit(1000));
+
+        final SortOptions.Builder sob = SortOptions.newBuilder();
+        if (se != null) {
+            sob.addSortExpression(se);
+        }
+        sob.setLimit(1000);
+
+        ob = ob.setSortOptions(sob);
 
         Builder fob = FacetOptions.newBuilder().setDiscoveryValueLimit(20);
 
@@ -344,18 +351,20 @@ public class PackagesPage extends MyPage {
         // from the C++ GUI:
         //
         // The words prefixed with a minus act as negative filters.
-        // No special characters are filtered out.
         w.e("input", "class", "form-control", "type", "text", "name", "q",
                 "value", query, "size", "50", "title",
                 "Enter here your search text. " +
                 "You can enter multiple words if a package should contain all of them. " +
                 "The search is case insensitive. " +
+                "Special characters are filtered out. " +
                 "Singular and plural word forms can be used. " +
                 "Change in letter case or digits create a new search word.");
 
         // sort order
         w.t(" Sort by: ");
         w.start("select", "class", "form-control", "name", "sort", "id", "sort");
+        w.e("option", "value", "", "selected",
+                "".equals(sort) ? "selected" : null, "Relevance");
         w.e("option", "value", "title", "selected",
                 "title".equals(sort) ? "selected" : null, "Title");
         w.e("option", "value", "created", "selected", "created".equals(sort) ?

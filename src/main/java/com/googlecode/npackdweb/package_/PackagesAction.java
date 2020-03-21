@@ -46,7 +46,7 @@ public class PackagesAction extends Action {
             String sort = req.getParameter("sort");
             if (!"created".equals(sort) && !"title".equals(sort) && !"stars".
                     equals(sort)) {
-                sort = "title";
+                sort = "";
             }
 
             return new PackagesPage(q, sort,
