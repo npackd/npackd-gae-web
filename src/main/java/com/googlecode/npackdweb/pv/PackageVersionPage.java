@@ -1126,7 +1126,6 @@ public class PackageVersionPage extends MyPage {
         HTMLWriter w = new HTMLWriter();
         w.start("script");
         w.unencoded(NWUtils.tmpl("PackageVersionDetail.js"));
-        w.unencoded(NWUtils.tmpl("Common.js"));
         w.end("script");
 
         NWUtils.linkScript(w, "/autosize.min.js");

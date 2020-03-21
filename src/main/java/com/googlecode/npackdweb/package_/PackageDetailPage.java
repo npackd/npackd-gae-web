@@ -169,7 +169,6 @@ public class PackageDetailPage extends MyPage {
         HTMLWriter w = new HTMLWriter();
         w.start("script");
         w.unencoded(NWUtils.tmpl("PackageDetail.js"));
-        w.unencoded(NWUtils.tmpl("Common.js"));
         w.end("script");
 
         NWUtils.linkScript(w, "/autosize.min.js");
