@@ -620,6 +620,7 @@ public class Package {
         }
 
         version = version.replace('-', '.');
+        version = version.replace('+', '.');
         version = version.replace('_', '.');
 
         // process version numbers like 2.0.6b
