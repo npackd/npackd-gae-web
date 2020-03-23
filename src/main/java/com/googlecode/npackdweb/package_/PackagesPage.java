@@ -358,7 +358,8 @@ public class PackagesPage extends MyPage {
                 "The search is case insensitive. " +
                 "Special characters are filtered out. " +
                 "Singular and plural word forms can be used. " +
-                "Change in letter case or digits create a new search word.");
+                "Change in letter case or digits create a new search word. " +
+                "Version numbers and common english words are ignored.");
 
         // sort order
         w.t(" Sort by: ");
