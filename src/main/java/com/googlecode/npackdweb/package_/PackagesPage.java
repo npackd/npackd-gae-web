@@ -480,8 +480,10 @@ public class PackagesPage extends MyPage {
             return found + " packages sorted by creation time";
         } else if ("stars".equals(sort)) {
             return found + " packages sorted by the number of stars";
-        } else {
+        } else if ("title".equals(sort)) {
             return found + " packages sorted by title";
+        } else {
+            return found + " packages sorted by relevance";
         }
     }
 
