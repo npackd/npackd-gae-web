@@ -1214,32 +1214,37 @@ public class NWUtils {
     /**
      * Changes an email address so it cannot be easily parsed.
      *
-     * @param email an email address
+     * @param email an email address or null
      * @param domain server domain
      * @return HTML. abc dot def at bla dot com
      */
     public static String obfuscateEmail(String email, String domain) {
-        HTMLWriter w = new HTMLWriter();
-        int index = email.indexOf('@');
-        if (index > 0) {
-            Editor e = NWUtils.dsCache.findEditor(NWUtils.email2user(email));
-            if (e == null) {
-                e = new Editor(email2user(email));
-                NWUtils.dsCache.saveEditor(e);
-            }
-            String before = email.substring(0, index);
-            if (before.length() > 10) {
-                before = before.substring(0, 10) + "...";
-            }
-
-            // only https is supported
-            w.start("a", "href", "https://" + domain + "/recaptcha?id=" + e.id);
-            w.t(before);
-            w.end("a");
+        if (email == null) {
+            return "unknown";
         } else {
-            w.t(email);
+            HTMLWriter w = new HTMLWriter();
+            int index = email.indexOf('@');
+            if (index > 0) {
+                Editor e = NWUtils.dsCache.findEditor(NWUtils.email2user(email));
+                if (e == null) {
+                    e = new Editor(email2user(email));
+                    NWUtils.dsCache.saveEditor(e);
+                }
+                String before = email.substring(0, index);
+                if (before.length() > 10) {
+                    before = before.substring(0, 10) + "...";
+                }
+
+                // only https is supported
+                w.start("a", "href", "https://" + domain + "/recaptcha?id=" +
+                        e.id);
+                w.t(before);
+                w.end("a");
+            } else {
+                w.t(email);
+            }
+            return w.toString();
         }
-        return w.toString();
     }
 
     /**

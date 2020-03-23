@@ -5,7 +5,9 @@
  */
 package com.googlecode.npackdweb;
 
+import java.util.regex.Pattern;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
@@ -18,5 +20,11 @@ public class NWUtilsTest {
         String parts[] = NWUtils.partition("http://www.example.com", "://");
         assertEquals("http", parts[0]);
         assertEquals("www.example.com", parts[1]);
+    }
+
+    @Test
+    public void analyzer() {
+        Pattern p = Pattern.compile("\\d+(\\.\\d+){1,2}");
+        assertTrue(p.matcher("1.2.3").matches());
     }
 }
