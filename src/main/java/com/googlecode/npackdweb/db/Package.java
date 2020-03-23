@@ -792,7 +792,7 @@ public class Package {
                     copy.sha1 = NWUtils.byteArrayToHexString(info.sha1);
                 } catch (IOException | NoSuchAlgorithmException ex) {
                     NWUtils.LOG.
-                            log(Level.SEVERE, null, ex);
+                            log(Level.WARNING, null, ex);
                 }
             }
         }
