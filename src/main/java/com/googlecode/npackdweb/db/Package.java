@@ -466,9 +466,15 @@ public class Package {
             }
         }
 
-        String analyzed = NWUtils.analyzeText(
+        String text =
                 this.title + " " + this.description + " " +
-                this.name + " " + this.category + " " + NWUtils.join(" ", tags));
+                this.name + " " + this.category + " " + NWUtils.join(" ", tags) +
+                " ";
+        if (hasTag("stable64")) {
+            text += "64";
+        } else {
+            text += "i686 32"; // x86 will be filtered out as stop words
+        }
 
         // the field "title" is necessary for sorting
         Builder b = com.google.appengine.api.search.Document.newBuilder();
@@ -476,7 +482,7 @@ public class Package {
                 .addField(Field.newBuilder().setName("title").
                         setText(this.title))
                 .addField(Field.newBuilder().setName("text").setText(
-                        analyzed)).
+                        NWUtils.analyzeText(text))).
                 addField(Field.newBuilder().setName("createdAt")
                         .setDate(this.createdAt))
                 .addField(Field.newBuilder().setName("name").setText(this.name))

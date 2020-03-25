@@ -759,8 +759,8 @@ public class PackageDetailPage extends MyPage {
         license = req.getParameter("license");
         category = req.getParameter("category");
         tags = NWUtils.split(req.getParameter("tags"), ',');
-        screenshots = req.getParameter("screenshots");
-        permissions = req.getParameter("permissions");
+        screenshots = getTrimmedParam("screenshots");
+        permissions = getTrimmedParam("permissions");
 
         if (this.mode == FormMode.CREATE) {
             this.createdAt = NWUtils.newDate();
