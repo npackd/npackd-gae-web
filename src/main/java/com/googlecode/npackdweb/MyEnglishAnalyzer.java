@@ -36,8 +36,8 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
                 "no", "not", "of", "on", "or", "such",
                 "that", "the", "their", "then", "there", "these",
                 "they", "this", "to", "was", "will", "with",
-                // all packages are for Windows
-                "windows", "x", "86"
+                // applies to every package
+                "windows", "x", "86", "software", "program", "exe", "executable"
         );
         final CharArraySet stopSet = new CharArraySet(stopWords, false);
         ENGLISH_STOP_WORDS_SET = CharArraySet.unmodifiableSet(stopSet);
