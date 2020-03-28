@@ -27,4 +27,9 @@ public class NWUtilsTest {
         Pattern p = Pattern.compile("\\d+(\\.\\d+){1,2}");
         assertTrue(p.matcher("1.2.3").matches());
     }
+
+    @Test
+    public void analyzeText() {
+        assertEquals(" rstudio", NWUtils.analyzeText("RStudio"));
+    }
 }
