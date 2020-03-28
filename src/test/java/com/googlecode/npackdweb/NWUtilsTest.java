@@ -31,5 +31,6 @@ public class NWUtilsTest {
     @Test
     public void analyzeText() {
         assertEquals(" rstudio", NWUtils.analyzeText("RStudio"));
+        assertEquals("", NWUtils.analyzeText("windows"));
     }
 }
