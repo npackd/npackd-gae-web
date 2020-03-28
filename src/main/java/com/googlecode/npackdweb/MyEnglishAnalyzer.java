@@ -37,7 +37,8 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
                 "that", "the", "their", "then", "there", "these",
                 "they", "this", "to", "was", "will", "with",
                 // applies to every package
-                "windows", "x", "86", "software", "program", "exe", "executable"
+                "windows", "x", "86", "software", "program", "exe", "executable",
+                "setup", "package", "version"
         );
         final CharArraySet stopSet = new CharArraySet(stopWords, false);
         ENGLISH_STOP_WORDS_SET = CharArraySet.unmodifiableSet(stopSet);
@@ -72,7 +73,7 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
     protected Reader initReader(String fieldName, Reader reader) {
         // remove version numbers
         return new PatternReplaceCharFilter(Pattern.
-                compile("\\d+(\\.\\d+){1,5}"),
+                compile("\\d+([\\._\\-\\+]\\d+){1,5}"),
                 "",
                 reader);
     }
