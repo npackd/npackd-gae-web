@@ -40,7 +40,8 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
                 "windows", "window", "x", "86", "software", "programs",
                 "program", "exe", "executables", "executable",
                 "setups",
-                "setup", "packages", "package", "versions", "version"
+                "setup", "packages", "package", "versions", "version", "bits",
+                "bit"
         );
         final CharArraySet stopSet = new CharArraySet(stopWords, false);
         ENGLISH_STOP_WORDS_SET = CharArraySet.unmodifiableSet(stopSet);
