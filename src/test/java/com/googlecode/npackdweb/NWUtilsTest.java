@@ -30,7 +30,12 @@ public class NWUtilsTest {
 
     @Test
     public void analyzeText() {
-        assertEquals(" rstudio", NWUtils.analyzeText("RStudio"));
+        assertEquals("rstudio", NWUtils.analyzeText("RStudio"));
         assertEquals("", NWUtils.analyzeText("windows"));
+        assertEquals("c++", NWUtils.analyzeText("C++"));
+        assertEquals("c", NWUtils.analyzeText("C+++"));
+        assertEquals("c#", NWUtils.analyzeText("C#"));
+        assertEquals("f#", NWUtils.analyzeText("F#"));
+        assertEquals("c++", NWUtils.analyzeText("CPP"));
     }
 }

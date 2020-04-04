@@ -998,7 +998,10 @@ public class NWUtils {
             ts.reset();
             while (ts.incrementToken()) {
                 String term = charTermAttribute.toString();
-                sb.append(' ').append(term);
+                if (sb.length() != 0) {
+                    sb.append(' ');
+                }
+                sb.append(term);
             }
             ts.end();
             ts.close();
