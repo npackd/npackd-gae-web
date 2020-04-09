@@ -49,9 +49,9 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
                 "that", "the", "their", "then", "there", "these",
                 "they", "this", "to", "was", "will", "with",
                 // applies to every package
-                "windows", "window", "x", "86", "software", "programs",
+                "windows", "window", "win", "x", "86", "software", "programs",
                 "program", "exe", "executables", "executable",
-                "setups",
+                "setups", "msi",
                 "setup", "packages", "package", "versions", "version", "bits",
                 "bit"
         );
