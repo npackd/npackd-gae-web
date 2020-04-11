@@ -34,22 +34,22 @@ import java.util.logging.Level;
  */
 public class DatastoreCache {
 
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
 
     /**
      * version of the data (versions, packages, licenses): 0, 1, ...
      */
     private long dataVersion;
 
-    private Map<String, Package> packagesCache =
+    private final Map<String, Package> packagesCache =
             new HashMap<>();
 
-    private Map<String, License> licensesCache =
+    private final Map<String, License> licensesCache =
             new HashMap<>();
 
-    private Map<String, Editor> editorsCache = new HashMap<>();
+    private final Map<String, Editor> editorsCache = new HashMap<>();
 
-    private Map<String, Repository> repositoriesCache = new HashMap<>();
+    private final Map<String, Repository> repositoriesCache = new HashMap<>();
 
     private boolean allLicensesRead;
     private boolean allRepositoriesRead;
