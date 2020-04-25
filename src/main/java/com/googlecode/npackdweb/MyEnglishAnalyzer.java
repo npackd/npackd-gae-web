@@ -52,6 +52,7 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
                 "windows", "window", "win", "x", "86", "software", "programs",
                 "program", "exe", "executables", "executable",
                 "setups", "msi",
+                "alpha", "beta", "release", "prerelease",
                 "setup", "packages", "package", "versions", "version", "bits",
                 "bit"
         );
