@@ -431,7 +431,7 @@ public class Package {
         }
         if (issues != null && !issues.trim().isEmpty()) {
             NWUtils.e(package_, "link", "rel", "issues", "href",
-                    changelog, "");
+                    issues, "");
         }
 
         return package_;
