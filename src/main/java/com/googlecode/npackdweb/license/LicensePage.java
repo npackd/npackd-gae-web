@@ -66,9 +66,6 @@ public class LicensePage extends MyPage {
         }
 
         HTMLWriter w = new HTMLWriter();
-        if (error != null) {
-            w.e("p", "class", "bg-danger", this.error);
-        }
 
         if (editable) {
             w.start("form", "class", "form-horizontal", "method", "post",

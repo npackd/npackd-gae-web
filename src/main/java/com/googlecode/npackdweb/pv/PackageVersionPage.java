@@ -220,10 +220,6 @@ public class PackageVersionPage extends MyPage {
                     "This package version is not yet reviewed and may be unsafe");
         }
 
-        if (error != null) {
-            w.e("p", "class", "bg-danger", this.error);
-        }
-
         boolean editable = getEditable();
         if (editable) {
             w.start("form", "class", "form-horizontal", "method", "post",

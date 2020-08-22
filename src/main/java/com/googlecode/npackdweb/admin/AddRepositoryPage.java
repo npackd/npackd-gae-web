@@ -20,9 +20,6 @@ public class AddRepositoryPage extends MyPage {
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
-        if (error != null) {
-            w.e("p", "class", "bg-danger", this.error);
-        }
         w.start("form", "method", "post", "action", "/add-repository-confirmed");
         w.t("Tag: ");
         w.e("input", "type", "text", "name", "tag", "value", tag, "size",

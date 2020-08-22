@@ -179,10 +179,6 @@ public class PackageDetailPage extends MyPage {
     @Override
     public String createContent(HttpServletRequest request) throws IOException {
         HTMLWriter w = new HTMLWriter();
-        if (error != null) {
-            w.e("p", "class", "bg-danger", this.error);
-        }
-
         w.start("form", "class", "form-horizontal", "method", "post",
                 "action", "/package/save", "id", "package-form");
 
@@ -305,8 +301,7 @@ public class PackageDetailPage extends MyPage {
         endRow(w);
 
         // home page
-        startRow(w, "Product home page", mode == FormMode.EDIT ||
-                mode == FormMode.CREATE);
+        startRow(w, "Product home page", false);
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             NWUtils.inputURL(w, "url", url,
                     "http: or https: address of the product home page");
@@ -851,18 +846,25 @@ public class PackageDetailPage extends MyPage {
             }
         }
         if (msg == null) {
-            if (!this.url.trim().isEmpty()) {
-                msg = NWUtils.validateURL(this.url);
+            msg = NWUtils.validateURL(this.url);
+            if (msg != null) {
+                msg = "Error in product home page: " + msg;
             }
         }
         if (msg == null) {
             if (!this.changelog.trim().isEmpty()) {
                 msg = NWUtils.validateURL(this.changelog);
+                if (msg != null) {
+                    msg = "Error in change log: " + msg;
+                }
             }
         }
         if (msg == null) {
             if (!this.icon.trim().isEmpty()) {
                 msg = NWUtils.validateURL(this.icon);
+                if (msg != null) {
+                    msg = "Error in icon: " + msg;
+                }
             }
         }
         if (msg == null) {
@@ -871,6 +873,7 @@ public class PackageDetailPage extends MyPage {
                 if (!s.trim().isEmpty()) {
                     msg = NWUtils.validateURL(s);
                     if (msg != null) {
+                        msg = "Error in screenshots: " + msg;
                         break;
                     }
                 }
@@ -880,6 +883,9 @@ public class PackageDetailPage extends MyPage {
             if (params.get("issues") != null && !params.get("issues").trim().
                     isEmpty()) {
                 msg = NWUtils.validateURL(params.get("issues"));
+                if (msg != null) {
+                    msg = "Error in issue tracker: " + msg;
+                }
             }
         }
         if (msg == null) {
@@ -894,6 +900,9 @@ public class PackageDetailPage extends MyPage {
         if (msg == null) {
             if (!this.discoveryURL.trim().isEmpty()) {
                 msg = NWUtils.validateURL(this.discoveryURL);
+                if (msg != null) {
+                    msg = "Error in discovery page (URL): " + msg;
+                }
             }
         }
 
@@ -902,8 +911,7 @@ public class PackageDetailPage extends MyPage {
                 try {
                     Pattern.compile(this.discoveryRE);
                 } catch (PatternSyntaxException e) {
-                    msg =
-                            "Cannot parse the regular expression: " +
+                    msg = "Cannot parse the regular expression: " +
                             e.getMessage();
                 }
             }
@@ -922,6 +930,7 @@ public class PackageDetailPage extends MyPage {
                         if (s.length() != 0) {
                             msg = NWUtils.validateEmail(s);
                             if (msg != null) {
+                                msg = "Error in permissions: " + msg;
                                 break;
                             }
                         }
