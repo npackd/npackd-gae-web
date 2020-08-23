@@ -100,17 +100,19 @@ function InputURL(initialVnode) {
                     });
             var span = m("span.glyphicon.glyphicon-link", 
                     {
-                        onclick: function() {
-                            window.open(vnode.dom.value);
-                            event.preventDefault();
-                        },
                         style: {
-                            cursor: "pointer", 
                             "font-size": "20px", 
                             "font-weight": "bold"
                         }
                     });
-            return [input, span];
+            var a = m("a", {
+                    href: "javascript: return false;",
+                    onclick: function() {
+                        window.open(vnode.dom.value);
+                        event.preventDefault();
+                    }
+            }, [span]);
+            return [input, a];
         }
     };
 }
