@@ -444,7 +444,7 @@ public class PackagesPage extends MyPage {
         HTMLWriter w = new HTMLWriter();
         w.start("ul", "class", "pager");
         String p =
-                ("title".equals(sort) ? "" : "&sort=" + sort) + "&q=" +
+                ("".equals(sort) ? "" : "&sort=" + sort) + "&q=" +
                 NWUtils.encode(this.query);
         if (category0 != null) {
             p += "&category0=" + NWUtils.encode(this.category0);
