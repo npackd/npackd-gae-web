@@ -13,6 +13,10 @@
     Allows App Engine to send multiple requests to one instance in parallel:
     -->
     <threadsafe>true</threadsafe>
+    
+    <automatic-scaling>
+        <max-instances>2</max-instances>
+    </automatic-scaling>
 
     <!-- Configure java.util.logging -->
     <system-properties>
