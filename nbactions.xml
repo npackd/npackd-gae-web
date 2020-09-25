@@ -60,4 +60,24 @@
                 <netbeans.deploy.debugmode>true</netbeans.deploy.debugmode>
             </properties>
         </action>
+    <action>
+            <actionName>run</actionName>
+            <packagings>
+                <packaging>war</packaging>
+            </packagings>
+        </action>
+    <action>
+            <actionName>CUSTOM-Deploy</actionName>
+            <displayName>Deploy</displayName>
+            <goals>
+                <goal>appengine:deploy</goal>
+            </goals>
+        </action>
+    <action>
+            <actionName>CUSTOM-Run</actionName>
+            <displayName>Run</displayName>
+            <goals>
+                <goal>appengine:run</goal>
+            </goals>
+        </action>
 </actions>

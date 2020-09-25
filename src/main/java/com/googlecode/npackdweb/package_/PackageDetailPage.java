@@ -53,11 +53,6 @@ public class PackageDetailPage extends MyPage {
     public String icon;
 
     /**
-     * package description
-     */
-    public String description;
-
-    /**
      * package comment
      */
     public String comment;
@@ -136,7 +131,6 @@ public class PackageDetailPage extends MyPage {
         url = "";
         changelog = "";
         icon = "";
-        description = "";
         comment = "";
         discoveryURL = "";
         discoveryRE = "";
@@ -373,8 +367,11 @@ public class PackageDetailPage extends MyPage {
         endRow(w);
 
         // description
-        startRow(w, "Description", mode == FormMode.EDIT ||
-                mode == FormMode.CREATE);
+        startRow(w, "Description", false);
+        String description = params.get("description");
+        if (description == null) {
+            description = "";
+        }
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             w.start("p", "class", "nw-help");
             w.e("a", "href",
@@ -748,7 +745,6 @@ public class PackageDetailPage extends MyPage {
         url = req.getParameter("url");
         changelog = req.getParameter("changelog");
         icon = req.getParameter("icon");
-        description = req.getParameter("description");
         comment = req.getParameter("comment");
         discoveryURL = req.getParameter("discoveryPage");
         discoveryRE = req.getParameter("discoveryRE");
@@ -789,7 +785,12 @@ public class PackageDetailPage extends MyPage {
      * @param p the data will be stored here
      */
     public void fillObject(Package p) {
-        p.description = description.trim();
+        p.description = params.get("description");
+        if (p.description == null) {
+            p.description = "";
+        } else {
+            p.description = p.description.trim();
+        }
         p.icon = icon.trim();
         p.title = title.trim();
         p.url = url.trim();
@@ -889,11 +890,23 @@ public class PackageDetailPage extends MyPage {
             }
         }
         if (msg == null) {
-            Markdown4jProcessor mp = new Markdown4jProcessor();
-            try {
-                mp.process(description);
-            } catch (IOException e) {
-                msg = " Failed to parse the Markdown syntax: " + e.getMessage();
+            String description = params.get("description");
+            if (description == null) {
+                description = "";
+            } else {
+                description = description.trim();
+            }
+
+            if (description.isEmpty()) {
+                msg = "Empty description";
+            } else {
+                Markdown4jProcessor mp = new Markdown4jProcessor();
+                try {
+                    mp.process(description);
+                } catch (IOException e) {
+                    msg = " Failed to parse the Markdown syntax: " + e.
+                            getMessage();
+                }
             }
         }
 
@@ -944,7 +957,7 @@ public class PackageDetailPage extends MyPage {
 
     public void fill(Package r) {
         this.id = r.name;
-        description = r.description.trim();
+        params.put("description", r.description.trim());
         icon = r.icon.trim();
         title = r.title.trim();
         url = r.url.trim();
