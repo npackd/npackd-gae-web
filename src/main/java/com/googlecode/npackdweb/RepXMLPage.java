@@ -31,25 +31,34 @@ import org.w3c.dom.Element;
 public class RepXMLPage extends Page {
 
     private final String tag;
+    private final boolean create;
 
     /**
      * @param tag only package versions with this tag will be exported.
+     * @param create true = create the file, false = redirect to a Github
+     * release asset
      */
-    public RepXMLPage(String tag) {
+    public RepXMLPage(String tag, boolean create) {
         this.tag = tag;
+        this.create = create;
     }
 
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-
-        final GcsFileMetadata md;
-        try {
-            md = NWUtils.getMetadata(tag + ".xml");
-            NWUtils.serveFileFromGCS(md, request, resp,
-                    "application/xml");
-        } catch (ExecutionException ex) {
-            throw new IOException(ex.getMessage());
+        if (!create) {
+            resp.sendRedirect(
+                    "https://github.com/tim-lebedkov/npackd/releases/download/v1/" +
+                    tag + ".xml");
+        } else {
+            final GcsFileMetadata md;
+            try {
+                md = NWUtils.getMetadata(tag + ".xml");
+                NWUtils.serveFileFromGCS(md, request, resp,
+                        "application/xml");
+            } catch (ExecutionException ex) {
+                throw new IOException(ex.getMessage());
+            }
         }
     }
 
