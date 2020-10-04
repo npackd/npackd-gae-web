@@ -15,7 +15,8 @@
     <threadsafe>true</threadsafe>
     
     <automatic-scaling>
-        <max-instances>2</max-instances>
+        <max-instances>1</max-instances>
+        <max-concurrent-requests>100</max-concurrent-requests>
     </automatic-scaling>
 
     <!-- Configure java.util.logging -->
