@@ -77,7 +77,6 @@ public class DefaultServlet extends HttpServlet {
 
     private void doGet0(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        NWUtils.dsCache.updateDataVersion();
         req.setAttribute("com.googlecode.npackdweb.DefaultServlet", this);
 
         String pi = req.getRequestURI();

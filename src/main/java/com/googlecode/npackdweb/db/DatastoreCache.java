@@ -11,9 +11,6 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;
-import com.google.appengine.api.memcache.ErrorHandlers;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -27,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
 /**
  * In-memory cache for the datastore entities.
@@ -597,52 +593,23 @@ public class DatastoreCache {
      * @return new version number
      */
     public long incDataVersion() {
-        MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-        syncCache.setErrorHandler(ErrorHandlers
-                .getConsistentLogAndContinue(Level.INFO));
-        Long v = syncCache.increment("DataVersion", 1L);
-        if (v == null) {
-            syncCache.put("DataVersion", 1L);
-            v = 1L;
-        }
+        long r;
 
-        setDataVersion(v);
-
-        return v;
-    }
-
-    private void setDataVersion(long v) {
         lock.lock();
         try {
-            if (dataVersion != v) {
-                dataVersion = v;
-                packagesCache.clear();
-                licensesCache.clear();
-                editorsCache.clear();
-                repositoriesCache.clear();
-                allLicensesRead = false;
-                allRepositoriesRead = false;
-            }
+            dataVersion++;
+            packagesCache.clear();
+            licensesCache.clear();
+            editorsCache.clear();
+            repositoriesCache.clear();
+            allLicensesRead = false;
+            allRepositoriesRead = false;
+            r = dataVersion;
         } finally {
             lock.unlock();
         }
-    }
 
-    /**
-     * Reads the data version from the memcached and updates the static
-     * in-memory cache.
-     */
-    public void updateDataVersion() {
-        MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-        syncCache.setErrorHandler(ErrorHandlers
-                .getConsistentLogAndContinue(Level.INFO));
-        Long v = (Long) syncCache.get("DataVersion");
-        if (v == null) {
-            syncCache.put("DataVersion", 1L);
-            v = 1L;
-        }
-
-        setDataVersion(v);
+        return r;
     }
 
     /**
