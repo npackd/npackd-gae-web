@@ -3,19 +3,13 @@ package com.googlecode.npackdweb.db;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -26,6 +20,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.StringField;
@@ -603,13 +602,23 @@ public class Package {
 
         String version = null;
 
-        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
-        HTTPResponse r;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(discoveryPage);
+        CloseableHttpResponse r = httpclient.execute(httpGet);
+
+        // The underlying HTTP connection is still held by the response object
+        // to allow the response content to be streamed directly from the network socket.
+        // In order to ensure correct deallocation of system resources
+        // the user MUST call CloseableHttpResponse#close() from a finally clause.
+        // Please note that if response content is not fully consumed the underlying
+        // connection cannot be safely re-used and will be shut down and discarded
+        // by the connection manager.
         try {
-            r = s.fetch(new URL(discoveryPage));
+            HttpEntity e = r.getEntity();
+
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(
-                            new ByteArrayInputStream(r.getContent()),
+                            e.getContent(),
                             "UTF-8"));
             String line;
             Pattern vp = Pattern.compile(discoveryRE);
@@ -620,11 +629,8 @@ public class Package {
                     break;
                 }
             }
-        } catch (MalformedURLException e) {
-            throw new IOException(e);
-        } catch (IOException
-                | com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
-            throw new IOException(e);
+        } finally {
+            r.close();
         }
 
         if (version == null) {

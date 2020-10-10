@@ -1,11 +1,5 @@
 package com.googlecode.npackdweb.pv;
 
-import com.google.appengine.api.urlfetch.HTTPHeader;
-import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.ResponseTooLargeException;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.common.primitives.Bytes;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -25,6 +19,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Recognize the binary type and assign the scripts accordingly.
@@ -122,44 +123,64 @@ public class PackageVersionRecognizeAction extends Action {
         // part of the file was downloaded
         boolean completeDownload = false;
 
-        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
-        HTTPResponse r;
+        // in seconds
+        final int timeout = 20;
+
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000)
+                .setSocketTimeout(timeout * 1000).build();
+
+        CloseableHttpClient httpclient = HttpClientBuilder.create().
+                setDefaultRequestConfig(config).build();
+
+        HttpGet ht = new HttpGet(pv.url);
+        ht.setHeader("User-Agent",
+                "NpackdWeb/1 (compatible; MSIE 9.0)");
+        ht.setHeader("Range", "bytes=" + startPosition +
+                "-" + (startPosition + segment - 1));
+
         byte[] content = null;
+
+        // The underlying HTTP connection is still held by the response object
+        // to allow the response content to be streamed directly from the network socket.
+        // In order to ensure correct deallocation of system resources
+        // the user MUST call CloseableHttpResponse#close() from a finally clause.
+        // Please note that if response content is not fully consumed the underlying
+        // connection cannot be safely re-used and will be shut down and discarded
+        // by the connection manager.
         try {
-            HTTPRequest ht = new HTTPRequest(url);
-            ht.setHeader(new HTTPHeader("User-Agent",
-                    "NpackdWeb/1 (compatible; MSIE 9.0)"));
-            ht.getFetchOptions().setDeadline(20.0);
-            ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition +
-                    "-" + (startPosition + segment - 1)));
-            r = s.fetch(ht);
-            if (r.getResponseCode() == 416) {
-                if (startPosition == 0) {
-                    throw new IOException(
-                            "Empty response with HTTP error code 416");
+            CloseableHttpResponse r = httpclient.execute(ht);
+            try {
+                HttpEntity e = r.getEntity();
+
+                if (r.getStatusLine().getStatusCode() == 416) {
+                    if (startPosition == 0) {
+                        throw new IOException(
+                                "Empty response with HTTP error code 416");
+                    }
                 }
+
+                content = EntityUtils.toByteArray(e);
+
+                if (r.getStatusLine().getStatusCode() != 206 && r.
+                        getStatusLine().getStatusCode() != 200) {
+                    throw new IOException("HTTP response code: " +
+                            r.getStatusLine().getStatusCode());
+                }
+
+                if (content.length < segment) {
+                    completeDownload = true;
+
+                    MessageDigest crypt = MessageDigest.getInstance("SHA-256");
+                    crypt.update(content);
+                    pv.sha1 = NWUtils.byteArrayToHexString(crypt.digest());
+                }
+            } finally {
+                r.close();
             }
-
-            content = r.getContent();
-            if (r.getResponseCode() != 206 && r.getResponseCode() != 200) {
-                throw new IOException("HTTP response code: " +
-                        r.getResponseCode());
-            }
-
-            if (content.length < segment) {
-                completeDownload = true;
-
-                MessageDigest crypt = MessageDigest.getInstance("SHA-256");
-                crypt.update(content);
-                pv.sha1 = NWUtils.byteArrayToHexString(crypt.digest());
-            }
-
-        } catch (IOException e) {
-            NWUtils.LOG.log(Level.WARNING, e.getMessage(), e);
-        } catch (ResponseTooLargeException e) {
-            NWUtils.LOG.log(Level.WARNING, e.getMessage(), e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new InternalError(e.getMessage());
+        } catch (IOException | NoSuchAlgorithmException ex) {
+            NWUtils.LOG.log(Level.WARNING, "Error loading file", ex);
         }
 
         byte[] contentLowerCase = null;

@@ -3,12 +3,6 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.urlfetch.HTTPHeader;
-import com.google.appengine.api.urlfetch.HTTPMethod;
-import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -76,10 +70,19 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
@@ -1054,48 +1057,66 @@ public class NWUtils {
         Info info = new Info();
         MessageDigest crypt = MessageDigest.getInstance(algorithm);
 
-        URL u = new URL(url);
-        URLFetchService s = URLFetchServiceFactory.getURLFetchService();
+        // limit 32 MiB:
+        long segment = 30 * 1024 * 1024;
 
         long startPosition = 0;
 
-        // limit 32 MiB:
-        // https://developers.google.com/appengine/docs/java/urlfetch/
-        long segment = 30 * 1024 * 1024;
+        // 10 minutes
+        final int timeout = 10 * 60;
+
         while (true) {
-            HTTPRequest ht = new HTTPRequest(u);
-            ht.setHeader(new HTTPHeader("User-Agent",
-                    "NpackdWeb/1 (compatible; MSIE 9.0)"));
-            ht.getFetchOptions().setDeadline(10 * 60.0);
-            ht.setHeader(new HTTPHeader("Range", "bytes=" + startPosition +
-                    "-" + (startPosition + segment - 1)));
-            HTTPResponse r = s.fetch(ht);
-            if (r.getResponseCode() == 416) {
-                if (startPosition == 0) {
+            RequestConfig config = RequestConfig.custom()
+                    .setConnectTimeout(timeout * 1000)
+                    .setConnectionRequestTimeout(timeout * 1000)
+                    .setSocketTimeout(timeout * 1000).build();
+
+            CloseableHttpClient httpclient = HttpClientBuilder.create().
+                    setDefaultRequestConfig(config).build();
+
+            HttpGet ht = new HttpGet(url);
+            ht.addHeader("User-Agent",
+                    "NpackdWeb/1 (compatible; MSIE 9.0)");
+            ht.addHeader("Range", "bytes=" + startPosition +
+                    "-" + (startPosition + segment - 1));
+
+            CloseableHttpResponse r = httpclient.execute(ht);
+
+            try {
+                if (r.getStatusLine().getStatusCode() == 416) {
+                    if (startPosition == 0) {
+                        throw new IOException(
+                                "Empty response with HTTP error code 416");
+                    } else {
+                        break;
+                    }
+                }
+
+                HttpEntity e = r.getEntity();
+
+                byte[] content = EntityUtils.toByteArray(e);
+                if (r.getStatusLine().getStatusCode() != 206 && r.
+                        getStatusLine().getStatusCode() != 200) {
+                    throw new IOException("HTTP response code: " +
+                            r.getStatusLine().getStatusCode());
+                }
+                crypt.update(content);
+
+                startPosition += segment;
+                info.size += content.length;
+
+                if (maxSize > 0 && info.size > maxSize) {
                     throw new IOException(
-                            "Empty response with HTTP error code 416");
-                } else {
+                            "Maximum download size of " + maxSize +
+                            " exceeded");
+                }
+
+                if (content.length < segment || r.getStatusLine().
+                        getStatusCode() == 200) {
                     break;
                 }
-            }
-
-            byte[] content = r.getContent();
-            if (r.getResponseCode() != 206 && r.getResponseCode() != 200) {
-                throw new IOException("HTTP response code: " +
-                        r.getResponseCode());
-            }
-            crypt.update(content);
-
-            startPosition += segment;
-            info.size += content.length;
-
-            if (maxSize > 0 && info.size > maxSize) {
-                throw new IOException("Maximum download size of " + maxSize +
-                        " exceeded");
-            }
-
-            if (content.length < segment || r.getResponseCode() == 200) {
-                break;
+            } finally {
+                r.close();
             }
         }
 
@@ -1416,54 +1437,67 @@ public class NWUtils {
             IOException {
         String[] result = new String[urls.length];
 
+        JSONObject request = new JSONObject();
+        JSONObject client = new JSONObject();
+        client.put("clientId", "npackdweb");
+        client.put("clientVersion", "2");
+        request.put("client", client);
+        JSONObject threatInfo = new JSONObject();
+        threatInfo.put("threatTypes", new JSONArray(Arrays.asList(
+                "THREAT_TYPE_UNSPECIFIED", "MALWARE",
+                "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE",
+                "POTENTIALLY_HARMFUL_APPLICATION")));
+        threatInfo.put("platformTypes", new JSONArray(Arrays.asList(
+                "ANY_PLATFORM")));
+        threatInfo.put("threatEntryTypes", new JSONArray(Arrays.
+                asList("URL", "EXECUTABLE")));
+        JSONArray threatEntries = new JSONArray();
+        for (String url : urls) {
+            JSONObject e = new JSONObject();
+            e.put("url", url);
+            threatEntries.put(e);
+        }
+        threatInfo.put("threatEntries", threatEntries);
+        request.put("threatInfo", threatInfo);
+
+        Arrays.fill(result, "");
+
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost ht = new HttpPost(
+                "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" +
+                NWUtils.dsCache.getSetting("PublicAPIKey", ""));
+        ht.setEntity(new ByteArrayEntity(request.toString().
+                getBytes("UTF-8")));
+        ht.setHeader("Content-Type", "application/json");
+        CloseableHttpResponse r = httpclient.execute(ht);
+
+        LOG.info(request.toString());
+
+        // The underlying HTTP connection is still held by the response object
+        // to allow the response content to be streamed directly from the network socket.
+        // In order to ensure correct deallocation of system resources
+        // the user MUST call CloseableHttpResponse#close() from a finally clause.
+        // Please note that if response content is not fully consumed the underlying
+        // connection cannot be safely re-used and will be shut down and discarded
+        // by the connection manager.
         try {
-            JSONObject request = new JSONObject();
-            JSONObject client = new JSONObject();
-            client.put("clientId", "npackdweb");
-            client.put("clientVersion", "2");
-            request.put("client", client);
-            JSONObject threatInfo = new JSONObject();
-            threatInfo.put("threatTypes", new JSONArray(Arrays.asList(
-                    "THREAT_TYPE_UNSPECIFIED", "MALWARE",
-                    "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE",
-                    "POTENTIALLY_HARMFUL_APPLICATION")));
-            threatInfo.put("platformTypes", new JSONArray(Arrays.asList(
-                    "ANY_PLATFORM")));
-            threatInfo.put("threatEntryTypes", new JSONArray(Arrays.
-                    asList("URL", "EXECUTABLE")));
-            JSONArray threatEntries = new JSONArray();
-            for (String url : urls) {
-                JSONObject e = new JSONObject();
-                e.put("url", url);
-                threatEntries.put(e);
-            }
-            threatInfo.put("threatEntries", threatEntries);
-            request.put("threatInfo", threatInfo);
+            HttpEntity e = r.getEntity();
 
-            Arrays.fill(result, "");
-            URL u = new URL(
-                    "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" +
-                    NWUtils.dsCache.getSetting("PublicAPIKey", ""));
-            URLFetchService s = URLFetchServiceFactory.getURLFetchService();
-
-            HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);
-            LOG.info(request.toString());
-            ht.setHeader(new HTTPHeader("Content-Type", "application/json"));
-            ht.setPayload(request.toString().getBytes("UTF-8"));
-            HTTPResponse r = s.fetch(ht);
-            int rc = r.getResponseCode();
+            int rc = r.getStatusLine().getStatusCode();
             /*LOG.info("Google Safe Browsing API response code:" +
-             rc);*/
+                 rc);*/
             if (rc == 200) {
-                JSONObject json = new JSONObject(new String(r.getContent(),
+                JSONObject json = new JSONObject(new String(EntityUtils.
+                        toByteArray(r.getEntity()),
                         Charset.forName("UTF-8")));
                 //LOG.info(json.toString());
                 JSONArray matches = json.optJSONArray("matches");
                 if (matches != null) {
                     for (int i = 0; i < matches.length(); i++) {
                         JSONObject match = matches.getJSONObject(i);
-                        String url = match.getJSONObject("threat").getString(
-                                "url");
+                        String url = match.getJSONObject("threat").
+                                getString(
+                                        "url");
                         for (int j = 0; j < urls.length; j++) {
                             if (urls[j].equals(url)) {
                                 result[j] = match.getString("threatType");
@@ -1472,15 +1506,9 @@ public class NWUtils {
                         }
                     }
                 }
-            } else {
-                throw new IOException(
-                        "Error " + rc + " from the Google Safe Browsing API " +
-                        new String(r.getContent(), "UTF-8"));
             }
-        } catch (MalformedURLException ex) {
-            throw new IOException(ex);
-        } catch (JSONException ex) {
-            throw new IOException(ex);
+        } finally {
+            r.close();
         }
 
         return result;
