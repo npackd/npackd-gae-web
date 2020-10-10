@@ -3,9 +3,6 @@ package com.googlecode.npackdweb.db;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.search.Document.Builder;
-import com.google.appengine.api.search.Facet;
-import com.google.appengine.api.search.Field;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
@@ -25,11 +22,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.lucene.document.DateTools;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -448,8 +448,11 @@ public class Package {
      * @param repositories list of all available repositories
      * @return document for the search index
      */
-    public com.google.appengine.api.search.Document createDocument(
+    public org.apache.lucene.document.Document createDocument(
             List<Repository> repositories) {
+        org.apache.lucene.document.Document d =
+                new org.apache.lucene.document.Document();
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.permissions.size(); i++) {
             if (i != 0) {
@@ -477,23 +480,26 @@ public class Package {
         }
 
         // the field "title" is necessary for sorting
-        Builder b = com.google.appengine.api.search.Document.newBuilder();
-        b.setId(this.name).setLocale(Locale.US)
-                .addField(Field.newBuilder().setName("title").
-                        setText(this.title))
-                .addField(Field.newBuilder().setName("text").setText(
-                        NWUtils.analyzeText(text))).
-                addField(Field.newBuilder().setName("createdAt")
-                        .setDate(this.createdAt))
-                .addField(Field.newBuilder().setName("name").setText(this.name))
-                .addField(Field.newBuilder().setName("category")
-                        .setText(NWUtils.join(" ", tags)))
-                .addField(Field.newBuilder().setName("permission")
-                        .setText(sb.toString())).addField(Field.
-                newBuilder().setName("starred").setNumber(this.starred));
-
-        b.addFacet(Facet.withAtom("repository", rep != null ? rep :
-                "unknown"));
+        d.add(new StringField("id", this.name,
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new StringField("title", this.title,
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new TextField("text", text,
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new StringField("text", DateTools.timeToString(this.createdAt.
+                getTime(),
+                DateTools.Resolution.SECOND),
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new StringField("name", this.name,
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new TextField("category", NWUtils.join(" ", tags),
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new TextField("permission", sb.toString(),
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new IntPoint("starred", this.starred));
+        d.add(new StringField("repository", rep != null ? rep :
+                "unknown",
+                org.apache.lucene.document.Field.Store.YES));
 
         String category0 = null, category1 = null;
         if (!category.isEmpty()) {
@@ -505,12 +511,13 @@ public class Package {
                 category1 = parts.get(1);
             }
         }
-        b.addFacet(Facet.withAtom("category0", category0 != null ? category0 :
-                "Uncategorized"));
-        b.addFacet(Facet.withAtom("category1", category1 != null ? category1 :
-                "Uncategorized"));
+        d.add(new StringField("category0", category0 != null ? category0 :
+                "Uncategorized",
+                org.apache.lucene.document.Field.Store.YES));
+        d.add(new StringField("category1", category1 != null ? category1 :
+                "Uncategorized",
+                org.apache.lucene.document.Field.Store.YES));
 
-        com.google.appengine.api.search.Document d = b.build();
         return d;
     }
 

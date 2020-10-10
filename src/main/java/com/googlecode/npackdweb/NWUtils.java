@@ -3,9 +3,6 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.search.Index;
-import com.google.appengine.api.search.IndexSpec;
-import com.google.appengine.api.search.SearchServiceFactory;
 import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
@@ -686,15 +683,6 @@ public class NWUtils {
             result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
         }
         return result;
-    }
-
-    /**
-     * @return index for packages
-     */
-    public static Index getIndex() {
-        IndexSpec spec = IndexSpec.newBuilder().setName("Packages").build();
-        Index index = SearchServiceFactory.getSearchService().getIndex(spec);
-        return index;
     }
 
     /**

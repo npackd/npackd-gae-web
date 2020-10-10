@@ -1,24 +1,13 @@
 package com.googlecode.npackdweb.package_;
 
-import com.google.appengine.api.search.FacetOptions;
-import com.google.appengine.api.search.FacetOptions.Builder;
-import com.google.appengine.api.search.FacetRefinement;
-import com.google.appengine.api.search.FacetRequest;
-import com.google.appengine.api.search.FacetResult;
-import com.google.appengine.api.search.FacetResultValue;
-import com.google.appengine.api.search.Index;
-import com.google.appengine.api.search.QueryOptions;
-import com.google.appengine.api.search.Results;
-import com.google.appengine.api.search.ScoredDocument;
-import com.google.appengine.api.search.SortExpression;
-import com.google.appengine.api.search.SortOptions;
-import com.google.appengine.api.search.checkers.SearchApiLimits;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.DefaultServlet;
+import com.googlecode.npackdweb.MyEnglishAnalyzer;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.SearchService;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -28,6 +17,18 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.facet.LabelAndValue;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.markdown4j.Markdown4jProcessor;
 
 /**
@@ -44,9 +45,9 @@ public class PackagesPage extends MyPage {
     private String category0;
     private String category1;
     private String repository;
-    private List<FacetResultValue> category0Values = new ArrayList<>();
-    private List<FacetResultValue> category1Values = new ArrayList<>();
-    private List<FacetResultValue> repositoryValues = new ArrayList<>();
+    private org.apache.lucene.facet.FacetResult category0Values;
+    private org.apache.lucene.facet.FacetResult category1Values;
+    private org.apache.lucene.facet.FacetResult repositoryValues;
 
     /**
      * true = show the search text field
@@ -97,115 +98,82 @@ public class PackagesPage extends MyPage {
             this.category1 = null;
         }
 
-        Index index = NWUtils.getIndex();
-        QueryOptions.Builder ob =
-                QueryOptions.newBuilder().setFieldsToReturn(new String[0]).
-                        setLimit(PAGE_SIZE + 1).setOffset(
-                        start).setNumberFoundAccuracy(2000);
+        SearchService index = SearchService.getInstance();
 
-        SortExpression se;
+        Sort se;
         if ("created".equals(sort)) {
-            se =
-                    SortExpression
-                            .newBuilder()
-                            .setExpression("createdAt")
-                            .setDirection(
-                                    SortExpression.SortDirection.DESCENDING)
-                            .setDefaultValueDate(
-                                    SearchApiLimits.MINIMUM_DATE_VALUE).build();
+            se = new Sort(new SortField("createdAt", SortField.Type.LONG, true));
         } else if ("stars".equals(sort)) {
-            se =
-                    SortExpression
-                            .newBuilder()
-                            .setExpression("starred")
-                            .setDirection(
-                                    SortExpression.SortDirection.DESCENDING)
-                            .setDefaultValueNumeric(0).build();
+            se = new Sort(new SortField("starred", SortField.Type.INT, true));
         } else if ("title".equals(sort)) {
-            se =
-                    SortExpression
-                            .newBuilder()
-                            .setExpression("title")
-                            .setDirection(
-                                    SortExpression.SortDirection.ASCENDING)
-                            .setDefaultValue("").build();
+            se = new Sort(new SortField("title", SortField.Type.STRING, false));
         } else {
             se = null;
         }
 
-        final SortOptions.Builder sob = SortOptions.newBuilder();
-        if (se != null) {
-            sob.addSortExpression(se);
+        QueryParser parser = new QueryParser("fieldname",
+                new MyEnglishAnalyzer());
+        Query q;
+        try {
+            q = parser.parse(NWUtils.analyzeText(query));
+        } catch (ParseException ex) {
+            this.error = ex.getMessage();
+            return;
         }
-        sob.setLimit(1000);
 
-        ob = ob.setSortOptions(sob);
-
-        Builder fob = FacetOptions.newBuilder().setDiscoveryValueLimit(20);
-
-        FacetRequest.Builder fr0 =
-                FacetRequest.newBuilder().setName("category0");
-        FacetRequest.Builder fr1 =
-                FacetRequest.newBuilder().setName("category1");
-        FacetRequest.Builder rep =
-                FacetRequest.newBuilder().setName("repository");
-
-        com.google.appengine.api.search.Query.Builder qb =
-                com.google.appengine.api.search.Query.newBuilder()
-                        .addReturnFacet(rep.build())
-                        .addReturnFacet(fr0.build())
-                        .addReturnFacet(fr1.build()).setOptions(ob.build())
-                        .setFacetOptions(fob.build());
+        List<TermQuery> termQueries = new ArrayList<>();
 
         if (this.category0 != null) {
-            qb.addFacetRefinement(FacetRefinement.withValue("category0",
-                    this.category0));
+            termQueries.
+                    add(new TermQuery(new Term("category0", this.category0)));
         }
         if (this.category1 != null) {
-            qb.addFacetRefinement(FacetRefinement.withValue("category1",
-                    this.category1));
+            termQueries.
+                    add(new TermQuery(new Term("category1", this.category1)));
         }
         if (this.repository != null) {
-            qb.addFacetRefinement(FacetRefinement.withValue("repository",
-                    this.repository));
+            termQueries.add(new TermQuery(
+                    new Term("repository", this.repository)));
+        }
+
+        if (termQueries.size() > 0) {
+            BooleanQuery.Builder bqb = new BooleanQuery.Builder().add(q,
+                    BooleanClause.Occur.MUST);
+            for (TermQuery tq : termQueries) {
+                bqb.add(tq, BooleanClause.Occur.FILTER);
+            }
+            q = bqb.build();
         }
 
         List<String> ids = new ArrayList<>();
         NWUtils.LOG.info("Starting search");
         try {
-            Results<ScoredDocument> r = index.search(qb.
-                    build(NWUtils.analyzeText(query)));
-            found = r.getNumberFound();
+            TopDocs r = index.search(q, start, PAGE_SIZE, se);
+            found = r.totalHits.value;
 
-            for (FacetResult fi : r.getFacets()) {
-                if (fi.getName().equals("category0")) {
-                    category0Values = fi.getValues();
-                } else if (fi.getName().equals("category1")) {
-                    category1Values = fi.getValues();
-                } else if (fi.getName().equals("repository")) {
-                    repositoryValues = fi.getValues();
-                }
-            }
-            for (ScoredDocument sd : r) {
-                ids.add(sd.getId());
+            List<String> fields = new ArrayList<>();
+            fields.add("category0");
+            fields.add("category1");
+            fields.add("repository");
+            List<org.apache.lucene.facet.FacetResult> facets =
+                    index.getFacets(q, fields);
+            category0Values = facets.get(0);
+            category1Values = facets.get(1);
+            repositoryValues = facets.get(2);
+
+            for (int i = 0; i < r.scoreDocs.length; i++) {
+                Document d = index.getDocument(r.scoreDocs[i].doc);
+                ids.add(d.get("id"));
 
                 if (ids.size() > PAGE_SIZE) {
                     break;
                 }
             }
             NWUtils.LOG.info("Search completed");
-        } catch (com.google.appengine.api.search.SearchQueryException e) {
-            this.error = e.getMessage();
-        }
-
-        if (category0Values == null) {
-            category0Values = new ArrayList<>();
-        }
-        if (category1Values == null) {
-            category1Values = new ArrayList<>();
-        }
-        if (repositoryValues == null) {
-            repositoryValues = new ArrayList<>();
+        } catch (IOException ex) {
+            throw new InternalError(ex);
+        } catch (ParseException ex) {
+            this.error = ex.getMessage();
         }
 
         packages.addAll(NWUtils.dsCache.getPackages(ids, true));
@@ -377,15 +345,16 @@ public class PackagesPage extends MyPage {
         w.end("select");
 
         w.t(" Category: ");
-        if (category0Values.size() > 1) {
+        if (category0Values.labelValues.length > 1) {
             // we assume there were no category filter here. It should not
             // be possible.
             w.start("select", "class", "form-control", "name", "category0",
                     "id", "category0");
             w.e("option", "value", "", "Any");
-            for (FacetResultValue c0 : category0Values) {
-                w.e("option", "value", c0.getLabel(),
-                        c0.getLabel() + " (" + c0.getCount() + ")");
+            for (int i = 0; i < category0Values.labelValues.length; i++) {
+                LabelAndValue c0 = category0Values.labelValues[i];
+                w.e("option", "value", c0.label,
+                        c0.label + " (" + c0.value.intValue() + ")");
             }
             w.end("select");
         } else {
@@ -397,8 +366,8 @@ public class PackagesPage extends MyPage {
                 w.t(this.category0);
                 w.end("a");
             } else {
-                if (category0Values.size() > 0) {
-                    w.t(category0Values.get(0).getLabel());
+                if (category0Values.labelValues.length > 0) {
+                    w.t(category0Values.labelValues[0].label);
                 } else {
                     w.t("-");
                 }
@@ -406,13 +375,13 @@ public class PackagesPage extends MyPage {
         }
 
         w.t(" Repository: ");
-        if (repositoryValues.size() > 1) {
+        if (repositoryValues.labelValues.length > 1) {
             w.start("select", "class", "form-control", "name", "repository",
                     "id", "repository");
             w.e("option", "value", "", "Any");
-            for (FacetResultValue c0 : repositoryValues) {
-                w.e("option", "value", c0.getLabel(),
-                        c0.getLabel() + " (" + c0.getCount() + ")");
+            for (LabelAndValue c0 : repositoryValues.labelValues) {
+                w.e("option", "value", c0.label,
+                        c0.label + " (" + c0.value.intValue() + ")");
             }
             w.end("select");
         } else {
@@ -424,8 +393,8 @@ public class PackagesPage extends MyPage {
                 w.t(this.repository);
                 w.end("a");
             } else {
-                if (repositoryValues.size() > 0) {
-                    w.t(repositoryValues.get(0).getLabel());
+                if (repositoryValues.labelValues.length > 0) {
+                    w.t(repositoryValues.labelValues[0].label);
                 } else {
                     w.t("-");
                 }

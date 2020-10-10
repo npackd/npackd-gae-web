@@ -14,11 +14,11 @@ import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
-import com.google.appengine.api.search.Index;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.SearchService;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,8 +73,8 @@ public class DatastoreCache {
                 getDatastoreService();
         datastore.put(p.createEntity());
         incDataVersion();
-        Index index = NWUtils.getIndex();
-        index.put(p.createDocument(findAllRepositories()));
+        SearchService index = SearchService.getInstance();
+        index.addDocument(p.createDocument(findAllRepositories()));
     }
 
     /**
@@ -165,7 +165,7 @@ public class DatastoreCache {
         }
         datastore.delete(keys);
 
-        Index index = NWUtils.getIndex();
+        SearchService index = SearchService.getInstance();
         index.delete(name);
         incDataVersion();
     }
