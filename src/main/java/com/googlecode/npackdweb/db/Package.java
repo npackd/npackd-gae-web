@@ -1,8 +1,5 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Text;
 import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.User;
@@ -10,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -213,7 +211,8 @@ public class Package {
      *
      * @param p an entity
      */
-    public Package(com.google.appengine.api.datastore.Entity p) {
+    public Package(ResultSet p) {
+        /* TODO
         this.name = p.getKey().getName();
         this.title = NWUtils.getString(p, "title");
         this.url = NWUtils.getString(p, "url");
@@ -285,11 +284,12 @@ public class Package {
             this.screenshots = new ArrayList<>();
         }
         this.issues = NWUtils.getString(p, "issues");
+         */
     }
 
-    com.google.appengine.api.datastore.Entity createEntity() {
+    void createEntity() {
         // onPersist();
-
+/* TODO
         com.google.appengine.api.datastore.Entity e =
                 new com.google.appengine.api.datastore.Entity("Package",
                         this.name);
@@ -317,8 +317,7 @@ public class Package {
         e.setIndexedProperty("noUpdatesCheck", this.noUpdatesCheck);
         e.setIndexedProperty("starred", new Long(this.starred));
         e.setIndexedProperty("issues", this.issues);
-
-        return e;
+         */
     }
 
     /**
@@ -433,13 +432,6 @@ public class Package {
         }
 
         return package_;
-    }
-
-    /**
-     * @return created Key for this object
-     */
-    public Key createKey() {
-        return KeyFactory.createKey("Package", this.name);
     }
 
     /**

@@ -1,36 +1,13 @@
 package com.googlecode.npackdweb.admin;
 
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
-import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.db.PackageVersion;
 import java.util.List;
 
-public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
+public class CleanDependenciesMapper {
 
-    private static final long serialVersionUID = 1L;
-
-    private transient DatastoreMutationPool pool;
-
-    @Override
-    public void beginSlice() {
-        this.pool = DatastoreMutationPool.create();
-    }
-
-    @Override
-    public void endSlice() {
-        this.pool.flush();
-    }
-
-    @Override
-    public void map(Entity value) {
-        moveSourceForgeToOneServer(value);
-    }
-
-    private void moveSourceForgeToOneServer(Entity value) {
-        PackageVersion pv = new PackageVersion(value);
+    private void moveSourceForgeToOneServer(PackageVersion pv) {
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -47,8 +24,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
         }
     }
 
-    private void moveFromGoogleCodeFiles(Entity value) {
-        PackageVersion pv = new PackageVersion(value);
+    private void moveFromGoogleCodeFiles(PackageVersion pv) {
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -70,8 +46,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
         }
     }
 
-    private void moveToFilesNpackdOrg(Entity value) {
-        PackageVersion pv = new PackageVersion(value);
+    private void moveToFilesNpackdOrg(PackageVersion pv) {
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
@@ -89,8 +64,7 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
         }
     }
 
-    public void removeNpackdCLCalls(Entity value) {
-        PackageVersion pv = new PackageVersion(value);
+    public void removeNpackdCLCalls(PackageVersion pv) {
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 

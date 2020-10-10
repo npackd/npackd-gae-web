@@ -2,10 +2,6 @@ package com.googlecode.npackdweb;
 
 import com.googlecode.npackdweb.admin.AddRepositoryAction;
 import com.googlecode.npackdweb.admin.AddRepositoryConfirmedAction;
-import com.googlecode.npackdweb.admin.CheckUpdatesAction;
-import com.googlecode.npackdweb.admin.CleanDependenciesAction;
-import com.googlecode.npackdweb.admin.ProcessPackagesAction;
-import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
 import com.googlecode.npackdweb.api.NotifyAction;
 import com.googlecode.npackdweb.api.SetURLPackageVersionAction;
 import com.googlecode.npackdweb.api.StarAction;
@@ -204,7 +200,6 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new HomeAction());
         registerAction(new StarsAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
-        registerAction(new CheckUpdatesAction());
         registerAction(new SendStatusAction("^/cron/tick$", 200));
         registerAction(new ExportRepsAction());
         // registerAction(new StoreDataAction());
@@ -214,9 +209,6 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new StarFragmentAction());
         registerAction(new ReCaptchaAnswerAction());
         registerAction(new ReCaptchaAction());
-        registerAction(new CleanDependenciesAction());
-        registerAction(new ProcessPackagesAction());
-        registerAction(new UpdateSafeBrowsingInfoAction());
 
         /* API */
         registerAction(new TagPackageVersionAction());

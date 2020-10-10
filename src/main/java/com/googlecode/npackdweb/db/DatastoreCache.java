@@ -1,16 +1,5 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Cursor;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.QueryResultList;
 import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.SearchService;
@@ -64,9 +53,7 @@ public class DatastoreCache {
             p.lastModifiedBy =
                     AuthService.getInstance().getCurrentUser();
         }
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.put(p.createEntity());
+        // TODO: datastore.put(p.createEntity());
         incDataVersion();
         SearchService index = SearchService.getInstance();
         index.addDocument(p.createDocument(findAllRepositories()));
@@ -84,9 +71,7 @@ public class DatastoreCache {
         if (e.lastLogin == null) {
             e.lastLogin = NWUtils.newDay();
         }
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.put(e.createEntity());
+        // TODO: datastore.put(e.createEntity());
         incDataVersion();
     }
 
@@ -96,9 +81,7 @@ public class DatastoreCache {
      * @param name license ID
      */
     public void deleteLicense(String name) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.delete(KeyFactory.createKey("License", name));
+        // TODO: datastore.delete(KeyFactory.createKey("License", name));
 
         incDataVersion();
     }
@@ -110,6 +93,7 @@ public class DatastoreCache {
      * @param value new setting value
      */
     public void setSetting(String name, String value) {
+        /*
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -130,6 +114,7 @@ public class DatastoreCache {
         st.value = value;
 
         datastore.put(st.createEntity());
+        TODO */
     }
 
     /**
@@ -139,12 +124,10 @@ public class DatastoreCache {
      */
     public void deletePackage(String name) {
         // delete the package
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.delete(KeyFactory.createKey("Package", name));
+        // TODO: datastore.delete(KeyFactory.createKey("Package", name));
 
         // delete package versions
-        com.google.appengine.api.datastore.Query query =
+        /* TODO: com.google.appengine.api.datastore.Query query =
                 new com.google.appengine.api.datastore.Query("PackageVersion");
         query.setFilter(
                 new com.google.appengine.api.datastore.Query.FilterPredicate(
@@ -159,7 +142,7 @@ public class DatastoreCache {
             keys.add(e.getKey());
         }
         datastore.delete(keys);
-
+         */
         SearchService index = SearchService.getInstance();
         index.delete(name);
         incDataVersion();
@@ -175,9 +158,7 @@ public class DatastoreCache {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
         }
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.put(p.createEntity());
+        // TODO: datastore.put(p.createEntity());
         incDataVersion();
     }
 
@@ -189,8 +170,7 @@ public class DatastoreCache {
      * @return setting value
      */
     public String getSetting(String name, String defaultValue) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
+        /* TODO
         Setting st = null;
         try {
             st = new Setting(datastore.get(KeyFactory.createKey(
@@ -208,6 +188,8 @@ public class DatastoreCache {
         }
         value = st.value;
         return value;
+         */
+        return null;
     }
 
     /**
@@ -250,9 +232,7 @@ public class DatastoreCache {
                 }
             }
         }
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.put(p.createEntity());
+        // TODO: datastore.put(p.createEntity());
         incDataVersion();
     }
 
@@ -262,9 +242,7 @@ public class DatastoreCache {
      * @param r repository
      */
     public void saveRepository(Repository r) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.put(r.createEntity());
+        // TODO: datastore.put(r.createEntity());
         incDataVersion();
     }
 
@@ -289,6 +267,7 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
+            /* TODO
             DatastoreService datastore = DatastoreServiceFactory.
                     getDatastoreService();
             try {
@@ -303,6 +282,7 @@ public class DatastoreCache {
             } catch (EntityNotFoundException ex) {
                 // ignore
             }
+             */
         }
         return ret;
     }
@@ -357,9 +337,7 @@ public class DatastoreCache {
         }
 
         if (!read) {
-            DatastoreService datastore = DatastoreServiceFactory.
-                    getDatastoreService();
-
+            /* TODO:
             com.google.appengine.api.datastore.Query query =
                     new com.google.appengine.api.datastore.Query("Repository");
             PreparedQuery pq = datastore.prepare(query);
@@ -378,6 +356,7 @@ public class DatastoreCache {
             } finally {
                 lock.unlock();
             }
+             */
         }
 
         return repositories;
@@ -403,6 +382,7 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
+            /* TODO
             DatastoreService datastore = DatastoreServiceFactory.
                     getDatastoreService();
             try {
@@ -422,6 +402,7 @@ public class DatastoreCache {
                     lock.unlock();
                 }
             }
+             */
         }
 
         if (ret != null) {
@@ -438,6 +419,7 @@ public class DatastoreCache {
      * @return found repository or null
      */
     public Repository getRepository(long id) {
+        /* TODO:
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         Repository ret = null;
@@ -449,6 +431,8 @@ public class DatastoreCache {
             // ignore
         }
         return ret;
+         */
+        return null;
     }
 
     /**
@@ -457,6 +441,7 @@ public class DatastoreCache {
      * @param q a query
      * @return found entities
      */
+    /*TODO
     public List<Entity> getAllEntities(Query q) {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
@@ -481,8 +466,9 @@ public class DatastoreCache {
         }
 
         return r;
+        return null;
     }
-
+     */
     /**
      * @param tag a tag to filter the package versions or null
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
@@ -492,9 +478,7 @@ public class DatastoreCache {
      */
     public List<PackageVersion> findPackageVersions(
             String tag, String order, int limit) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
+        /* TODO
         com.google.appengine.api.datastore.Query query =
                 new com.google.appengine.api.datastore.Query("PackageVersion");
         if (tag != null) {
@@ -524,6 +508,8 @@ public class DatastoreCache {
         }
 
         return res;
+         */
+        return null;
     }
 
     /**
@@ -535,6 +521,7 @@ public class DatastoreCache {
      */
     public List<Package> findPackages(
             String tag, String order, int limit) {
+        /* TODO
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -567,6 +554,8 @@ public class DatastoreCache {
         }
 
         return res;
+         */
+        return null;
     }
 
     /**
@@ -639,6 +628,7 @@ public class DatastoreCache {
             }
 
             if (packages.size() == 0) {
+                /* TODO
                 DatastoreService datastore = DatastoreServiceFactory.
                         getDatastoreService();
 
@@ -665,6 +655,7 @@ public class DatastoreCache {
                 } finally {
                     lock.unlock();
                 }
+                 */
             } else {
                 NWUtils.LOG.info("Got packages from the memory cache!");
             }
@@ -696,6 +687,7 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
+            /* TODO
             DatastoreService datastore = DatastoreServiceFactory.
                     getDatastoreService();
             try {
@@ -714,6 +706,7 @@ public class DatastoreCache {
                     lock.unlock();
                 }
             }
+             */
         }
 
         if (ret != null) {
@@ -730,6 +723,8 @@ public class DatastoreCache {
      * @return found package version or null
      */
     public PackageVersion getPackageVersion(String id) {
+        /*
+        TODO
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
         try {
@@ -739,6 +734,8 @@ public class DatastoreCache {
         } catch (EntityNotFoundException ex) {
             return null;
         }
+         */
+        return null;
     }
 
     /**
@@ -761,6 +758,7 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
+            /* TODO
             DatastoreService datastore = DatastoreServiceFactory.
                     getDatastoreService();
             try {
@@ -779,6 +777,7 @@ public class DatastoreCache {
                     lock.unlock();
                 }
             }
+             */
         }
 
         if (ret != null) {
@@ -808,14 +807,13 @@ public class DatastoreCache {
      * @param p this package version will be deleted
      */
     public void deletePackageVersion(PackageVersion p) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.delete(KeyFactory.createKey("PackageVersion", p.name));
+        // TODO: datastore.delete(KeyFactory.createKey("PackageVersion", p.name));
 
         incDataVersion();
     }
 
     public Package findNextPackage(Package p) {
+        /* TODO
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -843,6 +841,8 @@ public class DatastoreCache {
         }
 
         return next;
+         */
+        return null;
     }
 
     /**
@@ -852,6 +852,7 @@ public class DatastoreCache {
      * @return found editor or null
      */
     public Editor findEditor(int id) {
+        /*
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -870,6 +871,8 @@ public class DatastoreCache {
         } else {
             return null;
         }
+         */
+        return null;
     }
 
     /**
@@ -878,9 +881,7 @@ public class DatastoreCache {
      * @param id repository ID
      */
     public void deleteRepository(long id) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        datastore.delete(KeyFactory.createKey("Repository", id));
+        // TODO datastore.delete(KeyFactory.createKey("Repository", id));
 
         incDataVersion();
     }
@@ -890,6 +891,7 @@ public class DatastoreCache {
      * @return all versions for the package
      */
     public List<PackageVersion> getPackageVersions(String id) {
+        /* TODO
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -909,6 +911,8 @@ public class DatastoreCache {
         }
 
         return res;
+         */
+        return null;
     }
 
     /**
@@ -930,6 +934,7 @@ public class DatastoreCache {
         }
 
         if (!read) {
+            /* TODO:
             DatastoreService datastore = DatastoreServiceFactory.
                     getDatastoreService();
 
@@ -952,6 +957,7 @@ public class DatastoreCache {
             } finally {
                 lock.unlock();
             }
+             */
         }
 
         return licenses;
@@ -961,6 +967,51 @@ public class DatastoreCache {
      * @return new ID for an editor
      */
     public long getNextEditorID() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public ArrayList<PackageVersion> getRecentlyChangedPackageVersions() {
+        /* TODO
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query(
+                        "PackageVersion");
+        if (user != null) {
+            query.setFilter(
+                    new com.google.appengine.api.datastore.Query.FilterPredicate(
+                            "lastModifiedBy",
+                            com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
+                            new User(user, user.substring(user
+                                    .indexOf('@')))));
+        }
+        if (tag != null) {
+            query.setFilter(
+                    new com.google.appengine.api.datastore.Query.FilterPredicate(
+                            "tags",
+                            com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
+                            tag));
+        }
+        query.addSort("lastModifiedAt", Query.SortDirection.DESCENDING);
+
+        PreparedQuery pq = datastore.prepare(query);
+
+        final List<Entity> list =
+                pq.asList(FetchOptions.Builder.withLimit(20));
+        for (Entity e : list) {
+            res.add(new PackageVersion(e));
+        }
+         */
+        return null;
+
+    }
+
+    public List<License> getLicenses(List<String> lns2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void savePackageVersions(List<PackageVersion> toSave) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

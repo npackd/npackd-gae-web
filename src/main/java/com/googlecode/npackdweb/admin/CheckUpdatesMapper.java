@@ -1,8 +1,5 @@
 package com.googlecode.npackdweb.admin;
 
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
-import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -12,25 +9,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
+public class CheckUpdatesMapper {
 
-    private static final long serialVersionUID = 1L;
-
-    private transient DatastoreMutationPool pool;
-
-    @Override
-    public void beginSlice() {
-        this.pool = DatastoreMutationPool.create();
-    }
-
-    @Override
-    public void endSlice() {
-        this.pool.flush();
-    }
-
-    @Override
-    public void map(Entity value) {
-        Package data = new Package(value);
+    public void map(Package data) {
 
         com.googlecode.npackdweb.db.Package old = data.copy();
         NWUtils.LOG.log(Level.INFO, "check-update for {0}", data.name);

@@ -15,7 +15,6 @@
  */
 package com.googlecode.npackdweb;
 
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
@@ -23,13 +22,13 @@ import org.junit.Test;
 
 public class SignGuestbookServletTest {
 
-	// TODO: private SignGuestbookServlet signGuestbookServlet;
-	//private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
+    // TODO: private SignGuestbookServlet signGuestbookServlet;
+    //private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
     //		new LocalDatastoreServiceTestConfig()).setEnvIsLoggedIn(true)
     //		.setEnvAuthDomain("localhost").setEnvEmail("test@localhost");
     @Before
     public void setupSignGuestBookServlet() {
-	//	helper.setUp();
+        //	helper.setUp();
         // TODO: signGuestbookServlet = new SignGuestbookServlet();
     }
 
@@ -39,7 +38,7 @@ public class SignGuestbookServletTest {
     }
 
     @Test
-    public void testDoPost() throws IOException, EntityNotFoundException {
+    public void testDoPost() throws IOException {
         /*
          * // TODO: HttpServletRequest request = mock(HttpServletRequest.class);
          * HttpServletResponse response = mock(HttpServletResponse.class);

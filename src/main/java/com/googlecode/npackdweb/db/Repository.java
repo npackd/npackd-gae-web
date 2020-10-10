@@ -1,8 +1,6 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.googlecode.npackdweb.NWUtils;
+import java.sql.ResultSet;
 import java.util.Date;
 
 /**
@@ -29,7 +27,8 @@ public class Repository {
 
     }
 
-    Repository(com.google.appengine.api.datastore.Entity e) {
+    Repository(ResultSet e) {
+        /* TODO
         this.name = e.getKey().getName();
         this.lastModifiedAt = (Date) e.getProperty("lastModifiedAt");
         this.blobFile = NWUtils.getString(e, "blobFile");
@@ -37,9 +36,11 @@ public class Repository {
         if (this.lastModifiedAt == null) {
             this.lastModifiedAt = NWUtils.newDate();
         }
+         */
     }
 
-    com.google.appengine.api.datastore.Entity createEntity() {
+    void createEntity() {
+        /* TODO
         this.lastModifiedAt = NWUtils.newDate();
 
         com.google.appengine.api.datastore.Entity e =
@@ -50,13 +51,7 @@ public class Repository {
         e.setIndexedProperty("blobFile", this.blobFile);
 
         return e;
-    }
-
-    /**
-     * @return created Key for this object
-     */
-    public Key createKey() {
-        return KeyFactory.createKey("Repository", name);
+         */
     }
 
     /**

@@ -1,9 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -16,7 +12,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -134,20 +129,11 @@ public class RepXMLPage extends Page {
                 pns.add(pv.package_);
             }
         }
-        List<com.google.appengine.api.datastore.Key> keys = new ArrayList<>();
-        for (String s : pns) {
-            keys.add(KeyFactory.createKey("Package", s));
-        }
 
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        Map<com.google.appengine.api.datastore.Key, Entity> ps2 = datastore.get(
-                keys);
+        List<String> pns2 = new ArrayList<>();
+        pns2.addAll(pns);
 
-        List<Package> ps = new ArrayList<>();
-        for (Entity e : ps2.values()) {
-            ps.add(new Package(e));
-        }
+        List<Package> ps = NWUtils.dsCache.getPackages(pns2, true);
 
         Collections.sort(ps, new Comparator<Package>() {
             @Override
@@ -161,16 +147,10 @@ public class RepXMLPage extends Page {
                 lns.add(p.license);
             }
         }
-        List<com.google.appengine.api.datastore.Key> lkeys = new ArrayList<>();
-        for (String s : lns) {
-            lkeys.add(KeyFactory.createKey("License", s));
-        }
-        Map<com.google.appengine.api.datastore.Key, Entity> ls = datastore.get(
-                lkeys);
-        List<License> licenses = new ArrayList<>();
-        for (Entity e : ls.values()) {
-            licenses.add(new License(e));
-        }
+        List<String> lns2 = new ArrayList<>();
+        lns2.addAll(lns);
+
+        List<License> licenses = NWUtils.dsCache.getLicenses(lns2);
 
         Collections.sort(licenses, new Comparator<License>() {
             @Override

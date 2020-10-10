@@ -1,10 +1,11 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.User;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,14 +54,14 @@ public class Editor implements Cloneable {
     public Editor() {
     }
 
-    Editor(com.google.appengine.api.datastore.Entity p) {
-        this.name = p.getKey().getName();
-        this.lastModifiedAt = (Date) p.getProperty("lastModifiedAt");
-        this.createdAt = (Date) p.getProperty("createdAt");
-        this.createdBy = (User) p.getProperty("createdBy");
+    Editor(ResultSet p) throws SQLException {
+        this.name = p.getString("name");
+        this.lastModifiedAt = p.getDate("lastModifiedAt");
+        this.createdAt = p.getDate("createdAt");
+        this.createdBy = new User(p.getString("createdBy"), "server");
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
-        this.id = (Long) p.getProperty("id");
-        this.lastLogin = (Date) p.getProperty("lastLogin");
+        this.id = p.getLong("id");
+        this.lastLogin = p.getDate("lastLogin");
 
         if (this.starredPackages == null) {
             this.starredPackages = new ArrayList<>();
@@ -82,32 +83,20 @@ public class Editor implements Cloneable {
         this.name = user.email;
     }
 
-    com.google.appengine.api.datastore.Entity createEntity() {
+    void createEntity(PreparedStatement ps) throws SQLException {
         this.lastModifiedAt = NWUtils.newDate();
 
-        com.google.appengine.api.datastore.Entity e =
-                new com.google.appengine.api.datastore.Entity("Editor",
-                        this.name);
-
-        e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
-        e.setIndexedProperty("createdAt", this.createdAt);
-        e.setIndexedProperty("createdBy", this.createdBy);
-        e.setIndexedProperty("starredPackages", this.starredPackages);
-        e.setIndexedProperty("id", new Long(this.id));
-        e.setIndexedProperty("lastLogin", this.lastLogin);
-
-        return e;
+        ps.setString(0, name);
+        ps.setDate(1, new java.sql.Date(this.lastModifiedAt.getTime()));
+        ps.setDate(2, new java.sql.Date(this.createdAt.getTime()));
+        ps.setString(3, this.createdBy.email);
+        // TODO ps.setInt(4, this.starredPackages);
+        ps.setLong(4, this.id);
+        ps.setDate(5, new java.sql.Date(this.lastLogin.getTime()));
     }
 
     public String getName() {
         return name;
-    }
-
-    /**
-     * @return created Key for this object
-     */
-    public Key createKey() {
-        return KeyFactory.createKey("Editor", this.name);
     }
 
     /**

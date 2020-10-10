@@ -1,51 +1,14 @@
 package com.googlecode.npackdweb.admin;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
-import java.io.IOError;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
-
-    private static final long serialVersionUID = 1L;
-
-    private List<Entity> entities =
-            new ArrayList<>();
-
-    @Override
-    public void beginSlice() {
-        this.entities.clear();
-    }
-
-    @Override
-    public void endSlice() {
-        try {
-            process();
-        } catch (IOException e) {
-            throw new IOError(e);
-        }
-    }
-
-    @Override
-    public void map(Entity value) {
-        entities.add(value);
-    }
-
-    private void process() throws IOException {
-        List<PackageVersion> list = new ArrayList<>();
-        for (Entity e : entities) {
-            list.add(new PackageVersion(e));
-        }
-        process(list);
-    }
+public class UpdateSafeBrowsingInfoMapper {
 
     private void process(List<PackageVersion> list) throws IOException {
         while (!list.isEmpty()) {
@@ -113,14 +76,7 @@ public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
         }
 
         if (toSave.size() > 0) {
-            List<Entity> toSave_ = new ArrayList<>();
-            for (PackageVersion pv : toSave) {
-                toSave_.add(pv.createEntity());
-            }
-            DatastoreService datastore = DatastoreServiceFactory.
-                    getDatastoreService();
-            datastore.put(toSave_);
-            NWUtils.dsCache.incDataVersion();
+            NWUtils.dsCache.savePackageVersions(toSave);
         }
     }
 }

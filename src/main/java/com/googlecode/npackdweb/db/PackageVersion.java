@@ -1,12 +1,10 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Text;
 import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.User;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -166,7 +164,8 @@ public class PackageVersion {
      *
      * @param e an entity
      */
-    public PackageVersion(com.google.appengine.api.datastore.Entity e) {
+    public PackageVersion(ResultSet e) {
+        /* TODO
         this.fileContents = (List<Object>) e.getProperty("fileContents");
         if (this.fileContents == null) {
             this.fileContents = new ArrayList<>();
@@ -251,6 +250,7 @@ public class PackageVersion {
         if (this.tags == null) {
             this.tags = new ArrayList<>();
         }
+         */
     }
 
     /**
@@ -258,7 +258,8 @@ public class PackageVersion {
      *
      * @return the created entity
      */
-    public com.google.appengine.api.datastore.Entity createEntity() {
+    public void createEntity() {
+        /* TODO
         com.google.appengine.api.datastore.Entity e =
                 new com.google.appengine.api.datastore.Entity("PackageVersion",
                         this.name);
@@ -291,6 +292,7 @@ public class PackageVersion {
         e.setIndexedProperty("uninstallFailed", this.uninstallFailed);
 
         return e;
+         */
     }
 
     public String getName() {
@@ -421,12 +423,13 @@ public class PackageVersion {
      * @return file contents &lt;file&gt;
      */
     public String getFileContents(int i) {
-        Object obj = fileContents.get(i);
+        /* TODO Object obj = fileContents.get(i);
         if (obj instanceof Text) {
             return ((Text) obj).getValue();
         } else {
             return (String) obj;
-        }
+        }*/
+        return null;
     }
 
     /**
@@ -446,7 +449,7 @@ public class PackageVersion {
      * @param content file content
      */
     public void setFileContents(int index, String content) {
-        this.fileContents.set(index, new Text(content));
+        // TODO: this.fileContents.set(index, new Text(content));
     }
 
     /**
@@ -456,15 +459,8 @@ public class PackageVersion {
      * @param content file content
      */
     public void addFile(String path, String content) {
-        this.filePaths.add(path);
-        this.fileContents.add(new Text(content));
-    }
-
-    /**
-     * @return created Key for this object
-     */
-    public Key createKey() {
-        return KeyFactory.createKey("PackageVersion", this.name);
+        // TODO: this.filePaths.add(path);
+        // TODO: this.fileContents.add(new Text(content));
     }
 
     /**

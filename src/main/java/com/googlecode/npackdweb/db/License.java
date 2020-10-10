@@ -1,8 +1,8 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.googlecode.npackdweb.NWUtils;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,8 +34,8 @@ public class License {
      *
      * @param e an entity
      */
-    public License(com.google.appengine.api.datastore.Entity e) {
-        this.name = e.getKey().getName();
+    public License(ResultSet e) throws SQLException {
+        this.name = e.getString("name");
         this.title = NWUtils.getString(e, "title");
         this.url = NWUtils.getString(e, "url");
 
@@ -44,7 +44,8 @@ public class License {
         }
     }
 
-    com.google.appengine.api.datastore.Entity createEntity() {
+    void createEntity() {
+        /* TODO
         this.lastModifiedAt = NWUtils.newDate();
 
         com.google.appengine.api.datastore.Entity e =
@@ -55,6 +56,7 @@ public class License {
         e.setIndexedProperty("url", this.url);
 
         return e;
+         */
     }
 
     // WARNING: update copy()!
@@ -68,13 +70,6 @@ public class License {
 
     public String getName() {
         return name;
-    }
-
-    /**
-     * @return created Key for this object
-     */
-    public Key createKey() {
-        return KeyFactory.createKey("License", name);
     }
 
     /**

@@ -1,15 +1,10 @@
 package com.googlecode.npackdweb.license;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.PreparedQuery;
 import com.googlecode.npackdweb.MyPage;
+import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -40,11 +35,9 @@ public class LicensesPage extends MyPage {
     }
 
     private String internalCreateContent() {
+        licenses = NWUtils.dsCache.getAllLicenses();
 
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        // find licenses
+        /* TODO        // find licenses
         com.google.appengine.api.datastore.Query query =
                 new com.google.appengine.api.datastore.Query("License");
         query.addSort("title");
@@ -60,7 +53,7 @@ public class LicensesPage extends MyPage {
         query = new com.google.appengine.api.datastore.Query("License");
         pq = datastore.prepare(query);
         found = pq.countEntities(FetchOptions.Builder.withDefaults());
-
+         */
         return createContent2() +
                 createPager(start, licenses.size() > PAGE_SIZE);
     }

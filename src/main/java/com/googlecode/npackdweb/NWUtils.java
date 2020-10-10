@@ -36,6 +36,8 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1550,16 +1552,9 @@ public class NWUtils {
      * @param propertyName name of the property
      * @return property value or null
      */
-    public static String getString(com.google.appengine.api.datastore.Entity e,
-            String propertyName) {
-        Object obj = e.getProperty(propertyName);
-        String result;
-        if (obj instanceof com.google.appengine.api.datastore.Text) {
-            result = ((com.google.appengine.api.datastore.Text) obj).getValue();
-        } else {
-            result = (String) obj;
-        }
-        return result;
+    public static String getString(ResultSet e,
+            String propertyName) throws SQLException {
+        return e.getString(propertyName);
     }
 
     /**
@@ -1569,16 +1564,9 @@ public class NWUtils {
      * @param propertyName name of the property
      * @return property value or 0
      */
-    public static long getLong(com.google.appengine.api.datastore.Entity e,
-            String propertyName) {
-        Long obj = (Long) e.getProperty(propertyName);
-        long result;
-        if (obj == null) {
-            result = 0;
-        } else {
-            result = obj.longValue();
-        }
-        return result;
+    public static long getLong(ResultSet e,
+            String propertyName) throws SQLException {
+        return e.getLong(propertyName);
     }
 
     /**
@@ -1589,13 +1577,16 @@ public class NWUtils {
      * @return property value != null
      */
     public static List<String> getStringList(
-            com.google.appengine.api.datastore.Entity e,
-            String propertyName) {
-        List<String> obj = (List<String>) e.getProperty(propertyName);
-        if (obj == null) {
-            obj = new ArrayList<>();
+            ResultSet e,
+            String propertyName) throws SQLException {
+        String s = e.getString(propertyName);
+        List<String> r;
+        if (s == null) {
+            r = new ArrayList<>();
+        } else {
+            r = NWUtils.split(s, ' ');
         }
-        return obj;
+        return r;
     }
 
     /**
@@ -1606,12 +1597,19 @@ public class NWUtils {
      * @return property value != null
      */
     public static List<User> getUserList(
-            com.google.appengine.api.datastore.Entity e,
-            String propertyName) {
-        List<User> obj = (List<User>) e.getProperty(propertyName);
-        if (obj == null) {
-            obj = new ArrayList<>();
+            ResultSet e,
+            String propertyName) throws SQLException {
+        String s = e.getString(propertyName);
+        List<User> r;
+        if (s == null) {
+            r = new ArrayList<>();
+        } else {
+            List<String> emails = NWUtils.split(s, ' ');
+            r = new ArrayList<>();
+            for (String str : emails) {
+                r.add(new User(str, "server"));
+            }
         }
-        return obj;
+        return r;
     }
 }

@@ -1,8 +1,6 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.googlecode.npackdweb.NWUtils;
+import java.sql.ResultSet;
 
 /**
  * A setting.
@@ -25,13 +23,14 @@ public class Setting {
     public Setting() {
     }
 
-    Setting(com.google.appengine.api.datastore.Entity e) {
-        this.name = e.getKey().getName();
+    Setting(ResultSet e) {
+        /* TODO this.name = e.getKey().getName();
         this.value = NWUtils.getString(e, "value");
+         */
     }
 
-    com.google.appengine.api.datastore.Entity createEntity() {
-        // onPersist();
+    ResultSet createEntity() {
+        /* TODO: // onPersist();
 
         com.google.appengine.api.datastore.Entity e =
                 new com.google.appengine.api.datastore.Entity("Setting",
@@ -40,12 +39,7 @@ public class Setting {
         e.setIndexedProperty("value", this.value);
 
         return e;
-    }
-
-    /**
-     * @return created Key for this object
-     */
-    public Key createKey() {
-        return KeyFactory.createKey("Setting", this.name);
+         */
+        return null;
     }
 }
