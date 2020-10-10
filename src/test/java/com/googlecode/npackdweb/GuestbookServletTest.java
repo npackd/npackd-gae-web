@@ -13,55 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.googlecode.npackdweb;
 
 import java.io.IOException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.appengine.tools.development.testing.LocalUserServiceTestConfig;
-
 public class GuestbookServletTest {
 
-	// TODO private GuestbookServlet guestbookServlet;
+    @Before
+    public void setupGuestBookServlet() {
+    }
 
-	private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
-			new LocalUserServiceTestConfig()).setEnvIsLoggedIn(true)
-			.setEnvAuthDomain("localhost").setEnvEmail("test@localhost");
+    @After
+    public void tearDownHelper() {
+    }
 
-	@Before
-	public void setupGuestBookServlet() {
-		helper.setUp();
-		// TODO guestbookServlet = new GuestbookServlet();
-	}
-
-	@After
-	public void tearDownHelper() {
-		helper.tearDown();
-	}
-
-	@Test
-	public void testDoGet() throws IOException {
-		/*
+    @Test
+    public void testDoGet() throws IOException {
+        /*
 		 * HttpServletRequest request = mock(HttpServletRequest.class);
 		 * HttpServletResponse response = mock(HttpServletResponse.class);
-		 * 
+		 *
 		 * StringWriter stringWriter = new StringWriter();
-		 * 
+		 *
 		 * when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
-		 * 
+		 *
 		 * guestbookServlet.doGet(request, response);
-		 * 
+		 *
 		 * User currentUser =
 		 * UserServiceFactory.getUserService().getCurrentUser();
-		 * 
+		 *
 		 * assertEquals("Hello, " + currentUser.getNickname() +
 		 * System.getProperty("line.separator"), stringWriter.toString()); TODO
-		 */
-	}
+         */
+    }
 
 }

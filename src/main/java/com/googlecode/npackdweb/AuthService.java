@@ -22,7 +22,7 @@ public class AuthService {
      * @return current user or null
      */
     public User getCurrentUser() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new User("tim.lebedkov@gmail.com", "server");
     }
 
     /**
