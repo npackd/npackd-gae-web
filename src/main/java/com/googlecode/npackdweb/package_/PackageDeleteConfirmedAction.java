@@ -1,10 +1,9 @@
 package com.googlecode.npackdweb.package_;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -36,7 +35,7 @@ public class PackageDeleteConfirmedAction extends Action {
                     new MessagePage(
                             "You do not have permission to modify this package");
         } else {
-            UserService us = UserServiceFactory.getUserService();
+            AuthService us = AuthService.getInstance();
             User u = us.getCurrentUser();
 
             String message = req.getParameter("message");
@@ -46,7 +45,7 @@ public class PackageDeleteConfirmedAction extends Action {
                     NWUtils.sendMailTo("The package " + r.title + " (" +
                             r.name + ") was deleted by " + u.getNickname() +
                             ".\n" + "More information: " + message,
-                            r.createdBy.getEmail());
+                            r.createdBy.email);
                 }
             }
             resp.sendRedirect("/p");

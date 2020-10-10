@@ -1,7 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import java.io.IOException;
@@ -168,7 +166,7 @@ public abstract class MyPage extends Page {
      */
     private static String getLoginHeader(HttpServletRequest request)
             throws IOException {
-        UserService userService = UserServiceFactory.getUserService();
+        AuthService userService = AuthService.getInstance();
 
         String thisURL = request.getRequestURI();
         if (request.getQueryString() != null) {

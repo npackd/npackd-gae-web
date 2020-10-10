@@ -1,8 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.admin.AddRepositoryAction;
 import com.googlecode.npackdweb.admin.AddRepositoryConfirmedAction;
 import com.googlecode.npackdweb.admin.CheckUpdatesAction;
@@ -95,7 +92,7 @@ public class DefaultServlet extends HttpServlet {
         }
 
         if (found != null) {
-            UserService us = UserServiceFactory.getUserService();
+            AuthService us = AuthService.getInstance();
             final User currentUser = us.getCurrentUser();
             if (currentUser != null) {
                 Editor e = NWUtils.dsCache.findEditor(currentUser);

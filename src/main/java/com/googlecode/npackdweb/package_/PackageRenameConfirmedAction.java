@@ -1,10 +1,9 @@
 package com.googlecode.npackdweb.package_;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
@@ -89,7 +88,7 @@ public class PackageRenameConfirmedAction extends Action {
 
             NWUtils.dsCache.deletePackage(p.name);
 
-            UserService us = UserServiceFactory.getUserService();
+            AuthService us = AuthService.getInstance();
             User u = us.getCurrentUser();
 
             if (!NWUtils.isEmailEqual(u.getEmail(), p.lastModifiedBy.getEmail())) {

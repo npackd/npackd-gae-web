@@ -3,9 +3,6 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
@@ -646,7 +643,7 @@ public class NWUtils {
      * @return true if an admin is logged in
      */
     public static boolean isAdminLoggedIn() {
-        UserService us = UserServiceFactory.getUserService();
+        AuthService us = AuthService.getInstance();
         return us.isUserLoggedIn() && us.isUserAdmin();
     }
 
@@ -696,7 +693,7 @@ public class NWUtils {
      * @return true if the users are equal
      */
     public static boolean isEqual(User a, User b) {
-        return isEmailEqual(a.getEmail(), b.getEmail());
+        return isEmailEqual(a.email, b.email);
     }
 
     /**

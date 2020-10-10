@@ -1,8 +1,8 @@
 package com.googlecode.npackdweb.license;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -30,7 +30,7 @@ public class LicenseAction extends Action {
 
         License r = NWUtils.dsCache.getLicense(name, false);
         LicensePage pdp = null;
-        User u = UserServiceFactory.getUserService().getCurrentUser();
+        User u = AuthService.getInstance().getCurrentUser();
         if (r == null) {
             if (u != null) {
                 r = new License();

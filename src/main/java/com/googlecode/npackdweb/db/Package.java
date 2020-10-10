@@ -3,10 +3,9 @@ package com.googlecode.npackdweb.db;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -196,7 +195,7 @@ public class Package {
      * @param name full internal name of the package
      */
     public Package(String name) {
-        final UserService us = UserServiceFactory.getUserService();
+        final AuthService us = AuthService.getInstance();
         if (us.isUserLoggedIn()) {
             this.lastModifiedBy = us.getCurrentUser();
         } else {
@@ -326,7 +325,7 @@ public class Package {
      * @return true if the current user may modify the package
      */
     public boolean isCurrentUserPermittedToModify() {
-        UserService us = UserServiceFactory.getUserService();
+        AuthService us = AuthService.getInstance();
         User u = us.getCurrentUser();
         boolean r = false;
         if (u != null) {
@@ -457,7 +456,7 @@ public class Package {
             if (i != 0) {
                 sb.append(' ');
             }
-            sb.append(this.permissions.get(i).getEmail());
+            sb.append(this.permissions.get(i).email);
         }
 
         String rep = null;

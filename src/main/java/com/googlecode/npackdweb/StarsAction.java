@@ -1,9 +1,7 @@
 package com.googlecode.npackdweb;
 
-import com.googlecode.npackdweb.package_.PackagesPage;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Editor;
+import com.googlecode.npackdweb.package_.PackagesPage;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -28,7 +26,7 @@ public class StarsAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        User u = UserServiceFactory.getUserService().getCurrentUser();
+        User u = AuthService.getInstance().getCurrentUser();
         Editor e = NWUtils.dsCache.findEditor(u);
         List<String> starredPackages = new ArrayList<>();
         if (e != null) {

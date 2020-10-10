@@ -1,9 +1,9 @@
 package com.googlecode.npackdweb.package_;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -31,7 +31,7 @@ public class PackageDetailAction extends Action {
 
         Package r = NWUtils.dsCache.getPackage(name, false);
         PackageDetailPage pdp = null;
-        User u = UserServiceFactory.getUserService().getCurrentUser();
+        User u = AuthService.getInstance().getCurrentUser();
         if (r == null) {
             if (u != null) {
                 r = new Package(name);

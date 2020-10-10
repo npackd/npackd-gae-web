@@ -11,11 +11,10 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.SearchService;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,7 +62,7 @@ public class DatastoreCache {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
             p.lastModifiedBy =
-                    UserServiceFactory.getUserService().getCurrentUser();
+                    AuthService.getInstance().getCurrentUser();
         }
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
@@ -225,19 +224,19 @@ public class DatastoreCache {
         if (changeLastModified) {
             p.lastModifiedAt = NWUtils.newDate();
             p.lastModifiedBy =
-                    UserServiceFactory.getUserService().getCurrentUser();
+                    AuthService.getInstance().getCurrentUser();
         }
         if (changeNotReviewed) {
             if (NWUtils.isAdminLoggedIn()) {
                 if (old != null && old.hasTag("not-reviewed")) {
-                    UserService us = UserServiceFactory.getUserService();
+                    AuthService us = AuthService.getInstance();
                     if (!NWUtils.
                             isEqual(us.getCurrentUser(), old.lastModifiedBy)) {
                         NWUtils.sendMailTo(
                                 "The package version " + p.getTitle() +
                                 " (" + PackageVersionDetailAction.getURL(p) +
                                 ") was marked as reviewed",
-                                old.lastModifiedBy.getEmail());
+                                old.lastModifiedBy.email);
                     }
                 }
                 p.tags.remove("not-reviewed");
@@ -276,7 +275,7 @@ public class DatastoreCache {
      * @return the found editor or null
      */
     public Editor findEditor(User u) {
-        final String email = u.getEmail();
+        final String email = u.email;
         Editor ret = null;
 
         lock.lock();

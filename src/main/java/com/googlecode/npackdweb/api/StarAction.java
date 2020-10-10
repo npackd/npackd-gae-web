@@ -1,9 +1,8 @@
 package com.googlecode.npackdweb.api;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
@@ -37,7 +36,7 @@ public class StarAction extends Action {
             return null;
         }
 
-        UserService us = UserServiceFactory.getUserService();
+        AuthService us = AuthService.getInstance();
         User u = us.getCurrentUser();
 
         Editor e = NWUtils.dsCache.findEditor(u);

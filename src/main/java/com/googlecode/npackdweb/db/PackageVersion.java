@@ -3,10 +3,9 @@ package com.googlecode.npackdweb.db;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -150,7 +149,7 @@ public class PackageVersion {
         this.name = package_ + "@" + version;
         this.package_ = package_;
         this.version = version;
-        UserService us = UserServiceFactory.getUserService();
+        AuthService us = AuthService.getInstance();
         if (us.isUserLoggedIn()) {
             this.lastModifiedBy = us.getCurrentUser();
         } else {
@@ -236,7 +235,7 @@ public class PackageVersion {
         }
 
         if (lastModifiedBy == null) {
-            UserService us = UserServiceFactory.getUserService();
+            AuthService us = AuthService.getInstance();
             if (us.isUserLoggedIn()) {
                 this.lastModifiedBy = us.getCurrentUser();
             } else {

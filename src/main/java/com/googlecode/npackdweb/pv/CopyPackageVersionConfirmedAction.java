@@ -1,12 +1,11 @@
 package com.googlecode.npackdweb.pv;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -66,7 +65,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                 copy.name = copy.package_ + "@" + version;
                 copy.version = version;
                 copy.createdAt = NWUtils.newDate();
-                UserService us = UserServiceFactory.getUserService();
+                AuthService us = AuthService.getInstance();
                 copy.createdBy = us.getCurrentUser();
                 copy.addTag("untested");
 

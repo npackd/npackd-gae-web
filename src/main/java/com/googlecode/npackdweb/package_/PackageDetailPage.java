@@ -1,10 +1,10 @@
 package com.googlecode.npackdweb.package_;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -141,9 +141,9 @@ public class PackageDetailPage extends MyPage {
         screenshots = "";
         permissions = "";
 
-        User u = UserServiceFactory.getUserService().getCurrentUser();
+        User u = AuthService.getInstance().getCurrentUser();
         this.params.put("modified", new Date().toString());
-        this.params.put("modifiedBy", u == null ? "" : u.getEmail());
+        this.params.put("modifiedBy", u == null ? "" : u.email);
     }
 
     @Override
@@ -580,7 +580,7 @@ public class PackageDetailPage extends MyPage {
 
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
             startRow(w, "Permissions", false);
-            User u = UserServiceFactory.getUserService().getCurrentUser();
+            User u = AuthService.getInstance().getCurrentUser();
             if (mode != FormMode.CREATE) {
                 if (NWUtils.isAdminLoggedIn()) {
                     w.e("textarea",
@@ -758,7 +758,7 @@ public class PackageDetailPage extends MyPage {
         if (this.mode == FormMode.CREATE) {
             this.createdAt = NWUtils.newDate();
             this.createdBy =
-                    UserServiceFactory.getUserService().getCurrentUser();
+                    AuthService.getInstance().getCurrentUser();
             this.noUpdatesCheck = null;
         } else {
             Package p = NWUtils.dsCache.getPackage(this.id, false);
@@ -767,7 +767,7 @@ public class PackageDetailPage extends MyPage {
             this.noUpdatesCheck = p.noUpdatesCheck;
 
             this.starFilled = false;
-            User u = UserServiceFactory.getUserService().getCurrentUser();
+            User u = AuthService.getInstance().getCurrentUser();
             if (u != null) {
                 Editor e = NWUtils.dsCache.findEditor(u);
                 if (e != null && e.starredPackages.contains(id)) {
@@ -989,7 +989,7 @@ public class PackageDetailPage extends MyPage {
         params.put("modifiedBy", r.lastModifiedBy.getEmail());
 
         this.starFilled = false;
-        User u = UserServiceFactory.getUserService().getCurrentUser();
+        User u = AuthService.getInstance().getCurrentUser();
         if (u != null) {
             Editor e = NWUtils.dsCache.findEditor(u);
             if (e != null && e.starredPackages.contains(id)) {

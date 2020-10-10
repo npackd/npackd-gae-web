@@ -1,7 +1,6 @@
 package com.googlecode.npackdweb.package_;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
@@ -37,7 +36,7 @@ public class RequestPermissionsAction extends Action {
             return new MessagePage(
                     "You already have permission to modify this package");
         } else {
-            UserService us = UserServiceFactory.getUserService();
+            AuthService us = AuthService.getInstance();
 
             NWUtils.sendMailToAdmin("User " + us.getCurrentUser().getEmail() +
                     " requests access to modify the package " + NWUtils.WEB_SITE +

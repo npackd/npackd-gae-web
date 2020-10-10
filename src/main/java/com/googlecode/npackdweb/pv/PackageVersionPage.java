@@ -1,10 +1,9 @@
 package com.googlecode.npackdweb.pv;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
@@ -68,7 +67,7 @@ public class PackageVersionPage extends MyPage {
         this.fileContents = new ArrayList<>();
         this.lastModifiedAt = null;
 
-        UserService us = UserServiceFactory.getUserService();
+        AuthService us = AuthService.getInstance();
 
         if (us.isUserLoggedIn()) {
             this.lastModifiedBy = us.getCurrentUser();
@@ -823,7 +822,7 @@ public class PackageVersionPage extends MyPage {
      * @return true if the data should be editable
      */
     public boolean getEditable() {
-        return UserServiceFactory.getUserService().getCurrentUser() != null;
+        return AuthService.getInstance().getCurrentUser() != null;
     }
 
     /**
@@ -910,7 +909,7 @@ public class PackageVersionPage extends MyPage {
             }
         }
 
-        UserService us = UserServiceFactory.getUserService();
+        AuthService us = AuthService.getInstance();
         if (us.isUserLoggedIn()) {
             this.lastModifiedBy = us.getCurrentUser();
         } else {

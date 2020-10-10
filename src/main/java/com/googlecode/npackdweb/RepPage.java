@@ -1,7 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import java.io.IOException;
@@ -61,7 +59,7 @@ public class RepPage extends MyPage {
         b.end("a");
         b.end("li");
 
-        User u = UserServiceFactory.getUserService().getCurrentUser();
+        User u = AuthService.getInstance().getCurrentUser();
         if (u != null) {
             b.start("li");
             b.

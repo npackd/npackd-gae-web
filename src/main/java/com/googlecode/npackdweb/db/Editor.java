@@ -2,9 +2,9 @@ package com.googlecode.npackdweb.db;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.npackdweb.AuthService;
 import com.googlecode.npackdweb.NWUtils;
+import com.googlecode.npackdweb.User;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,11 +75,11 @@ public class Editor implements Cloneable {
      * @param user editor
      */
     public Editor(User user) {
-        createdBy = UserServiceFactory.getUserService().getCurrentUser();
+        createdBy = AuthService.getInstance().getCurrentUser();
         if (createdBy == null) {
             createdBy = new User(NWUtils.THE_EMAIL, "gmail.com");
         }
-        this.name = user.getEmail();
+        this.name = user.email;
     }
 
     com.google.appengine.api.datastore.Entity createEntity() {
