@@ -1,13 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
@@ -48,8 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Message;
@@ -93,40 +83,6 @@ import org.w3c.dom.Text;
  * Utilities
  */
 public class NWUtils {
-
-    /**
-     * gcsService.getMetadata takes about 16ms (28.12.2019). It is implemented
-     * as HTTP HEAD.
-     */
-    private static final LoadingCache<String, GcsFileMetadata> METADATA_CACHE =
-            CacheBuilder.
-                    newBuilder()
-                    .expireAfterWrite(10, TimeUnit.MINUTES)
-                    .build(
-                            new CacheLoader<String, GcsFileMetadata>() {
-                        @Override
-                        public GcsFileMetadata load(String filename) throws
-                                Exception {
-                            String tag = filename.substring(0,
-                                    filename.length() - 4);
-
-                            final GcsService gcsService =
-                                    GcsServiceFactory.createGcsService(
-                                            RetryParams
-                                                    .getDefaultInstance());
-
-                            GcsFilename f = new GcsFilename("npackd",
-                                    filename);
-                            GcsFileMetadata md = gcsService.
-                                    getMetadata(f);
-                            if (md == null) {
-                                ExportRepsAction.export(gcsService, tag, false);
-                                md = gcsService.getMetadata(f);
-                            }
-
-                            return md;
-                        }
-                    });
 
     /**
      * URL
@@ -946,16 +902,6 @@ public class NWUtils {
             d = c.getTime();
         }
         return d;
-    }
-
-    /**
-     * @param filename "tag.xml" or "tag.zip"
-     * @return Google Srorage file metadata cached for 10 minutes
-     * @throws ExecutionException error accessing the service
-     */
-    public static GcsFileMetadata getMetadata(String filename) throws
-            ExecutionException {
-        return METADATA_CACHE.get(filename);
     }
 
     /**
