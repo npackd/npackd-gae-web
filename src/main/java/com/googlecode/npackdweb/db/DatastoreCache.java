@@ -990,4 +990,11 @@ public class DatastoreCache {
 
         return licenses;
     }
+
+    /**
+     * @return new ID for an editor
+     */
+    public long getNextEditorID() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

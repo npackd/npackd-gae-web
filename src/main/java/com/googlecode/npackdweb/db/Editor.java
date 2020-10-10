@@ -114,9 +114,7 @@ public class Editor implements Cloneable {
      * Creates an ID for this Editor.
      */
     public void createId() {
-        ShardedCounter sc = new ShardedCounter("EditorID");
-        sc.increment();
-        this.id = sc.getCount();
+        this.id = NWUtils.dsCache.getNextEditorID();
     }
 
     @Override
