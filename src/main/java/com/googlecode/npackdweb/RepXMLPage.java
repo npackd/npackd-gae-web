@@ -4,7 +4,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -19,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Document;
@@ -51,14 +49,9 @@ public class RepXMLPage extends Page {
                     "https://github.com/tim-lebedkov/npackd/releases/download/v1/" +
                     tag + ".xml");
         } else {
-            final GcsFileMetadata md;
-            try {
-                md = NWUtils.getMetadata(tag + ".xml");
-                NWUtils.serveFileFromGCS(md, request, resp,
-                        "application/xml");
-            } catch (ExecutionException ex) {
-                throw new IOException(ex.getMessage());
-            }
+            NWUtils.serveFileFromGCS("/var/lib/npackd-web/rep/" + tag +
+                    ".xml", request, resp,
+                    "application/xml");
         }
     }
 

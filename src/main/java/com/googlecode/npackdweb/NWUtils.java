@@ -1,8 +1,5 @@
 package com.googlecode.npackdweb;
 
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
@@ -20,6 +17,8 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1310,11 +1309,14 @@ public class NWUtils {
      * @param contentType MIME type of the response
      * @throws IOException error reading or sending the file
      */
-    public static void serveFileFromGCS(GcsFileMetadata md,
+    public static void serveFileFromGCS(String filename,
             HttpServletRequest request, HttpServletResponse resp,
             String contentType) throws IOException {
         SimpleDateFormat httpDateFormat =
                 new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+
+        File md = new File(filename);
+        long lastModified = md.lastModified();
 
         String ims = request.getHeader("If-Modified-Since");
         boolean serve = true;
@@ -1322,7 +1324,7 @@ public class NWUtils {
             Date lastSeen;
             try {
                 lastSeen = httpDateFormat.parse(ims);
-                if (lastSeen.getTime() >= md.getLastModified().getTime()) {
+                if (lastSeen.getTime() >= md.lastModified()) {
                     serve = false;
                 }
             } catch (ParseException e) {
@@ -1332,27 +1334,35 @@ public class NWUtils {
             String inm = request.getHeader("If-None-Match");
             if (inm != null) {
                 String[] split = inm.split(",");
-                if (Arrays.asList(split).contains(md.getEtag())) {
+                if (Arrays.asList(split).contains(String.valueOf(lastModified))) {
                     serve = false;
                 }
             }
         }
 
         resp.setContentType(contentType);
-        resp.setHeader("ETag", md.getEtag());
+        resp.setHeader("ETag", String.valueOf(lastModified));
 
         resp.setHeader("Last-Modified",
-                httpDateFormat.format(md.getLastModified()));
-
-        BlobstoreService blobstoreService =
-                BlobstoreServiceFactory.getBlobstoreService();
-        GcsFilename f = md.getFilename();
-        BlobKey blobKey =
-                blobstoreService.createGsBlobKey("/gs/" + f.getBucketName() +
-                        "/" + f.getObjectName());
+                httpDateFormat.format(lastModified));
 
         if (serve) {
-            blobstoreService.serve(blobKey, resp);
+            InputStream is = new FileInputStream(md);
+            try {
+                OutputStream os = resp.getOutputStream();
+                try {
+                    byte[] buffer = new byte[512 * 1024];
+                    int read;
+                    while ((read = is.read(buffer)) >= 0) {
+                        os.write(buffer, 0, read);
+                    }
+
+                } finally {
+                    os.close();
+                }
+            } finally {
+                is.close();
+            }
         } else {
             resp.sendError(304);
         }
