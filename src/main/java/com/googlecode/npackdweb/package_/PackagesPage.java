@@ -475,7 +475,7 @@ public class PackagesPage extends MyPage {
         w.start("script");
         InputStream stream =
                 DefaultServlet.getInstance(request).getServletContext()
-                        .getResourceAsStream("/WEB-INF/templates/Packages.js");
+                        .getResourceAsStream("templates/Packages.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
 

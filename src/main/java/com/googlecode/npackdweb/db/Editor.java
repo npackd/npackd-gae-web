@@ -99,13 +99,6 @@ public class Editor implements Cloneable {
         return name;
     }
 
-    /**
-     * Creates an ID for this Editor.
-     */
-    public void createId() {
-        this.id = NWUtils.dsCache.getNextEditorID();
-    }
-
     @Override
     protected Editor clone() {
         Editor r;

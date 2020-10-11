@@ -126,8 +126,6 @@ public class NWUtils {
 
     private static Configuration cfg;
 
-    private static Configuration safeCfg;
-
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private static final String ID_LETTERS =
@@ -140,20 +138,17 @@ public class NWUtils {
      * @param ctx servlet context
      */
     public static synchronized void initFreeMarker(ServletContext ctx) {
+        InputStream res =
+                NWUtils.class.getResourceAsStream("/templates/Carousel.html");
+        System.out.println("res: " + res);
         if (cfg == null) {
             // Initialize the FreeMarker configuration;
             // - Create a configuration instance
-            cfg = new Configuration();
+            cfg = new Configuration(
+                    Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 
-            // - Templates are stored in the WEB-INF/templates directory of the
-            // Web
-            // app.
-            cfg.setServletContextForTemplateLoading(ctx, "WEB-INF/templates");
-        }
-        if (safeCfg == null) {
-            // Initialize the FreeMarker configuration;
-            // - Create a configuration instance
-            safeCfg = new Configuration();
+            // - Templates are stored in the "templates"
+            cfg.setClassForTemplateLoading(NWUtils.class, "/templates");
         }
     }
 
@@ -210,7 +205,7 @@ public class NWUtils {
     /**
      * Formats a template
      *
-     * @param templateName name of the template file under WEB-INF/templates
+     * @param templateName name of the template file under templates
      * @param keysAndValues key1, value1, key2, value2, ...
      * @return formatted text
      * @throws IOException if the template cannot be read

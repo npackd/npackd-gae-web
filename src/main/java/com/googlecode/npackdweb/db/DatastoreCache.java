@@ -6,6 +6,11 @@ import com.googlecode.npackdweb.SearchService;
 import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,6 +47,58 @@ public class DatastoreCache {
     private Connection con;
 
     public DatastoreCache() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/npackd?" +
+                    "user=npackd&password=&serverTimezone=UTC");
+            updateDB(con);
+        } catch (ClassNotFoundException | SQLException ex) {
+            throw new InternalError(ex);
+        }
+    }
+
+    private void updateDB(final Connection con) throws SQLException {
+        Statement stmt = con.createStatement();
+        stmt.execute(
+                "CREATE TABLE if not exists PACKAGE (" +
+                "NAME varchar(255) NOT NULL," +
+                "TITLE varchar(1024) NOT NULL," +
+                "URL varchar(2048) DEFAULT NULL," +
+                "ICON varchar(2048) DEFAULT NULL," +
+                "DESCRIPTION varchar(4096) NOT NULL," +
+                "LICENSE varchar(255) DEFAULT NULL," +
+                "FULLTEXT_ varchar(4096) NOT NULL," +
+                "STATUS int DEFAULT NULL," +
+                "SHORT_NAME varchar(255) DEFAULT NULL," +
+                "REPOSITORY int DEFAULT NULL," +
+                "CATEGORY0 int DEFAULT NULL," +
+                "CATEGORY1 int DEFAULT NULL," +
+                "CATEGORY2 int DEFAULT NULL," +
+                "CATEGORY3 int DEFAULT NULL," +
+                "CATEGORY4 int DEFAULT NULL," +
+                "TITLE_FULLTEXT varchar(1024) NOT NULL," +
+                "STARS int DEFAULT NULL)"
+        );
+
+        stmt.execute(
+                "CREATE TABLE if not exists EDITOR (" +
+                "ID int NOT NULL AUTO_INCREMENT, " +
+                "EMAIL varchar(255) NOT NULL," +
+                "PRIMARY KEY (ID))"
+        );
+
+        /*CREATE TABLE if not  exists
+        PACKAGE_VERSION(
+			NAME varchar
+        (255) NOT NULL,
+                PACKAGE varchar(255) NOT NULL, URL varchar(2048)
+        ,
+            CONTENT BLOB
+        )
+			`)
+	if err != nil  {
+            return err
+        }*/
     }
 
     /**
@@ -71,13 +128,33 @@ public class DatastoreCache {
      * @param e editor
      */
     public void saveEditor(Editor e) {
-        if (e.id <= 0) {
-            e.createId();
-        }
         if (e.lastLogin == null) {
             e.lastLogin = NWUtils.newDay();
         }
-        // TODO: datastore.put(e.createEntity());
+
+        try (PreparedStatement statement = con.prepareStatement(
+                "INSERT INTO EDITOR(EMAIL) VALUES(?)",
+                Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, e.name);
+
+            int affectedRows = statement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Creating user failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    e.id = generatedKeys.getLong(1);
+                } else {
+                    throw new SQLException(
+                            "Creating user failed, no ID obtained.");
+                }
+            }
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
         incDataVersion();
     }
 
