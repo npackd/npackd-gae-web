@@ -45,7 +45,8 @@ public class AuthService {
      * @return URL to start the login process
      */
     public String createLoginURL(String requestURI) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // TODO
+        return "http://localhost:8080/login";
     }
 
     /**
@@ -53,6 +54,6 @@ public class AuthService {
      * @return URL to start the logout process
      */
     public String createLogoutURL(String requestURI) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "http://localhost:8080/logout";
     }
 }

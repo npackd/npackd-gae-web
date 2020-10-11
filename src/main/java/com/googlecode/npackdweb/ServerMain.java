@@ -8,6 +8,9 @@ import org.eclipse.jetty.demos.TimeServlet;
 import org.eclipse.jetty.demos.TimeSocket;
 import org.eclipse.jetty.demos.logging.Logging;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.log.JavaUtilLog;
 import org.eclipse.jetty.util.log.Log;
@@ -30,7 +33,7 @@ public class ServerMain {
         Server server = new Server(8080);
 
         URL webRootLocation = this.getClass().getResource(
-                "/static-root/App.png");
+                "/static/App.png");
         if (webRootLocation == null) {
             throw new IllegalStateException(
                     "Unable to determine webroot URL location");
@@ -65,8 +68,21 @@ public class ServerMain {
         context.addServlet(TimeServlet.class, "/time/");
         context.addServlet(DefaultServlet.class, "/");
 
+        URI webRootUri2 = webRootLocation.toURI().resolve("./").normalize();
+        ContextHandler context1 = new ContextHandler();
+        context1.setContextPath("/static");
+        context1.setBaseResource(Resource.newResource(webRootUri2));
+        ResourceHandler rh = new ResourceHandler();
+        rh.setDirectoriesListed(false);
+        rh.setDirAllowed(false);
+        context1.setHandler(rh);
+
+        ContextHandlerCollection contexts = new ContextHandlerCollection(
+                context, context1
+        );
+
         // Add to Server
-        server.setHandler(context);
+        server.setHandler(contexts);
 
         // Start Server
         server.start();

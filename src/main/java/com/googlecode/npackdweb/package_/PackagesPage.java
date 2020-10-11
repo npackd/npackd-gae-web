@@ -1,7 +1,6 @@
 package com.googlecode.npackdweb.package_;
 
 import com.googlecode.npackdweb.AuthService;
-import com.googlecode.npackdweb.DefaultServlet;
 import com.googlecode.npackdweb.MyEnglishAnalyzer;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
@@ -344,7 +343,7 @@ public class PackagesPage extends MyPage {
         w.end("select");
 
         w.t(" Category: ");
-        if (category0Values.labelValues.length > 1) {
+        if (category0Values != null && category0Values.labelValues.length > 1) {
             // we assume there were no category filter here. It should not
             // be possible.
             w.start("select", "class", "form-control", "name", "category0",
@@ -365,7 +364,8 @@ public class PackagesPage extends MyPage {
                 w.t(this.category0);
                 w.end("a");
             } else {
-                if (category0Values.labelValues.length > 0) {
+                if (category0Values != null &&
+                        category0Values.labelValues.length > 0) {
                     w.t(category0Values.labelValues[0].label);
                 } else {
                     w.t("-");
@@ -374,7 +374,7 @@ public class PackagesPage extends MyPage {
         }
 
         w.t(" Repository: ");
-        if (repositoryValues.labelValues.length > 1) {
+        if (repositoryValues != null && repositoryValues.labelValues.length > 1) {
             w.start("select", "class", "form-control", "name", "repository",
                     "id", "repository");
             w.e("option", "value", "", "Any");
@@ -392,7 +392,8 @@ public class PackagesPage extends MyPage {
                 w.t(this.repository);
                 w.end("a");
             } else {
-                if (repositoryValues.labelValues.length > 0) {
+                if (repositoryValues != null &&
+                        repositoryValues.labelValues.length > 0) {
                     w.t(repositoryValues.labelValues[0].label);
                 } else {
                     w.t("-");
@@ -473,9 +474,8 @@ public class PackagesPage extends MyPage {
             throws IOException {
         HTMLWriter w = new HTMLWriter();
         w.start("script");
-        InputStream stream =
-                DefaultServlet.getInstance(request).getServletContext()
-                        .getResourceAsStream("templates/Packages.js");
+        InputStream stream = getClass().getResourceAsStream(
+                "/templates/Packages.js");
         w.unencoded(NWUtils.readUTF8Resource(stream));
         w.end("script");
 

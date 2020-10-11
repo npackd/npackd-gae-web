@@ -5,6 +5,8 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.SearchService;
 import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -18,6 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * In-memory cache for the datastore entities.
@@ -45,16 +52,43 @@ public class DatastoreCache {
     private boolean allRepositoriesRead;
 
     private Connection con;
+    private Document config;
 
     public DatastoreCache() {
+        new File(NWUtils.BASE_PATH).mkdirs();
+
+        String password;
+        try {
+            config = readConfig();
+            password = config.getElementsByTagName("db-password").item(0).
+                    getTextContent();
+        } catch (SAXException | IOException | ParserConfigurationException ex) {
+            throw new InternalError(ex);
+        }
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost/npackd?" +
-                    "user=npackd&password=&serverTimezone=UTC");
+                    "user=npackd&password=" + password + "&serverTimezone=UTC");
             updateDB(con);
         } catch (ClassNotFoundException | SQLException ex) {
             throw new InternalError(ex);
         }
+    }
+
+    public static Document readConfig() throws SAXException, IOException,
+            ParserConfigurationException {
+        File fXmlFile = new File("/etc/npackd/config.xml");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.
+                newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(fXmlFile);
+
+        //optional, but recommended
+        //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+        doc.getDocumentElement().normalize();
+
+        return doc;
     }
 
     private void updateDB(final Connection con) throws SQLException {

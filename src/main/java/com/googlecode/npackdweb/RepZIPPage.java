@@ -22,7 +22,7 @@ public class RepZIPPage extends Page {
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-        NWUtils.serveFileFromGCS("/var/lib/npackd-web/rep/" + tag + ".zip",
+        NWUtils.serveFileFromGCS(NWUtils.BASE_PATH + "/rep/" + tag + ".zip",
                 request, resp,
                 "application/zip");
     }

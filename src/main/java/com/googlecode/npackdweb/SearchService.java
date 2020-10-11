@@ -63,8 +63,12 @@ public class SearchService {
     private void init() throws IOException {
         analyzer = new StandardAnalyzer();
 
-        Path path = Paths.get("/var/lib/npackd-web/index");
-        indexPath = Files.createDirectory(path);
+        indexPath = Paths.get(NWUtils.BASE_PATH + "/index");
+        try {
+            Files.createDirectory(indexPath);
+        } catch (java.nio.file.FileAlreadyExistsException e) {
+            // ignore
+        }
         directory = FSDirectory.open(indexPath);
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);

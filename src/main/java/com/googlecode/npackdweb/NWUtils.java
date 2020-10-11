@@ -131,6 +131,8 @@ public class NWUtils {
     private static final String ID_LETTERS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+    public static final String BASE_PATH = "/var/lib/npackd-web";
+
     /**
      * Initializes FreeMarker. This method can be called multiple times from
      * many threads.

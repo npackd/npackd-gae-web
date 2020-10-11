@@ -44,7 +44,7 @@ public class RepXMLPage extends Page {
                     "https://github.com/tim-lebedkov/npackd/releases/download/v1/" +
                     tag + ".xml");
         } else {
-            NWUtils.serveFileFromGCS("/var/lib/npackd-web/rep/" + tag +
+            NWUtils.serveFileFromGCS(NWUtils.BASE_PATH + "/rep/" + tag +
                     ".xml", request, resp,
                     "application/xml");
         }
