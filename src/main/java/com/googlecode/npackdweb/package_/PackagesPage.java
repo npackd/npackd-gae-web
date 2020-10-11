@@ -22,6 +22,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -111,9 +112,15 @@ public class PackagesPage extends MyPage {
 
         QueryParser parser = new QueryParser("fieldname",
                 new MyEnglishAnalyzer());
+        parser.setDefaultOperator(QueryParser.Operator.AND);
         Query q;
         try {
-            q = parser.parse(NWUtils.analyzeText(query));
+            String q2 = NWUtils.analyzeText(query);
+            if (q2.trim().isEmpty()) {
+                q = new MatchAllDocsQuery();
+            } else {
+                q = parser.parse(q2);
+            }
         } catch (ParseException ex) {
             this.error = ex.getMessage();
             return;
@@ -149,15 +156,17 @@ public class PackagesPage extends MyPage {
             TopDocs r = index.search(q, start, PAGE_SIZE, se);
             found = r.totalHits.value;
 
-            List<String> fields = new ArrayList<>();
-            fields.add("category0");
-            fields.add("category1");
-            fields.add("repository");
-            List<org.apache.lucene.facet.FacetResult> facets =
-                    index.getFacets(q, fields);
-            category0Values = facets.get(0);
-            category1Values = facets.get(1);
-            repositoryValues = facets.get(2);
+            if (found > 0) {
+                List<String> fields = new ArrayList<>();
+                fields.add("category0");
+                fields.add("category1");
+                fields.add("repository");
+                List<org.apache.lucene.facet.FacetResult> facets =
+                        index.getFacets(q, fields);
+                category0Values = facets.get(0);
+                category1Values = facets.get(1);
+                repositoryValues = facets.get(2);
+            }
 
             for (int i = 0; i < r.scoreDocs.length; i++) {
                 Document d = index.getDocument(r.scoreDocs[i].doc);

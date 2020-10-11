@@ -121,18 +121,13 @@ public class DatastoreCache {
                 "PRIMARY KEY (ID))"
         );
 
-        /*CREATE TABLE if not  exists
-        PACKAGE_VERSION(
-			NAME varchar
-        (255) NOT NULL,
-                PACKAGE varchar(255) NOT NULL, URL varchar(2048)
-        ,
-            CONTENT BLOB
-        )
-			`)
-	if err != nil  {
-            return err
-        }*/
+        stmt.execute(
+                "CREATE TABLE if not exists PACKAGE_VERSION (" +
+                "NAME varchar(255) NOT NULL," +
+                "PACKAGE varchar(255) NOT NULL," +
+                "URL varchar(2048)," +
+                "CONTENT BLOB)"
+        );
     }
 
     /**
@@ -595,38 +590,50 @@ public class DatastoreCache {
      */
     public List<PackageVersion> findPackageVersions(
             String tag, String order, int limit) {
-        /* TODO
-        com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query("PackageVersion");
-        if (tag != null) {
+        List<PackageVersion> r = new ArrayList<>();
+        try {
+            /* TODO
+            com.google.appengine.api.datastore.Query query =
+            new com.google.appengine.api.datastore.Query("PackageVersion");
+            if (tag != null) {
             query.setFilter(
-                    new com.google.appengine.api.datastore.Query.FilterPredicate(
-                            "tags", FilterOperator.EQUAL, tag));
-        }
-        if (order != null) {
+            new com.google.appengine.api.datastore.Query.FilterPredicate(
+            "tags", FilterOperator.EQUAL, tag));
+            }
+            if (order != null) {
             query.addSort(order);
-        }
-
-        List<Entity> list;
-        if (limit <= 0) {
+            }
+            List<Entity> list;
+            if (limit <= 0) {
             list = getAllEntities(query);
-        } else {
+            } else {
             PreparedQuery pq = datastore.prepare(query);
             final FetchOptions fo = FetchOptions.Builder.withDefaults();
             if (limit > 0) {
-                fo.limit(limit);
+            fo.limit(limit);
             }
             list = pq.asList(fo);
-        }
-
-        List<PackageVersion> res = new ArrayList<>();
-        for (Entity e : list) {
+            }
+            List<PackageVersion> res = new ArrayList<>();
+            for (Entity e : list) {
             res.add(new PackageVersion(e));
+            }
+            return res;
+             */
+            PreparedStatement stmt =
+                    con.prepareStatement(
+                            "select * from PACKAGE_VERSION");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                PackageVersion pv = new PackageVersion(rs);
+                r.add(pv);
+            }
+            stmt.close();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
         }
 
-        return res;
-         */
-        return null;
+        return r;
     }
 
     /**

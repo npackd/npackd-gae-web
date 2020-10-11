@@ -86,9 +86,6 @@ public class SearchService {
      */
     public void addDocument(Document doc) {
         try {
-            /*Document doc = new Document();
-            String text = "This is the text to be indexed.";
-            doc.add(new Field("fieldname", text, TextField.TYPE_STORED));*/
             iwriter.addDocument(doc);
         } catch (IOException ex) {
             throw new InternalError(ex);
@@ -155,7 +152,7 @@ public class SearchService {
         List<FacetResult> res = new ArrayList<>();
         for (String field : fields) {
             SortedSetDocValuesReaderState state =
-                    new DefaultSortedSetDocValuesReaderState(ireader, "facet_" +
+                    new DefaultSortedSetDocValuesReaderState(ireader,
                             field);
             Facets facets = new SortedSetDocValuesFacetCounts(state, fc);
             res.add(facets.getTopChildren(100, field));

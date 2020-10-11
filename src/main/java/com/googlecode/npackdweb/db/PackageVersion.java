@@ -5,6 +5,7 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.User;
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -164,15 +165,17 @@ public class PackageVersion {
      *
      * @param e an entity
      */
-    public PackageVersion(ResultSet e) {
+    public PackageVersion(ResultSet e) throws SQLException {
         /* TODO
         this.fileContents = (List<Object>) e.getProperty("fileContents");
         if (this.fileContents == null) {
             this.fileContents = new ArrayList<>();
-        }
-        this.name = e.getKey().getName();
-        this.package_ = NWUtils.getString(e, "package_");
-        if (this.package_ == null) {
+        }*/
+
+        this.name = e.getString("NAME");
+        this.package_ = e.getString("PACKAGE");
+
+        /*if (this.package_ == null) {
             this.package_ = NWUtils.getString(e, "package");
         }
         this.version = NWUtils.getString(e, "version");
