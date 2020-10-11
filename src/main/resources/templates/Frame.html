@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<HTML lang="en">
+<HEAD>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ${generator?html} -->
+<TITLE>${title?html}</TITLE>
+<link rel="shortcut icon" type="image/x-icon" href="/Npackd.ico">
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-67864706-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-67864706-1');
+</script>
+
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+<LINK REL="stylesheet" TYPE="text/css" HREF="/Style.css" MEDIA="all" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" 
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+${head}
+${scripts}
+</HEAD>
+<BODY>
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
+${menu}
+
+<div class="content">
+<h1>${titleHTML}</h1>
+
+<#if error??>
+<p class="bg-danger">${error?html}</p>
+</#if>
+
+<#if info??>
+<p class="bg-info">${info?html}</p>
+</#if>
+
+${content}
+</div>
+<div class="nw-footer">
+<a href="https://github.com/tim-lebedkov/npackd">Npackd</a> itself and also all data about packages (but not the package binaries or associated icons) is licensed under <a href="http://www.gnu.org/licenses/gpl.html">GPLv3</a><br>
+Windows is a registered trademark of Microsoft Corporation in the United States and other countries.<br>
+<a href="http://www.glyphicons.com">GLYPHICONS FREE</a> were used and are released under the Creative Commons Attribution 3.0 Unported License (CC BY 3.0)<br>
+<a href="http://getbootstrap.com/">Bootstrap</a> was used and is released under MIT License<br>
+<a href="http://www.primebox.co.uk/projects/jquery-cookiebar/">jQuery CookieBar Plugin</a> was used and is released under the Creative Commons Attribution 3.0 Unported License (CC BY 3.0)
+</div>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" 
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" 
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="/jquery.cookiebar.js"></script>
+                
+	${bodyBottom}
+    <script type="text/javascript">
+        $(document).ready(function(){
+                $.cookieBar({message: "Cookies are important to the proper functioning of a site. To improve your experience, we uses cookies to remember log-in details and provide secure log-in, collect statistics to optimize site functionality, and deliver content tailored to your interests. Click Agree and Proceed to accept cookies and go directly to the site."
+                });
+        });
+    </script>
+    <script src="/Common.js"></script>
+</BODY>
+</HTML>
