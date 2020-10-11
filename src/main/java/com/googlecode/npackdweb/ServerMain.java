@@ -30,7 +30,7 @@ public class ServerMain {
         Server server = new Server(8080);
 
         URL webRootLocation = this.getClass().getResource(
-                "/static-root/index.html");
+                "/static-root/App.png");
         if (webRootLocation == null) {
             throw new IllegalStateException(
                     "Unable to determine webroot URL location");
