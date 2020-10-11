@@ -5,6 +5,7 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.SearchService;
 import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +38,11 @@ public class DatastoreCache {
 
     private boolean allLicensesRead;
     private boolean allRepositoriesRead;
+
+    private Connection con;
+
+    public DatastoreCache() {
+    }
 
     /**
      * Saves a package. The package can be new or an already existing one. The

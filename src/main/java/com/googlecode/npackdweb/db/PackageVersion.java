@@ -78,7 +78,7 @@ public class PackageVersion {
     public List<String> importantFilePaths = new ArrayList<>();
 
     /**
-     * <cmd-file>
+     * cmd-file
      */
     public List<String> cmdFilePaths = new ArrayList<>();
 
@@ -256,7 +256,7 @@ public class PackageVersion {
     /**
      * Creates an entity for saving in the Datastore.
      *
-     * @return the created entity
+     * the created entity
      */
     public void createEntity() {
         /* TODO
