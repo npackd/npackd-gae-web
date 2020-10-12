@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import javax.annotation.Nullable;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -19,6 +20,7 @@ import org.apache.lucene.facet.sortedset.SortedSetDocValuesReaderState;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.IndexSearcher;
@@ -58,6 +60,11 @@ public class SearchService {
     private Directory directory;
     private Path indexPath;
     private Analyzer analyzer;
+
+    /**
+     * Writer.
+     */
+    @Nullable
     private IndexWriter iwriter;
 
     private void init() throws IOException {
@@ -70,6 +77,8 @@ public class SearchService {
             // ignore
         }
         directory = FSDirectory.open(indexPath);
+
+        // create an index if it does not exist, so that we can have a reader
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         iwriter = new IndexWriter(directory, config);
@@ -82,11 +91,21 @@ public class SearchService {
     /**
      * Adds or updates a document.
      *
-     * @param doc a document
+     * @param docs documents
      */
-    public void addDocument(Document doc) {
+    public void addDocuments(
+            Iterable<? extends Iterable<? extends IndexableField>> docs) {
         try {
-            iwriter.addDocument(doc);
+            IndexWriterConfig config = new IndexWriterConfig(analyzer);
+            config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+            iwriter = new IndexWriter(directory, config);
+            iwriter.addDocuments(docs);
+            iwriter.close();
+            iwriter = null;
+
+            ireader.close();
+            ireader = DirectoryReader.open(directory);
+            isearcher = new IndexSearcher(ireader);
         } catch (IOException ex) {
             throw new InternalError(ex);
         }
@@ -98,6 +117,13 @@ public class SearchService {
      * @throws IOException something goes wrong
      */
     public void done() throws IOException {
+        // TODO: call this
+
+        if (iwriter != null) {
+            iwriter.close();
+            iwriter = null;
+        }
+
         ireader.close();
         directory.close();
         IOUtils.rm(indexPath);
@@ -153,7 +179,7 @@ public class SearchService {
         for (String field : fields) {
             SortedSetDocValuesReaderState state =
                     new DefaultSortedSetDocValuesReaderState(ireader,
-                            field);
+                            "facet_" + field);
             Facets facets = new SortedSetDocValuesFacetCounts(state, fc);
             res.add(facets.getTopChildren(100, field));
         }

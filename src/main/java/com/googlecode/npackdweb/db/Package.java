@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,6 +27,8 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetField;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -211,9 +214,9 @@ public class Package {
      *
      * @param p an entity
      */
-    public Package(ResultSet p) {
+    public Package(ResultSet p) throws SQLException {
+        this.name = p.getString("NAME");
         /* TODO
-        this.name = p.getKey().getName();
         this.title = NWUtils.getString(p, "title");
         this.url = NWUtils.getString(p, "url");
         this.changelog = NWUtils.getString(p, "changelog");
@@ -443,6 +446,11 @@ public class Package {
         org.apache.lucene.document.Document d =
                 new org.apache.lucene.document.Document();
 
+        FacetsConfig config = new FacetsConfig();
+        config.setIndexFieldName("category0", "facet_category0");
+        config.setIndexFieldName("category1", "facet_category1");
+        config.setIndexFieldName("repository", "facet_repository");
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.permissions.size(); i++) {
             if (i != 0) {
@@ -476,8 +484,9 @@ public class Package {
                 org.apache.lucene.document.Field.Store.YES));
         d.add(new TextField("text", text,
                 org.apache.lucene.document.Field.Store.YES));
-        d.add(new StringField("text", DateTools.timeToString(this.createdAt.
-                getTime(),
+        d.add(new StringField("createdAt", DateTools.timeToString(
+                this.createdAt.
+                        getTime(),
                 DateTools.Resolution.SECOND),
                 org.apache.lucene.document.Field.Store.YES));
         d.add(new StringField("name", this.name,
@@ -487,9 +496,9 @@ public class Package {
         d.add(new TextField("permission", sb.toString(),
                 org.apache.lucene.document.Field.Store.YES));
         d.add(new IntPoint("starred", this.starred));
-        d.add(new StringField("repository", rep != null ? rep :
-                "unknown",
-                org.apache.lucene.document.Field.Store.YES));
+
+        d.add(new SortedSetDocValuesFacetField("repository", rep != null ? rep :
+                "unknown"));
 
         String category0 = null, category1 = null;
         if (!category.isEmpty()) {
@@ -501,14 +510,18 @@ public class Package {
                 category1 = parts.get(1);
             }
         }
-        d.add(new StringField("category0", category0 != null ? category0 :
-                "Uncategorized",
-                org.apache.lucene.document.Field.Store.YES));
-        d.add(new StringField("category1", category1 != null ? category1 :
-                "Uncategorized",
-                org.apache.lucene.document.Field.Store.YES));
+        d.add(new SortedSetDocValuesFacetField("category0", category0 != null ?
+                category0 :
+                "Uncategorized"));
+        d.add(new SortedSetDocValuesFacetField("category1", category1 != null ?
+                category1 :
+                "Uncategorized"));
 
-        return d;
+        try {
+            return config.build(d);
+        } catch (IOException ex) {
+            throw new InternalError(ex);
+        }
     }
 
     /**

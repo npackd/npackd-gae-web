@@ -145,10 +145,31 @@ public class DatastoreCache {
             p.lastModifiedBy =
                     AuthService.getInstance().getCurrentUser();
         }
-        // TODO: datastore.put(p.createEntity());
+
+        try (PreparedStatement statement = con.prepareStatement(
+                "INSERT INTO PACKAGE(NAME, TITLE, DESCRIPTION, " +
+                "FULLTEXT_, TITLE_FULLTEXT) VALUES(?,?,?,?,?)",
+                Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, p.name);
+            statement.setString(2, p.title);
+            statement.setString(3, p.description);
+            statement.setString(4, p.description); // TODO
+            statement.setString(5, p.title); // TODO
+
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
         incDataVersion();
         SearchService index = SearchService.getInstance();
-        index.addDocument(p.createDocument(findAllRepositories()));
+        List<org.apache.lucene.document.Document> docs = new ArrayList<>();
+        try {
+            docs.add(p.createDocument(findAllRepositories()));
+        } catch (IOException ex) {
+            throw new InternalError(ex);
+        }
+        index.addDocuments(docs);
     }
 
     /**
@@ -679,7 +700,27 @@ public class DatastoreCache {
 
         return res;
          */
-        return null;
+
+        return selectPackages("");
+    }
+
+    private List<Package> selectPackages(final String where) {
+        List<Package> r = new ArrayList<>();
+        try {
+            PreparedStatement stmt =
+                    con.prepareStatement(
+                            "select * from PACKAGE " + where);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Package pv = new Package(rs);
+                r.add(pv);
+            }
+            stmt.close();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
+        return r;
     }
 
     /**
@@ -751,25 +792,16 @@ public class DatastoreCache {
                 }
             }
 
-            if (packages.size() == 0) {
-                /* TODO
-                DatastoreService datastore = DatastoreServiceFactory.
-                        getDatastoreService();
-
-                List<com.google.appengine.api.datastore.Key> keys =
-                        new ArrayList<>();
+            if (packages.size() < ids.size()) {
+                StringBuilder where = new StringBuilder();
                 for (String id : ids) {
-                    keys.add(KeyFactory.createKey("Package", id));
-                }
-
-                final Map<com.google.appengine.api.datastore.Key, Entity> map =
-                        datastore.get(keys);
-                for (com.google.appengine.api.datastore.Key key : keys) {
-                    Entity p = map.get(key);
-                    if (p != null) {
-                        packages.add(new Package(p));
+                    if (!where.isEmpty()) {
+                        where.append(",");
                     }
+                    // TODO: SQL injection
+                    where.append('\'').append(id).append('\'');
                 }
+                packages = selectPackages("where NAME IN (" + where + ")");
 
                 lock.lock();
                 try {
@@ -779,7 +811,6 @@ public class DatastoreCache {
                 } finally {
                     lock.unlock();
                 }
-                 */
             } else {
                 NWUtils.LOG.info("Got packages from the memory cache!");
             }
