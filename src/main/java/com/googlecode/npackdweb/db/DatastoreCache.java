@@ -164,11 +164,7 @@ public class DatastoreCache {
         incDataVersion();
         SearchService index = SearchService.getInstance();
         List<org.apache.lucene.document.Document> docs = new ArrayList<>();
-        try {
-            docs.add(p.createDocument(findAllRepositories()));
-        } catch (IOException ex) {
-            throw new InternalError(ex);
-        }
+        docs.add(p.createDocument(findAllRepositories()));
         index.addDocuments(docs);
     }
 
@@ -723,6 +719,25 @@ public class DatastoreCache {
         return r;
     }
 
+    private List<PackageVersion> selectPackageVersions(final String where) {
+        List<PackageVersion> r = new ArrayList<>();
+        try {
+            PreparedStatement stmt =
+                    con.prepareStatement(
+                            "select * from PACKAGE_VERSION " + where);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                PackageVersion pv = new PackageVersion(rs);
+                r.add(pv);
+            }
+            stmt.close();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
+        return r;
+    }
+
     /**
      * @param package_ package ID
      * @return sorted versions (1.1, 1.2, 1.3) for this package
@@ -1046,28 +1061,8 @@ public class DatastoreCache {
      * @return all versions for the package
      */
     public List<PackageVersion> getPackageVersions(String id) {
-        /* TODO
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query("PackageVersion");
-        query.setFilter(
-                new com.google.appengine.api.datastore.Query.FilterPredicate(
-                        "package_", FilterOperator.EQUAL, id));
-
-        PreparedQuery pq = datastore.prepare(query);
-        final List<Entity> list =
-                pq.asList(FetchOptions.Builder.withDefaults());
-
-        List<PackageVersion> res = new ArrayList<>();
-        for (Entity e : list) {
-            res.add(new PackageVersion(e));
-        }
-
-        return res;
-         */
-        return null;
+        // TODO: SQL injection
+        return selectPackageVersions("WHERE PACKAGE = '" + id + "'");
     }
 
     /**

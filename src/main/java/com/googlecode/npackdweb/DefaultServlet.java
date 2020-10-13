@@ -77,7 +77,6 @@ public class DefaultServlet extends HttpServlet {
         if (pi == null) {
             pi = "/";
         }
-        System.out.println("öasldfkjöaslfjölasdkfjlöasdkfjösladkfjö l " + pi);
 
         Action found = null;
         for (int i = 0; i < actions.size(); i++) {

@@ -216,8 +216,8 @@ public class Package {
      */
     public Package(ResultSet p) throws SQLException {
         this.name = p.getString("NAME");
+        this.title = p.getString("TITLE");
         /* TODO
-        this.title = NWUtils.getString(p, "title");
         this.url = NWUtils.getString(p, "url");
         this.changelog = NWUtils.getString(p, "changelog");
         this.description = NWUtils.getString(p, "description");
@@ -241,6 +241,7 @@ public class Package {
         if (s != null) {
             this.starred = s.intValue();
         }
+         */
 
         if (this.comment == null) {
             this.comment = "";
@@ -286,8 +287,7 @@ public class Package {
         if (this.screenshots == null) {
             this.screenshots = new ArrayList<>();
         }
-        this.issues = NWUtils.getString(p, "issues");
-         */
+        // TODO this.issues = NWUtils.getString(p, "issues");
     }
 
     void createEntity() {
