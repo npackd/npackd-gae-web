@@ -1,5 +1,0 @@
-syntax: regexp
-\.orig$
-^src/tags$
-^backup/
-^target/
