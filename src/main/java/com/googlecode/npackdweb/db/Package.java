@@ -220,8 +220,13 @@ public class Package {
         /* TODO
         this.url = NWUtils.getString(p, "url");
         this.changelog = NWUtils.getString(p, "changelog");
-        this.description = NWUtils.getString(p, "description");
-        this.icon = NWUtils.getString(p, "icon");
+         */
+        this.description = NWUtils.getString(p, "DESCRIPTION");
+        this.icon = NWUtils.getString(p, "ICON");
+        if (this.icon == null) {
+            this.icon = "";
+        }
+        /* TODO
         this.license = NWUtils.getString(p, "license");
         this.comment = NWUtils.getString(p, "comment");
         this.lastModifiedAt = (Date) p.getProperty("lastModifiedAt");

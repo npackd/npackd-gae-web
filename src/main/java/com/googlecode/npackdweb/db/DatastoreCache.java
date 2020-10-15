@@ -928,15 +928,10 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
-            /* TODO
-            DatastoreService datastore = DatastoreServiceFactory.
-                    getDatastoreService();
-            try {
-                ret = new Package(datastore.get(KeyFactory.createKey("Package",
-                        id)));
-            } catch (EntityNotFoundException ex) {
-                // ignore
-                //NWUtils.LOG.info("Cannot find the package " + id);
+            // TODO: SQL injection
+            List<Package> packages = selectPackages("WHERE NAME = '" + id + "'");
+            if (packages.size() > 0) {
+                ret = packages.get(0);
             }
 
             if (ret != null) {
@@ -947,7 +942,6 @@ public class DatastoreCache {
                     lock.unlock();
                 }
             }
-             */
         }
 
         if (ret != null) {
