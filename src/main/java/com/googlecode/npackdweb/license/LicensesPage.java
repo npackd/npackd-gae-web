@@ -65,7 +65,7 @@ public class LicensesPage extends MyPage {
         for (License p : this.getLicenses()) {
             w.start("div", "class", "media");
             w.start("a", "class", "pull-left", "href", "/l/" + p.name);
-            w.e("img", "src", "/App.png", "alt", p.title);
+            w.e("img", "src", "/static/App.png", "alt", p.title);
             w.end("a");
 
             w.start("div", "class", "media-body");

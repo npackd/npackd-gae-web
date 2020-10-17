@@ -20,14 +20,7 @@ import org.apache.lucene.facet.LabelAndValue;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.markdown4j.Markdown4jProcessor;
 
 /**
@@ -103,7 +96,8 @@ public class PackagesPage extends MyPage {
         if ("created".equals(sort)) {
             se = new Sort(new SortField("createdAt", SortField.Type.LONG, true));
         } else if ("stars".equals(sort)) {
-            se = new Sort(new SortField("starred", SortField.Type.INT, true));
+            se = new Sort(new SortedNumericSortField("starred",
+                    SortField.Type.INT, true));
         } else if ("title".equals(sort)) {
             se = new Sort(new SortField("title", SortField.Type.STRING, false));
         } else {
@@ -236,7 +230,7 @@ public class PackagesPage extends MyPage {
                 w.start("div", "class", "media");
                 w.start("a", "class", "pull-left", "href", "/p/" + p.name);
                 if (p.icon.isEmpty()) {
-                    w.e("img", "src", "/App.png", "alt", p.title);
+                    w.e("img", "src", "/static/App.png", "alt", p.title);
                 } else {
                     w.e("img", "src", p.icon, "style",
                             "width: 32px; max-height: 32px", "alt", p.title);

@@ -23,12 +23,10 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.IntPoint;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
+import org.apache.lucene.document.*;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetField;
+import org.apache.lucene.util.BytesRef;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -485,23 +483,15 @@ public class Package {
         // the field "title" is necessary for sorting
         d.add(new StringField("id", this.name,
                 org.apache.lucene.document.Field.Store.YES));
-        d.add(new StringField("title", this.title,
-                org.apache.lucene.document.Field.Store.YES));
+        d.add(new SortedDocValuesField("title", new BytesRef(this.title)));
         d.add(new TextField("text", text,
                 org.apache.lucene.document.Field.Store.YES));
-        d.add(new StringField("createdAt", DateTools.timeToString(
-                this.createdAt.
-                        getTime(),
-                DateTools.Resolution.SECOND),
-                org.apache.lucene.document.Field.Store.YES));
-        d.add(new StringField("name", this.name,
-                org.apache.lucene.document.Field.Store.YES));
+        d.add(new NumericDocValuesField("createdAt", this.createdAt.getTime()));
         d.add(new TextField("category", NWUtils.join(" ", tags),
                 org.apache.lucene.document.Field.Store.YES));
         d.add(new TextField("permission", sb.toString(),
                 org.apache.lucene.document.Field.Store.YES));
-        d.add(new IntPoint("starred", this.starred));
-
+        d.add(new NumericDocValuesField("starred", this.starred));
         d.add(new SortedSetDocValuesFacetField("repository", rep != null ? rep :
                 "unknown"));
 

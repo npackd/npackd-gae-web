@@ -294,48 +294,6 @@ public class PackageVersion {
          */
     }
 
-    /**
-     * Creates an entity for saving in the Datastore.
-     *
-     * the created entity
-     */
-    public void createEntity() {
-        /* TODO
-        com.google.appengine.api.datastore.Entity e =
-                new com.google.appengine.api.datastore.Entity("PackageVersion",
-                        this.name);
-
-        e.setIndexedProperty("url", this.url);
-        e.setProperty("fileContents", this.fileContents);
-        e.setIndexedProperty("package_", this.package_);
-        e.setIndexedProperty("version", this.version);
-        e.setIndexedProperty("oneFile", this.oneFile);
-        e.setIndexedProperty("url", this.url);
-        e.setIndexedProperty("sha1", this.sha1);
-        e.setIndexedProperty("importantFileTitles", this.importantFileTitles);
-        e.setIndexedProperty("importantFilePaths", this.importantFilePaths);
-        e.setIndexedProperty("cmdFilePaths", this.cmdFilePaths);
-        e.setIndexedProperty("filePaths", this.filePaths);
-        e.setIndexedProperty("dependencyPackages", this.dependencyPackages);
-        e.setIndexedProperty("dependencyVersionRanges",
-                this.dependencyVersionRanges);
-        e.setIndexedProperty("dependencyEnvVars", this.dependencyEnvVars);
-        e.setIndexedProperty("detectFilePaths", this.detectFilePaths);
-        e.setIndexedProperty("detectFileSHA1s", this.detectFileSHA1s);
-        e.setIndexedProperty("tags", this.tags);
-        e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
-        e.setIndexedProperty("lastModifiedBy", this.lastModifiedBy);
-        e.setIndexedProperty("createdAt", this.createdAt);
-        e.setIndexedProperty("createdBy", this.createdBy);
-        e.setIndexedProperty("installSucceeded", this.installSucceeded);
-        e.setIndexedProperty("installFailed", this.installFailed);
-        e.setIndexedProperty("uninstallSucceeded", this.uninstallSucceeded);
-        e.setIndexedProperty("uninstallFailed", this.uninstallFailed);
-
-        return e;
-         */
-    }
-
     public String getName() {
         return name;
     }
@@ -484,7 +442,7 @@ public class PackageVersion {
      * @param content file content
      */
     public void setFileContents(int index, String content) {
-        // TODO: this.fileContents.set(index, new Text(content));
+        this.fileContents.set(index, content);
     }
 
     /**
@@ -494,8 +452,8 @@ public class PackageVersion {
      * @param content file content
      */
     public void addFile(String path, String content) {
-        // TODO: this.filePaths.add(path);
-        // TODO: this.fileContents.add(new Text(content));
+        this.filePaths.add(path);
+        this.fileContents.add(content);
     }
 
     /**

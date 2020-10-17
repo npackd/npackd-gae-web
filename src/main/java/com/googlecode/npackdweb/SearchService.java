@@ -139,7 +139,7 @@ public class SearchService {
      * @param query query
      * @param start starting offset (0, 1, ...)
      * @param pageSize page size
-     * @param sort how to sort
+     * @param sort how to sort or null
      * @return found documents
      * @throws ParseException error while parsing the query.
      * @throws java.io.IOException I/O error
@@ -151,7 +151,11 @@ public class SearchService {
         TopScoreDocCollector collector = TopScoreDocCollector.create(10000,
                 10000);
         isearcher.search(query, collector);
-        return collector.topDocs(start, pageSize);
+
+        if (sort != null)
+            return isearcher.search(query, 10000, sort);
+        else
+            return collector.topDocs(start, pageSize);
     }
 
     /**

@@ -178,7 +178,7 @@ public class LicensePage extends MyPage {
     @Override
     public String getTitleHTML() {
         HTMLWriter w = new HTMLWriter();
-        w.e("img", "src", "/App.png");
+        w.e("img", "src", "/static/App.png");
 
         if (this.id != null && this.id.trim().length() > 0) {
             w.t(" " + title);

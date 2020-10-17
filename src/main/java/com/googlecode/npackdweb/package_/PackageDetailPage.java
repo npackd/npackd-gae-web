@@ -165,7 +165,7 @@ public class PackageDetailPage extends MyPage {
         w.unencoded(NWUtils.tmpl("PackageDetail.js"));
         w.end("script");
 
-        NWUtils.linkScript(w, "/autosize.min.js");
+        NWUtils.linkScript(w, "/static/autosize.min.js");
 
         return w.toString();
     }
@@ -686,7 +686,7 @@ public class PackageDetailPage extends MyPage {
     public String getTitleHTML() {
         HTMLWriter w = new HTMLWriter();
         if (icon.isEmpty()) {
-            w.e("img", "src", "/App.png");
+            w.e("img", "src", "/static/App.png");
         } else {
             w.e("img", "src", icon, "style",
                     "width: 32px; max-height: 32px");
