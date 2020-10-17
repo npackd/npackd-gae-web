@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -60,8 +61,7 @@ public class DatastoreCache {
         String password;
         try {
             config = readConfig();
-            password = config.getElementsByTagName("db-password").item(0).
-                    getTextContent();
+            password = getSetting("db-password", null);
         } catch (SAXException | IOException | ParserConfigurationException ex) {
             throw new InternalError(ex);
         }
@@ -91,6 +91,28 @@ public class DatastoreCache {
         return doc;
     }
 
+    private void exec(final String sql) throws SQLException {
+        Statement stmt = con.createStatement();
+        stmt.execute(sql);
+        stmt.close();
+    }
+
+    private void exec(final String sql, final Object... params) throws SQLException {
+        if (params.length == 0) {
+            Statement stmt = con.createStatement();
+            stmt.execute(sql);
+            stmt.close();
+        } else {
+            try (PreparedStatement statement = con.prepareStatement(sql)) {
+                for (int i = 0; i < params.length; i++) {
+                    statement.setObject(i, params[i]);
+                }
+
+                statement.executeUpdate();
+            }
+        }
+    }
+
     private void updateDB(final Connection con) throws SQLException {
         Statement stmt = con.createStatement();
         stmt.execute(
@@ -101,16 +123,11 @@ public class DatastoreCache {
                 "ICON varchar(2048) DEFAULT NULL," +
                 "DESCRIPTION varchar(4096) NOT NULL," +
                 "LICENSE varchar(255) DEFAULT NULL," +
-                "FULLTEXT_ varchar(4096) NOT NULL," +
-                "STATUS int DEFAULT NULL," +
-                "SHORT_NAME varchar(255) DEFAULT NULL," +
-                "REPOSITORY int DEFAULT NULL," +
                 "CATEGORY0 int DEFAULT NULL," +
                 "CATEGORY1 int DEFAULT NULL," +
                 "CATEGORY2 int DEFAULT NULL," +
                 "CATEGORY3 int DEFAULT NULL," +
                 "CATEGORY4 int DEFAULT NULL," +
-                "TITLE_FULLTEXT varchar(1024) NOT NULL," +
                 "STARS int DEFAULT NULL)"
         );
 
@@ -128,6 +145,24 @@ public class DatastoreCache {
                 "URL varchar(2048)," +
                 "CONTENT BLOB)"
         );
+
+        stmt.execute(
+            "CREATE TABLE if not exists LICENSE(NAME varchar(255) NOT NULL, " +
+            "TITLE varchar(255) NOT NULL, " +
+            "DESCRIPTION varchar(4096) NOT NULL, " +
+            "URL varchar(2048) DEFAULT NULL" +
+            ")"
+        );
+
+        stmt.execute("CREATE TABLE if not exists REPOSITORY(NAME varchar(255) NOT NULL PRIMARY KEY)");
+
+        stmt.execute(
+                "CREATE TABLE if not exists SETTING (" +
+                        "NAME varchar(255) NOT NULL," +
+                        "VALUE varchar(1024) NOT NULL)"
+        );
+
+        stmt.close();
     }
 
     /**
@@ -147,14 +182,15 @@ public class DatastoreCache {
         }
 
         try (PreparedStatement statement = con.prepareStatement(
-                "INSERT INTO PACKAGE(NAME, TITLE, DESCRIPTION, " +
-                "FULLTEXT_, TITLE_FULLTEXT) VALUES(?,?,?,?,?)",
+                "INSERT INTO PACKAGE(NAME, TITLE, DESCRIPTION, LICENSE, URL, ICON " +
+                ") VALUES(?,?,?,?,?,?)",
                 Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, p.name);
             statement.setString(2, p.title);
             statement.setString(3, p.description);
-            statement.setString(4, p.description); // TODO
-            statement.setString(5, p.title); // TODO
+            statement.setString(4, p.license);
+            statement.setString(5, p.url);
+            statement.setString(6, p.icon);
 
             statement.executeUpdate();
         } catch (SQLException ex) {
@@ -210,40 +246,13 @@ public class DatastoreCache {
      * @param name license ID
      */
     public void deleteLicense(String name) {
-        // TODO: datastore.delete(KeyFactory.createKey("License", name));
+        try {
+            exec("delete from LICENSE where NAME='" + escape(name) + "'");
+        } catch (SQLException e) {
+            throw new InternalError(e);
+        }
 
         incDataVersion();
-    }
-
-    /**
-     * Writes a setting
-     *
-     * @param name setting name
-     * @param value new setting value
-     */
-    public void setSetting(String name, String value) {
-        /*
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        Entity e = null;
-        try {
-            e = datastore.get(KeyFactory.createKey("Setting", name));
-        } catch (EntityNotFoundException ex) {
-            // ignore
-        }
-
-        Setting st;
-        if (e == null) {
-            st = new Setting();
-            st.name = name;
-        } else {
-            st = new Setting(e);
-        }
-        st.value = value;
-
-        datastore.put(st.createEntity());
-        TODO */
     }
 
     /**
@@ -252,26 +261,13 @@ public class DatastoreCache {
      * @param name package name
      */
     public void deletePackage(String name) {
-        // delete the package
-        // TODO: datastore.delete(KeyFactory.createKey("Package", name));
-
-        // delete package versions
-        /* TODO: com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query("PackageVersion");
-        query.setFilter(
-                new com.google.appengine.api.datastore.Query.FilterPredicate(
-                        "package_", FilterOperator.EQUAL, name));
-        query.setKeysOnly();
-
-        PreparedQuery pq = datastore.prepare(query);
-        final List<Entity> list = pq.asList(FetchOptions.Builder.withDefaults());
-        ArrayList<com.google.appengine.api.datastore.Key> keys =
-                new ArrayList<>();
-        for (Entity e : list) {
-            keys.add(e.getKey());
+        try {
+            exec("delete from PACKAGE_VERSION where PACKAGE='" + escape(name) + "'");
+            exec("delete from PACKAGE where NAME='" + escape(name) + "'");
+        } catch (SQLException e) {
+            throw new InternalError(e);
         }
-        datastore.delete(keys);
-         */
+
         SearchService index = SearchService.getInstance();
         index.delete(name);
         incDataVersion();
@@ -287,7 +283,21 @@ public class DatastoreCache {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
         }
-        // TODO: datastore.put(p.createEntity());
+
+        try (PreparedStatement statement = con.prepareStatement(
+                "INSERT INTO LICENSE(NAME, TITLE, DESCRIPTION, URL " +
+                        ") VALUES(?,?,?,?)",
+                Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, p.name);
+            statement.setString(2, p.title);
+            statement.setString(3, p.description);
+            statement.setString(4, p.url);
+
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
         incDataVersion();
     }
 
@@ -299,26 +309,14 @@ public class DatastoreCache {
      * @return setting value
      */
     public String getSetting(String name, String defaultValue) {
-        /* TODO
-        Setting st = null;
-        try {
-            st = new Setting(datastore.get(KeyFactory.createKey(
-                    "Setting", name)));
-        } catch (EntityNotFoundException ex) {
-            // ignore
+        NodeList nl = config.getElementsByTagName(name);
+        String res;
+        if (nl.getLength() > 0) {
+            res = nl.item(0).getTextContent();
+        } else {
+            res = defaultValue;
         }
-
-        String value;
-        if (st == null) {
-            st = new Setting();
-            st.name = name;
-            st.value = defaultValue;
-            datastore.put(st.createEntity());
-        }
-        value = st.value;
-        return value;
-         */
-        return null;
+        return res;
     }
 
     /**
@@ -361,7 +359,6 @@ public class DatastoreCache {
                 }
             }
         }
-        // TODO: datastore.put(p.createEntity());
         incDataVersion();
     }
 
@@ -371,7 +368,15 @@ public class DatastoreCache {
      * @param r repository
      */
     public void saveRepository(Repository r) {
-        // TODO: datastore.put(r.createEntity());
+        try (PreparedStatement statement = con.prepareStatement(
+                "INSERT INTO REPOSITORY(NAME) VALUES(?)")) {
+            statement.setString(1, r.name);
+
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
         incDataVersion();
     }
 
@@ -396,22 +401,17 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
-            /* TODO
-            DatastoreService datastore = DatastoreServiceFactory.
-                    getDatastoreService();
+            List<Editor> list = selectEditors("");
+
+            if (list.size() > 0)
+                ret = list.get(0);
+
+            lock.lock();
             try {
-                ret = new Editor(datastore.
-                        get(KeyFactory.createKey("Editor", email)));
-                lock.lock();
-                try {
-                    editorsCache.put(email, ret.clone());
-                } finally {
-                    lock.unlock();
-                }
-            } catch (EntityNotFoundException ex) {
-                // ignore
+                editorsCache.put(email, ret.clone());
+            } finally {
+                lock.unlock();
             }
-             */
         }
         return ret;
     }
@@ -547,57 +547,16 @@ public class DatastoreCache {
      * @param id ID of the entity
      * @return found repository or null
      */
-    public Repository getRepository(long id) {
-        /* TODO:
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        Repository ret = null;
-        try {
-            ret = new Repository(datastore.get(KeyFactory.createKey(
-                    "Repository",
-                    id)));
-        } catch (EntityNotFoundException ex) {
-            // ignore
-        }
-        return ret;
-         */
-        return null;
+    public Repository getRepository(String id) {
+        List<Repository> reps = selectRepositories("WHERE NAME='" + escape(id) + "'");
+        Repository res;
+        if (reps.size() > 0)
+            res = reps.get(0);
+        else
+            res = null;
+        return res;
     }
 
-    /**
-     * Returns all entities for a query fetching them in batches.
-     *
-     * @param q a query
-     * @return found entities
-     */
-    /*TODO
-    public List<Entity> getAllEntities(Query q) {
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        List<Entity> r = new ArrayList<>();
-        final FetchOptions fo = FetchOptions.Builder.withDefaults();
-        PreparedQuery pq = datastore.prepare(q);
-        fo.limit(500);
-
-        Cursor cursor = null;
-        while (true) {
-            if (cursor != null) {
-                fo.startCursor(cursor);
-            }
-            QueryResultList<Entity> list = pq.asQueryResultList(fo);
-            if (list.size() == 0) {
-                break;
-            }
-            cursor = list.getCursor();
-
-            r.addAll(list);
-        }
-
-        return r;
-        return null;
-    }
-     */
     /**
      * @param tag a tag to filter the package versions or null
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
@@ -719,6 +678,63 @@ public class DatastoreCache {
         return r;
     }
 
+    private List<Repository> selectRepositories(final String where) {
+        List<Repository> r = new ArrayList<>();
+        try {
+            PreparedStatement stmt =
+                    con.prepareStatement(
+                            "select * from REPOSITORY " + where);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Repository pv = new Repository(rs);
+                r.add(pv);
+            }
+            stmt.close();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
+        return r;
+    }
+
+    private List<License> selectLicenses(final String where) {
+        List<License> r = new ArrayList<>();
+        try {
+            PreparedStatement stmt =
+                    con.prepareStatement(
+                            "select * from LICENSE " + where);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                License pv = new License(rs);
+                r.add(pv);
+            }
+            stmt.close();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
+        return r;
+    }
+
+    private List<Editor> selectEditors(final String where) {
+        List<Editor> r = new ArrayList<>();
+        try {
+            PreparedStatement stmt =
+                    con.prepareStatement(
+                            "select * from EDITOR " + where);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Editor pv = new Editor(rs);
+                r.add(pv);
+            }
+            stmt.close();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
+        return r;
+    }
+
     private List<PackageVersion> selectPackageVersions(final String where) {
         List<PackageVersion> r = new ArrayList<>();
         try {
@@ -813,8 +829,7 @@ public class DatastoreCache {
                     if (!where.isEmpty()) {
                         where.append(",");
                     }
-                    // TODO: SQL injection
-                    where.append('\'').append(id).append('\'');
+                    where.append('\'').append(escape(id)).append('\'');
                 }
                 packages = selectPackages("where NAME IN (" + where + ")");
 
@@ -857,16 +872,9 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
-            /* TODO
-            DatastoreService datastore = DatastoreServiceFactory.
-                    getDatastoreService();
-            try {
-                ret = new License(datastore.get(KeyFactory.createKey(
-                        "License",
-                        id)));
-            } catch (EntityNotFoundException ex) {
-                // ignore
-            }
+            List<License> licenses = selectLicenses("where NAME = '" + escape(id) + "'");
+            if (licenses.size() > 0)
+                ret = licenses.get(0);
 
             if (ret != null) {
                 lock.lock();
@@ -876,7 +884,6 @@ public class DatastoreCache {
                     lock.unlock();
                 }
             }
-             */
         }
 
         if (ret != null) {
@@ -928,8 +935,7 @@ public class DatastoreCache {
         }
 
         if (ret == null) {
-            // TODO: SQL injection
-            List<Package> packages = selectPackages("WHERE NAME = '" + id + "'");
+            List<Package> packages = selectPackages("WHERE NAME = '" + escape(id) + "'");
             if (packages.size() > 0) {
                 ret = packages.get(0);
             }
@@ -971,7 +977,12 @@ public class DatastoreCache {
      * @param p this package version will be deleted
      */
     public void deletePackageVersion(PackageVersion p) {
-        // TODO: datastore.delete(KeyFactory.createKey("PackageVersion", p.name));
+        try {
+            exec("delete from PACKAGE_VERSION where PACKAGE='" + escape(p.package_) +
+                    "' AND NAME = '" + escape(p.name) + "'");
+        } catch (SQLException e) {
+            throw new InternalError(e);
+        }
 
         incDataVersion();
     }
@@ -1044,8 +1055,12 @@ public class DatastoreCache {
      *
      * @param id repository ID
      */
-    public void deleteRepository(long id) {
-        // TODO datastore.delete(KeyFactory.createKey("Repository", id));
+    public void deleteRepository(String id) {
+        try {
+            exec("delete from REPOSITORY where ID='" + escape(id) + "'");
+        } catch (SQLException e) {
+            throw new InternalError(e);
+        }
 
         incDataVersion();
     }
@@ -1055,8 +1070,7 @@ public class DatastoreCache {
      * @return all versions for the package
      */
     public List<PackageVersion> getPackageVersions(String id) {
-        // TODO: SQL injection
-        return selectPackageVersions("WHERE PACKAGE = '" + id + "'");
+        return selectPackageVersions("WHERE PACKAGE = '" + escape(id) + "'");
     }
 
     /**
@@ -1078,30 +1092,19 @@ public class DatastoreCache {
         }
 
         if (!read) {
-            /* TODO:
-            DatastoreService datastore = DatastoreServiceFactory.
-                    getDatastoreService();
-
-            com.google.appengine.api.datastore.Query query =
-                    new com.google.appengine.api.datastore.Query("License");
-            query.addSort("title");
-            PreparedQuery pq = datastore.prepare(query);
-            final List<Entity> list =
-                    pq.asList(FetchOptions.Builder.withDefaults());
+            List<License> list = selectLicenses("");
 
             lock.lock();
             try {
                 licensesCache.clear();
                 allLicensesRead = true;
-                for (Entity e : list) {
-                    License lic = new License(e);
+                for (License lic : list) {
                     licensesCache.put(lic.name, lic);
                     licenses.add(lic.copy());
                 }
             } finally {
                 lock.unlock();
             }
-             */
         }
 
         return licenses;
@@ -1114,14 +1117,9 @@ public class DatastoreCache {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public ArrayList<PackageVersion> getRecentlyChangedPackageVersions() {
+    public List<PackageVersion> getRecentlyChangedPackageVersions() {
+        return selectPackageVersions("");
         /* TODO
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query(
-                        "PackageVersion");
         if (user != null) {
             query.setFilter(
                     new com.google.appengine.api.datastore.Query.FilterPredicate(
@@ -1147,8 +1145,6 @@ public class DatastoreCache {
             res.add(new PackageVersion(e));
         }
          */
-        return null;
-
     }
 
     public List<License> getLicenses(List<String> lns2) {
@@ -1156,6 +1152,87 @@ public class DatastoreCache {
     }
 
     public void savePackageVersions(List<PackageVersion> toSave) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (PackageVersion pv: toSave) {
+            savePackageVersion(null, pv, true, true); // TODO: strange parameters
+        }
+    }
+
+    static String escape(final String s) {
+        // https://dev.mysql.com/doc/refman/8.0/en/string-literals.html
+        // PHP mysql_real_escape_string: \x00, \n, \r, \, ', " und \x1a.
+        // MySQL QUOTE function: single  quote, backslash, ASCII NUL and control-Z with a backslash.
+        boolean ok = true;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '\0' || c == '\n' || c == '\r' || c == '\\' || c == '\'' || c == '"' || c == '\u001a' || c == '\b') {
+                ok = false;
+                break;
+            }
+        }
+
+        if (ok) {
+            return s;
+        } else {
+            char[] buf = new char[s.length() * 2];
+            int where = 0;
+
+            for (int i = 0; i < s.length(); i++) {
+                char c = s.charAt(i);
+                switch (c) {
+                    case '\0':
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = '0';
+                        where++;
+                        break;
+                    case '\n':
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = 'n';
+                        where++;
+                        break;
+                    case '\r':
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = 'r';
+                        where++;
+                        break;
+                    case '\\':
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = '\\';
+                        where++;
+                        break;
+                    case '\'':
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = '\'';
+                        where++;
+                        break;
+                    case '"':
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = '"';
+                        where++;
+                        break;
+                    case '\u001a': // Ctrl+Z
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = 'Z';
+                        where++;
+                        break;
+                    case '\b': // Backspace
+                        buf[where] = '\\';
+                        where++;
+                        buf[where] = 'b';
+                        where++;
+                        break;
+                    default:
+                        buf[where] = c;
+                        where++;
+                }
+            }
+            return new String(buf, 0, where);
+        }
     }
 }

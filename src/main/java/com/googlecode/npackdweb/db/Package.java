@@ -226,6 +226,7 @@ public class Package {
         if (this.icon == null) {
             this.icon = "";
         }
+        this.license = NWUtils.getString(p, "LICENSE");
         /* TODO
         this.license = NWUtils.getString(p, "license");
         this.comment = NWUtils.getString(p, "comment");

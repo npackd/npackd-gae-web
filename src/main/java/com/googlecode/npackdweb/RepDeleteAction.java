@@ -21,7 +21,7 @@ public class RepDeleteAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        long id = Long.parseLong(req.getParameter("id"));
+        String id = req.getParameter("id");
         NWUtils.dsCache.deleteRepository(id);
 
         resp.sendRedirect("/rep");

@@ -15,15 +15,17 @@ public class License {
     /**
      * This is the ID of the entity.
      */
-    public String name;
+    public String name = "";
 
-    public String title;
-    public String url;
+    public String title = "";
+    public String url = "";
+
+    public String description = "";
 
     /**
      * last modification date
      */
-    public Date lastModifiedAt;
+    public Date lastModifiedAt = new Date();
 
     public License() {
 
@@ -35,9 +37,10 @@ public class License {
      * @param e an entity
      */
     public License(ResultSet e) throws SQLException {
-        this.name = e.getString("name");
-        this.title = NWUtils.getString(e, "title");
-        this.url = NWUtils.getString(e, "url");
+        this.name = e.getString("NAME");
+        this.title = NWUtils.getString(e, "TITLE");
+        this.url = NWUtils.getString(e, "URL");
+        this.description = NWUtils.getString(e, "DESCRIPTION");
 
         if (this.lastModifiedAt == null) {
             this.lastModifiedAt = NWUtils.newDate();

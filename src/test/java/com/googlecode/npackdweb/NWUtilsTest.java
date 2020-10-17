@@ -38,4 +38,5 @@ public class NWUtilsTest {
         assertEquals("f#", NWUtils.analyzeText("F#"));
         assertEquals("c++", NWUtils.analyzeText("CPP"));
     }
+
 }

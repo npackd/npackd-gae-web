@@ -33,14 +33,12 @@ import org.xml.sax.SAXParseException;
 public class RepUploadAction extends Action {
 
     private static final class Found {
-
         List<License> lics;
         public List<Package> ps;
         public List<PackageVersion> pvs;
     }
 
     private static final class Stats {
-
         public int pOverwritten, pAppended;
         public int pvOverwritten, pvAppended;
         public int licOverwritten, licAppended;
@@ -108,19 +106,6 @@ public class RepUploadAction extends Action {
                 pv.addTag(tag);
             }
 
-            // determine the keys for all objects
-            /* implement caching later
-             List<Key<?>> keys = new ArrayList<>();
-             for (License lic : f.lics) {
-             keys.add(lic.createKey());
-             }
-             for (PackageVersion pv : f.pvs) {
-             keys.add(pv.createKey());
-             }
-             for (Package p : f.ps) {
-             keys.add(p.createKey());
-             }
-             */
             Stats stats = new Stats();
 
             // process licenses first. Only admins can change the license.

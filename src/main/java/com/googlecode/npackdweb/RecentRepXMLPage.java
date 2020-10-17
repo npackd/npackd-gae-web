@@ -5,6 +5,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +32,7 @@ public class RecentRepXMLPage extends Page {
 
         byte[] value;
         try {
-            ArrayList<PackageVersion> res = NWUtils.dsCache.
+            List<PackageVersion> res = NWUtils.dsCache.
                     getRecentlyChangedPackageVersions();
 
             Document d = RepXMLPage.toXML(res, false, null);

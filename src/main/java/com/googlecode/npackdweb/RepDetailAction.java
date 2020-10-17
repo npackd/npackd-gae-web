@@ -23,7 +23,7 @@ public class RepDetailAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        long id = Long.parseLong(req.getRequestURI().substring(5));
+        String id = req.getRequestURI().substring(5);
 
         Repository r = NWUtils.dsCache.getRepository(id);
 

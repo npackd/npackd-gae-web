@@ -55,13 +55,16 @@ public class Editor implements Cloneable {
     }
 
     Editor(ResultSet p) throws SQLException {
-        this.name = p.getString("name");
+        this.name = p.getString("NAME");
+        /* todo
         this.lastModifiedAt = p.getDate("lastModifiedAt");
         this.createdAt = p.getDate("createdAt");
         this.createdBy = new User(p.getString("createdBy"), "server");
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
         this.id = p.getLong("id");
         this.lastLogin = p.getDate("lastLogin");
+
+         */
 
         if (this.starredPackages == null) {
             this.starredPackages = new ArrayList<>();
