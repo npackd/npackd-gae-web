@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * A package version.
@@ -54,7 +56,7 @@ public class PackageVersion {
     /**
      * this is unindexed
      */
-    private List<Object> fileContents = new ArrayList<>();
+    private List<String> fileContents = new ArrayList<>();
 
     /**
      * abc@2.4. This is the ID of the entity.
@@ -138,6 +140,40 @@ public class PackageVersion {
     public PackageVersion() {
     }
 
+    public PackageVersion(Element e) {
+        package_ = e.getAttribute("package");
+        version = e.getAttribute("name");
+        name = package_ + "@" + version;
+        oneFile = e.getAttribute("type").equals("one-file");
+        url = NWUtils.getSubTagContent(e, "url", "");
+
+        sha1 = NWUtils.getSubTagContent(e, "hash-sum", "");
+        if (sha1.isEmpty())
+            sha1 = NWUtils.getSubTagContent(e, "sha1", "");
+
+        NodeList children = e.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node ch = children.item(i);
+            if (ch.getNodeType() == Element.ELEMENT_NODE) {
+                Element che = (Element) ch;
+                if (che.getNodeName().equals("important-file")) {
+                    importantFilePaths.add(che.getAttribute("path"));
+                    importantFileTitles.add(che.getAttribute("title"));
+                } else if (che.getNodeName().equals("cmd-file")) {
+                    cmdFilePaths.add(che.getAttribute("path"));
+                } else if (che.getNodeName().equals("file")) {
+                    addFile(che.getAttribute("path"),
+                            NWUtils.getTagContent_(che));
+                } else if (che.getNodeName().equals("dependency")) {
+                    dependencyPackages.add(che.getAttribute("package"));
+                    dependencyVersionRanges.add(che.getAttribute("versions"));
+                    dependencyEnvVars.add(NWUtils.getSubTagContent(che,
+                            "variable", ""));
+                }
+            }
+        }
+    }
+
     /**
      * tags = "not-reviewed"
      *
@@ -176,6 +212,9 @@ public class PackageVersion {
         this.package_ = e.getString("PACKAGE");
 
         this.name = this.package_ + "@" + this.version;
+
+        String content = e.getString("CONTENT");
+
 
         /*
         this.oneFile = (Boolean) e.getProperty("oneFile");
@@ -425,13 +464,7 @@ public class PackageVersion {
      * @return file contents &lt;file&gt;
      */
     public String getFileContents(int i) {
-        /* TODO Object obj = fileContents.get(i);
-        if (obj instanceof Text) {
-            return ((Text) obj).getValue();
-        } else {
-            return (String) obj;
-        }*/
-        return null;
+        return fileContents.get(i);
     }
 
     /**

@@ -6,14 +6,14 @@ import com.googlecode.npackdweb.SearchService;
 import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,11 +50,22 @@ public class DatastoreCache {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost/npackd?" +
-                    "user=npackd&password=" + password + "&serverTimezone=UTC");
+                    "user=npackd&password=" + password + "&serverTimezone=UTC&profileSQL=true");
             updateDB(con);
         } catch (ClassNotFoundException | SQLException ex) {
             throw new InternalError(ex);
         }
+    }
+
+    private static String toSQL(List<String> ids) {
+        StringBuilder where = new StringBuilder();
+        for (String id : ids) {
+            if (!where.isEmpty()) {
+                where.append(",");
+            }
+            where.append('\'').append(escape(id)).append('\'');
+        }
+        return where.toString();
     }
 
     private static Document readConfig() throws SAXException, IOException,
@@ -98,40 +109,42 @@ public class DatastoreCache {
         Statement stmt = con.createStatement();
         stmt.execute(
                 "CREATE TABLE if not exists PACKAGE (" +
-                "NAME varchar(255) NOT NULL," +
+                "NAME varchar(255) PRIMARY KEY," +
                 "TITLE varchar(1024) NOT NULL," +
-                "URL varchar(2048) DEFAULT NULL," +
-                "ICON varchar(2048) DEFAULT NULL," +
+                "URL varchar(2048) NOT NULL," +
+                "ICON varchar(2048) NOT NULL," +
                 "DESCRIPTION varchar(4096) NOT NULL," +
-                "LICENSE varchar(255) DEFAULT NULL," +
-                "CATEGORY0 int DEFAULT NULL," +
-                "CATEGORY1 int DEFAULT NULL," +
-                "CATEGORY2 int DEFAULT NULL," +
-                "CATEGORY3 int DEFAULT NULL," +
-                "CATEGORY4 int DEFAULT NULL," +
-                "STARS int DEFAULT NULL)"
+                "LICENSE varchar(255) NOT NULL," +
+                "CATEGORY0 int NOT NULL," +
+                "CATEGORY1 int NOT NULL," +
+                "CATEGORY2 int NOT NULL," +
+                "CATEGORY3 int NOT NULL," +
+                "CATEGORY4 int NOT NULL," +
+                "STARS int NOT NULL)"
         );
 
         stmt.execute(
                 "CREATE TABLE if not exists EDITOR (" +
-                "ID int NOT NULL AUTO_INCREMENT, " +
-                "EMAIL varchar(255) NOT NULL," +
-                "PRIMARY KEY (ID))"
+                "ID int NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                "EMAIL varchar(255) NOT NULL)"
         );
 
         stmt.execute(
                 "CREATE TABLE if not exists PACKAGE_VERSION (" +
-                "NAME varchar(255) NOT NULL," +
                 "PACKAGE varchar(255) NOT NULL," +
-                "URL varchar(2048)," +
-                "CONTENT BLOB)"
+                "NAME varchar(255) NOT NULL," +
+                "URL varchar(2048) NOT NULL," +
+                "CONTENT BLOB NOT NULL," +
+                "PRIMARY KEY (PACKAGE, NAME)" +
+                ")"
         );
 
         stmt.execute(
-            "CREATE TABLE if not exists LICENSE(NAME varchar(255) NOT NULL, " +
+            "CREATE TABLE if not exists LICENSE(" +
+            "NAME varchar(255) PRIMARY KEY, " +
             "TITLE varchar(255) NOT NULL, " +
             "DESCRIPTION varchar(4096) NOT NULL, " +
-            "URL varchar(2048) DEFAULT NULL" +
+            "URL varchar(2048) NOT NULL" +
             ")"
         );
 
@@ -157,15 +170,22 @@ public class DatastoreCache {
         }
 
         try (PreparedStatement statement = con.prepareStatement(
-                "INSERT INTO PACKAGE(NAME, TITLE, DESCRIPTION, LICENSE, URL, ICON " +
-                ") VALUES(?,?,?,?,?,?)",
+                "REPLACE INTO PACKAGE(NAME, TITLE, URL, ICON, DESCRIPTION, LICENSE, " +
+                "CATEGORY0, CATEGORY1, CATEGORY2, CATEGORY3, CATEGORY4, STARS " +
+                ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                 Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, p.name);
             statement.setString(2, p.title);
-            statement.setString(3, p.description);
-            statement.setString(4, p.license);
-            statement.setString(5, p.url);
-            statement.setString(6, p.icon);
+            statement.setString(3, p.url);
+            statement.setString(4, p.icon);
+            statement.setString(5, p.description);
+            statement.setString(6, p.license);
+            statement.setInt(7, 0);
+            statement.setInt(8, 0);
+            statement.setInt(9, 0);
+            statement.setInt(10, 0);
+            statement.setInt(11, 0);
+            statement.setInt(12, 0);
 
             statement.executeUpdate();
         } catch (SQLException ex) {
@@ -190,7 +210,7 @@ public class DatastoreCache {
         }
 
         try (PreparedStatement statement = con.prepareStatement(
-                "INSERT INTO EDITOR(EMAIL) VALUES(?)",
+                "REPLACE INTO EDITOR(EMAIL) VALUES(?)",
                 Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, e.name);
 
@@ -260,7 +280,7 @@ public class DatastoreCache {
         }
 
         try (PreparedStatement statement = con.prepareStatement(
-                "INSERT INTO LICENSE(NAME, TITLE, DESCRIPTION, URL " +
+                "REPLACE INTO LICENSE(NAME, TITLE, DESCRIPTION, URL " +
                         ") VALUES(?,?,?,?)",
                 Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, p.name);
@@ -335,17 +355,20 @@ public class DatastoreCache {
             }
         }
 
+        Document d = NWUtils.newXMLRepository(false);
+        d.getDocumentElement().appendChild(p.toXML(d));
+
         try (PreparedStatement statement = con.prepareStatement(
-                "INSERT INTO PACKAGE_VERSION(NAME, PACKAGE, URL, CONTENT " +
+                "REPLACE INTO PACKAGE_VERSION(NAME, PACKAGE, URL, CONTENT " +
                         ") VALUES(?,?,?,?)",
                 Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, p.version);
             statement.setString(2, p.package_);
             statement.setString(3, p.url);
-            statement.setString(4, ""); // TODO
+            statement.setString(4, NWUtils.toString(d));
 
             statement.executeUpdate();
-        } catch (SQLException ex) {
+        } catch (SQLException | IOException ex) {
             throw new InternalError(ex);
         }
 
@@ -359,7 +382,7 @@ public class DatastoreCache {
      */
     public void saveRepository(Repository r) {
         try (PreparedStatement statement = con.prepareStatement(
-                "INSERT INTO REPOSITORY(NAME) VALUES(?)")) {
+                "REPLACE INTO REPOSITORY(NAME) VALUES(?)")) {
             statement.setString(1, r.name);
 
             statement.executeUpdate();
@@ -580,11 +603,18 @@ public class DatastoreCache {
                             "select * from PACKAGE_VERSION " + where);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                PackageVersion pv = new PackageVersion(rs);
+                DocumentBuilder db =
+                        javax.xml.parsers.DocumentBuilderFactory.newInstance()
+                                .newDocumentBuilder();
+                // TODO encoding
+                ByteArrayInputStream is = new ByteArrayInputStream(rs.getString("CONTENT").getBytes());
+                Document d = db.parse(is);
+                PackageVersion pv = new PackageVersion((Element)
+                        d.getDocumentElement().getElementsByTagName("version").item(0));
                 r.add(pv);
             }
             stmt.close();
-        } catch (SQLException ex) {
+        } catch (SAXException | IOException | SQLException | ParserConfigurationException ex) {
             throw new InternalError(ex);
         }
 
@@ -597,13 +627,10 @@ public class DatastoreCache {
      */
     public List<PackageVersion> getSortedVersions(String package_) {
         List<PackageVersion> versions = getPackageVersions(package_);
-        Collections.sort(versions, new Comparator<PackageVersion>() {
-            @Override
-            public int compare(PackageVersion a, PackageVersion b) {
-                Version va  = Version.parse(a.version);
-                Version vb = Version.parse(b.version);
-                return va.compare(vb);
-            }
+        Collections.sort(versions, (a, b) -> {
+            Version va  = Version.parse(a.version);
+            Version vb = Version.parse(b.version);
+            return va.compare(vb);
         });
         return versions;
     }
@@ -635,14 +662,10 @@ public class DatastoreCache {
      * @return found packages
      */
     public List<Package> getPackages(List<String> ids, boolean useCache) {
-        StringBuilder where = new StringBuilder();
-        for (String id : ids) {
-            if (!where.isEmpty()) {
-                where.append(",");
-            }
-            where.append('\'').append(escape(id)).append('\'');
-        }
-        return selectPackages("where NAME IN (" + where + ")");
+        if (ids.size() == 0)
+            return new ArrayList<>();
+
+        return selectPackages("where NAME IN (" + toSQL(ids) + ")");
     }
 
     /**
@@ -786,13 +809,6 @@ public class DatastoreCache {
         return selectLicenses("");
     }
 
-    /**
-     * @return new ID for an editor
-     */
-    public long getNextEditorID() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     public List<PackageVersion> getRecentlyChangedPackageVersions() {
         return selectPackageVersions("ORDER BY LAST_MODIFIED DESC LIMIT 20");
 
@@ -809,13 +825,10 @@ public class DatastoreCache {
     }
 
     public List<License> getLicenses(List<String> lns2) {
-        String ids = "";
-        for (String id: lns2) {
-            if (!ids.isEmpty())
-                ids += ",";
-            ids += escape(id);
-        }
-        return selectLicenses("where NAME in (" + ids + ")");
+        if (lns2.size() == 0)
+            return new ArrayList<>();
+
+        return selectLicenses("where NAME in (" + toSQL(lns2) + ")");
     }
 
     public void savePackageVersions(List<PackageVersion> toSave) {

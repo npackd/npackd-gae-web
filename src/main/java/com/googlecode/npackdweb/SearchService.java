@@ -93,12 +93,16 @@ public class SearchService {
      *
      * @param docs documents
      */
-    public void addDocuments(
-            Iterable<? extends Iterable<? extends IndexableField>> docs) {
+    public void addDocuments(List<Document> docs) {
         try {
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             iwriter = new IndexWriter(directory, config);
+            Term[] terms = new Term[docs.size()];
+            for (int i = 0; i < docs.size(); i++) {
+                terms[i] = new Term("id", docs.get(i).get("id"));
+            }
+            iwriter.deleteDocuments(terms);
             iwriter.addDocuments(docs);
             iwriter.close();
             iwriter = null;

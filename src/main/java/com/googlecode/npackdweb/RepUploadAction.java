@@ -282,43 +282,11 @@ public class RepUploadAction extends Action {
             if (ch.getNodeType() == Element.ELEMENT_NODE &&
                     ch.getNodeName().equals("version")) {
                 Element e = (Element) ch;
-                PackageVersion pv = createPackageVersion(e);
+                PackageVersion pv = new PackageVersion(e);
                 v.add(pv);
             }
         }
         return v;
     }
 
-    private PackageVersion createPackageVersion(Element e) {
-        PackageVersion p =
-                new PackageVersion(e.getAttribute("package"),
-                        e.getAttribute("name"));
-        p.name = p.package_ + "@" + p.version;
-        p.oneFile = e.getAttribute("type").equals("one-file");
-        p.url = NWUtils.getSubTagContent(e, "url", "");
-        p.sha1 = NWUtils.getSubTagContent(e, "sha1", "");
-
-        NodeList children = e.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node ch = children.item(i);
-            if (ch.getNodeType() == Element.ELEMENT_NODE) {
-                Element che = (Element) ch;
-                if (che.getNodeName().equals("important-file")) {
-                    p.importantFilePaths.add(che.getAttribute("path"));
-                    p.importantFileTitles.add(che.getAttribute("title"));
-                } else if (che.getNodeName().equals("cmd-file")) {
-                    p.cmdFilePaths.add(che.getAttribute("path"));
-                } else if (che.getNodeName().equals("file")) {
-                    p.addFile(che.getAttribute("path"),
-                            NWUtils.getTagContent_(che));
-                } else if (che.getNodeName().equals("dependency")) {
-                    p.dependencyPackages.add(che.getAttribute("package"));
-                    p.dependencyVersionRanges.add(che.getAttribute("versions"));
-                    p.dependencyEnvVars.add(NWUtils.getSubTagContent(che,
-                            "variable", ""));
-                }
-            }
-        }
-        return p;
-    }
 }

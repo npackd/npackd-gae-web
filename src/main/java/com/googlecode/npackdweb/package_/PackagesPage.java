@@ -153,7 +153,7 @@ public class PackagesPage extends MyPage {
         List<String> ids = new ArrayList<>();
         NWUtils.LOG.info("Starting search");
         try {
-            TopDocs r = index.search(q, start, PAGE_SIZE, se);
+            TopDocs r = index.search(q, start, PAGE_SIZE + 1, se);
             found = r.totalHits.value;
 
             if (found > 0) {
