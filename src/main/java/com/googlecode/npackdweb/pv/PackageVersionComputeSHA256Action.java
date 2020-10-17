@@ -38,7 +38,7 @@ public class PackageVersionComputeSHA256Action extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion p = NWUtils.dsCache.getPackageVersion(
-                    package_ + "@" + version);
+                    package_, version);
             PackageVersion oldp = p.copy();
             try {
                 Info info = p.check(false, "SHA-256");

@@ -57,7 +57,7 @@ public class PackageVersionRecognizeAction extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion p = NWUtils.dsCache.getPackageVersion(
-                    package_ + "@" + version);
+                    package_, version);
             PackageVersion oldp = p.copy();
             String err = recognize(p);
             if (err != null) {

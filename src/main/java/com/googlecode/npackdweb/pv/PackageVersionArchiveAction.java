@@ -41,7 +41,7 @@ public class PackageVersionArchiveAction extends Action {
         v.normalize();
         
         PackageVersion p = NWUtils.dsCache.getPackageVersion(
-                package_ + "@" + version);
+                package_, version);
         PackageVersion oldp = p.copy();
         Page page;
         try {

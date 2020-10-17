@@ -217,18 +217,17 @@ public class Package {
     public Package(ResultSet p) throws SQLException {
         this.name = p.getString("NAME");
         this.title = p.getString("TITLE");
-        /* TODO
-        this.url = NWUtils.getString(p, "url");
-        this.changelog = NWUtils.getString(p, "changelog");
-         */
-        this.description = NWUtils.getString(p, "DESCRIPTION");
+        this.url = NWUtils.getString(p, "URL");
         this.icon = NWUtils.getString(p, "ICON");
         if (this.icon == null) {
             this.icon = "";
         }
+        /* TODO
+        this.changelog = NWUtils.getString(p, "changelog");
+         */
+        this.description = NWUtils.getString(p, "DESCRIPTION");
         this.license = NWUtils.getString(p, "LICENSE");
         /* TODO
-        this.license = NWUtils.getString(p, "license");
         this.comment = NWUtils.getString(p, "comment");
         this.lastModifiedAt = (Date) p.getProperty("lastModifiedAt");
         this.lastModifiedBy = (User) p.getProperty("lastModifiedBy");

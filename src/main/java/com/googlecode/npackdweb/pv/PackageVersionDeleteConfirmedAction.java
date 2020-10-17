@@ -8,6 +8,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,7 +29,8 @@ public class PackageVersionDeleteConfirmedAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String name = req.getParameter("name");
-        PackageVersion p = NWUtils.dsCache.getPackageVersion(name);
+        List<String> nameParts = NWUtils.split(name, '@');
+        PackageVersion p = NWUtils.dsCache.getPackageVersion(nameParts.get(0), nameParts.get(1));
         Package pa = NWUtils.dsCache.getPackage(p.package_, false);
         Page page;
         if (!pa.isCurrentUserPermittedToModify()) {

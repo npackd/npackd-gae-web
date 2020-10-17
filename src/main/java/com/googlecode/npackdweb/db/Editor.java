@@ -55,7 +55,7 @@ public class Editor implements Cloneable {
     }
 
     Editor(ResultSet p) throws SQLException {
-        this.name = p.getString("NAME");
+        this.name = p.getString("EMAIL");
         /* todo
         this.lastModifiedAt = p.getDate("lastModifiedAt");
         this.createdAt = p.getDate("createdAt");

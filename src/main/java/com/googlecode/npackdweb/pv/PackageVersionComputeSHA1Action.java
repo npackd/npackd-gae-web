@@ -37,7 +37,7 @@ public class PackageVersionComputeSHA1Action extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion p = NWUtils.dsCache.getPackageVersion(
-                    package_ + "@" + version);
+                    package_, version);
             PackageVersion oldp = p.copy();
 
             try {

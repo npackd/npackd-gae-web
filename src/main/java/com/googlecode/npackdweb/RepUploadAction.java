@@ -169,7 +169,7 @@ public class RepUploadAction extends Action {
 
                 Package p = NWUtils.dsCache.getPackage(pv.package_, true);
                 PackageVersion existing = NWUtils.dsCache.getPackageVersion(
-                        pv.name);
+                        pv.package_, pv.version);
                 if (p != null && !p.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +

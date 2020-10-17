@@ -90,7 +90,7 @@ public class PackageVersion {
     public List<String> detectFilePaths = new ArrayList<>();
     public List<String> detectFileSHA1s = new ArrayList<>();
 
-    public List<String> tags;
+    public List<String> tags = new ArrayList<>();
 
     /**
      * last modification date
@@ -105,7 +105,7 @@ public class PackageVersion {
     /**
      * creation date
      */
-    public Date createdAt;
+    public Date createdAt = new Date();
 
     /**
      * user for the creation
@@ -172,13 +172,12 @@ public class PackageVersion {
             this.fileContents = new ArrayList<>();
         }*/
 
-        this.name = e.getString("NAME");
+        this.version = e.getString("NAME");
         this.package_ = e.getString("PACKAGE");
 
-        /*if (this.package_ == null) {
-            this.package_ = NWUtils.getString(e, "package");
-        }
-        this.version = NWUtils.getString(e, "version");
+        this.name = this.package_ + "@" + this.version;
+
+        /*
         this.oneFile = (Boolean) e.getProperty("oneFile");
         this.url = NWUtils.getString(e, "url");
         this.sha1 = NWUtils.getString(e, "sha1");

@@ -44,7 +44,7 @@ public class PackageVersionDetailAction extends Action {
         String version = m.group(2);
 
         PackageVersion r = NWUtils.dsCache.getPackageVersion(
-                package_ + "@" + version);
+                package_, version);
         if (r == null) {
             Version v = Version.parse(version);
             if (!v.toString().equals(version)) {

@@ -39,8 +39,7 @@ public class PackageVersionSaveAction extends Action {
                         new MessagePage(
                                 "You do not have permission to modify this package");
             } else {
-                PackageVersion p = NWUtils.dsCache.getPackageVersion(package_ +
-                        "@" + version);
+                PackageVersion p = NWUtils.dsCache.getPackageVersion(package_, version);
                 PackageVersion old;
                 if (p == null) {
                     old = null;

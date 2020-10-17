@@ -40,7 +40,7 @@ public class TagPackageVersionAction extends Action {
         String value = req.getParameter("value");
 
         PackageVersion r = NWUtils.dsCache.getPackageVersion(
-                package_ + "@" + version);
+                package_, version);
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;

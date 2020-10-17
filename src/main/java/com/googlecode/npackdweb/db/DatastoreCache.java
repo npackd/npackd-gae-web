@@ -5,27 +5,21 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.SearchService;
 import com.googlecode.npackdweb.User;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * In-memory cache for the datastore entities.
@@ -39,21 +33,8 @@ public class DatastoreCache {
      */
     private long dataVersion;
 
-    private final Map<String, Package> packagesCache =
-            new HashMap<>();
-
-    private final Map<String, License> licensesCache =
-            new HashMap<>();
-
-    private final Map<String, Editor> editorsCache = new HashMap<>();
-
-    private final Map<String, Repository> repositoriesCache = new HashMap<>();
-
-    private boolean allLicensesRead;
-    private boolean allRepositoriesRead;
-
-    private Connection con;
-    private Document config;
+    private final Connection con;
+    private final Document config;
 
     public DatastoreCache() {
         new File(NWUtils.BASE_PATH).mkdirs();
@@ -76,7 +57,7 @@ public class DatastoreCache {
         }
     }
 
-    public static Document readConfig() throws SAXException, IOException,
+    private static Document readConfig() throws SAXException, IOException,
             ParserConfigurationException {
         File fXmlFile = new File("/etc/npackd/config.xml");
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.
@@ -155,12 +136,6 @@ public class DatastoreCache {
         );
 
         stmt.execute("CREATE TABLE if not exists REPOSITORY(NAME varchar(255) NOT NULL PRIMARY KEY)");
-
-        stmt.execute(
-                "CREATE TABLE if not exists SETTING (" +
-                        "NAME varchar(255) NOT NULL," +
-                        "VALUE varchar(1024) NOT NULL)"
-        );
 
         stmt.close();
     }
@@ -359,6 +334,21 @@ public class DatastoreCache {
                 }
             }
         }
+
+        try (PreparedStatement statement = con.prepareStatement(
+                "INSERT INTO PACKAGE_VERSION(NAME, PACKAGE, URL, CONTENT " +
+                        ") VALUES(?,?,?,?)",
+                Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, p.version);
+            statement.setString(2, p.package_);
+            statement.setString(3, p.url);
+            statement.setString(4, ""); // TODO
+
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new InternalError(ex);
+        }
+
         incDataVersion();
     }
 
@@ -387,33 +377,13 @@ public class DatastoreCache {
      * @return the found editor or null
      */
     public Editor findEditor(User u) {
-        final String email = u.email;
-        Editor ret = null;
-
-        lock.lock();
-        try {
-            ret = editorsCache.get(email);
-        } finally {
-            lock.unlock();
-        }
-        if (ret != null) {
-            ret = ret.clone();
-        }
-
-        if (ret == null) {
-            List<Editor> list = selectEditors("");
-
-            if (list.size() > 0)
-                ret = list.get(0);
-
-            lock.lock();
-            try {
-                editorsCache.put(email, ret.clone());
-            } finally {
-                lock.unlock();
-            }
-        }
-        return ret;
+        List<Editor> list = selectEditors("WHERE EMAIL = '" + escape(u.email) + "'");
+        Editor r;
+        if (list.size() > 0)
+            r = list.get(0);
+        else
+            r = null;
+        return r;
     }
 
     /**
@@ -426,7 +396,7 @@ public class DatastoreCache {
     public void starPackage(Package p,
             Editor e, boolean star) {
         if (star) {
-            if (e.starredPackages.indexOf(p.name) < 0) {
+            if (!e.starredPackages.contains(p.name)) {
                 Package oldp = p.copy();
                 p.starred++;
                 savePackage(oldp, p, false);
@@ -434,7 +404,7 @@ public class DatastoreCache {
                 saveEditor(e);
             }
         } else {
-            if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
+            if (e != null && e.starredPackages.contains(p.name)) {
                 Package oldp = p.copy();
                 p.starred--;
                 if (p.starred < 0) {
@@ -451,44 +421,7 @@ public class DatastoreCache {
      * @return all repositories
      */
     public List<Repository> findAllRepositories() {
-        List<Repository> repositories = new ArrayList<>();
-        boolean read = false;
-        lock.lock();
-        try {
-            if (allRepositoriesRead) {
-                for (Repository r : repositoriesCache.values()) {
-                    repositories.add(r.copy());
-                }
-                read = true;
-            }
-        } finally {
-            lock.unlock();
-        }
-
-        if (!read) {
-            /* TODO:
-            com.google.appengine.api.datastore.Query query =
-                    new com.google.appengine.api.datastore.Query("Repository");
-            PreparedQuery pq = datastore.prepare(query);
-            final List<Entity> list =
-                    pq.asList(FetchOptions.Builder.withDefaults());
-
-            lock.lock();
-            try {
-                repositoriesCache.clear();
-                allRepositoriesRead = true;
-                for (Entity e : list) {
-                    Repository r = new Repository(e);
-                    repositoriesCache.put(r.name, r);
-                    repositories.add(r.copy());
-                }
-            } finally {
-                lock.unlock();
-            }
-             */
-        }
-
-        return repositories;
+        return selectRepositories("");
     }
 
     /**
@@ -499,46 +432,13 @@ public class DatastoreCache {
      * @return found repository or null
      */
     public Repository findRepository(String tag, boolean useCache) {
-        Repository ret = null;
-
-        if (useCache) {
-            lock.lock();
-            try {
-                ret = repositoriesCache.get(tag);
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        if (ret == null) {
-            /* TODO
-            DatastoreService datastore = DatastoreServiceFactory.
-                    getDatastoreService();
-            try {
-                ret = new Repository(datastore.get(KeyFactory.createKey(
-                        "Repository",
-                        tag)));
-            } catch (EntityNotFoundException ex) {
-                // ignore
-                //NWUtils.LOG.info("Cannot find the package " + id);
-            }
-
-            if (ret != null) {
-                lock.lock();
-                try {
-                    repositoriesCache.put(tag, ret);
-                } finally {
-                    lock.unlock();
-                }
-            }
-             */
-        }
-
-        if (ret != null) {
-            ret = ret.copy();
-        }
-
-        return ret;
+        List<Repository> list = selectRepositories("where NAME='" + escape(tag) + "'");
+        Repository r;
+        if (list.size() > 0)
+            r = list.get(0);
+        else
+            r = null;
+        return r;
     }
 
     /**
@@ -559,104 +459,41 @@ public class DatastoreCache {
 
     /**
      * @param tag a tag to filter the package versions or null
-     * @param order how to order the query (e.g. "-lastModifiedAt") or null
+     * @param order how to order the query (e.g. "NAME ASC") or null
      * @param limit maximum number of returned package versions or 0 for
      * "unlimited"
      * @return the package versions
      */
     public List<PackageVersion> findPackageVersions(
             String tag, String order, int limit) {
-        List<PackageVersion> r = new ArrayList<>();
-        try {
-            /* TODO
-            com.google.appengine.api.datastore.Query query =
-            new com.google.appengine.api.datastore.Query("PackageVersion");
-            if (tag != null) {
-            query.setFilter(
-            new com.google.appengine.api.datastore.Query.FilterPredicate(
-            "tags", FilterOperator.EQUAL, tag));
-            }
-            if (order != null) {
-            query.addSort(order);
-            }
-            List<Entity> list;
-            if (limit <= 0) {
-            list = getAllEntities(query);
-            } else {
-            PreparedQuery pq = datastore.prepare(query);
-            final FetchOptions fo = FetchOptions.Builder.withDefaults();
-            if (limit > 0) {
-            fo.limit(limit);
-            }
-            list = pq.asList(fo);
-            }
-            List<PackageVersion> res = new ArrayList<>();
-            for (Entity e : list) {
-            res.add(new PackageVersion(e));
-            }
-            return res;
-             */
-            PreparedStatement stmt =
-                    con.prepareStatement(
-                            "select * from PACKAGE_VERSION");
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                PackageVersion pv = new PackageVersion(rs);
-                r.add(pv);
-            }
-            stmt.close();
-        } catch (SQLException ex) {
-            throw new InternalError(ex);
-        }
+        // TODO: tag
+        String where = "";
+        if (order != null)
+            where += " ORDER BY " + order;
+        if (limit > 0)
+            where += " LIMIT " + limit;
 
-        return r;
+        return selectPackageVersions(where);
     }
 
     /**
      * @param tag a tag to filter the package or null
-     * @param order how to order the query (e.g. "-lastModifiedAt") or null
+     * @param order how to order the query (e.g. "NAME DESC") or null
      * @param limit maximum number of returned package versions or 0 for
      * "unlimited"
      * @return the packages
      */
     public List<Package> findPackages(
             String tag, String order, int limit) {
-        /* TODO
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
+        String where = "";
+        if (tag != null)
+            where += " WHERE TAG = '" + escape(tag) + "'";
+        if (order != null)
+            where +=" ORDER BY " + order;
+        if (limit > 0)
+            where += " LIMIT " + limit;
 
-        com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query("Package");
-        if (tag != null) {
-            query.setFilter(
-                    new com.google.appengine.api.datastore.Query.FilterPredicate(
-                            "tags", FilterOperator.EQUAL, tag));
-        }
-        if (order != null) {
-            query.addSort(order);
-        }
-
-        List<Entity> list;
-        if (limit <= 0) {
-            list = getAllEntities(query);
-        } else {
-            PreparedQuery pq = datastore.prepare(query);
-            final FetchOptions fo = FetchOptions.Builder.withDefaults();
-            if (limit > 0) {
-                fo.limit(limit);
-            }
-            list = pq.asList(fo);
-        }
-
-        List<Package> res = new ArrayList<>();
-        for (Entity e : list) {
-            res.add(new Package(e));
-        }
-
-        return res;
-         */
-
-        return selectPackages("");
+        return selectPackages(where);
     }
 
     private List<Package> selectPackages(final String where) {
@@ -782,12 +619,6 @@ public class DatastoreCache {
         lock.lock();
         try {
             dataVersion++;
-            packagesCache.clear();
-            licensesCache.clear();
-            editorsCache.clear();
-            repositoriesCache.clear();
-            allLicensesRead = false;
-            allRepositoriesRead = false;
             r = dataVersion;
         } finally {
             lock.unlock();
@@ -804,52 +635,14 @@ public class DatastoreCache {
      * @return found packages
      */
     public List<Package> getPackages(List<String> ids, boolean useCache) {
-        List<Package> packages = new ArrayList<>();
-
-        if (ids.size() > 0) {
-            if (useCache) {
-                lock.lock();
-                try {
-                    for (String id : ids) {
-                        Package p = packagesCache.get(id);
-                        if (p == null) {
-                            packages.clear();
-                            break;
-                        }
-                        packages.add(p);
-                    }
-                } finally {
-                    lock.unlock();
-                }
+        StringBuilder where = new StringBuilder();
+        for (String id : ids) {
+            if (!where.isEmpty()) {
+                where.append(",");
             }
-
-            if (packages.size() < ids.size()) {
-                StringBuilder where = new StringBuilder();
-                for (String id : ids) {
-                    if (!where.isEmpty()) {
-                        where.append(",");
-                    }
-                    where.append('\'').append(escape(id)).append('\'');
-                }
-                packages = selectPackages("where NAME IN (" + where + ")");
-
-                lock.lock();
-                try {
-                    for (Package p : packages) {
-                        packagesCache.put(p.name, p);
-                    }
-                } finally {
-                    lock.unlock();
-                }
-            } else {
-                NWUtils.LOG.info("Got packages from the memory cache!");
-            }
-            for (int i = 0; i < packages.size(); i++) {
-                packages.set(i, packages.get(i).copy());
-            }
+            where.append('\'').append(escape(id)).append('\'');
         }
-
-        return packages;
+        return selectPackages("where NAME IN (" + where + ")");
     }
 
     /**
@@ -860,35 +653,12 @@ public class DatastoreCache {
      * @return found license or null
      */
     public License getLicense(String id, boolean useCache) {
-        License ret = null;
-
-        if (useCache) {
-            lock.lock();
-            try {
-                ret = licensesCache.get(id);
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        if (ret == null) {
-            List<License> licenses = selectLicenses("where NAME = '" + escape(id) + "'");
-            if (licenses.size() > 0)
-                ret = licenses.get(0);
-
-            if (ret != null) {
-                lock.lock();
-                try {
-                    licensesCache.put(id, ret);
-                } finally {
-                    lock.unlock();
-                }
-            }
-        }
-
-        if (ret != null) {
-            ret = ret.copy();
-        }
+        List<License> licenses = selectLicenses("where NAME = '" + escape(id) + "'");
+        License ret;
+        if (licenses.size() > 0)
+            ret = licenses.get(0);
+        else
+            ret = null;
 
         return ret;
     }
@@ -896,23 +666,20 @@ public class DatastoreCache {
     /**
      * Returns a package version by its ID.
      *
-     * @param id internal package version ID
+     * @param package_ internal package version ID
+     * @param version version number
      * @return found package version or null
      */
-    public PackageVersion getPackageVersion(String id) {
-        /*
-        TODO
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-        try {
-            return new PackageVersion(datastore.get(KeyFactory.createKey(
-                    "PackageVersion",
-                    id)));
-        } catch (EntityNotFoundException ex) {
-            return null;
-        }
-         */
-        return null;
+    public PackageVersion getPackageVersion(String package_, String version) {
+        List<PackageVersion> list = selectPackageVersions("where PACKAGE='" + escape(package_) +
+                "' and NAME = '" + escape(version) + "'");
+        PackageVersion r;
+        if (list.size() > 0)
+            r = list.get(0);
+        else
+            r = null;
+
+        return r;
     }
 
     /**
@@ -923,37 +690,13 @@ public class DatastoreCache {
      * @return found package or null
      */
     public Package getPackage(String id, boolean useCache) {
+        List<Package> packages = selectPackages("WHERE NAME = '" + escape(id) + "'");
         Package ret = null;
-
-        if (useCache) {
-            lock.lock();
-            try {
-                ret = packagesCache.get(id);
-            } finally {
-                lock.unlock();
-            }
+        if (packages.size() > 0) {
+            ret = packages.get(0);
+        } else {
+            ret = null;
         }
-
-        if (ret == null) {
-            List<Package> packages = selectPackages("WHERE NAME = '" + escape(id) + "'");
-            if (packages.size() > 0) {
-                ret = packages.get(0);
-            }
-
-            if (ret != null) {
-                lock.lock();
-                try {
-                    packagesCache.put(id, ret);
-                } finally {
-                    lock.unlock();
-                }
-            }
-        }
-
-        if (ret != null) {
-            ret = ret.copy();
-        }
-
         return ret;
     }
 
@@ -988,36 +731,13 @@ public class DatastoreCache {
     }
 
     public Package findNextPackage(Package p) {
-        /* TODO
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query("Package");
-        query.setFilter(
-                new com.google.appengine.api.datastore.Query.FilterPredicate(
-                        "title", FilterOperator.GREATER_THAN_OR_EQUAL, p.title));
-        query.addSort("title");
-
-        PreparedQuery pq = datastore.prepare(query);
-        final List<Entity> ps =
-                pq.asList(FetchOptions.Builder.withLimit(5));
-
-        Package next = null;
-
-        // find the next package
-        for (int i = 0; i < ps.size() - 1; i++) {
-            Entity n = ps.get(i);
-
-            if (n.getKey().getName().equals(p.name)) {
-                next = new Package(ps.get(i + 1));
-                break;
-            }
-        }
-
-        return next;
-         */
-        return null;
+        List<Package> list = selectPackages("WHERE NAME > '" + escape(p.name) + "' LIMIT 1");
+        Package r;
+        if (list.size() > 0)
+            r = list.get(0);
+        else
+            r = null;
+        return r;
     }
 
     /**
@@ -1027,26 +747,12 @@ public class DatastoreCache {
      * @return found editor or null
      */
     public Editor findEditor(int id) {
-        /*
-        DatastoreService datastore = DatastoreServiceFactory.
-                getDatastoreService();
-
-        com.google.appengine.api.datastore.Query query =
-                new com.google.appengine.api.datastore.Query("Editor");
-        query.setFilter(
-                new com.google.appengine.api.datastore.Query.FilterPredicate(
-                        "id", FilterOperator.EQUAL, id));
-
-        PreparedQuery pq = datastore.prepare(query);
-        final List<Entity> editors =
-                pq.asList(FetchOptions.Builder.withDefaults());
-
-        if (editors.size() > 0) {
-            return new Editor(editors.get(0));
-        } else {
-            return null;
-        }
-         */
+        List<Editor> list = selectEditors("WHERE ID=" + id);
+        Editor r;
+        if (list.size() > 0)
+            r = list.get(0);
+        else
+            r = null;
         return null;
     }
 
@@ -1077,37 +783,7 @@ public class DatastoreCache {
      * @return all licenses
      */
     public List<License> getAllLicenses() {
-        List<License> licenses = new ArrayList<>();
-        boolean read = false;
-        lock.lock();
-        try {
-            if (allLicensesRead) {
-                for (License lic : licensesCache.values()) {
-                    licenses.add(lic.copy());
-                }
-                read = true;
-            }
-        } finally {
-            lock.unlock();
-        }
-
-        if (!read) {
-            List<License> list = selectLicenses("");
-
-            lock.lock();
-            try {
-                licensesCache.clear();
-                allLicensesRead = true;
-                for (License lic : list) {
-                    licensesCache.put(lic.name, lic);
-                    licenses.add(lic.copy());
-                }
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        return licenses;
+        return selectLicenses("");
     }
 
     /**
@@ -1118,7 +794,8 @@ public class DatastoreCache {
     }
 
     public List<PackageVersion> getRecentlyChangedPackageVersions() {
-        return selectPackageVersions("");
+        return selectPackageVersions("ORDER BY LAST_MODIFIED DESC LIMIT 20");
+
         /* TODO
         if (user != null) {
             query.setFilter(
@@ -1128,27 +805,17 @@ public class DatastoreCache {
                             new User(user, user.substring(user
                                     .indexOf('@')))));
         }
-        if (tag != null) {
-            query.setFilter(
-                    new com.google.appengine.api.datastore.Query.FilterPredicate(
-                            "tags",
-                            com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
-                            tag));
-        }
-        query.addSort("lastModifiedAt", Query.SortDirection.DESCENDING);
-
-        PreparedQuery pq = datastore.prepare(query);
-
-        final List<Entity> list =
-                pq.asList(FetchOptions.Builder.withLimit(20));
-        for (Entity e : list) {
-            res.add(new PackageVersion(e));
-        }
          */
     }
 
     public List<License> getLicenses(List<String> lns2) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String ids = "";
+        for (String id: lns2) {
+            if (!ids.isEmpty())
+                ids += ",";
+            ids += escape(id);
+        }
+        return selectLicenses("where NAME in (" + ids + ")");
     }
 
     public void savePackageVersions(List<PackageVersion> toSave) {

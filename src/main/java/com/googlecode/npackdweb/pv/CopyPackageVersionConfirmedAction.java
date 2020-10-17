@@ -10,6 +10,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,8 +41,9 @@ public class CopyPackageVersionConfirmedAction extends Action {
             err = "Error parsing the version number: " + e.getMessage();
         }
 
+        List<String> nameParts = NWUtils.split(name, '@');
         PackageVersion p = NWUtils.dsCache.getPackageVersion(
-                name);
+                nameParts.get(0), nameParts.get(1));
         Package r = NWUtils.dsCache.getPackage(p.package_, false);
         Page page;
         if (!r.isCurrentUserPermittedToModify()) {
@@ -50,7 +52,7 @@ public class CopyPackageVersionConfirmedAction extends Action {
                             "You do not have permission to modify this package");
         } else {
             PackageVersion copyFound = NWUtils.dsCache.getPackageVersion(
-                    p.package_ + "@" + version);
+                    p.package_, version);
             if (copyFound != null) {
                 err =
                         "This version already exists: " + p.package_ + " " +

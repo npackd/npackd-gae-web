@@ -43,7 +43,8 @@ public class EditAsXMLAction extends Action {
 
         switch (type) {
             case "version": {
-                PackageVersion r = NWUtils.dsCache.getPackageVersion(id);
+                String[] parts = id.split("@");
+                PackageVersion r = NWUtils.dsCache.getPackageVersion(parts[0], parts[1]);
                 Element e = r.toXML(d);
                 if (r.tags.size() > 0) {
                     tag = r.tags.get(0);
@@ -72,7 +73,7 @@ public class EditAsXMLAction extends Action {
                     root.appendChild(e);
                 } else {
                     PackageVersion r = NWUtils.dsCache.getPackageVersion(
-                            package_ + "@" + version);
+                            package_, version);
                     Element e = r.toXML(d);
                     if (r.tags.size() > 0) {
                         tag = r.tags.get(0);

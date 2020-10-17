@@ -944,7 +944,7 @@ public class PackageVersionPage extends MyPage {
                 Version v = Version.parse(version);
                 v.normalize();
                 PackageVersion p = NWUtils.dsCache.getPackageVersion(
-                        packageName.trim() + "@" + v.toString());
+                        packageName.trim(), v.toString());
                 if (p != null) {
                     r = "Package version " + v + " already exists";
                 }

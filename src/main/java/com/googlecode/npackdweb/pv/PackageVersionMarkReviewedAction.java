@@ -44,7 +44,7 @@ public class PackageVersionMarkReviewedAction extends Action {
 
         PackageVersion pv = null;
         if (err == null) {
-            pv = NWUtils.dsCache.getPackageVersion(package_ + "@" + v.
+            pv = NWUtils.dsCache.getPackageVersion(package_, v.
                     toString());
             if (pv == null) {
                 err = "Cannot find the package version";
