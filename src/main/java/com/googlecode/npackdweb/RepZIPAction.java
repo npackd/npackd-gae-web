@@ -24,6 +24,7 @@ public class RepZIPAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String tag = req.getParameter("tag");
+        boolean create = "true".equals(req.getParameter("create"));
 
         if (tag != null && !tag.isEmpty()) {
             Repository r = NWUtils.dsCache.findRepository(tag, true);
@@ -32,7 +33,7 @@ public class RepZIPAction extends Action {
                         tag + " not found");
                 return null;
             } else {
-                return new RepZIPPage(tag);
+                return new RepZIPPage(tag, create);
             }
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
