@@ -9,10 +9,7 @@ import com.googlecode.npackdweb.admin.CheckUpdatesAction;
 import com.googlecode.npackdweb.admin.CleanDependenciesAction;
 import com.googlecode.npackdweb.admin.ProcessPackagesAction;
 import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
-import com.googlecode.npackdweb.api.NotifyAction;
-import com.googlecode.npackdweb.api.SetURLPackageVersionAction;
-import com.googlecode.npackdweb.api.StarAction;
-import com.googlecode.npackdweb.api.TagPackageVersionAction;
+import com.googlecode.npackdweb.api.*;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
@@ -165,13 +162,9 @@ public class DefaultServlet extends HttpServlet {
         /* repository */
         registerAction(new RepDeleteAction());
         registerAction(new RepAddAction());
-        registerAction(new RepUploadAction());
         registerAction(new RepFromFileAction());
         registerAction(new RepDetailAction());
         registerAction(new RepAction());
-        registerAction(new RepXMLAction());
-        registerAction(new RepZIPAction());
-        registerAction(new RecentRepXMLAction());
 
         /* package */
         registerAction(new PackagesAction());
@@ -227,6 +220,10 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new NotifyAction());
         registerAction(new StarAction());
         registerAction(new SetURLPackageVersionAction());
+        registerAction(new RepXMLAction());
+        registerAction(new RepZIPAction());
+        registerAction(new RepUploadAction());
+        registerAction(new RecentRepXMLAction());
     }
 
     /**
