@@ -224,6 +224,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new RepZIPAction());
         registerAction(new RepUploadAction());
         registerAction(new RecentRepXMLAction());
+        registerAction(new PackageXMLAction());
     }
 
     /**

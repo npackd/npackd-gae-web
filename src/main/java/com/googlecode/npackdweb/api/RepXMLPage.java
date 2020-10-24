@@ -49,7 +49,7 @@ public class RepXMLPage extends Page {
             throws IOException {
         if (!create) {
             resp.sendRedirect(
-                    "https://github.com/tim-lebedkov/npackd/releases/download/v1/" +
+                    "https://npackd.github.io/npackd/repository/" +
                     tag + ".xml");
         } else {
             final GcsFileMetadata md;
@@ -214,7 +214,7 @@ public class RepXMLPage extends Page {
                         "version of the software.\n" +
                         p.description;
             }
-            Element package_ = p.toXML(d);
+            Element package_ = p.toXML(d, false);
 
             root.appendChild(package_);
         }

@@ -53,7 +53,7 @@ public class EditAsXMLAction extends Action {
             }
             case "package": {
                 Package r = NWUtils.dsCache.getPackage(id, false);
-                Element e = r.toXML(d);
+                Element e = r.toXML(d, false);
                 root.appendChild(e);
                 break;
             }
@@ -68,7 +68,7 @@ public class EditAsXMLAction extends Action {
                     // nothing. Editing an empty repository.
                 } else if (version == null) {
                     Package r = NWUtils.dsCache.getPackage(package_, false);
-                    Element e = r.toXML(d);
+                    Element e = r.toXML(d, false);
                     root.appendChild(e);
                 } else {
                     PackageVersion r = NWUtils.dsCache.getPackageVersion(

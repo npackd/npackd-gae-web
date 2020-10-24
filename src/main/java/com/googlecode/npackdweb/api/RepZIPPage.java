@@ -31,7 +31,7 @@ public class RepZIPPage extends Page {
             throws IOException {
         if (!create) {
             resp.sendRedirect(
-                    "https://github.com/tim-lebedkov/npackd/releases/download/v1/" +
+                    "https://npackd.github.io/npackd/repository/" +
                     tag + ".zip");
         } else {
             final GcsFileMetadata md;

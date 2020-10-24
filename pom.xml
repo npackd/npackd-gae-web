@@ -67,7 +67,12 @@
 		    <artifactId>json</artifactId>
 		    <version>20180130</version>
 		</dependency>
-                <dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.7</version>
+		</dependency>
+		<dependency>
                     <groupId>org.apache.lucene</groupId>
                     <artifactId>lucene-core</artifactId>
                     <version>8.5.0</version>
@@ -145,7 +150,11 @@
                                 <deploy.stopPreviousVersion>true</deploy.stopPreviousVersion>
                                 <deploy.projectId>npackd</deploy.projectId>
                                 <deploy.version>${project.version}</deploy.version>
-								<cloudSdkHome>/home/tim/google-cloud-sdk</cloudSdkHome>
+
+								<!-- setting here cloudSdkHome results in invalid deployment somehow -->
+								<!-- cloudSdkPath seems to be a wrong tag and unused -->
+								<!-- <cloudSdkPath>/home/tim/google-cloud-sdk</cloudSdkPath>-->
+
                                 <jvmFlags>
                                   <jvmFlag>-Xdebug</jvmFlag>
                                   <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</jvmFlag>

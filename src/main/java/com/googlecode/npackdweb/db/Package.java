@@ -390,9 +390,10 @@ public class Package {
      * &lt;package&gt;
      *
      * @param d XML document
+     * @param extra export extra non-standard information
      * @return &lt;package&gt;
      */
-    public Element toXML(Document d) {
+    public Element toXML(Document d, boolean extra) {
         Element package_ = d.createElement("package");
         package_.setAttribute("name", name);
         if (!title.isEmpty()) {
@@ -432,6 +433,18 @@ public class Package {
         if (issues != null && !issues.trim().isEmpty()) {
             NWUtils.e(package_, "link", "rel", "issues", "href",
                     issues, "");
+        }
+
+        if (extra) {
+            if (!comment.isEmpty()) {
+                NWUtils.e(package_, "_comment", comment);
+            }
+            if (!discoveryPage.isEmpty()) {
+                NWUtils.e(package_, "_discovery-page", discoveryPage);
+            }
+            if (!discoveryRE.isEmpty()) {
+                NWUtils.e(package_, "_discovery-re", discoveryRE);
+            }
         }
 
         return package_;
