@@ -31,7 +31,7 @@ public class PackageXMLPage extends Page {
         Package p = NWUtils.dsCache.getPackage(name, true);
 
         Document d = NWUtils.newXML();
-        Element package_ = p.toXML(d, false);
+        Element package_ = p.toXML(d, true);
         d.appendChild(package_);
 
         resp.setContentType("application/xml");
