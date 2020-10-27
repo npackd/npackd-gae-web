@@ -230,12 +230,13 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new TagPackageVersionAction());
         registerAction(new NotifyAction());
         registerAction(new StarAction());
-        registerAction(new SetURLPackageVersionAction());
+        registerAction(new UpdatePackageVersionAction());
         registerAction(new RepXMLAction());
         registerAction(new RepZIPAction());
         registerAction(new RepUploadAction());
         registerAction(new RecentRepXMLAction());
         registerAction(new PackageXMLAction());
+        registerAction(new CopyPackageVersionAction());
     }
 
     /**

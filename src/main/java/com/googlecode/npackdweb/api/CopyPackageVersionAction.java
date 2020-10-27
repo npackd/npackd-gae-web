@@ -21,12 +21,11 @@ import java.util.regex.Pattern;
 /**
  * Create a copy of a package version.
  */
-public class ClonePackageVersionAction extends Action {
-
+public class CopyPackageVersionAction extends Action {
     /**
      * -
      */
-    public ClonePackageVersionAction() {
+    public CopyPackageVersionAction() {
         super("^/api/copy$", ActionSecurityType.ADMINISTRATOR);
     }
 

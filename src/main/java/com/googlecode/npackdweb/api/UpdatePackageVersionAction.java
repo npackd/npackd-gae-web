@@ -6,18 +6,18 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Changes the URL for a package version.
+ * Changes a package version.
  */
-public class SetURLPackageVersionAction extends Action {
-
+public class UpdatePackageVersionAction extends Action {
     /**
      * -
      */
-    public SetURLPackageVersionAction() {
+    public UpdatePackageVersionAction() {
         super("^/api/set-url$", ActionSecurityType.ANONYMOUS);
     }
 
@@ -38,13 +38,6 @@ public class SetURLPackageVersionAction extends Action {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
 
-        String url = req.getParameter("url");
-        if (!url.startsWith(
-                "https://github.com/tim-lebedkov/packages/releases/download/")) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Wrong new URL");
-            return null;
-        }
-
         PackageVersion r = NWUtils.dsCache.getPackageVersion(
                 package_ + "@" + version);
         if (r == null) {
@@ -60,7 +53,28 @@ public class SetURLPackageVersionAction extends Action {
         }
 
         PackageVersion oldr = r.copy();
-        r.url = url;
+
+        String url = req.getParameter("url");
+        if (url != null) {
+            String err = NWUtils.validateURL(url);
+            if (err != null) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                return null;
+            }
+            r.url = url;
+        }
+        String hashSum = req.getParameter("hash-sum");
+        if (hashSum != null) {
+            String err = NWUtils.validateSHA1(hashSum);
+            if (err != null) {
+                err = NWUtils.validateSHA256(hashSum);
+                if (err != null) {
+                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                    return null;
+                }
+            }
+            r.sha1 = hashSum;
+        }
         NWUtils.dsCache.savePackageVersion(oldr, r, true, false);
 
         return null;
