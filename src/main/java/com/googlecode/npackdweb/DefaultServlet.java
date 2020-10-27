@@ -108,31 +108,42 @@ public class DefaultServlet extends HttpServlet {
                     }
                 }
             }
-            boolean ok = true;
+
+            boolean ok = false;
             switch (found.getSecurityType()) {
                 case ANONYMOUS:
+                    ok = true;
                     break;
                 case LOGGED_IN:
                     if (currentUser == null) {
-                        ok = false;
                         NWUtils.LOG.info("Calling createLoginURL");
-                        resp.
-                                sendRedirect(us.createLoginURL(req.
+                        resp.sendRedirect(us.createLoginURL(req.
                                         getRequestURI()));
+                    } else {
+                        ok = true;
                     }
                     break;
                 case ADMINISTRATOR:
-                    if (currentUser == null) {
-                        ok = false;
-                        NWUtils.LOG.info("Calling createLoginURL");
-                        resp.
-                                sendRedirect(us.createLoginURL(req.
-                                        getRequestURI()));
-                    } else if (!us.isUserAdmin()) {
-                        ok = false;
-                        resp.setContentType("text/plain");
-                        resp.getWriter().write("Not an admin");
-                        resp.getWriter().close();
+                    if (us.isUserAdmin()) {
+                        ok = true;
+                    } else {
+                        String pw = NWUtils.dsCache.getSetting("MarkTestedPassword", "");
+                        if (pw != null && !pw.trim().isEmpty() && pw.equals(req.getParameter("password"))) {
+                            ok = true;
+                        }
+
+                        if (!ok) {
+                            if (currentUser == null) {
+                                NWUtils.LOG.info("Calling createLoginURL");
+                                resp.
+                                        sendRedirect(us.createLoginURL(req.
+                                                getRequestURI()));
+                            } else {
+                                resp.setContentType("text/plain");
+                                resp.getWriter().write("Not an admin");
+                                resp.getWriter().close();
+                            }
+                        }
                     }
                     break;
                 default:

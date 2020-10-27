@@ -75,6 +75,8 @@ public class PackageVersion {
 
     public boolean oneFile;
     public String url = "";
+
+    /** SHA-1 or SHA-256 or "" */
     public String sha1 = "";
 
     public List<String> importantFileTitles = new ArrayList<>();

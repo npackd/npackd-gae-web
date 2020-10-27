@@ -35,8 +35,7 @@ public class PackageVersionSaveAction extends Action {
             final String version = pvp.getVersion();
             Package pa = NWUtils.dsCache.getPackage(package_, false);
             if (!pa.isCurrentUserPermittedToModify()) {
-                page =
-                        new MessagePage(
+                page = new MessagePage(
                                 "You do not have permission to modify this package");
             } else {
                 PackageVersion p = NWUtils.dsCache.getPackageVersion(package_ +
