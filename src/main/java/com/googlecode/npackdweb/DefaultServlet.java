@@ -124,7 +124,9 @@ public class DefaultServlet extends HttpServlet {
                     }
                     break;
                 case ADMINISTRATOR:
-                    if (us.isUserAdmin()) {
+                    // it is necessary to check currentUser != null first as
+                    // .isUserAdmin throws an exception if no user is logged in
+                    if (currentUser != null && us.isUserAdmin()) {
                         ok = true;
                     } else {
                         String pw = NWUtils.dsCache.getSetting("MarkTestedPassword", "");
