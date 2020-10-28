@@ -25,6 +25,6 @@ public class RecentRepXMLAction extends Action {
 			throws IOException {
 		String user = req.getParameter("user");
 		String tag = req.getParameter("tag");
-		return new RecentRepXMLPage(user, tag);
+		return new RecentRepXMLPage(user, tag, req.getParameter("package"));
 	}
 }

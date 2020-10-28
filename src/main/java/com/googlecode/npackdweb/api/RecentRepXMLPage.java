@@ -1,11 +1,6 @@
 package com.googlecode.npackdweb.api;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -25,16 +20,19 @@ import org.w3c.dom.Document;
 
 public class RecentRepXMLPage extends Page {
 
+    private final String package_;
     private String user;
     private String tag;
 
     /**
      * @param user email address or null
      * @param tag tag for package versions to filter or null
+     * @param package_ only return this package or null
      */
-    public RecentRepXMLPage(String user, String tag) {
+    public RecentRepXMLPage(String user, String tag, String package_) {
         this.user = user;
         this.tag = tag;
+        this.package_ = package_;
     }
 
     @Override
@@ -45,7 +43,7 @@ public class RecentRepXMLPage extends Page {
         final String key =
                 this.getClass().getName() + "@" + NWUtils.dsCache.
                 getDataVersion() +
-                "@" + user + "@" + tag;
+                "@" + user + "@" + tag + "@" + package_;
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
         syncCache.setErrorHandler(ErrorHandlers
                 .getConsistentLogAndContinue(Level.INFO));
@@ -74,12 +72,19 @@ public class RecentRepXMLPage extends Page {
                                     com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
                                     tag));
                 }
+                if (package_ != null) {
+                    query.setFilter(
+                            new com.google.appengine.api.datastore.Query.FilterPredicate(
+                                    "package_",
+                                    com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
+                                    package_));
+                }
                 query.addSort("lastModifiedAt", Query.SortDirection.DESCENDING);
 
                 PreparedQuery pq = datastore.prepare(query);
 
                 final List<Entity> list =
-                        pq.asList(FetchOptions.Builder.withLimit(20));
+                        pq.asList(FetchOptions.Builder.withLimit(40));
 
                 ArrayList<PackageVersion> res = new ArrayList<>();
                 for (Entity e : list) {
