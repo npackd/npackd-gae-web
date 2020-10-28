@@ -82,7 +82,7 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(pvs, onlyReviewed, tag);
+        return toXML(pvs, onlyReviewed, tag, false);
     }
 
     /**
@@ -113,17 +113,19 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(pvs, onlyReviewed, tag);
+        return toXML(pvs, onlyReviewed, tag, false);
     }
 
     /**
      * @param pvs package versions
      * @param onlyReviewed true = only export reviewed package versions
      * @param tag package versions tag or null for "everything"
+     * @param extra true = export non-standard fields
      * @return XML for the specified package versions
      */
     public static Document toXML(List<PackageVersion> pvs,
-            boolean onlyReviewed, String tag) {
+                                 boolean onlyReviewed, String tag,
+                                 boolean extra) {
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
@@ -214,7 +216,7 @@ public class RepXMLPage extends Page {
                         "version of the software.\n" +
                         p.description;
             }
-            Element package_ = p.toXML(d, false);
+            Element package_ = p.toXML(d, extra);
 
             root.appendChild(package_);
         }

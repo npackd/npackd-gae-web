@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
 public class RecentRepXMLPage extends Page {
 
     private final String package_;
+    private final boolean extra;
     private String user;
     private String tag;
 
@@ -28,11 +29,14 @@ public class RecentRepXMLPage extends Page {
      * @param user email address or null
      * @param tag tag for package versions to filter or null
      * @param package_ only return this package or null
+     * @param extra export non-standard fields
      */
-    public RecentRepXMLPage(String user, String tag, String package_) {
+    public RecentRepXMLPage(String user, String tag, String package_,
+                            boolean extra) {
         this.user = user;
         this.tag = tag;
         this.package_ = package_;
+        this.extra = extra;
     }
 
     @Override
@@ -87,15 +91,25 @@ public class RecentRepXMLPage extends Page {
 
                 PreparedQuery pq = datastore.prepare(query);
 
-                final List<Entity> list =
-                        pq.asList(FetchOptions.Builder.withLimit(40));
+                final List<Entity> list;
+
+                // do not apply limits if only one package is requested
+                FetchOptions fetchOptions;
+                if (package_ == null) {
+                    fetchOptions = FetchOptions.Builder.withLimit(40);
+                } else {
+                    fetchOptions =
+                            FetchOptions.Builder.withDefaults();
+                }
+
+                list = pq.asList(fetchOptions);
 
                 ArrayList<PackageVersion> res = new ArrayList<>();
                 for (Entity e : list) {
                     res.add(new PackageVersion(e));
                 }
 
-                Document d = RepXMLPage.toXML(res, false, null);
+                Document d = RepXMLPage.toXML(res, false, null, extra);
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 NWUtils.serializeXML(d, baos);

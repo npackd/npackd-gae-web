@@ -23,6 +23,7 @@ public class RecentRepXMLAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         return new RecentRepXMLPage(req.getParameter("user"),
-                req.getParameter("tag"), req.getParameter("package"));
+                req.getParameter("tag"), req.getParameter("package"),
+                "true".equals(req.getParameter("extra")));
     }
 }
