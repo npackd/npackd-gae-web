@@ -79,7 +79,11 @@ public class RecentRepXMLPage extends Page {
                                     com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
                                     package_));
                 }
-                query.addSort("lastModifiedAt", Query.SortDirection.DESCENDING);
+
+                // we assume there are not so many package versions in one
+                // package
+                if (package_ == null)
+                    query.addSort("lastModifiedAt", Query.SortDirection.DESCENDING);
 
                 PreparedQuery pq = datastore.prepare(query);
 
