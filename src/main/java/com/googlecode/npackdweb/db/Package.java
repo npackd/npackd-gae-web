@@ -445,6 +445,10 @@ public class Package {
             if (!discoveryRE.isEmpty()) {
                 NWUtils.e(package_, "_discovery-re", discoveryRE);
             }
+            if (!discoveryURLPattern.isEmpty()) {
+                NWUtils.e(package_, "_discovery-url-pattern",
+                        discoveryURLPattern);
+            }
         }
 
         return package_;
