@@ -75,6 +75,12 @@ public class UpdatePackageVersionAction extends Action {
             }
             r.sha1 = hashSum;
         }
+        String[] tags = req.getParameterValues("tag");
+        if (tags != null) {
+            for (String tag: tags) {
+                r.addTag(tag);
+            }
+        }
         NWUtils.dsCache.savePackageVersion(oldr, r, true, false);
 
         return null;
