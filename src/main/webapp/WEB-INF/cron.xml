@@ -14,10 +14,12 @@
         <schedule>every monday 08:30</schedule>
         <timezone>Europe/Berlin</timezone>
     </cron>
+    <!--
     <cron>
         <url>/cron/check-update</url>
         <description>Check packages for new versions</description>
         <schedule>every wednesday 08:30</schedule>
         <timezone>Europe/Berlin</timezone>
     </cron>
+    -->
 </cronentries>
