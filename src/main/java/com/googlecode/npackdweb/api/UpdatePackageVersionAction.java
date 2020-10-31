@@ -2,6 +2,7 @@ package com.googlecode.npackdweb.api;
 
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -38,8 +39,11 @@ public class UpdatePackageVersionAction extends Action {
         String package_ = req.getParameter("package");
         String version = req.getParameter("version");
 
+        Version v = Version.parse(version);
+        v.normalize();
+
         PackageVersion r = NWUtils.dsCache.getPackageVersion(
-                package_ + "@" + version);
+                package_ + "@" + v.toString());
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
