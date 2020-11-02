@@ -129,7 +129,7 @@ public class DefaultServlet extends HttpServlet {
                     if (currentUser != null && us.isUserAdmin()) {
                         ok = true;
                     } else {
-                        String pw = NWUtils.dsCache.getSetting("MarkTestedPassword", "");
+                        String pw = NWUtils.dsCache.getSetting("AdminPassword", "");
                         if (pw != null && !pw.trim().isEmpty() && pw.equals(req.getParameter("password"))) {
                             ok = true;
                         }

@@ -25,13 +25,13 @@ public class UpdatePackageVersionAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        String pw = NWUtils.dsCache.getSetting("MarkTestedPassword", "");
+        String pw = NWUtils.dsCache.getSetting("AdminPassword", "");
         if (pw == null) {
             pw = "";
         }
         if (pw.trim().isEmpty()) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN,
-                    "MarkTestedPassword setting is not defined");
+                    "AdminPassword setting is not defined");
             return null;
         }
 
@@ -69,12 +69,15 @@ public class UpdatePackageVersionAction extends Action {
         }
         String hashSum = req.getParameter("hash-sum");
         if (hashSum != null) {
-            String err = NWUtils.validateSHA1(hashSum);
-            if (err != null) {
-                err = NWUtils.validateSHA256(hashSum);
+            hashSum = hashSum.trim();
+            if (!hashSum.isEmpty()) {
+                String err = NWUtils.validateSHA1(hashSum);
                 if (err != null) {
-                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-                    return null;
+                    err = NWUtils.validateSHA256(hashSum);
+                    if (err != null) {
+                        resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                        return null;
+                    }
                 }
             }
             r.sha1 = hashSum;
