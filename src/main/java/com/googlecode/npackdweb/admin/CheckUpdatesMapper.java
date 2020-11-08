@@ -36,7 +36,9 @@ public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
         NWUtils.LOG.log(Level.INFO, "check-update for {0}", data.name);
         Date noUpdatesCheck = null;
         try {
-            Version v = data.findNewestVersion();
+            Object[] found = data.findNewestVersion();
+            Version v = (Version) found[0];
+            String match = (String) found[1];
             List<PackageVersion> versions = NWUtils.dsCache.
                     getSortedVersions(data.name);
             if (versions.size() > 0) {
@@ -45,7 +47,7 @@ public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
                 if (r == 0) {
                     noUpdatesCheck = NWUtils.newDate();
                 } else if (r > 0) {
-                    data.createDetectedVersion(v, 0);
+                    data.createDetectedVersion(match, v, 0);
                 }
             }
         } catch (IOException e) {

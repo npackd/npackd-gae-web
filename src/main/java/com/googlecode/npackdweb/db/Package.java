@@ -599,10 +599,10 @@ public class Package {
      * Determines the newest available version of the package by downloading a
      * package and scanning it for a version number.
      *
-     * @return found version number
+     * @return [found version number, original matched string]
      * @throws IOException if something goes wrong
      */
-    public Version findNewestVersion() throws IOException {
+    public Object[] findNewestVersion() throws IOException {
         if (discoveryPage == null || discoveryPage.trim().length() == 0) {
             throw new IOException("No discovery page is defined");
         }
@@ -612,6 +612,7 @@ public class Package {
         }
 
         String version = null;
+        String match = null;
 
         URLFetchService s = URLFetchServiceFactory.getURLFetchService();
         HTTPResponse r;
@@ -627,6 +628,7 @@ public class Package {
                 Matcher vm = vp.matcher(line);
                 if (vm.find()) {
                     version = vm.group(1);
+                    match = vm.group();
                     break;
                 }
             }
@@ -665,7 +667,7 @@ public class Package {
         }
         v.normalize();
 
-        return v;
+        return new Object[] {v, match};
     }
 
     /**
@@ -774,13 +776,16 @@ public class Package {
      * Creates a new version of this package using the newest available version
      * as a template and saves it.
      *
+     *
+     * @param match full match
      * @param version new version number
      * @param maxSize maximum size of the file or 0 for "unlimited". If the file
      * is bigger than the specified size, the download will be cancelled and an
      * IOException will be thrown
      * @return created package version or null if the creation is not possible
      */
-    public PackageVersion createDetectedVersion(Version version, long maxSize) {
+    public PackageVersion createDetectedVersion(String match,
+                                                Version version, long maxSize) {
         List<PackageVersion> versions = NWUtils.dsCache.getSortedVersions(name);
 
         PackageVersion copy;
@@ -798,6 +803,7 @@ public class Package {
         if (!hasTag("same-url") &&
                 this.discoveryURLPattern.trim().length() > 0) {
             Map<String, String> map = new HashMap<>();
+            map.put("${match}", match);
             map.put("${version}", version.toString());
             map.put("${v0}", Integer.toString(version.getPart(0)));
             map.put("${v1}", Integer.toString(version.getPart(1)));

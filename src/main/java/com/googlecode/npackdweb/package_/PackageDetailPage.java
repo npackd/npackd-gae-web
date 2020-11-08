@@ -557,7 +557,8 @@ public class PackageDetailPage extends MyPage {
                     "80",
                     "title",
                     "pattern for the download URL for the newly discovered " +
-                    "package. Use ${version} for the whole version " +
+                    "package. Use ${match} for the matched string as-is, " +
+                    "${version} for the whole version " +
                     "number (please note that it will be normalized). " +
                     "Use ${v0}, ${v1}, etc. to access one " +
                     "number from the version.");

@@ -58,8 +58,12 @@ public class DetectPackageVersionAction extends Action {
         }
 
         Version v = null;
+        String match = null;
+
         try {
-            v = p.findNewestVersion();
+            Object[] found = p.findNewestVersion();
+            v = (Version) found[0];
+            match = (String) found[1];
         } catch (IOException e) {
             msg = e.getMessage();
         }
@@ -91,7 +95,7 @@ public class DetectPackageVersionAction extends Action {
         }
 
         PackageVersion copy = p.
-                createDetectedVersion(v, 100L * 1024 * 1024);
+                createDetectedVersion(match, v, 100L * 1024 * 1024);
 
         resp.sendRedirect("/p/" + package_ + "/" + copy.version);
         return null;
