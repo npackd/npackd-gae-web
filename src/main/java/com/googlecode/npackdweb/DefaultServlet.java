@@ -67,6 +67,12 @@ public class DefaultServlet extends HttpServlet {
     private List<Action> actions = new ArrayList<>();
 
     @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        doGet0(req, resp);
+    }
+
+    @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         doGet0(req, resp);

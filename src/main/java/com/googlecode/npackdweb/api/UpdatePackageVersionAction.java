@@ -56,6 +56,11 @@ public class UpdatePackageVersionAction extends Action {
             return null;
         }
 
+        if (req.getMethod() == "DELETE") {
+            NWUtils.dsCache.deletePackageVersion(r);
+            return null;
+        }
+
         PackageVersion oldr = r.copy();
 
         String url = req.getParameter("url");
