@@ -4,6 +4,8 @@ import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.oauth.OAuthService;
 import com.google.appengine.api.oauth.OAuthServiceFactory;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -45,6 +47,10 @@ public class NotifyAction extends Action {
         String version = req.getParameter("version");
         boolean install = "1".equals(req.getParameter("install"));
         boolean success = "1".equals(req.getParameter("success"));
+
+        UserService us = UserServiceFactory.getUserService();
+        User u = us.getCurrentUser();
+        NWUtils.LOG.log(Level.SEVERE, "Current user" + u);
 
         com.googlecode.npackdweb.db.Package pa = NWUtils.dsCache.getPackage(
                 package_, false);
@@ -113,6 +119,9 @@ public class NotifyAction extends Action {
         // Npackd client 1.21
         allowedClients.add(
                 "222041139141-vqv00o07p54ql0saefqkq59nupcgamih.apps.googleusercontent.com");
+
+        // Appveyor daily maintenance task
+        allowedClients.add("109906526946461930371");
 
         User user = oauth.getCurrentUser(scope);
         if (user == null) {

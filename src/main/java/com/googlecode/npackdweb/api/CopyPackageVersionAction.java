@@ -70,7 +70,6 @@ public class CopyPackageVersionAction extends Action {
         copy.version = to.toString();
         copy.createdAt = NWUtils.newDate();
         copy.createdBy = NWUtils.email2user(NWUtils.THE_EMAIL);
-        copy.addTag("untested");
 
         NWUtils.dsCache.savePackageVersion(null, copy, true, false);
 
