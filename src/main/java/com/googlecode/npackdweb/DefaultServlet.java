@@ -3,12 +3,7 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.admin.AddRepositoryAction;
-import com.googlecode.npackdweb.admin.AddRepositoryConfirmedAction;
-import com.googlecode.npackdweb.admin.CheckUpdatesAction;
-import com.googlecode.npackdweb.admin.CleanDependenciesAction;
-import com.googlecode.npackdweb.admin.ProcessPackagesAction;
-import com.googlecode.npackdweb.admin.UpdateSafeBrowsingInfoAction;
+import com.googlecode.npackdweb.admin.*;
 import com.googlecode.npackdweb.api.*;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.license.LicenseAction;
@@ -122,7 +117,7 @@ public class DefaultServlet extends HttpServlet {
                     break;
                 case LOGGED_IN:
                     if (currentUser == null) {
-                        NWUtils.LOG.info("Calling createLoginURL");
+                        //NWUtils.LOG.info("Calling createLoginURL");
                         resp.sendRedirect(us.createLoginURL(req.
                                         getRequestURI()));
                     } else {
@@ -159,7 +154,7 @@ public class DefaultServlet extends HttpServlet {
             }
 
             if (ok) {
-                NWUtils.LOG.info("Before perform");
+                //NWUtils.LOG.info("Before perform");
                 Page p = found.perform(req, resp);
                 if (p != null) {
                     p.create(req, resp);
@@ -233,6 +228,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new CleanDependenciesAction());
         registerAction(new ProcessPackagesAction());
         registerAction(new UpdateSafeBrowsingInfoAction());
+        registerAction(new DeleteInactiveUsersAction());
 
         /* API */
         registerAction(new TagPackageVersionAction());

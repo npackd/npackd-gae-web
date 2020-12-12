@@ -93,7 +93,7 @@ public class RepXMLPage extends Page {
     public static Document
             toXMLByPackageTag(String tag, boolean onlyReviewed) {
         List<Package> ps = NWUtils.dsCache.findPackages(tag,
-                null, 0);
+                null, null, 0);
         Set<String> packageNames = new HashSet<>(ps.size());
         for (Package p : ps) {
             packageNames.add(p.name);

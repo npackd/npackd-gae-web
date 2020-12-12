@@ -6,9 +6,7 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.search.Document.Builder;
 import com.google.appengine.api.search.Facet;
 import com.google.appengine.api.search.Field;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.appengine.api.urlfetch.*;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -614,10 +612,15 @@ public class Package {
         String version = null;
         String match = null;
 
+        List<String> lines = new ArrayList<>();
+
         URLFetchService s = URLFetchServiceFactory.getURLFetchService();
         HTTPResponse r;
         try {
-            r = s.fetch(new URL(discoveryPage));
+            HTTPRequest req = new HTTPRequest(new URL(discoveryPage));
+            req.setHeader(new HTTPHeader("User-Agent",
+                    "NpackdWeb/1 (compatible; MSIE 9.0)"));
+            r = s.fetch(req);
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(
                             new ByteArrayInputStream(r.getContent()),
@@ -625,6 +628,10 @@ public class Package {
             String line;
             Pattern vp = Pattern.compile(discoveryRE);
             while ((line = br.readLine()) != null) {
+                lines.add(line);
+                if (lines.size() > 10)
+                    lines.remove(0);
+
                 Matcher vm = vp.matcher(line);
                 if (vm.find()) {
                     version = vm.group(1);
@@ -641,7 +648,8 @@ public class Package {
 
         if (version == null) {
             throw new IOException(
-                    "Error detecting new version: the version number pattern was not found.");
+                    "Error detecting new version: the version number pattern was not found. Lines: " +
+                            String.join("\n", lines));
         }
 
         version = version.replace('-', '.');

@@ -34,7 +34,7 @@ public abstract class MyPage extends Page {
     @Override
     public final void create(HttpServletRequest request,
             HttpServletResponse resp) throws IOException {
-        NWUtils.LOG.info("Before create");
+        //NWUtils.LOG.info("Before create");
 
         resp.setContentType("text/html; charset=UTF-8");
         Writer out = resp.getWriter();
@@ -42,16 +42,16 @@ public abstract class MyPage extends Page {
         String title = getTitle();
         String titleHTML = getTitleHTML();
 
-        NWUtils.LOG.info("Before createContent");
+        //NWUtils.LOG.info("Before createContent");
         String content = createContent(request);
-        NWUtils.LOG.info("After createContent");
+        //NWUtils.LOG.info("After createContent");
 
         String head = createHead();
         String scriptsPart = getScriptsPart();
         String menu = createMenu(request);
         String bodyBottom = createBodyBottom(request);
 
-        NWUtils.LOG.info("Before tmpl");
+        //NWUtils.LOG.info("Before tmpl");
         final String r =
                 NWUtils.tmpl("Frame.html", "title", title, "titleHTML",
                         titleHTML, "content", content,
@@ -60,7 +60,7 @@ public abstract class MyPage extends Page {
                         scriptsPart, "menu", menu, "error", error,
                         "info", info, "generator", this.getClass().getName(),
                         "bodyBottom", bodyBottom);
-        NWUtils.LOG.info("After tmpl");
+        //NWUtils.LOG.info("After tmpl");
 
         out.write(r);
     }
@@ -181,7 +181,7 @@ public abstract class MyPage extends Page {
             res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
             res.t(".");
         } else {
-            NWUtils.LOG.info("Calling createLoginURL");
+            //NWUtils.LOG.info("Calling createLoginURL");
             res.e("a", "href", userService.createLoginURL(thisURL), "Log on");
         }
         return res.toString();

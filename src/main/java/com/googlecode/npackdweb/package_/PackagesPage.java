@@ -171,7 +171,7 @@ public class PackagesPage extends MyPage {
         }
 
         List<String> ids = new ArrayList<>();
-        NWUtils.LOG.info("Starting search");
+        //NWUtils.LOG.info("Starting search");
         try {
             Results<ScoredDocument> r = index.search(qb.
                     build(NWUtils.analyzeText(query)));
@@ -193,7 +193,7 @@ public class PackagesPage extends MyPage {
                     break;
                 }
             }
-            NWUtils.LOG.info("Search completed");
+            //NWUtils.LOG.info("Search completed");
         } catch (com.google.appengine.api.search.SearchQueryException e) {
             this.error = e.getMessage();
         }

@@ -48,12 +48,18 @@ public class Editor implements Cloneable {
     public Date lastLogin;
 
     /**
+     * true = an email was sent to the user with a warning about account
+     * deletion
+     */
+    public boolean warnedAboutAccountDeletion;
+
+    /**
      * -
      */
     public Editor() {
     }
 
-    Editor(com.google.appengine.api.datastore.Entity p) {
+    public Editor(com.google.appengine.api.datastore.Entity p) {
         this.name = p.getKey().getName();
         this.lastModifiedAt = (Date) p.getProperty("lastModifiedAt");
         this.createdAt = (Date) p.getProperty("createdAt");
@@ -61,6 +67,9 @@ public class Editor implements Cloneable {
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
         this.id = (Long) p.getProperty("id");
         this.lastLogin = (Date) p.getProperty("lastLogin");
+        Object v = p.getProperty("warnedAboutAccountDeletion");
+        if (v != null)
+            this.warnedAboutAccountDeletion = (Boolean) v;
 
         if (this.starredPackages == null) {
             this.starredPackages = new ArrayList<>();
@@ -95,6 +104,8 @@ public class Editor implements Cloneable {
         e.setIndexedProperty("starredPackages", this.starredPackages);
         e.setIndexedProperty("id", new Long(this.id));
         e.setIndexedProperty("lastLogin", this.lastLogin);
+        e.setIndexedProperty("warnedAboutAccountDeletion",
+                this.warnedAboutAccountDeletion);
 
         return e;
     }

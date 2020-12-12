@@ -14,6 +14,12 @@
         <schedule>every monday 08:30</schedule>
         <timezone>Europe/Berlin</timezone>
     </cron>
+    <cron>
+        <url>/cron/delete-inactive-users</url>
+        <description>Delete inactive users</description>
+        <schedule>every tuesday 08:30</schedule>
+        <timezone>Europe/Berlin</timezone>
+    </cron>
     <!--
     <cron>
         <url>/cron/check-update</url>

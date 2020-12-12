@@ -534,12 +534,13 @@ public class DatastoreCache {
     /**
      * @param tag a tag to filter the package or null
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
+     * @param email email to filter for a permission or null
      * @param limit maximum number of returned package versions or 0 for
      * "unlimited"
      * @return the packages
      */
     public List<Package> findPackages(
-            String tag, String order, int limit) {
+            String tag, String order, String email, int limit) {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -549,6 +550,11 @@ public class DatastoreCache {
             query.setFilter(
                     new com.google.appengine.api.datastore.Query.FilterPredicate(
                             "tags", FilterOperator.EQUAL, tag));
+        }
+        if (email != null) {
+            query.setFilter(
+                    new com.google.appengine.api.datastore.Query.FilterPredicate(
+                            "permissions", FilterOperator.EQUAL, email));
         }
         if (order != null) {
             query.addSort(order);
@@ -989,5 +995,18 @@ public class DatastoreCache {
         }
 
         return licenses;
+    }
+
+    /**
+     * Delete an editor
+     *
+     * @param name email
+     */
+    public void deleteEditor(String name) {
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        datastore.delete(KeyFactory.createKey("Editor", name));
+
+        incDataVersion();
     }
 }

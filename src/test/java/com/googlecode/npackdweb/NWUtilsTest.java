@@ -5,6 +5,10 @@
  */
 package com.googlecode.npackdweb;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.regex.Pattern;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,5 +41,19 @@ public class NWUtilsTest {
         assertEquals("c#", NWUtils.analyzeText("C#"));
         assertEquals("f#", NWUtils.analyzeText("F#"));
         assertEquals("c++", NWUtils.analyzeText("CPP"));
+    }
+
+    @Test
+    /**
+     * how to convert Date to LocalDate
+     */
+    public void testTime() {
+        long days = ChronoUnit.DAYS.between(
+                LocalDate.from(new Date().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()),
+                LocalDate.now(ZoneId.of("Europe/Berlin"))
+        );
+        System.out.println(days + " days");
     }
 }
