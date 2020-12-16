@@ -548,7 +548,7 @@ public class PackageDetailPage extends MyPage {
                     "class",
                     "form-control",
                     "type",
-                    "url",
+                    "text",
                     "name",
                     "discoveryURLPattern",
                     "value",

@@ -166,6 +166,17 @@ public class DefaultServlet extends HttpServlet {
         }
     }
 
+    protected void service(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        String method = req.getMethod();
+
+        if (method.equals("PATCH")) {
+            doGet0(req, resp);
+        } else {
+            super.service(req, resp);
+        }
+    }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
