@@ -40,7 +40,7 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
     public void map(Entity value) {
         Editor data = new Editor(value);
 
-        //NWUtils.LOG.log(Level.INFO, "delete-inactive-users for {0}", data.name);
+        NWUtils.LOG.log(Level.INFO, "delete-inactive-users for {0}", data.name);
 
         Date v = data.lastLogin;
         if (v == null)
@@ -52,16 +52,18 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
                 LocalDate.now(ZoneId.systemDefault())
         );
 
+        NWUtils.LOG.log(Level.INFO, "delete-inactive-users days {0}", days);
+
         final long MAX_DAYS = 365 * 2;
 
         if (days > MAX_DAYS) {
             if (!data.warnedAboutAccountDeletion) {
-                NWUtils.sendMailToAdmin("Hello " + data.name + ", \n\n" +
+                NWUtils.sendMailTo("Hello " + data.name + ", \n\n" +
                                 "You have not logged in to https://www.npackd.org for a long time. \n" +
                                 "Your data will be deleted in 30 days.\n" +
                                 "\n\n" +
-                                "--Admin");
-                //data.warnedAboutAccountDeletion = true;
+                                "--Admin", data.name);
+                data.warnedAboutAccountDeletion = true;
                 NWUtils.dsCache.saveEditor(data);
             } else if (days > MAX_DAYS + 30) {
                 deleteEditor(data);
@@ -83,16 +85,16 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
             p.permissions.remove(data.name);
             if (p.permissions.size() == 0)
                 p.permissions.add(NWUtils.email2user(NWUtils.THE_EMAIL));
-            // TODO: later NWUtils.dsCache.savePackage(old, p, true);
+            NWUtils.dsCache.savePackage(old, p, true);
         }
 
         if (packages.size() < 11) {
-            // TODO: later NWUtils.dsCache.deleteEditor(data.name);
-            NWUtils.sendMailToAdmin("Hello " + data.name + ", \n\n" +
+            NWUtils.dsCache.deleteEditor(data.name);
+            NWUtils.sendMailTo("Hello " + data.name + ", \n\n" +
                             "You have not logged in to https://www.npackd.org for a long time. \n" +
                             "Your data was deleted.\n" +
                             "\n\n" +
-                            "--Admin");
+                            "--Admin", data.name);
         }
     }
 }

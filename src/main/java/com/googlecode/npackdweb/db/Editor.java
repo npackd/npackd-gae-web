@@ -76,7 +76,7 @@ public class Editor implements Cloneable {
         }
 
         if (this.lastLogin == null) {
-            this.lastLogin = NWUtils.newDay();
+            this.lastLogin = this.lastModifiedAt;
         }
     }
 
