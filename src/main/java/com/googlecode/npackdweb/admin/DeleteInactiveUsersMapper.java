@@ -6,10 +6,6 @@ import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.npackdweb.db.Version;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -58,11 +54,13 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
 
         if (days > MAX_DAYS) {
             if (!data.warnedAboutAccountDeletion) {
-                NWUtils.sendMailTo("Hello " + data.name + ", \n\n" +
-                                "You have not logged in to https://www.npackd.org for a long time. \n" +
-                                "Your data will be deleted in 30 days.\n" +
-                                "\n\n" +
-                                "--Admin", data.name);
+                String txt = "Hello " + data.name + ", \n\n" +
+                        "You have not logged in to https://www.npackd.org for a long time. \n" +
+                        "Your data will be deleted in 30 days.\n" +
+                        "\n\n" +
+                        "--Admin";
+                NWUtils.sendMailTo(txt, data.name);
+                NWUtils.sendMailToAdmin(txt);
                 data.warnedAboutAccountDeletion = true;
                 NWUtils.dsCache.saveEditor(data);
             } else if (days > MAX_DAYS + 30) {
@@ -90,11 +88,13 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
 
         if (packages.size() < 11) {
             NWUtils.dsCache.deleteEditor(data.name);
-            NWUtils.sendMailTo("Hello " + data.name + ", \n\n" +
-                            "You have not logged in to https://www.npackd.org for a long time. \n" +
-                            "Your data was deleted.\n" +
-                            "\n\n" +
-                            "--Admin", data.name);
+            String txt = "Hello " + data.name + ", \n\n" +
+                    "You have not logged in to https://www.npackd.org for a long time. \n" +
+                    "Your data was deleted.\n" +
+                    "\n\n" +
+                    "--Admin";
+            NWUtils.sendMailTo(txt, data.name);
+            NWUtils.sendMailToAdmin(txt);
         }
     }
 }
