@@ -597,10 +597,10 @@ public class Package {
      * Determines the newest available version of the package by downloading a
      * package and scanning it for a version number.
      *
-     * @return [found version number, original matched string]
+     * @return found matches
      * @throws IOException if something goes wrong
      */
-    public Object[] findNewestVersion() throws IOException {
+    public Matcher findNewestVersion() throws IOException {
         if (discoveryPage == null || discoveryPage.trim().length() == 0) {
             throw new IOException("No discovery page is defined");
         }
@@ -610,7 +610,6 @@ public class Package {
         }
 
         String version = null;
-        String match = null;
 
         List<String> lines = new ArrayList<>();
 
@@ -634,9 +633,7 @@ public class Package {
 
                 Matcher vm = vp.matcher(line);
                 if (vm.find()) {
-                    version = vm.group(1);
-                    match = vm.group();
-                    break;
+                    return vm;
                 }
             }
         } catch (MalformedURLException e) {
@@ -646,36 +643,9 @@ public class Package {
             throw new IOException(e);
         }
 
-        if (version == null) {
-            throw new IOException(
-                    "Error detecting new version: the version number pattern was not found. Lines: " +
-                            String.join("\n", lines));
-        }
-
-        version = version.replace('-', '.');
-        version = version.replace('+', '.');
-        version = version.replace('_', '.');
-
-        // process version numbers like 2.0.6b
-        if (version.length() > 0) {
-            char c =
-                    Character.toLowerCase(version.charAt(version.length() - 1));
-            if (c >= 'a' && c <= 'z') {
-                version =
-                        version.substring(0, version.length() - 1) + "." +
-                        (c - 'a' + 1);
-            }
-        }
-
-        Version v = null;
-        try {
-            v = Version.parse(version);
-        } catch (NumberFormatException e) {
-            throw new IOException(e);
-        }
-        v.normalize();
-
-        return new Object[] {v, match};
+        throw new NumberFormatException(
+                "Error detecting new version: the version number pattern was not found. Lines: " +
+                        String.join("\n", lines));
     }
 
     /**
@@ -819,7 +789,6 @@ public class Package {
             map.put("${v3}", Integer.toString(version.getPart(3)));
             map.put("${v4}", Integer.toString(version.getPart(4)));
             map.put("${v5}", Integer.toString(version.getPart(5)));
-            /*map.put("${{match}}", v.toString());*/
             copy.url = NWUtils.tmplString(this.discoveryURLPattern, map);
             if (!copy.sha1.isEmpty()) {
                 try {

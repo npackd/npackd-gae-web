@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
 
 public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
 
@@ -36,9 +37,9 @@ public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
         NWUtils.LOG.log(Level.INFO, "check-update for {0}", data.name);
         Date noUpdatesCheck = null;
         try {
-            Object[] found = data.findNewestVersion();
-            Version v = (Version) found[0];
-            String match = (String) found[1];
+            Matcher found = data.findNewestVersion();
+            Version v = NWUtils.parseVersion(found.group(1));
+            String match = found.group();
             List<PackageVersion> versions = NWUtils.dsCache.
                     getSortedVersions(data.name);
             if (versions.size() > 0) {

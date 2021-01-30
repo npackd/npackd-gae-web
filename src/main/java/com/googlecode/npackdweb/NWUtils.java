@@ -25,6 +25,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import freemarker.template.Configuration;
@@ -892,6 +893,32 @@ public class NWUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * Parse a more relaxed version number.
+     *
+     * @param version version number
+     * @return parsed and normalized version number
+     */
+    public static Version parseVersion(String version) throws NumberFormatException {
+        version = version.replace('-', '.');
+        version = version.replace('+', '.');
+        version = version.replace('_', '.');
+
+        // process version numbers like 2.0.6b
+        if (version.length() > 0) {
+            char c = Character.toLowerCase(version.charAt(version.length() - 1));
+            if (c >= 'a' && c <= 'z') {
+                version = version.substring(0, version.length() - 1) + "." +
+                                (c - 'a' + 1);
+            }
+        }
+
+        Version v = Version.parse(version);
+        v.normalize();
+
+        return v;
     }
 
     /**

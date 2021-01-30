@@ -61,9 +61,9 @@ public class DetectPackageVersionAction extends Action {
         String match = null;
 
         try {
-            Object[] found = p.findNewestVersion();
-            v = (Version) found[0];
-            match = (String) found[1];
+            Matcher found = p.findNewestVersion();
+            v = NWUtils.parseVersion(found.group(1));
+            match = found.group();
         } catch (IOException e) {
             msg = e.getMessage();
         }
