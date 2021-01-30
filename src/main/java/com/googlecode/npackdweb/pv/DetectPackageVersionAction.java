@@ -58,12 +58,10 @@ public class DetectPackageVersionAction extends Action {
         }
 
         Version v = null;
-        String match = null;
-
+        Matcher found = null;
         try {
-            Matcher found = p.findNewestVersion();
+            found = p.findNewestVersion();
             v = NWUtils.parseVersion(found.group(1));
-            match = found.group();
         } catch (IOException e) {
             msg = e.getMessage();
         }
@@ -95,7 +93,7 @@ public class DetectPackageVersionAction extends Action {
         }
 
         PackageVersion copy = p.
-                createDetectedVersion(match, v, 100L * 1024 * 1024);
+                createDetectedVersion(found, v, 100L * 1024 * 1024);
 
         resp.sendRedirect("/p/" + package_ + "/" + copy.version);
         return null;

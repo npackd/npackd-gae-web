@@ -39,7 +39,6 @@ public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
         try {
             Matcher found = data.findNewestVersion();
             Version v = NWUtils.parseVersion(found.group(1));
-            String match = found.group();
             List<PackageVersion> versions = NWUtils.dsCache.
                     getSortedVersions(data.name);
             if (versions.size() > 0) {
@@ -48,7 +47,7 @@ public class CheckUpdatesMapper extends MapOnlyMapper<Entity, Void> {
                 if (r == 0) {
                     noUpdatesCheck = NWUtils.newDate();
                 } else if (r > 0) {
-                    data.createDetectedVersion(match, v, 0);
+                    data.createDetectedVersion(found, v, 0);
                 }
             }
         } catch (IOException e) {

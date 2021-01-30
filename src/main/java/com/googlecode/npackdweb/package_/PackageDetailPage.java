@@ -561,7 +561,8 @@ public class PackageDetailPage extends MyPage {
                     "${version} for the whole version " +
                     "number (please note that it will be normalized). " +
                     "Use ${v0}, ${v1}, etc. to access one " +
-                    "number from the version.");
+                    "number from the version. Use ${g1}, ${g2}, etc. to " +
+                    "access regular expression capturing groups.");
             w.start("datalist", "id", "discovery-url");
             w.e("option", "value",
                     "http://www.example.com/downloads/example-${version}.zip");

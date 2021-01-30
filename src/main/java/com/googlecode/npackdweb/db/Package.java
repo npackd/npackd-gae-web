@@ -754,15 +754,14 @@ public class Package {
      * Creates a new version of this package using the newest available version
      * as a template and saves it.
      *
-     *
-     * @param match full match
+     * @param found match
      * @param version new version number
      * @param maxSize maximum size of the file or 0 for "unlimited". If the file
      * is bigger than the specified size, the download will be cancelled and an
      * IOException will be thrown
      * @return created package version or null if the creation is not possible
      */
-    public PackageVersion createDetectedVersion(String match,
+    public PackageVersion createDetectedVersion(Matcher found,
                                                 Version version, long maxSize) {
         List<PackageVersion> versions = NWUtils.dsCache.getSortedVersions(name);
 
@@ -781,8 +780,18 @@ public class Package {
         if (!hasTag("same-url") &&
                 this.discoveryURLPattern.trim().length() > 0) {
             Map<String, String> map = new HashMap<>();
-            map.put("${match}", match);
+            map.put("${match}", found.group());
             map.put("${version}", version.toString());
+            if (found.groupCount() > 0)
+                map.put("${g1}", found.group(1));
+            if (found.groupCount() > 1)
+                map.put("${g2}", found.group(2));
+            if (found.groupCount() > 2)
+                map.put("${g3}", found.group(3));
+            if (found.groupCount() > 3)
+                map.put("${g4}", found.group(4));
+            if (found.groupCount() > 4)
+                map.put("${g5}", found.group(5));
             map.put("${v0}", Integer.toString(version.getPart(0)));
             map.put("${v1}", Integer.toString(version.getPart(1)));
             map.put("${v2}", Integer.toString(version.getPart(2)));
