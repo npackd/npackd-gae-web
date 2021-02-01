@@ -234,7 +234,7 @@ public class PackagesPage extends MyPage {
                 w.t(" ");
                 w.e("a",
                         "href",
-                        "https://github.com/tim-lebedkov/npackd/issues/new",
+                        "https://github.com/npackd/npackd/issues/new",
                         "Suggest " + this.query + " for inclusion*");
                 w.end("div");
             }
