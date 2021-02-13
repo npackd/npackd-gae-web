@@ -643,7 +643,7 @@ public class Package {
             throw new IOException(e);
         }
 
-        throw new NumberFormatException(
+        throw new IOException(
                 "Error detecting new version: the version number pattern was not found. Lines: " +
                         String.join("\n", lines));
     }
