@@ -86,6 +86,12 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
             NWUtils.dsCache.savePackage(old, p, true);
         }
 
+        for (String packageName: data.starredPackages) {
+            Package p = NWUtils.dsCache.getPackage(packageName, true);
+            if (p != null)
+                NWUtils.dsCache.starPackage(p, data, false);
+        }
+
         if (packages.size() < 11) {
             NWUtils.dsCache.deleteEditor(data.name);
             String txt = "Hello " + data.name + ", \n\n" +
