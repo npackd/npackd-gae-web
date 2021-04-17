@@ -48,10 +48,10 @@ public class Editor implements Cloneable {
     public Date lastLogin;
 
     /**
-     * true = an email was sent to the user with a warning about account
-     * deletion
+     * date when an email was sent to the user with a warning about account
+     * deletion or null
      */
-    public boolean warnedAboutAccountDeletion;
+    public Date warnedAboutAccountDeletionDate;
 
     /**
      * -
@@ -67,9 +67,16 @@ public class Editor implements Cloneable {
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
         this.id = (Long) p.getProperty("id");
         this.lastLogin = (Date) p.getProperty("lastLogin");
-        Object v = p.getProperty("warnedAboutAccountDeletion");
-        if (v != null)
-            this.warnedAboutAccountDeletion = (Boolean) v;
+        this.warnedAboutAccountDeletionDate = (Date) p.getProperty("warnedAboutAccountDeletionDate");
+        if (this.warnedAboutAccountDeletionDate == null) {
+            Object v = p.getProperty("warnedAboutAccountDeletion");
+            if (v != null) {
+                boolean b = (Boolean) v;
+                if (b) {
+                    this.warnedAboutAccountDeletionDate = this.lastModifiedAt;
+                }
+            }
+        }
 
         if (this.starredPackages == null) {
             this.starredPackages = new ArrayList<>();
@@ -104,8 +111,8 @@ public class Editor implements Cloneable {
         e.setIndexedProperty("starredPackages", this.starredPackages);
         e.setIndexedProperty("id", new Long(this.id));
         e.setIndexedProperty("lastLogin", this.lastLogin);
-        e.setIndexedProperty("warnedAboutAccountDeletion",
-                this.warnedAboutAccountDeletion);
+        e.setIndexedProperty("warnedAboutAccountDeletionDate",
+                this.warnedAboutAccountDeletionDate);
 
         return e;
     }

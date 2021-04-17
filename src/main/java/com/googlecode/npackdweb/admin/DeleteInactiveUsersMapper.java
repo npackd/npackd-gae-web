@@ -48,12 +48,22 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
                 LocalDate.now(ZoneId.systemDefault())
         );
 
-        NWUtils.LOG.log(Level.INFO, "delete-inactive-users days {0}", days);
-
         final long MAX_DAYS = 365 * 2;
 
+        NWUtils.LOG.log(Level.INFO, "delete-inactive-users days {0}", days);
+
         if (days > MAX_DAYS) {
-            if (!data.warnedAboutAccountDeletion) {
+            if (data.warnedAboutAccountDeletionDate != null) {
+                long sinceWarning = ChronoUnit.DAYS.between(
+                        LocalDate.from(data.warnedAboutAccountDeletionDate.toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()),
+                        LocalDate.now(ZoneId.systemDefault())
+                );
+                if (sinceWarning > 30) {
+                    deleteEditor(data);
+                }
+            } else {
                 String txt = "Hello " + data.name + ", \n\n" +
                         "You have not logged in to https://www.npackd.org for a long time. \n" +
                         "Your data will be deleted in 30 days.\n" +
@@ -61,10 +71,14 @@ public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
                         "--Admin";
                 NWUtils.sendMailTo(txt, data.name);
                 NWUtils.sendMailToAdmin(txt);
-                data.warnedAboutAccountDeletion = true;
+                data.warnedAboutAccountDeletionDate = new Date();
                 NWUtils.dsCache.saveEditor(data);
-            } else if (days > MAX_DAYS + 30) {
-                deleteEditor(data);
+            }
+        } else {
+            // reset the warning
+            if (data.warnedAboutAccountDeletionDate != null) {
+                data.warnedAboutAccountDeletionDate = null;
+                NWUtils.dsCache.saveEditor(data);
             }
         }
     }
