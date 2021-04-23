@@ -26,7 +26,28 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
     @Override
     public void map(Entity value) {
-        moveSourceForgeToOneServer(value);
+        deleteTestFailedTag(value);
+    }
+
+    /**
+     * Remove the "test-failed" tag. It is not used anymore.
+     *
+     * @param value a package version
+     */
+    private void deleteTestFailedTag(Entity value) {
+        PackageVersion pv = new PackageVersion(value);
+        PackageVersion oldpv = pv.copy();
+        boolean save = false;
+
+        if (pv.hasTag("test-failed")) {
+            pv.tags.remove("test-failed");
+            save = true;
+        }
+
+        if (save) {
+            System.out.println("Saving " + pv.name + " " + pv.url);
+            NWUtils.dsCache.savePackageVersion(oldpv, pv, true, false);
+        }
     }
 
     private void moveSourceForgeToOneServer(Entity value) {
