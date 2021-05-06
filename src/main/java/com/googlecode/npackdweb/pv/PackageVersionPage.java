@@ -954,7 +954,7 @@ public class PackageVersionPage extends MyPage {
 
         if (r == null) {
             if (!this.url.trim().isEmpty()) {
-                r = NWUtils.validateURL(this.url);
+                r = NWUtils.validateURL(this.url, false);
             }
         }
 

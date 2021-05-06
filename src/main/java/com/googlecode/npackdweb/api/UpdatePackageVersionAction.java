@@ -7,7 +7,6 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
 import java.io.IOException;
-import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -65,7 +64,7 @@ public class UpdatePackageVersionAction extends Action {
 
         String url = req.getParameter("url");
         if (url != null) {
-            String err = NWUtils.validateURL(url);
+            String err = NWUtils.validateURL(url, false);
             if (err != null) {
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
                 return null;

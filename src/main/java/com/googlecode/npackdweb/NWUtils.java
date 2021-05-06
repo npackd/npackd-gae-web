@@ -757,9 +757,11 @@ public class NWUtils {
      * Validates an URL. Only http: and https: are allowed as protocol.
      *
      * @param url_ the entered text
+     * @param copyright true = check that servers like "softpedia.com" are not
+     *      used
      * @return error message or null
      */
-    public static String validateURL(String url_) {
+    public static String validateURL(String url_, boolean copyright) {
         String msg = null;
         try {
             URL url = new URL(url_.trim());
@@ -769,6 +771,12 @@ public class NWUtils {
             }
             if (msg == null && url.getHost().isEmpty()) {
                 msg = "Empty host: " + url_;
+            }
+            if (msg == null && copyright) {
+                String host = url.getHost().toLowerCase();
+                if (host.endsWith("softpedia.com")) {
+                    msg = "Cannot use this host for copyright reasons: " + url;
+                }
             }
         } catch (MalformedURLException e) {
             msg = e.getMessage();

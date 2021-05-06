@@ -242,7 +242,7 @@ public class LicensePage extends MyPage {
         }
         if (msg == null) {
             if (!this.url.trim().isEmpty()) {
-                msg = NWUtils.validateURL(this.url);
+                msg = NWUtils.validateURL(this.url, false);
             }
         }
 

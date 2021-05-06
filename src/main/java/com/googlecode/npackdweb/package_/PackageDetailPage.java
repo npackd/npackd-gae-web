@@ -657,7 +657,7 @@ public class PackageDetailPage extends MyPage {
         String msg = null;
         if (msg == null) {
             if (!this.discoveryURL.trim().isEmpty()) {
-                msg = NWUtils.validateURL(this.discoveryURL);
+                msg = NWUtils.validateURL(this.discoveryURL, false);
             } else {
                 msg = "No discovery URL defined";
             }
@@ -849,14 +849,14 @@ public class PackageDetailPage extends MyPage {
             }
         }
         if (msg == null) {
-            msg = NWUtils.validateURL(this.url);
+            msg = NWUtils.validateURL(this.url, false);
             if (msg != null) {
                 msg = "Error in product home page: " + msg;
             }
         }
         if (msg == null) {
             if (!this.changelog.trim().isEmpty()) {
-                msg = NWUtils.validateURL(this.changelog);
+                msg = NWUtils.validateURL(this.changelog, false);
                 if (msg != null) {
                     msg = "Error in change log: " + msg;
                 }
@@ -864,7 +864,7 @@ public class PackageDetailPage extends MyPage {
         }
         if (msg == null) {
             if (!this.icon.trim().isEmpty()) {
-                msg = NWUtils.validateURL(this.icon);
+                msg = NWUtils.validateURL(this.icon, true);
                 if (msg != null) {
                     msg = "Error in icon: " + msg;
                 }
@@ -874,7 +874,7 @@ public class PackageDetailPage extends MyPage {
             List<String> lines = NWUtils.splitLines(this.screenshots);
             for (String s : lines) {
                 if (!s.trim().isEmpty()) {
-                    msg = NWUtils.validateURL(s);
+                    msg = NWUtils.validateURL(s, true);
                     if (msg != null) {
                         msg = "Error in screenshots: " + msg;
                         break;
@@ -885,7 +885,7 @@ public class PackageDetailPage extends MyPage {
         if (msg == null) {
             if (params.get("issues") != null && !params.get("issues").trim().
                     isEmpty()) {
-                msg = NWUtils.validateURL(params.get("issues"));
+                msg = NWUtils.validateURL(params.get("issues"), false);
                 if (msg != null) {
                     msg = "Error in issue tracker: " + msg;
                 }
@@ -914,7 +914,7 @@ public class PackageDetailPage extends MyPage {
 
         if (msg == null) {
             if (!this.discoveryURL.trim().isEmpty()) {
-                msg = NWUtils.validateURL(this.discoveryURL);
+                msg = NWUtils.validateURL(this.discoveryURL, false);
                 if (msg != null) {
                     msg = "Error in discovery page (URL): " + msg;
                 }
