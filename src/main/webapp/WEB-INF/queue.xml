@@ -5,4 +5,8 @@
         <name>resave</name>
         <rate>60/h</rate>
     </queue>
+    <queue>
+        <name>default</name>
+        <rate>60/h</rate>
+    </queue>
 </queue-entries>

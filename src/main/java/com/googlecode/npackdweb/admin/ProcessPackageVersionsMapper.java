@@ -8,7 +8,7 @@ import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.db.PackageVersion;
 import java.util.List;
 
-public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
+public class ProcessPackageVersionsMapper extends MapOnlyMapper<Entity, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,22 +26,24 @@ public class CleanDependenciesMapper extends MapOnlyMapper<Entity, Void> {
 
     @Override
     public void map(Entity value) {
-        deleteTestFailedTag(value);
+        deleteUnnecessaryTags(value);
     }
 
     /**
-     * Remove the "test-failed" tag. It is not used anymore.
+     * Remove the unnecessary tags.
      *
      * @param value a package version
      */
-    private void deleteTestFailedTag(Entity value) {
+    private void deleteUnnecessaryTags(Entity value) {
         PackageVersion pv = new PackageVersion(value);
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
-        if (pv.hasTag("test-failed")) {
-            pv.tags.remove("test-failed");
-            save = true;
+        for (String s: new String[]{"test-failed", "stable", "stable64"}) {
+            if (pv.hasTag(s)) {
+                pv.tags.remove(s);
+                save = true;
+            }
         }
 
         if (save) {

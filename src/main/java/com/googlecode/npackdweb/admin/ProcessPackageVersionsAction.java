@@ -15,14 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Clean the dependencies. This action processes all package versions.
+ * This action processes all package versions.
  */
-public class CleanDependenciesAction extends Action {
+public class ProcessPackageVersionsAction extends Action {
 
     /**
      * -
      */
-    public CleanDependenciesAction() {
+    public ProcessPackageVersionsAction() {
         super("^/clean-dependencies$", ActionSecurityType.ADMINISTRATOR);
     }
 

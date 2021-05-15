@@ -236,7 +236,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new StarFragmentAction());
         registerAction(new ReCaptchaAnswerAction());
         registerAction(new ReCaptchaAction());
-        registerAction(new CleanDependenciesAction());
+        registerAction(new ProcessPackageVersionsAction());
         registerAction(new ProcessPackagesAction());
         registerAction(new UpdateSafeBrowsingInfoAction());
         registerAction(new DeleteInactiveUsersAction());
