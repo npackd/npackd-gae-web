@@ -3,82 +3,52 @@ package com.googlecode.npackdweb.admin;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
-import java.io.IOError;
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
+import com.googlecode.npackdweb.wlib.Page;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
- * Check a package version using Google Safe Browsing API.
- *
- public class UpdateSafeBrowsingInfoAction extends Action {
-
- /**
- * -
- *
- public UpdateSafeBrowsingInfoAction() {
- super("^/cron/update-safe-browsing-info$",
- ActionSecurityType.ANONYMOUS);
- }
-
- @Override
- public Page perform(HttpServletRequest req, HttpServletResponse resp)
- throws IOException {
- MapReduceSettings settings =
- new MapReduceSettings.Builder().setWorkerQueueName("default")
- .setBucketName("npackd").build();
-
- MapSpecification<Entity, Void, Void> ms =
- new MapSpecification.Builder<>(new DatastoreInput(
- "PackageVersion", 1000),
- new UpdateSafeBrowsingInfoMapper(),
- new NoOutput<Void, Void>()).build();
- String jobId = MapJob.start(ms, settings);
-
- return new MessagePage("Job ID: " + jobId);
- }
- }
+ * Check a package versions using Google Safe Browsing API.
  */
-
-public class UpdateSafeBrowsingInfoMapper {
-    private List<Entity> entities =
-            new ArrayList<>();
-
-    public void beginSlice() {
-        this.entities.clear();
+public class UpdateSafeBrowsingInfoMapper extends Action {
+    /**
+     * -
+     */
+    public UpdateSafeBrowsingInfoMapper() {
+        super("^/cron/update-safe-browsing-info$",
+                ActionSecurityType.ANONYMOUS);
     }
 
-    public void endSlice() {
-        try {
-            process();
-        } catch (IOException e) {
-            throw new IOError(e);
-        }
-    }
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        final Iterable<Entity> all =
+                NWUtils.dsCache.getAllEntities("PackageVersion");
 
-    public void map(Entity value) {
-        entities.add(value);
-    }
-
-    private void process() throws IOException {
         List<PackageVersion> list = new ArrayList<>();
-        for (Entity e : entities) {
+        for (Entity e: all) {
             list.add(new PackageVersion(e));
+            if (list.size() == 100) {
+                processBatch(list);
+                list.clear();
+            }
         }
-        process(list);
-    }
 
-    private void process(List<PackageVersion> list) throws IOException {
-        while (!list.isEmpty()) {
-            List<PackageVersion> subList = list.subList(0, Math.min(10, list.
-                    size()));
-            processBatch(subList);
-            subList.clear();
-        }
+        if (list.size() != 0)
+            processBatch(list);
+
+        return new MessagePage("OK");
     }
 
     private void processBatch(List<PackageVersion> list) throws IOException {

@@ -55,6 +55,23 @@ public class DatastoreCache {
     private boolean allRepositoriesRead;
 
     /**
+     * Gets all entities of a kind
+     *
+     * @param kind e.g. "PackageVersion"
+     * @return all entities
+     */
+    public static Iterable<Entity> getAllEntities(String kind){
+        com.google.appengine.api.datastore.Query query =
+                new com.google.appengine.api.datastore.Query(kind);
+
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        PreparedQuery pq = datastore.prepare(query);
+
+        return pq.asIterable();
+    }
+
+    /**
      * Saves a package. The package can be new or an already existing one. The
      * total number of packages and the index will be automatically updated.
      *

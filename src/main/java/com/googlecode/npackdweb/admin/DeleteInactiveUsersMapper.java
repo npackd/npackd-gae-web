@@ -1,9 +1,17 @@
 package com.googlecode.npackdweb.admin;
 
 import com.google.appengine.api.datastore.Entity;
+import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.Package;
+import com.googlecode.npackdweb.wlib.Action;
+import com.googlecode.npackdweb.wlib.ActionSecurityType;
+import com.googlecode.npackdweb.wlib.Page;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -12,39 +20,28 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * Deletes inactive users.
- *
- public class DeleteInactiveUsersAction extends Action {
-
- /**
- * -
- *
- public DeleteInactiveUsersAction() {
- super("^/cron/delete-inactive-users$", ActionSecurityType.ANONYMOUS);
- }
-
- @Override
- public Page perform(HttpServletRequest req, HttpServletResponse resp)
- throws IOException {
- MapReduceSettings settings =
- new MapReduceSettings.Builder().setWorkerQueueName("default")
- .setBucketName("npackd").build();
-
- MapSpecification<Entity, Void, Void> ms =
- new MapSpecification.Builder<>(new DatastoreInput(
- "Editor", 10),
- new DeleteInactiveUsersMapper(),
- new NoOutput<Void, Void>()).build();
- String jobId = MapJob.start(ms, settings);
-
- return new MessagePage("Job ID: " + jobId);
- }
- }
- */
-/**
  * Delete inactive users.
  */
-public class DeleteInactiveUsersMapper {
+public class DeleteInactiveUsersMapper extends Action {
+    /**
+     * -
+     */
+    public DeleteInactiveUsersMapper() {
+        super("^/cron/delete-inactive-users$", ActionSecurityType.ANONYMOUS);
+    }
+
+    @Override
+    public Page perform(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        final Iterable<Entity> all =
+                NWUtils.dsCache.getAllEntities("Editor");
+        for (Entity e: all){
+            map(e);
+        }
+
+        return new MessagePage("OK");
+    }
+
     public void map(Entity value) {
         Editor data = new Editor(value);
 

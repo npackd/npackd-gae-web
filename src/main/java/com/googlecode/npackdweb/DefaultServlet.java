@@ -240,9 +240,9 @@ public class DefaultServlet extends HttpServlet {
         /* TODO map-reduce is not available anymore
         registerAction(new ProcessPackageVersionsAction());
         registerAction(new ProcessPackagesAction());
-        registerAction(new UpdateSafeBrowsingInfoAction());
-        registerAction(new DeleteInactiveUsersAction());
          */
+        registerAction(new UpdateSafeBrowsingInfoMapper());
+        registerAction(new DeleteInactiveUsersMapper());
 
         /* API */
         registerAction(new TagPackageVersionAction());
