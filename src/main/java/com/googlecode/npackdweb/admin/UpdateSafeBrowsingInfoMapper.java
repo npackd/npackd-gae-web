@@ -3,7 +3,6 @@ package com.googlecode.npackdweb.admin;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
@@ -13,19 +12,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
+/**
+ * Check a package version using Google Safe Browsing API.
+ *
+ public class UpdateSafeBrowsingInfoAction extends Action {
 
-    private static final long serialVersionUID = 1L;
+ /**
+ * -
+ *
+ public UpdateSafeBrowsingInfoAction() {
+ super("^/cron/update-safe-browsing-info$",
+ ActionSecurityType.ANONYMOUS);
+ }
 
+ @Override
+ public Page perform(HttpServletRequest req, HttpServletResponse resp)
+ throws IOException {
+ MapReduceSettings settings =
+ new MapReduceSettings.Builder().setWorkerQueueName("default")
+ .setBucketName("npackd").build();
+
+ MapSpecification<Entity, Void, Void> ms =
+ new MapSpecification.Builder<>(new DatastoreInput(
+ "PackageVersion", 1000),
+ new UpdateSafeBrowsingInfoMapper(),
+ new NoOutput<Void, Void>()).build();
+ String jobId = MapJob.start(ms, settings);
+
+ return new MessagePage("Job ID: " + jobId);
+ }
+ }
+ */
+
+public class UpdateSafeBrowsingInfoMapper {
     private List<Entity> entities =
             new ArrayList<>();
 
-    @Override
     public void beginSlice() {
         this.entities.clear();
     }
 
-    @Override
     public void endSlice() {
         try {
             process();
@@ -34,7 +60,6 @@ public class UpdateSafeBrowsingInfoMapper extends MapOnlyMapper<Entity, Void> {
         }
     }
 
-    @Override
     public void map(Entity value) {
         entities.add(value);
     }

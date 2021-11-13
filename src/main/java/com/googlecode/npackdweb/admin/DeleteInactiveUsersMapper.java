@@ -1,8 +1,6 @@
 package com.googlecode.npackdweb.admin;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
-import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.Package;
@@ -14,25 +12,39 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
+ * Deletes inactive users.
+ *
+ public class DeleteInactiveUsersAction extends Action {
+
+ /**
+ * -
+ *
+ public DeleteInactiveUsersAction() {
+ super("^/cron/delete-inactive-users$", ActionSecurityType.ANONYMOUS);
+ }
+
+ @Override
+ public Page perform(HttpServletRequest req, HttpServletResponse resp)
+ throws IOException {
+ MapReduceSettings settings =
+ new MapReduceSettings.Builder().setWorkerQueueName("default")
+ .setBucketName("npackd").build();
+
+ MapSpecification<Entity, Void, Void> ms =
+ new MapSpecification.Builder<>(new DatastoreInput(
+ "Editor", 10),
+ new DeleteInactiveUsersMapper(),
+ new NoOutput<Void, Void>()).build();
+ String jobId = MapJob.start(ms, settings);
+
+ return new MessagePage("Job ID: " + jobId);
+ }
+ }
+ */
+/**
  * Delete inactive users.
  */
-public class DeleteInactiveUsersMapper extends MapOnlyMapper<Entity, Void> {
-
-    private static final long serialVersionUID = 1L;
-
-    private transient DatastoreMutationPool pool;
-
-    @Override
-    public void beginSlice() {
-        this.pool = DatastoreMutationPool.create();
-    }
-
-    @Override
-    public void endSlice() {
-        this.pool.flush();
-    }
-
-    @Override
+public class DeleteInactiveUsersMapper {
     public void map(Entity value) {
         Editor data = new Editor(value);
 

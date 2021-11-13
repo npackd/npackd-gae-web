@@ -226,7 +226,7 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new HomeAction());
         registerAction(new StarsAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
-        registerAction(new CheckUpdatesAction());
+        // TODO: map-reduce is not available anymore registerAction(new CheckUpdatesAction());
         registerAction(new SendStatusAction("^/cron/tick$", 200));
         registerAction(new ExportRepsAction());
         // registerAction(new StoreDataAction());
@@ -236,10 +236,13 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new StarFragmentAction());
         registerAction(new ReCaptchaAnswerAction());
         registerAction(new ReCaptchaAction());
+
+        /* TODO map-reduce is not available anymore
         registerAction(new ProcessPackageVersionsAction());
         registerAction(new ProcessPackagesAction());
         registerAction(new UpdateSafeBrowsingInfoAction());
         registerAction(new DeleteInactiveUsersAction());
+         */
 
         /* API */
         registerAction(new TagPackageVersionAction());

@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>war</packaging>
         
-	<version>35</version>
+	<version>36</version>
 
 	<groupId>com.npackd</groupId>
 	<artifactId>npackd-web</artifactId>
@@ -38,20 +38,27 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.google.appengine.tools</groupId>
+			<artifactId>appengine-gcs-client</artifactId>
+			<version>0.8</version>
+		</dependency>
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>25.1-jre</version>
+			<version>31.0.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker-gae</artifactId>
 			<version>2.3.28</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>com.google.appengine.tools</groupId>
 			<artifactId>appengine-mapreduce</artifactId>
-			<version>RELEASE</version>
+			<version>0.9</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>

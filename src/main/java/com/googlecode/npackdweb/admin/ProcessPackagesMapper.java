@@ -1,29 +1,42 @@
 package com.googlecode.npackdweb.admin;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
-import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import java.util.logging.Level;
 
-public class ProcessPackagesMapper extends MapOnlyMapper<Entity, Void> {
+/**
+ * Process all packages.
+ /
+ public class ProcessPackagesAction extends Action {
 
-    private static final long serialVersionUID = 1L;
+ /**
+ * -
+ *
+ public ProcessPackagesAction() {
+ super("^/process-packages$", ActionSecurityType.ADMINISTRATOR);
+ }
 
-    private transient DatastoreMutationPool pool;
+ @Override
+ public Page perform(HttpServletRequest req, HttpServletResponse resp)
+ throws IOException {
+ MapReduceSettings settings =
+ new MapReduceSettings.Builder().setWorkerQueueName("default")
+ .setBucketName("npackd").build();
 
-    @Override
-    public void beginSlice() {
-        this.pool = DatastoreMutationPool.create();
-    }
+ MapSpecification<Entity, Void, Void> ms =
+ new MapSpecification.Builder<>(new DatastoreInput(
+ "Package", 100),
+ new ProcessPackagesMapper(),
+ new NoOutput<Void, Void>()).build();
+ String jobId = MapJob.start(ms, settings);
 
-    @Override
-    public void endSlice() {
-        this.pool.flush();
-    }
+ return new MessagePage("Job ID: " + jobId);
+ }
+ }
+ */
 
-    @Override
+public class ProcessPackagesMapper{
     public void map(Entity value) {
         NWUtils.LOG.log(Level.INFO, "process-packages .map", value.getProperty(
                 "name"));

@@ -1,30 +1,43 @@
 package com.googlecode.npackdweb.admin;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.tools.mapreduce.DatastoreMutationPool;
-import com.google.appengine.tools.mapreduce.MapOnlyMapper;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.db.PackageVersion;
 import java.util.List;
 
-public class ProcessPackageVersionsMapper extends MapOnlyMapper<Entity, Void> {
+/**
+ * This action processes all package versions.
+ *
+ public class ProcessPackageVersionsAction extends Action {
 
-    private static final long serialVersionUID = 1L;
+ /**
+ * -
+ *
+ * public ProcessPackageVersionsAction() {
+ super("^/clean-dependencies$", ActionSecurityType.ADMINISTRATOR);
+ }
 
-    private transient DatastoreMutationPool pool;
+ @Override
+ public Page perform(HttpServletRequest req, HttpServletResponse resp)
+ throws IOException {
+ MapReduceSettings settings =
+ new MapReduceSettings.Builder().setWorkerQueueName("default")
+ .setBucketName("npackd").build();
 
-    @Override
-    public void beginSlice() {
-        this.pool = DatastoreMutationPool.create();
-    }
+ MapSpecification<Entity, Void, Void> ms =
+ new MapSpecification.Builder<>(new DatastoreInput(
+ "PackageVersion", 50),
+ new ProcessPackageVersionsMapper(),
+ new NoOutput<Void, Void>()).build();
+ String jobId = MapJob.start(ms, settings);
 
-    @Override
-    public void endSlice() {
-        this.pool.flush();
-    }
+ return new MessagePage("Job ID: " + jobId);
+ }
+ }
+ */
 
-    @Override
+public class ProcessPackageVersionsMapper {
     public void map(Entity value) {
         deleteUnnecessaryTags(value);
     }
