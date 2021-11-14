@@ -37,7 +37,7 @@ import java.util.List;
  }
  */
 
-public class ProcessPackageVersionsMapper {
+public class ProcessPackageVersionsAction {
     public void map(Entity value) {
         deleteUnnecessaryTags(value);
     }

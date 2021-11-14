@@ -241,8 +241,8 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new ProcessPackageVersionsAction());
         registerAction(new ProcessPackagesAction());
          */
-        registerAction(new UpdateSafeBrowsingInfoMapper());
-        registerAction(new DeleteInactiveUsersMapper());
+        registerAction(new UpdateSafeBrowsingInfoAction());
+        registerAction(new DeleteInactiveUsersAction());
 
         /* API */
         registerAction(new TagPackageVersionAction());

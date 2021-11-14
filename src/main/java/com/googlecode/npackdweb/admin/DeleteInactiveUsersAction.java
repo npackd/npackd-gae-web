@@ -22,11 +22,11 @@ import java.util.logging.Level;
 /**
  * Delete inactive users.
  */
-public class DeleteInactiveUsersMapper extends Action {
+public class DeleteInactiveUsersAction extends Action {
     /**
      * -
      */
-    public DeleteInactiveUsersMapper() {
+    public DeleteInactiveUsersAction() {
         super("^/cron/delete-inactive-users$", ActionSecurityType.ANONYMOUS);
     }
 

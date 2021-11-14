@@ -253,10 +253,10 @@ public class PackageVersionRecognizeAction extends Action {
                                     "for /f \"delims=\" %%x in ('dir /b " +
                                     d +
                                     "*') do set name=%%x\r\n" +
-                                    "cd \"%name%\"\r\n" +
-                                    "for /f \"delims=\" %%a in ('dir /b') do (\r\n" +
-                                    "  move \"%%a\" ..\r\n" + ")\r\n" +
-                                    "cd ..\r\n" + "rmdir \"%name%\"\r\n");
+                                    "\"%clu%\\clu\" unwrap-dir -p \"%name%\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+                            pv.addDependency(
+                                    "com.googlecode.windows-package-manager.CLU",
+                                    "[1.25, 2)", "clu");
                         }
                     } catch (IOException e1) {
                         NWUtils.LOG.log(Level.WARNING, e1.getMessage(), e1);
