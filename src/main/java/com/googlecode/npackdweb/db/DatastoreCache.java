@@ -510,10 +510,11 @@ public class DatastoreCache {
      * @param order how to order the query (e.g. "-lastModifiedAt") or null
      * @param limit maximum number of returned package versions or 0 for
      * "unlimited"
+     * @param offset offset in the results
      * @return the package versions
      */
     public List<PackageVersion> findPackageVersions(
-            String tag, String order, int limit) {
+            String tag, String order, int limit, int offset) {
         DatastoreService datastore = DatastoreServiceFactory.
                 getDatastoreService();
 
@@ -533,7 +534,7 @@ public class DatastoreCache {
             list = getAllEntities(query);
         } else {
             PreparedQuery pq = datastore.prepare(query);
-            final FetchOptions fo = FetchOptions.Builder.withDefaults();
+            final FetchOptions fo = FetchOptions.Builder.withOffset(offset);
             if (limit > 0) {
                 fo.limit(limit);
             }

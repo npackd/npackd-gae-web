@@ -71,7 +71,7 @@ public class RepXMLPage extends Page {
     public static Document
             toXML(String tag, boolean onlyReviewed) {
         List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(tag,
-                null, 0);
+                null, 0, 0);
 
         // remove untested package versions
         Iterator<PackageVersion> it = pvs.iterator();
@@ -100,7 +100,7 @@ public class RepXMLPage extends Page {
         }
 
         List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(null,
-                null, 0);
+                null, 0, 0);
 
         // remove untested package versions
         Iterator<PackageVersion> it = pvs.iterator();

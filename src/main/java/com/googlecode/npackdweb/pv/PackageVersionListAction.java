@@ -22,8 +22,17 @@ public class PackageVersionListAction extends Action {
     @Override
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        String start_ = req.getParameter("start");
+        if (start_ == null)
+            start_ = "0";
+        int start;
+        try {
+            start = Integer.parseInt(start_);
+        } catch (NumberFormatException e) {
+            start = 0;
+        }
+
         String tag = req.getParameter("tag");
-        String order = tag == null ? "-installFailed" : null;
-        return new PackageVersionListPage(tag, order);
+        return new PackageVersionListPage(tag, start);
     }
 }

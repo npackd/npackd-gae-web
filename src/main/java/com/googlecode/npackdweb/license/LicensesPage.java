@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
  * Licenses.
  */
 public class LicensesPage extends MyPage {
-
     private static final int PAGE_SIZE = 20;
     private List<License> licenses;
     private int start;
