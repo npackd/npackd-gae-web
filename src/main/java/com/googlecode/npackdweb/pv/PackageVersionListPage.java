@@ -47,6 +47,9 @@ public class PackageVersionListPage extends MyPage {
             b.start("li");
             b.e("a", "href", "/p/" + pv.package_ + "/" + pv.version,
                     pv.package_ + " " + pv.version);
+            b.t(" last modified by ");
+            b.unencoded(pv.lastModifiedBy == null ? "" : NWUtils.obfuscateEmail(
+                    pv.lastModifiedBy.getEmail(), request.getServerName()));
             b.t(" installation failed: " + pv.installFailed + " times");
             b.end("li");
         }
@@ -67,8 +70,10 @@ public class PackageVersionListPage extends MyPage {
         w.start("ul", "class", "pager");
         if (cur >= PAGE_SIZE) {
             w.start("li");
-            w.e("a", "href", "/pv?start=" + (cur - PAGE_SIZE) + "&tag=" +
-                    NWUtils.encode(tag),
+            String url = "/pv?start=" + (cur - PAGE_SIZE);
+            if (tag != null)
+                url += "&tag=" +NWUtils.encode(tag);
+            w.e("a", "href", url,
                     "\u2190 Previous page");
             w.end("li");
         } else {
@@ -79,9 +84,10 @@ public class PackageVersionListPage extends MyPage {
 
         if (hasNextPage) {
             w.start("li");
-            w.e("a", "href", "/pv?start=" + (cur + PAGE_SIZE) + "&tag=" +
-                            NWUtils.encode(tag),
-                    "Next page \u2192");
+            String url = "/pv?start=" + (cur + PAGE_SIZE);
+            if (tag != null)
+                url += "&tag=" + NWUtils.encode(tag);
+            w.e("a", "href", url, "Next page \u2192");
             w.end("li");
         } else {
             w.start("li", "class", hasNextPage ? null : "disabled");
