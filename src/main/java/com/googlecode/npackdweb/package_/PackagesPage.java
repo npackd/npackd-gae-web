@@ -23,11 +23,14 @@ import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+
 import org.markdown4j.Markdown4jProcessor;
 
 /**
@@ -69,15 +72,15 @@ public class PackagesPage extends MyPage {
     /**
      * -
      *
-     * @param query search query. Example: "title:Python"
-     * @param sort "" (relevancy), "created", "title" or "stars" sorting order
-     * @param start initial offset
-     * @param category0 filter for the top-level category or null or ""
-     * @param category1 filter for the second level level or null or ""
+     * @param query      search query. Example: "title:Python"
+     * @param sort       "created", "title" or "stars", "relevance" sorting order
+     * @param start      initial offset
+     * @param category0  filter for the top-level category or null or ""
+     * @param category1  filter for the second level level or null or ""
      * @param repository filter for the repository or null or ""
      */
     public PackagesPage(String query, String sort, int start,
-            String category0, String category1, String repository) {
+                        String category0, String category1, String repository) {
         this.query = query;
         this.sort = sort;
         this.start = start;
@@ -101,7 +104,7 @@ public class PackagesPage extends MyPage {
         QueryOptions.Builder ob =
                 QueryOptions.newBuilder().setFieldsToReturn(new String[0]).
                         setLimit(PAGE_SIZE + 1).setOffset(
-                        start).setNumberFoundAccuracy(2000);
+                                start).setNumberFoundAccuracy(2000);
 
         SortExpression se;
         if ("created".equals(sort)) {
@@ -113,7 +116,7 @@ public class PackagesPage extends MyPage {
                                     SortExpression.SortDirection.DESCENDING)
                             .setDefaultValueDate(
                                     SearchApiLimits.MINIMUM_DATE_VALUE).build();
-        } else if ("stars".equals(sort)) {
+        } else if ("stars".equals(sort) || "".equals(sort)) {
             se =
                     SortExpression
                             .newBuilder()
@@ -277,8 +280,8 @@ public class PackagesPage extends MyPage {
 
                 w.t(" ");
                 NWUtils.star(w, p.name, e != null && e.starredPackages.
-                        contains(
-                                p.name),
+                                contains(
+                                        p.name),
                         p.starred);
 
                 w.end("h4");
@@ -288,8 +291,8 @@ public class PackagesPage extends MyPage {
                 } catch (IOException ex) {
                     w.e("div",
                             "Description: " + p.description +
-                            " Failed to parse the Markdown syntax: " +
-                            ex.getMessage());
+                                    " Failed to parse the Markdown syntax: " +
+                                    ex.getMessage());
                 }
                 w.start("div");
                 w.t("Category: " +
@@ -313,12 +316,12 @@ public class PackagesPage extends MyPage {
     /**
      * Creates HTML for special tags.
      *
-     * @param w output
+     * @param w              output
      * @param noUpdatesCheck see Package.noUpdatesCheck
-     * @param eol true = "end-of-life" tag is present
+     * @param eol            true = "end-of-life" tag is present
      */
     public static void createTags(HTMLWriter w,
-            java.util.Date noUpdatesCheck, boolean eol) {
+                                  java.util.Date noUpdatesCheck, boolean eol) {
         if (noUpdatesCheck != null) {
             if ((System.currentTimeMillis() - noUpdatesCheck
                     .getTime()) < 7L * 24 * 60 * 60 * 1000) {
@@ -354,26 +357,18 @@ public class PackagesPage extends MyPage {
         w.e("input", "class", "form-control", "type", "text", "name", "q",
                 "value", query, "size", "50", "title",
                 "Enter here your search text. " +
-                "You can enter multiple words if a package should contain all of them. " +
-                "The search is case insensitive. " +
-                "Special characters are filtered out. " +
-                "Singular and plural word forms can be used. " +
-                "Change in letter case or digits create a new search word. " +
-                "Version numbers and common english words are ignored.");
+                        "You can enter multiple words if a package should contain all of them. " +
+                        "The search is case insensitive. " +
+                        "Special characters are filtered out. " +
+                        "Singular and plural word forms can be used. " +
+                        "Change in letter case or digits create a new search word. " +
+                        "Version numbers and common english words are ignored.");
 
         // sort order
         w.t(" Sort by: ");
-        w.start("select", "class", "form-control", "name", "sort", "id", "sort");
-        w.e("option", "value", "", "selected",
-                "".equals(sort) ? "selected" : null, "Relevance");
-        w.e("option", "value", "title", "selected",
-                "title".equals(sort) ? "selected" : null, "Title");
-        w.e("option", "value", "created", "selected", "created".equals(sort) ?
-                "selected" :
-                null, "Creation date");
-        w.e("option", "value", "stars", "selected", "stars".equals(sort) ?
-                "selected" :
-                null, "Stars");
+        w.unencoded(NWUtils.createSelect("sort", "sort", sort,
+                Arrays.asList("Relevance", "Title", "Creation date", "Stars"),
+                Arrays.asList("relevance", "title", "created", "stars")));
         w.end("select");
 
         w.t(" Category: ");
@@ -445,7 +440,7 @@ public class PackagesPage extends MyPage {
         w.start("ul", "class", "pager");
         String p =
                 ("".equals(sort) ? "" : "&sort=" + sort) + "&q=" +
-                NWUtils.encode(this.query);
+                        NWUtils.encode(this.query);
         if (category0 != null) {
             p += "&category0=" + NWUtils.encode(this.category0);
         }

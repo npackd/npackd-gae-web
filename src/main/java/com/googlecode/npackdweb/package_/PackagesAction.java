@@ -4,6 +4,7 @@ import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
+
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,8 +46,9 @@ public class PackagesAction extends Action {
 
             String sort = req.getParameter("sort");
             if (!"created".equals(sort) && !"title".equals(sort) && !"stars".
+                    equals(sort) && !"relevance".
                     equals(sort)) {
-                sort = "";
+                sort = "stars";
             }
 
             return new PackagesPage(q, sort,

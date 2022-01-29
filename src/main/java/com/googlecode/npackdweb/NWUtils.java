@@ -33,6 +33,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOError;
@@ -83,6 +84,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.json.JSONArray;
@@ -110,29 +112,31 @@ public class NWUtils {
                     .expireAfterWrite(10, TimeUnit.MINUTES)
                     .build(
                             new CacheLoader<String, GcsFileMetadata>() {
-                        @Override
-                        public GcsFileMetadata load(String filename) throws
-                                Exception {
-                            String tag = filename.substring(0,
-                                    filename.length() - 4);
+                                @Override
+                                public GcsFileMetadata load(String filename)
+                                        throws
+                                        Exception {
+                                    String tag = filename.substring(0,
+                                            filename.length() - 4);
 
-                            final GcsService gcsService =
-                                    GcsServiceFactory.createGcsService(
-                                            RetryParams
-                                                    .getDefaultInstance());
+                                    final GcsService gcsService =
+                                            GcsServiceFactory.createGcsService(
+                                                    RetryParams
+                                                            .getDefaultInstance());
 
-                            GcsFilename f = new GcsFilename("npackd",
-                                    filename);
-                            GcsFileMetadata md = gcsService.
-                                    getMetadata(f);
-                            if (md == null) {
-                                ExportRepsAction.export(gcsService, tag, false);
-                                md = gcsService.getMetadata(f);
-                            }
+                                    GcsFilename f = new GcsFilename("npackd",
+                                            filename);
+                                    GcsFileMetadata md = gcsService.
+                                            getMetadata(f);
+                                    if (md == null) {
+                                        ExportRepsAction.export(gcsService, tag,
+                                                false);
+                                        md = gcsService.getMetadata(f);
+                                    }
 
-                            return md;
-                        }
-                    });
+                                    return md;
+                                }
+                            });
 
     /**
      * URL
@@ -156,23 +160,23 @@ public class NWUtils {
 
     private static final String GPL_LICENSE =
             "\n    This file is part of Npackd.\n" +
-            "    \n" +
-            "    Npackd is free software: you can redistribute it and/or modify\n" +
+                    "    \n" +
+                    "    Npackd is free software: you can redistribute it and/or modify\n" +
 
-            "    it under the terms of the GNU General Public License as published by\n" +
+                    "    it under the terms of the GNU General Public License as published by\n" +
 
-            "    the Free Software Foundation, either version 3 of the License, or\n" +
-            "    (at your option) any later version.\n" +
-            "    \n" +
-            "    Npackd is distributed in the hope that it will be useful,\n" +
-            "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
+                    "    the Free Software Foundation, either version 3 of the License, or\n" +
+                    "    (at your option) any later version.\n" +
+                    "    \n" +
+                    "    Npackd is distributed in the hope that it will be useful,\n" +
+                    "    but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
 
-            "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
-            "    GNU General Public License for more details.\n" +
-            "    \n" +
-            "    You should have received a copy of the GNU General Public License\n" +
+                    "    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
+                    "    GNU General Public License for more details.\n" +
+                    "    \n" +
+                    "    You should have received a copy of the GNU General Public License\n" +
 
-            "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
+                    "    along with Npackd.  If not, see <http://www.gnu.org/licenses/>.\n    ";
 
     private static Configuration cfg;
 
@@ -211,10 +215,11 @@ public class NWUtils {
      * Formats a template.
      *
      * @param template content of the template
-     * @param values keys and values for the template
+     * @param values   keys and values for the template
      * @return formatted text
      */
-    public static String tmplString(String template, Map<String, String> values) {
+    public static String tmplString(String template,
+                                    Map<String, String> values) {
         String r = template;
         for (Map.Entry<String, String> entry : values.entrySet()) {
             r = r.replace(entry.getKey(), entry.getValue());
@@ -226,7 +231,7 @@ public class NWUtils {
      * Formats a template
      *
      * @param templateName name of the template file
-     * @param values values for the template
+     * @param values       values for the template
      * @return formatted text
      * @throws IOException if the template cannot be read
      */
@@ -247,8 +252,8 @@ public class NWUtils {
      * Formats a template
      *
      * @param templateName name of the template file
-     * @param key key for the template
-     * @param value value for the template
+     * @param key          key for the template
+     * @param value        value for the template
      * @return formatted text
      * @throws IOException if the template cannot be read
      */
@@ -260,7 +265,7 @@ public class NWUtils {
     /**
      * Formats a template
      *
-     * @param templateName name of the template file under WEB-INF/templates
+     * @param templateName  name of the template file under WEB-INF/templates
      * @param keysAndValues key1, value1, key2, value2, ...
      * @return formatted text
      * @throws IOException if the template cannot be read
@@ -277,14 +282,14 @@ public class NWUtils {
     /**
      * Formats a template
      *
-     * @param page the object will be stored using the name "page"
-     * @param templateName name of the template file
+     * @param page          the object will be stored using the name "page"
+     * @param templateName  name of the template file
      * @param keysAndValues key1, value1, key2, value2, ...
      * @return formatted text
      * @throws IOException if the template cannot be read
      */
     public static String tmpl(Page page, String templateName,
-            String... keysAndValues) throws IOException {
+                              String... keysAndValues) throws IOException {
         Map<String, Object> map = new HashMap<>();
         for (int i = 0; i < keysAndValues.length; i += 2) {
             map.put(keysAndValues[i], keysAndValues[i + 1]);
@@ -296,13 +301,13 @@ public class NWUtils {
     /**
      * Writes an HTML response
      *
-     * @param resp response
+     * @param resp         response
      * @param templateName name of the template
-     * @param root root object
+     * @param root         root object
      * @throws IOException if the template cannot be read
      */
     public static void serve(HttpServletResponse resp, String templateName,
-            Map<String, String> root) throws IOException {
+                             Map<String, String> root) throws IOException {
         // Get the template object
         Template t = cfg.getTemplate(templateName);
 
@@ -324,7 +329,7 @@ public class NWUtils {
     /**
      * Creates a new Map with only one value
      *
-     * @param key key
+     * @param key   key
      * @param value value
      * @return map with the specified value
      */
@@ -337,14 +342,14 @@ public class NWUtils {
     /**
      * Creates a new Map with 2 values
      *
-     * @param key key
-     * @param value value
-     * @param key2 second key
+     * @param key    key
+     * @param value  value
+     * @param key2   second key
      * @param value2 second value
      * @return map with the specified values
      */
     public static Map<String, Object> newMap(String key, String value,
-            String key2, String value2) {
+                                             String key2, String value2) {
         Map<String, Object> map = new HashMap<>();
         map.put(key, value);
         map.put(key2, value2);
@@ -354,13 +359,13 @@ public class NWUtils {
     /**
      * Returns the content of a sub-tag.
      *
-     * @param tag an XML tag
+     * @param tag    an XML tag
      * @param subtag name of the sub-tag
-     * @param def this value is used if the sub-tag is missing
+     * @param def    this value is used if the sub-tag is missing
      * @return the content of the sub-tag
      */
     public static String
-            getSubTagContent(Element tag, String subtag, String def) {
+    getSubTagContent(Element tag, String subtag, String def) {
         NodeList nl = tag.getElementsByTagName(subtag);
         String r = def;
         if (nl.getLength() > 0) {
@@ -388,8 +393,8 @@ public class NWUtils {
     /**
      * Adds a sub-tag with the specified text.
      *
-     * @param parent parent tag
-     * @param subtag sub-tag
+     * @param parent  parent tag
+     * @param subtag  sub-tag
      * @param content content of the sub-tag
      */
     public static void e(Element parent, String subtag, String content) {
@@ -403,14 +408,14 @@ public class NWUtils {
     /**
      * Adds a sub-tag with the specified text and an attribute.
      *
-     * @param parent parent tag
-     * @param subtag sub-tag
-     * @param attr attribute name
+     * @param parent    parent tag
+     * @param subtag    sub-tag
+     * @param attr      attribute name
      * @param attrValue attribute value
-     * @param content content of the sub-tag or null
+     * @param content   content of the sub-tag or null
      */
     public static void e(Element parent, String subtag, String attr,
-            String attrValue, String content) {
+                         String attrValue, String content) {
         Document d = parent.getOwnerDocument();
         Element ch = d.createElement(subtag);
         ch.setAttribute(attr, attrValue);
@@ -424,16 +429,17 @@ public class NWUtils {
     /**
      * Adds a sub-tag with the specified text and an attribute.
      *
-     * @param parent parent tag
-     * @param subtag sub-tag
-     * @param attr attribute name
-     * @param attrValue attribute value
-     * @param attr2 second attribute name
+     * @param parent     parent tag
+     * @param subtag     sub-tag
+     * @param attr       attribute name
+     * @param attrValue  attribute value
+     * @param attr2      second attribute name
      * @param attrValue2 second attribute value
-     * @param content content of the sub-tag or null
+     * @param content    content of the sub-tag or null
      */
     public static void e(Element parent, String subtag, String attr,
-            String attrValue, String attr2, String attrValue2, String content) {
+                         String attrValue, String attr2, String attrValue2,
+                         String content) {
         Document d = parent.getOwnerDocument();
         Element ch = d.createElement(subtag);
         ch.setAttribute(attr, attrValue);
@@ -459,7 +465,7 @@ public class NWUtils {
     /**
      * Joins the strings with the specified delimiter.
      *
-     * @param del delimiter
+     * @param del  delimiter
      * @param txts strings
      * @return joined text
      */
@@ -477,7 +483,7 @@ public class NWUtils {
     /**
      * Splits the text on the specified separator
      *
-     * @param txt a text
+     * @param txt       a text
      * @param separator separator character
      * @return parts
      */
@@ -583,13 +589,13 @@ public class NWUtils {
     /**
      * Creates an &lt;input type="button"&gt; that changes window.location.href
      *
-     * @param w HTML output
-     * @param txt button title
-     * @param url new URL
+     * @param w     HTML output
+     * @param txt   button title
+     * @param url   new URL
      * @param title tooltip
      */
     public static void jsButton(HTMLWriter w, String txt, String url,
-            String title) {
+                                String title) {
         w.e("input", "class", "btn btn-default", "type", "button", "value",
                 txt, "onclick", "window.location.href='" + url + "'", "title",
                 title);
@@ -598,13 +604,13 @@ public class NWUtils {
     /**
      * Creates a text field for URL input.
      *
-     * @param w HTML output
-     * @param name input name
+     * @param w     HTML output
+     * @param name  input name
      * @param value value of the input field
      * @param title title
      */
     public static void inputURL(HTMLWriter w, String name, String value,
-            String title) {
+                                String title) {
         w.start("div", "class", "nw-input-url");
         w.e("input", "style",
                 "display: inline; width: 90%", "class",
@@ -619,13 +625,13 @@ public class NWUtils {
     /**
      * Creates an &lt;input type="button"&gt; that changes window.location.href
      *
-     * @param w HTML output
-     * @param txt button title
+     * @param w       HTML output
+     * @param txt     button title
      * @param onClick JavaScript for "onclick"
-     * @param title tooltip
+     * @param title   tooltip
      */
     public static void jsButton_(HTMLWriter w, String txt, String onClick,
-            String title) {
+                                 String title) {
         w.e("input", "class", "btn btn-default", "type", "button", "value",
                 txt, "onclick", onClick, "title", title);
     }
@@ -633,14 +639,14 @@ public class NWUtils {
     /**
      * Creates an &lt;input type="button"&gt; that changes window.location.href
      *
-     * @param w HTML output
-     * @param txt button title
-     * @param url new URL
-     * @param title tooltip
+     * @param w       HTML output
+     * @param txt     button title
+     * @param url     new URL
+     * @param title   tooltip
      * @param enabled true = the button is enabled
      */
     public static void jsButton(HTMLWriter w, String txt, String url,
-            String title, boolean enabled) {
+                                String title, boolean enabled) {
         w.e("input", "class", "btn btn-default", "type", "button", "value",
                 txt, "onclick", "window.location.href='" + url + "'", "title",
                 title, "disabled", enabled ? null : "disabled");
@@ -657,7 +663,7 @@ public class NWUtils {
     /**
      * Serializes XML
      *
-     * @param d XML document
+     * @param d   XML document
      * @param gos output
      * @throws java.io.IOException any error
      */
@@ -757,11 +763,36 @@ public class NWUtils {
     }
 
     /**
+     * Creates a "select" tag.
+     *
+     * @param id     Id of the element
+     * @param name   name of the element
+     * @param value  selected value or null
+     * @param titles titles
+     * @param values values
+     * @return HTML
+     */
+    public static String createSelect(String id, String name, String value,
+                                      List<String> titles,
+                                      List<String> values) {
+        HTMLWriter w = new HTMLWriter();
+        w.start("select", "class", "form-control", "name", name, "id", id);
+        for (int i = 0; i < titles.size(); i++) {
+            String title = titles.get(i);
+            String v = values.get(i);
+            w.e("option", "value", v, "selected",
+                    v.equals(value) ? "selected" : null, title);
+        }
+        w.end("select");
+        return w.toString();
+    }
+
+    /**
      * Validates an URL. Only http: and https: are allowed as protocol.
      *
-     * @param url_ the entered text
+     * @param url_      the entered text
      * @param copyright true = check that servers like "softpedia.com" are not
-     *      used
+     *                  used
      * @return error message or null
      */
     public static String validateURL(String url_, boolean copyright) {
@@ -856,7 +887,7 @@ public class NWUtils {
                 } else {
                     valid =
                             (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
-                            (c >= 'A' && c <= 'F');
+                                    (c >= 'A' && c <= 'F');
                 }
 
                 if (!valid) {
@@ -912,17 +943,19 @@ public class NWUtils {
      * @param version version number
      * @return parsed and normalized version number
      */
-    public static Version parseVersion(String version) throws NumberFormatException {
+    public static Version parseVersion(String version)
+            throws NumberFormatException {
         version = version.replace('-', '.');
         version = version.replace('+', '.');
         version = version.replace('_', '.');
 
         // process version numbers like 2.0.6b
         if (version.length() > 0) {
-            char c = Character.toLowerCase(version.charAt(version.length() - 1));
+            char c =
+                    Character.toLowerCase(version.charAt(version.length() - 1));
             if (c >= 'a' && c <= 'z') {
                 version = version.substring(0, version.length() - 1) + "." +
-                                (c - 'a' + 1);
+                        (c - 'a' + 1);
             }
         }
 
@@ -936,7 +969,7 @@ public class NWUtils {
      * Sends an email to the administrator.
      *
      * @param body body of the email
-     * @param to receiver email address
+     * @param to   receiver email address
      */
     public static void sendMailTo(String body, String to) {
         Properties props = new Properties();
@@ -970,7 +1003,7 @@ public class NWUtils {
      * Changes the size of a list.
      *
      * @param list a list
-     * @param m the desired size. New "null" values will be added, if necessary.
+     * @param m    the desired size. New "null" values will be added, if necessary.
      */
     public static void resize(List<String> list, int m) {
         while (list.size() > m) {
@@ -1090,13 +1123,13 @@ public class NWUtils {
     /**
      * Downloads a file
      *
-     * @param url http: or https: URL
+     * @param url       http: or https: URL
      * @param algorithm SHA-1 or SHA-256
-     * @param maxSize maximum size of the file or 0 for "unlimited". If the file
-     * is bigger than the specified size, the download will be cancelled and an
-     * IOException will be thrown
+     * @param maxSize   maximum size of the file or 0 for "unlimited". If the file
+     *                  is bigger than the specified size, the download will be cancelled and an
+     *                  IOException will be thrown
      * @return info about the downloaded file
-     * @throws IOException file cannot be downloaded
+     * @throws IOException              file cannot be downloaded
      * @throws NoSuchAlgorithmException if SHA1 cannot be computed
      */
     public static Info download(String url, String algorithm, long maxSize)
@@ -1221,14 +1254,14 @@ public class NWUtils {
     /**
      * Upload a file to archive.org. See https://archive.org/help/abouts3.txt
      *
-     * @param url http: or https: URL
+     * @param url        http: or https: URL
      * @param archiveURL URL on s3.us.archive.org
-     * @param accessKey access key for s3.us.archive.org
-     * @param password password on archive.org
+     * @param accessKey  access key for s3.us.archive.org
+     * @param password   password on archive.org
      * @throws IOException file cannot be downloaded
      */
     public static void archive(String url, String archiveURL, String accessKey,
-            String password)
+                               String password)
             throws IOException {
         HttpURLConnection archive = (HttpURLConnection) new URL(archiveURL).
                 openConnection();
@@ -1255,7 +1288,7 @@ public class NWUtils {
     /**
      * Changes an email address so it cannot be easily parsed.
      *
-     * @param email an email address or null
+     * @param email  an email address or null
      * @param domain server domain
      * @return HTML. abc dot def at bla dot com
      */
@@ -1266,7 +1299,8 @@ public class NWUtils {
             HTMLWriter w = new HTMLWriter();
             int index = email.indexOf('@');
             if (index > 0) {
-                Editor e = NWUtils.dsCache.findEditor(NWUtils.email2user(email));
+                Editor e =
+                        NWUtils.dsCache.findEditor(NWUtils.email2user(email));
                 if (e == null) {
                     e = new Editor(email2user(email));
                     NWUtils.dsCache.saveEditor(e);
@@ -1336,15 +1370,16 @@ public class NWUtils {
      * If-Modified-Since and similar HTTP headers and sends 304 if the file was
      * not changed.
      *
-     * @param md GCS file meta data
-     * @param request HTTP request
-     * @param resp HTTP response
+     * @param md          GCS file meta data
+     * @param request     HTTP request
+     * @param resp        HTTP response
      * @param contentType MIME type of the response
      * @throws IOException error reading or sending the file
      */
     public static void serveFileFromGCS(GcsFileMetadata md,
-            HttpServletRequest request, HttpServletResponse resp,
-            String contentType) throws IOException {
+                                        HttpServletRequest request,
+                                        HttpServletResponse resp,
+                                        String contentType) throws IOException {
         SimpleDateFormat httpDateFormat =
                 new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 
@@ -1404,7 +1439,7 @@ public class NWUtils {
     /**
      * Creates a &lt;script&gt; tag
      *
-     * @param w output
+     * @param w   output
      * @param src value of the "src" attribute
      * @return the same writer
      */
@@ -1415,14 +1450,14 @@ public class NWUtils {
     /**
      * Creates a star for a package
      *
-     * @param w output
+     * @param w        output
      * @param package_ full package name
-     * @param filled true = filled star
-     * @param starred the amount of people who starred the package
+     * @param filled   true = filled star
+     * @param starred  the amount of people who starred the package
      * @return the same writer
      */
     public static HTMLWriter star(HTMLWriter w, final String package_,
-            boolean filled, int starred) {
+                                  boolean filled, int starred) {
         String txt;
         if (starred == 1) {
             txt = "1 user starred this package";
@@ -1453,14 +1488,14 @@ public class NWUtils {
      * Checks URLs using the Google Safe Browsing Lookup API
      *
      * @param urls this URLs will be checked. At most 500 URLs can be processed
-     * at once.
+     *             at once.
      * @return threat types or empty strings if everything is OK.
      * THREAT_TYPE_UNSPECIFIED Unknown. MALWARE Malware threat type.
      * SOCIAL_ENGINEERING Social engineering threat type. UNWANTED_SOFTWARE
      * Unwanted software threat type. POTENTIALLY_HARMFUL_APPLICATION
      * Potentially harmful application threat type.
      * @throws java.io.IOException there was a communication problem, the server
-     * is unavailable, over quota or something different.
+     *                             is unavailable, over quota or something different.
      */
     public static String[] checkURLs(String[] urls) throws
             IOException {
@@ -1493,7 +1528,7 @@ public class NWUtils {
             Arrays.fill(result, "");
             URL u = new URL(
                     "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" +
-                    NWUtils.dsCache.getSetting("PublicAPIKey", ""));
+                            NWUtils.dsCache.getSetting("PublicAPIKey", ""));
             URLFetchService s = URLFetchServiceFactory.getURLFetchService();
 
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);
@@ -1525,7 +1560,7 @@ public class NWUtils {
             } else {
                 throw new IOException(
                         "Error " + rc + " from the Google Safe Browsing API " +
-                        new String(r.getContent(), "UTF-8"));
+                                new String(r.getContent(), "UTF-8"));
             }
         } catch (MalformedURLException ex) {
             throw new IOException(ex);
@@ -1539,7 +1574,7 @@ public class NWUtils {
     /**
      * Splits a string in two parts on the delimiter.
      *
-     * @param s the string
+     * @param s   the string
      * @param del delimiter
      * @return [first string, second string] or [s, ""] if the delimiter was not
      * found
@@ -1561,12 +1596,12 @@ public class NWUtils {
     /**
      * Retrieve a string from a Datastore entity.
      *
-     * @param e an entity
+     * @param e            an entity
      * @param propertyName name of the property
      * @return property value or null
      */
     public static String getString(com.google.appengine.api.datastore.Entity e,
-            String propertyName) {
+                                   String propertyName) {
         Object obj = e.getProperty(propertyName);
         String result;
         if (obj instanceof com.google.appengine.api.datastore.Text) {
@@ -1580,12 +1615,12 @@ public class NWUtils {
     /**
      * Retrieve a long from a Datastore entity.
      *
-     * @param e an entity
+     * @param e            an entity
      * @param propertyName name of the property
      * @return property value or 0
      */
     public static long getLong(com.google.appengine.api.datastore.Entity e,
-            String propertyName) {
+                               String propertyName) {
         Long obj = (Long) e.getProperty(propertyName);
         long result;
         if (obj == null) {
@@ -1599,7 +1634,7 @@ public class NWUtils {
     /**
      * Retrieve a string list from a Datastore entity.
      *
-     * @param e an entity
+     * @param e            an entity
      * @param propertyName name of the property
      * @return property value != null
      */
@@ -1616,7 +1651,7 @@ public class NWUtils {
     /**
      * Retrieve a user list from a Datastore entity.
      *
-     * @param e an entity
+     * @param e            an entity
      * @param propertyName name of the property
      * @return property value != null
      */
