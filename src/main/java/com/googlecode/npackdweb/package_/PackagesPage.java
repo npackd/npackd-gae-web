@@ -37,7 +37,6 @@ import org.markdown4j.Markdown4jProcessor;
  * Packages.
  */
 public class PackagesPage extends MyPage {
-
     private static final int PAGE_SIZE = 20;
     private List<Package> packages = new ArrayList<>();
     private String sort;

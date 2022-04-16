@@ -5,9 +5,11 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
+
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -79,7 +82,8 @@ public class RepUploadAction extends Action {
                                         new BufferedReader(
                                                 new InputStreamReader(stream));
                                 tag = r.readLine();
-                            } else if (item.getFieldName().equals("overwrite")) {
+                            } else if (item.getFieldName()
+                                    .equals("overwrite")) {
                                 overwrite = true;
                             }
                         } else {
@@ -157,7 +161,7 @@ public class RepUploadAction extends Action {
                 if (p_ != null && !p_.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
-                            p.name);
+                                    p.name);
                     packagesCache.put(p_.name, p_);
                 } else if (p_ != null) {
                     if (overwrite) {
@@ -190,7 +194,7 @@ public class RepUploadAction extends Action {
                 if (p != null && !p.isCurrentUserPermittedToModify()) {
                     messages.add(
                             "You do not have permission to modify this package: " +
-                            pv.package_);
+                                    pv.package_);
                 } else {
                     if (p == null) {
                         p = packagesCache.get(pv.package_);
@@ -215,7 +219,8 @@ public class RepUploadAction extends Action {
                                     " exists already. It will not be overwritten.");
                         }
                     } else {
-                        NWUtils.dsCache.savePackageVersion(null, pv, true, true);
+                        NWUtils.dsCache.savePackageVersion(null, pv, true,
+                                true);
                         stats.pvAppended++;
                     }
                 }
@@ -251,7 +256,7 @@ public class RepUploadAction extends Action {
         return f;
     }
 
-    private Found process(Document d) {
+    private Found process(Document d) throws IOException {
         Found f = new Found();
         Element root = d.getDocumentElement();
         f.lics = processLicenses(root.getChildNodes());
@@ -292,50 +297,24 @@ public class RepUploadAction extends Action {
         return v;
     }
 
-    private List<PackageVersion> processPackageVersions(NodeList children) {
+    private List<PackageVersion> processPackageVersions(NodeList children)
+            throws IOException {
         List<PackageVersion> v = new ArrayList<>();
         for (int i = 0; i < children.getLength(); i++) {
             Node ch = children.item(i);
             if (ch.getNodeType() == Element.ELEMENT_NODE &&
                     ch.getNodeName().equals("version")) {
-                Element e = (Element) ch;
-                PackageVersion pv = createPackageVersion(e);
+                Element el = (Element) ch;
+
+                PackageVersion pv = new PackageVersion("p", "1");
+                try {
+                    pv.parseXML(el);
+                } catch (NumberFormatException ex) {
+                    throw new IOException(ex);
+                }
                 v.add(pv);
             }
         }
         return v;
-    }
-
-    private PackageVersion createPackageVersion(Element e) {
-        PackageVersion p =
-                new PackageVersion(e.getAttribute("package"),
-                        e.getAttribute("name"));
-        p.name = p.package_ + "@" + p.version;
-        p.oneFile = e.getAttribute("type").equals("one-file");
-        p.url = NWUtils.getSubTagContent(e, "url", "");
-        p.sha1 = NWUtils.getSubTagContent(e, "sha1", "");
-
-        NodeList children = e.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node ch = children.item(i);
-            if (ch.getNodeType() == Element.ELEMENT_NODE) {
-                Element che = (Element) ch;
-                if (che.getNodeName().equals("important-file")) {
-                    p.importantFilePaths.add(che.getAttribute("path"));
-                    p.importantFileTitles.add(che.getAttribute("title"));
-                } else if (che.getNodeName().equals("cmd-file")) {
-                    p.cmdFilePaths.add(che.getAttribute("path"));
-                } else if (che.getNodeName().equals("file")) {
-                    p.addFile(che.getAttribute("path"),
-                            NWUtils.getTagContent_(che));
-                } else if (che.getNodeName().equals("dependency")) {
-                    p.dependencyPackages.add(che.getAttribute("package"));
-                    p.dependencyVersionRanges.add(che.getAttribute("versions"));
-                    p.dependencyEnvVars.add(NWUtils.getSubTagContent(che,
-                            "variable", ""));
-                }
-            }
-        }
-        return p;
     }
 }

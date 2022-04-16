@@ -10,9 +10,11 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.regex.Pattern;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for NWUtils.
@@ -55,5 +57,23 @@ public class NWUtilsTest {
                 LocalDate.now(ZoneId.of("Europe/Berlin"))
         );
         System.out.println(days + " days");
+    }
+
+    @Test
+    /**
+     * .validateRelativePath()
+     */
+    public void testValidateRelativePath() {
+        assertNull(NWUtils.validateRelativePath("abc/def.exe"));
+        assertNull(NWUtils.validateRelativePath("\\abc\\def.exe"));
+
+        assertNotNull(NWUtils.validateRelativePath("..\\abc\\def.exe"));
+        assertNotNull(NWUtils.validateRelativePath(""));
+        assertNotNull(NWUtils.validateRelativePath(">"));
+        assertNotNull(NWUtils.validateRelativePath("<"));
+        assertNotNull(NWUtils.validateRelativePath("C:\\test.abc"));
+        assertNotNull(NWUtils.validateRelativePath("LPT1:"));
+        assertNotNull(NWUtils.validateRelativePath("\\LPT2"));
+        assertNotNull(NWUtils.validateRelativePath("\nfilename\r"));
     }
 }

@@ -7,14 +7,19 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * A package version.
@@ -23,24 +28,24 @@ public class PackageVersion {
 
     /**
      * Default tags.
-     *
+     * <p>
      * WARNING: update TAG_TOOLTIPS!
      */
     public static final String[] TAGS = {
-        "unstable", "untested", "non-admin",
-        "not-reviewed", "phishing", "malware", "unwanted"};
+            "unstable", "untested", "non-admin",
+            "not-reviewed", "phishing", "malware", "unwanted"};
 
     /**
      * Help for the tags.
      */
     public static final String[] TAG_TOOLTIPS = {
-        "this package version should be included in the default repository for unstable software",
-        "the installation and removal of this package version was not yet tested. This package will not be included in the default repositories.",
-        "can be installed without administrative privileges",
-        "this package version is not yet reviewed and may be unsafe. Only an administrator can change this tag.",
-        "Warning—Suspected phishing page. This page may be a forgery or imitation of another website, designed to trick users into sharing personal or financial information. Entering any personal information on this page may result in identity theft or other abuse. You can find out more about phishing from www.antiphishing.org.",
-        "Warning—Visiting this web site may harm your computer. This page appears to contain malicious code that could be downloaded to your computer without your consent. You can learn more about harmful web content including viruses and other malicious code and how to protect your computer at StopBadware.org.",
-        "Warning—The site ahead may contain harmful programs. Attackers might attempt to trick you into installing programs that harm your browsing experience (for example, by changing your homepage or showing extra ads on sites you visit). You can learn more about unwanted software at https://www.google.com/about/company/unwanted-software-policy.html.",};
+            "this package version should be included in the default repository for unstable software",
+            "the installation and removal of this package version was not yet tested. This package will not be included in the default repositories.",
+            "can be installed without administrative privileges",
+            "this package version is not yet reviewed and may be unsafe. Only an administrator can change this tag.",
+            "Warning—Suspected phishing page. This page may be a forgery or imitation of another website, designed to trick users into sharing personal or financial information. Entering any personal information on this page may result in identity theft or other abuse. You can find out more about phishing from www.antiphishing.org.",
+            "Warning—Visiting this web site may harm your computer. This page appears to contain malicious code that could be downloaded to your computer without your consent. You can learn more about harmful web content including viruses and other malicious code and how to protect your computer at StopBadware.org.",
+            "Warning—The site ahead may contain harmful programs. Attackers might attempt to trick you into installing programs that harm your browsing experience (for example, by changing your homepage or showing extra ads on sites you visit). You can learn more about unwanted software at https://www.google.com/about/company/unwanted-software-policy.html.",};
 
     /**
      * TAG -&gt; TOOLTIP
@@ -76,7 +81,9 @@ public class PackageVersion {
     public boolean oneFile;
     public String url = "";
 
-    /** SHA-1 or SHA-256 or "" */
+    /**
+     * SHA-1 or SHA-256 or ""
+     */
     public String sha1 = "";
 
     public List<String> importantFileTitles = new ArrayList<>();
@@ -146,7 +153,7 @@ public class PackageVersion {
      * tags = "not-reviewed"
      *
      * @param package_ full internal package name
-     * @param version version number
+     * @param version  version number
      */
     public PackageVersion(String package_, String version) {
         this.name = package_ + "@" + version;
@@ -204,7 +211,8 @@ public class PackageVersion {
         this.createdBy = (User) e.getProperty("createdBy");
         this.installSucceeded = (int) NWUtils.getLong(e, "installSucceeded");
         this.installFailed = (int) NWUtils.getLong(e, "installFailed");
-        this.uninstallSucceeded = (int) NWUtils.getLong(e, "uninstallSucceeded");
+        this.uninstallSucceeded =
+                (int) NWUtils.getLong(e, "uninstallSucceeded");
         this.uninstallFailed = (int) NWUtils.getLong(e, "uninstallFailed");
 
         if (this.sha1 == null) {
@@ -420,6 +428,152 @@ public class PackageVersion {
     }
 
     /**
+     * Parses XML. This method does not clear the data so that it should be only
+     * called after a new object is created.
+     *
+     * @param e "version"
+     * @throws NumberFormatException if something is wrong in the XML
+     */
+    public void parseXML(Element e) throws NumberFormatException {
+        final String packageName = e.getAttribute("package");
+        String err = Package.checkName(packageName);
+        if (err != null) {
+            throw new NumberFormatException(err);
+        }
+
+        final String version = e.getAttribute("name");
+        Version.parse(version);
+
+        this.package_ = packageName;
+        this.version = version;
+
+        this.name = this.package_ + "@" + this.version;
+        this.oneFile = e.getAttribute("type").equals("one-file");
+
+        this.url = NWUtils.getSubTagContent(e, "url", "");
+        err = NWUtils.validateURL(this.url, false);
+        if (err != null) {
+            throw new NumberFormatException(err);
+        }
+
+        String parsedSHA1 = "";
+        String parsedSHA256 = "";
+        NodeList children = e.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node ch = children.item(i);
+            if (ch.getNodeType() == Element.ELEMENT_NODE) {
+                Element che = (Element) ch;
+                if (che.getNodeName().equals("important-file")) {
+                    final String path = che.getAttribute("path");
+                    err = NWUtils.validateRelativePath(path);
+                    if (err != null) {
+                        throw new NumberFormatException(err);
+                    }
+                    this.importantFilePaths.add(path);
+
+                    final String title = che.getAttribute("title").trim();
+                    if (title.length() == 0) {
+                        throw new NumberFormatException(
+                                "Empty important file title");
+                    }
+                    this.importantFileTitles.add(title);
+                } else if (che.getNodeName().equals("cmd-file")) {
+                    final String path = che.getAttribute("path");
+                    err = NWUtils.validateRelativePath(path);
+                    if (err != null) {
+                        throw new NumberFormatException(err);
+                    }
+                    this.cmdFilePaths.add(path);
+                } else if (che.getNodeName().equals("file")) {
+                    final String path = che.getAttribute("path");
+                    err = NWUtils.validateRelativePath(path);
+                    if (err != null) {
+                        throw new NumberFormatException(err);
+                    }
+
+                    final String content = NWUtils.getTagContent_(che);
+                    this.addFile(path, content);
+                } else if (che.getNodeName().equals("dependency")) {
+                    String depPackageName = che.getAttribute("package");
+                    err = Package.checkName(depPackageName);
+                    if (err != null) {
+                        throw new NumberFormatException(err);
+                    }
+                    this.dependencyPackages.add(depPackageName);
+
+                    // version range
+                    final String versions = che.getAttribute("versions");
+                    Dependency dep = new Dependency();
+                    err = dep.setVersions(versions);
+                    if (err != null) {
+                        throw new NumberFormatException(err);
+                    }
+                    this.dependencyVersionRanges.add(versions);
+
+                    // environment variable
+                    final String var = NWUtils.getSubTagContent(che,
+                            "variable", "").trim();
+                    if (var.length() > 0) {
+                        err = NWUtils.validateEnvVarName(var);
+                        if (err != null) {
+                            throw new NumberFormatException(err);
+                        }
+                    }
+                    this.dependencyEnvVars.add(var);
+                } else if (che.getNodeName().equals("hash-sum")) {
+                    String type = che.getAttribute("type");
+                    if ("SHA-1".equals(type)) {
+                        if (!parsedSHA1.isEmpty()) {
+                            throw new NumberFormatException(
+                                    "SHA-1 was already found");
+                        }
+                        parsedSHA1 = NWUtils.getTagContent_(che);
+                        err = NWUtils.validateSHA1(parsedSHA1);
+                        if (err != null) {
+                            throw new NumberFormatException(err);
+                        }
+                    } else if ("SHA-256".equals(type)) {
+                        if (!parsedSHA256.isEmpty()) {
+                            throw new NumberFormatException(
+                                    "SHA-256 was already found");
+                        }
+                        parsedSHA256 = NWUtils.getTagContent_(che);
+                        err = NWUtils.validateSHA256(parsedSHA256);
+                        if (err != null) {
+                            throw new NumberFormatException(err);
+                        }
+                    } else {
+                        throw new NumberFormatException(
+                                "Error in attribute 'type' in <hash-sum>");
+                    }
+                }
+            }
+        }
+
+        // sha1
+        String parsedSHA1_old = NWUtils.getSubTagContent(e, "sha1", "");
+        if (!parsedSHA1_old.isEmpty()) {
+            if (!parsedSHA1.isEmpty() && !parsedSHA1.equalsIgnoreCase(
+                    parsedSHA1_old)) {
+                throw new NumberFormatException("Two different SHA-1 values");
+            }
+
+            err = NWUtils.validateSHA1(parsedSHA1_old);
+            if (err != null) {
+                throw new NumberFormatException(err);
+            }
+        }
+
+        if (!parsedSHA256.isEmpty())
+            this.sha1 = parsedSHA256;
+        else if (!parsedSHA1.isEmpty())
+            this.sha1 = parsedSHA1;
+        else if (!parsedSHA1_old.isEmpty())
+            this.sha1 = parsedSHA1_old;
+    }
+
+
+    /**
      * @param i index of the file
      * @return file contents &lt;file&gt;
      */
@@ -445,7 +599,7 @@ public class PackageVersion {
     /**
      * Changes the content of the specified &lt;file&gt;
      *
-     * @param index index of the file
+     * @param index   index of the file
      * @param content file content
      */
     public void setFileContents(int index, String content) {
@@ -455,7 +609,7 @@ public class PackageVersion {
     /**
      * Adds a new &lt;file&gt;
      *
-     * @param path file path
+     * @param path    file path
      * @param content file content
      */
     public void addFile(String path, String content) {
@@ -486,7 +640,7 @@ public class PackageVersion {
     }
 
     /**
-     * @param checkSum true = also check SHA-1 or SHA-256
+     * @param checkSum  true = also check SHA-1 or SHA-256
      * @param algorithm SHA-256 or SHA-1
      * @return info about the download or null if the download failed
      * @throws java.io.IOException error during the download
@@ -508,8 +662,8 @@ public class PackageVersion {
                         } else {
                             downloadCheckError =
                                     "Wrong SHA1: " + this.sha1 +
-                                    " was expected, but " + sha1_ +
-                                    " was found";
+                                            " was expected, but " + sha1_ +
+                                            " was found";
                         }
                     }
                 } else {
@@ -545,7 +699,7 @@ public class PackageVersion {
      *
      * @param package_ depends on this package
      * @param versions versions range like "[9, 10)"
-     * @param envVar name of the environment variable or ""
+     * @param envVar   name of the environment variable or ""
      */
     public void addDependency(String package_, String versions, String envVar) {
         this.dependencyPackages.add(package_);

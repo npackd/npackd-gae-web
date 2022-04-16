@@ -11,12 +11,14 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
+
 import org.markdown4j.Markdown4jProcessor;
 
 /**
@@ -45,7 +47,8 @@ public class PackageVersionPage extends MyPage {
     private User lastModifiedBy;
     private Date createdAt;
     private User createdBy;
-    private int installSucceeded, installFailed, uninstallSucceeded, uninstallFailed;
+    private int installSucceeded, installFailed, uninstallSucceeded,
+            uninstallFailed;
     private boolean currentUserIsAdmin;
 
     /**
@@ -81,9 +84,9 @@ public class PackageVersionPage extends MyPage {
     }
 
     /**
-     * @param pv a package version
+     * @param pv   a package version
      * @param new_ true = a new package version will be created, false = an an
-     * existing package version will be edited
+     *             existing package version will be edited
      */
     public PackageVersionPage(PackageVersion pv, boolean new_) {
         this();
@@ -139,41 +142,42 @@ public class PackageVersionPage extends MyPage {
         w.start("li");
         w.e("a", "href", "#", "title",
                 "Adds the files necessary to install and " +
-                "uninstall an installation package (.exe) " +
-                "created using NSIS", "id", "addNSISFiles",
+                        "uninstall an installation package (.exe) " +
+                        "created using NSIS", "id", "addNSISFiles",
                 "NSIS");
         w.end("li");
         w.start("li");
         w.e("a", "href", "#", "title",
                 "Adds the files and dependencies necessary to install and " +
-                "uninstall an installation package (.exe) " +
-                "created using Inno Setup", "id",
+                        "uninstall an installation package (.exe) " +
+                        "created using Inno Setup", "id",
                 "addInnoSetupFiles", "Inno Setup");
         w.end("li");
         w.start("li");
         w.e("a", "href", "#", "title",
                 "Adds the files and dependencies necessary to install and " +
-                "uninstall an installation package (.msi) " +
-                "created for the Microsoft Installer", "id",
+                        "uninstall an installation package (.msi) " +
+                        "created for the Microsoft Installer", "id",
                 "addMSIFiles", "MSI");
         w.end("li");
         w.start("li");
         w.e("a", "href", "#", "title",
                 "Adds the files and dependencies necessary to install and " +
-                "uninstall a .zip archive with an additional top-level directory",
+                        "uninstall a .zip archive with an additional top-level directory",
                 "id",
                 "addZIPDirFiles", ".zip with a top-level directory");
         w.end("li");
         w.start("li");
         w.e("a", "href", "#", "title",
                 "Adds the files and dependencies necessary to install and " +
-                "uninstall a .7z archive", "id",
+                        "uninstall a .7z archive", "id",
                 "addSevenZIPFiles", ".7z");
         w.end("li");
         w.start("li");
         w.e("a", "href", "#", "title",
                 "Adds the files and dependencies necessary to uninstall a " +
-                "program via its title in the Software Control Panel", "id",
+                        "program via its title in the Software Control Panel",
+                "id",
                 "addRemoveSCPFiles", "Uninstall via Software Control Panel");
         w.end("li");
         w.end("ul");
@@ -204,7 +208,7 @@ public class PackageVersionPage extends MyPage {
         w.t(" " + version);
         w.unencoded(
                 " <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-                NWUtils.WEB_SITE + "/p/" + package_.name + "'></div>");
+                        NWUtils.WEB_SITE + "/p/" + package_.name + "'></div>");
         return w.toString();
     }
 
@@ -236,7 +240,7 @@ public class PackageVersionPage extends MyPage {
                 NWUtils.jsButton_(w, "Copy", "copyOnClick()",
                         "Create a copy of this package version");
                 NWUtils.jsButton(w, "Edit as XML", "/rep/edit-as-xml?package=" +
-                        packageName + "&version=" + version,
+                                packageName + "&version=" + version,
                         "Edits this package version as repository XML");
                 NWUtils.jsButton_(w, "Delete", "deleteOnClick()",
                         "Deletes this package version");
@@ -246,11 +250,11 @@ public class PackageVersionPage extends MyPage {
                 w.start("div", "class", "btn-group");
                 NWUtils.jsButton(w, "Compute SHA-1",
                         "/package-version/compute-sha1?package=" + packageName +
-                        "&version=" + version,
+                                "&version=" + version,
                         "Computes SHA1 for this package version");
                 NWUtils.jsButton(w, "Compute SHA-256",
                         "/package-version/compute-sha-256?package=" +
-                        packageName + "&version=" + version,
+                                packageName + "&version=" + version,
                         "Computes SHA-256 for this package version (Npackd 1.19)");
                 w.end("div");
                 w.t(" ");
@@ -260,7 +264,7 @@ public class PackageVersionPage extends MyPage {
                         w,
                         "Recognize the installer",
                         "/package-version/recognize?package=" + packageName +
-                        "&version=" + version,
+                                "&version=" + version,
                         "downloads the binary and tries to recognize the used installer and create the necessary dependencies and scripts automatically");
                 createScripts(w);
                 w.end("div");
@@ -272,16 +276,16 @@ public class PackageVersionPage extends MyPage {
                             w,
                             "Mark as reviewed",
                             "/package-version/mark-reviewed?package=" +
-                            packageName +
-                            "&version=" + version,
+                                    packageName +
+                                    "&version=" + version,
                             "Marks this package version as reviewed");
 
                     NWUtils.jsButton(
                             w,
                             "Archive",
                             "/package-version/archive?package=" +
-                            packageName +
-                            "&version=" + version,
+                                    packageName +
+                                    "&version=" + version,
                             "Uploads the binary to archive.org");
                     w.end("div");
                 }
@@ -313,7 +317,7 @@ public class PackageVersionPage extends MyPage {
                 "Microsoft Windows");
         w.e("meta", "itemprop", "applicationCategory", "content",
                 p.tags.size() > 0 ? NWUtils.join(", ", p.tags) :
-                "Uncategorized");
+                        "Uncategorized");
         w.end("td");
         w.end("tr");
 
@@ -321,7 +325,8 @@ public class PackageVersionPage extends MyPage {
         w.start("tr");
         w.e("td", "Project site:");
         w.start("td");
-        w.e("a", "itemprop", "sameAs", "id", "packageURL", "href", p.url, p.url);
+        w.e("a", "itemprop", "sameAs", "id", "packageURL", "href", p.url,
+                p.url);
         w.end("td");
         w.end("tr");
 
@@ -368,8 +373,8 @@ public class PackageVersionPage extends MyPage {
             if (!url.trim().isEmpty()) {
                 w.unencoded("<br><br>");
                 w.e("a", "href", "https://www.virustotal.com/#/url/" + NWUtils.
-                        byteArrayToHexString(NWUtils.
-                                stringSHA256(url)) + "/detection",
+                                byteArrayToHexString(NWUtils.
+                                        stringSHA256(url)) + "/detection",
                         "VirusTotal results");
             }
         }
@@ -458,8 +463,8 @@ public class PackageVersionPage extends MyPage {
                     "50",
                     "title",
                     "SHA-1 or SHA-256 (since Npackd 1.19) check sum for the package binary. " +
-                    "Leave this field empty if different binaries are " +
-                    "distributed from the same address.");
+                            "Leave this field empty if different binaries are " +
+                            "distributed from the same address.");
         } else {
             w.t(getTrimmedParam("sha1"));
         }
@@ -581,7 +586,7 @@ public class PackageVersionPage extends MyPage {
                 w.start("label", "class", "checkbox-inline", "title", title);
                 w.e("input", "type", "checkbox", "class", "nw-tag-checkbox",
                         "id", "tag-" +
-                        st, "value", st);
+                                st, "value", st);
                 w.t(" " + st);
                 w.end("label");
             }
@@ -589,9 +594,9 @@ public class PackageVersionPage extends MyPage {
                     "tags", "id", "tags", "autocomplete", "off", "value",
                     NWUtils.join(", ", tags), "size", "80", "title",
                     "Comma separated list of tags associated with " +
-                    "this package version. The repository " +
-                    "names can be used to include this package " +
-                    "version into them.");
+                            "this package version. The repository " +
+                            "names can be used to include this package " +
+                            "version into them.");
             w.end("input");
         } else {
             for (int i = 0; i < tags.size(); i++) {
@@ -626,10 +631,10 @@ public class PackageVersionPage extends MyPage {
                     "80",
                     "title",
                     "List of important files inside of the package. " +
-                    "For each file mentioned here an entry in the Windows " +
-                    "start menu will be created. Each line should contain " +
-                    "one file name and the associated title separated by a " +
-                    "space character.");
+                            "For each file mentioned here an entry in the Windows " +
+                            "start menu will be created. Each line should contain " +
+                            "one file name and the associated title separated by a " +
+                            "space character.");
             for (int i = 0; i < importantFilePaths.size(); i++) {
                 w.t(importantFilePaths.get(i) + " " +
                         importantFileTitles.get(i) + "\n");
@@ -659,10 +664,10 @@ public class PackageVersionPage extends MyPage {
                     "80",
                     "title",
                     "List of command line tools inside of the package. " +
-                    "For each file mentioned here a link in the directory " +
-                    "%allusersprofile%\\Npackd\\Commands will be created. " +
-                    "Each line should contain " +
-                    "one path relative to the package root.");
+                            "For each file mentioned here a link in the directory " +
+                            "%allusersprofile%\\Npackd\\Commands will be created. " +
+                            "Each line should contain " +
+                            "one path relative to the package root.");
             for (int i = 0; i < cmdFilePaths.size(); i++) {
                 w.t(cmdFilePaths.get(i) + "\n");
             }
@@ -837,7 +842,7 @@ public class PackageVersionPage extends MyPage {
                 if (this.license == null) {
                     NWUtils.LOG.log(Level.WARNING,
                             "License {0} not found for {1}", new Object[]{
-                                p.license, p.name});
+                                    p.license, p.name});
                 }
             }
         }
@@ -879,7 +884,7 @@ public class PackageVersionPage extends MyPage {
 
         this.filePaths.clear();
         this.fileContents.clear();
-        for (int i = 0;; i++) {
+        for (int i = 0; ; i++) {
             String path = req.getParameter("path." + i);
             if (path == null) {
                 break;
@@ -895,7 +900,7 @@ public class PackageVersionPage extends MyPage {
         dependencyPackages.clear();
         dependencyVersionRanges.clear();
         dependencyEnvVars.clear();
-        for (int i = 0;; i++) {
+        for (int i = 0; ; i++) {
             String pp = req.getParameter("depPackage." + i);
             if (pp == null) {
                 break;
@@ -1000,10 +1005,7 @@ public class PackageVersionPage extends MyPage {
             for (int i = 0; i < this.filePaths.size(); i++) {
                 String p = this.filePaths.get(i);
 
-                // TODO: incomplete
-                if (p.trim().isEmpty()) {
-                    r = "File path cannot be empty";
-                }
+                r = NWUtils.validateRelativePath(p);
 
                 if (r != null) {
                     break;

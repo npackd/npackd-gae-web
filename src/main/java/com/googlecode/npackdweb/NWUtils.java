@@ -56,14 +56,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -101,6 +94,22 @@ import org.w3c.dom.Text;
  * Utilities
  */
 public class NWUtils {
+    private final static String[] INVALID_WINDOWS_FILE_NAMES =
+            {"..", "CON", "PRN", "AUX", "NUL",
+                    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7",
+                    "COM8",
+                    "COM9",
+                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7",
+                    "LPT8",
+                    "LPT9"};
+    private final static Set<String> INVALID_WINDOW_FILE_NAMES_SET =
+            new HashSet<>();
+
+    static {
+        for (int i = 0; i < INVALID_WINDOWS_FILE_NAMES.length; i++) {
+            INVALID_WINDOW_FILE_NAMES_SET.add(INVALID_WINDOWS_FILE_NAMES[i]);
+        }
+    }
 
     /**
      * gcsService.getMetadata takes about 16ms (28.12.2019). It is implemented
@@ -932,6 +941,52 @@ public class NWUtils {
                 emailAddr.validate();
             } catch (AddressException ex) {
                 result = ex.getMessage();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Validates a relative file path used e.g. for "important-file"
+     *
+     * @param path relative path
+     * @return error message or null
+     */
+    public static String validateRelativePath(String path) {
+        String result = null;
+
+        if (path.length() == 0) {
+            result = "Empty path";
+        }
+        
+        if (result == null) {
+            final char[] INVALID_CHARS = {'<', '>', ':', '"', '|', '?', '*'};
+            for (int i = 0; i < INVALID_CHARS.length; i++) {
+                if (path.indexOf(INVALID_CHARS[i]) >= 0) {
+                    result = "Invalid character: " + INVALID_CHARS[i];
+                    break;
+                }
+            }
+        }
+
+        if (result == null) {
+            for (int i = 0; i < path.length(); i++) {
+                char c = path.charAt(i);
+                if (c < ' ') {
+                    result = "Invalid character: #" + Integer.toString(c);
+                    break;
+                }
+            }
+        }
+
+        if (result == null) {
+            List<String> parts = NWUtils.split(path.replace('/', '\\'), '\\');
+            for (int i = 0; i < parts.size(); i++) {
+                String part = parts.get(i).toUpperCase();
+                if (INVALID_WINDOW_FILE_NAMES_SET.contains(part)) {
+                    result = "Invalid name part: " + part;
+                    break;
+                }
             }
         }
         return result;
