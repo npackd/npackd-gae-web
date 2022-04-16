@@ -11,6 +11,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,52 +42,55 @@ public class Package {
 
     /**
      * Default categories.
-     *
+     * <p>
      * WARNING: also update PackageDetail.js and CATEGORIES_TOOLTIPS
      */
     public static final String[] CATEGORIES = {"Communications", "Development",
-        "Education", "Finance", "Games",
-        "Music", "News", "Photo", "Productivity", "Security", "Text", "Tools",
-        "Video"};
+            "Education", "Finance", "Games",
+            "Music", "News", "Photo", "Productivity", "Security", "Text",
+            "Tools",
+            "Video"};
 
     /**
      * Help for the categories.
-     *
+     * <p>
      * WARNING: also update PackageDetail.js and CATEGORIES
      */
     public static final String[] CATEGORIES_TOOLTIPS = {
-        "tools for communication", "software development tools",
-        "educational programs", "finance related programs", "games",
-        "music related software",
-        "news", "image processing", "productivity", "security related software",
-        "text related software (text editors, etc.)", "other tools", "video"};
+            "tools for communication", "software development tools",
+            "educational programs", "finance related programs", "games",
+            "music related software",
+            "news", "image processing", "productivity",
+            "security related software",
+            "text related software (text editors, etc.)", "other tools",
+            "video"};
 
     /**
      * Default tags.
-     *
+     * <p>
      * "Communications", "Development", "Education", "Finance", "Games",
      * "Music", "News", "Photo", "Productivity", "Security", "Text", "Tools",
      * "Video", WARNING: also update PackageDetail.js and TAG_TOOLTIPS
      */
     public static final String[] TAGS = {"stable", "stable64", "libs",
-        "unstable",
-        "same-url", "end-of-life", "reupload"};
+            "unstable",
+            "same-url", "end-of-life", "reupload"};
 
     /**
      * Help for the tags.
-     *
+     * <p>
      * WARNING: also update PackageDetail.js and TAGS
      */
     public static final String[] TAG_TOOLTIPS = {
-        "this package should be included in the default 32 bit repository for stable software",
-        "this package should be included in the default 64 bit repository for stable software",
-        "this package should be included in the default repository for software libraries",
-        "this package should be included in the default repository for unstable software",
-        "different versions are distributed from the same address. " +
-        "The download is always up-to-date. New versions will " +
-        "automatically replace the newest available.",
-        "there will be no new versions of this package.",
-        "the binaries should be re-uploaded (currently to https://github.com/tim-lebedkov/packages/releases)"
+            "this package should be included in the default 32 bit repository for stable software",
+            "this package should be included in the default 64 bit repository for stable software",
+            "this package should be included in the default repository for software libraries",
+            "this package should be included in the default repository for unstable software",
+            "different versions are distributed from the same address. " +
+                    "The download is always up-to-date. New versions will " +
+                    "automatically replace the newest available.",
+            "there will be no new versions of this package.",
+            "the binaries should be re-uploaded (currently to https://github.com/tim-lebedkov/packages/releases)"
     };
 
     /**
@@ -191,6 +196,7 @@ public class Package {
     public String issues;
 
     // PLEASE ALSO UPDATE #copy() and #Package(Entity)
+
     /**
      * @param name full internal name of the package
      */
@@ -387,7 +393,7 @@ public class Package {
     /**
      * &lt;package&gt;
      *
-     * @param d XML document
+     * @param d     XML document
      * @param extra export extra non-standard information
      * @return &lt;package&gt;
      */
@@ -483,8 +489,9 @@ public class Package {
 
         String text =
                 this.title + " " + this.description + " " +
-                this.name + " " + this.category + " " + NWUtils.join(" ", tags) +
-                " ";
+                        this.name + " " + this.category + " " + NWUtils.join(
+                        " ", tags) +
+                        " ";
         if (hasTag("stable64")) {
             text += "64";
         } else {
@@ -505,7 +512,7 @@ public class Package {
                         .setText(NWUtils.join(" ", tags)))
                 .addField(Field.newBuilder().setName("permission")
                         .setText(sb.toString())).addField(Field.
-                newBuilder().setName("starred").setNumber(this.starred));
+                        newBuilder().setName("starred").setNumber(this.starred));
 
         b.addFacet(Facet.withAtom("repository", rep != null ? rep :
                 "unknown"));
@@ -560,7 +567,7 @@ public class Package {
                 char c = part.charAt(0);
                 if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                         (c == '_') || (c >= 'a' && c <= 'z') || Character
-                                .isLetter(c))) {
+                        .isLetter(c))) {
                     return MessageFormat.format(
                             "Wrong character at position 1 in {0}", part);
                 }
@@ -582,7 +589,7 @@ public class Package {
                 char c = part.charAt(part.length() - 1);
                 if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
                         (c == '_') || (c >= 'a' && c <= 'z') || Character
-                                .isLetter(c))) {
+                        .isLetter(c))) {
                     return MessageFormat.format(
                             "Wrong character at position {0} in {1}",
                             part.length(), part);
@@ -628,8 +635,9 @@ public class Package {
             Pattern vp = Pattern.compile(discoveryRE);
             while ((line = br.readLine()) != null) {
                 lines.add(line);
-                if (lines.size() > 10)
+                if (lines.size() > 10) {
                     lines.remove(0);
+                }
 
                 Matcher vm = vp.matcher(line);
                 if (vm.find()) {
@@ -639,7 +647,8 @@ public class Package {
         } catch (MalformedURLException e) {
             throw new IOException(e);
         } catch (IOException
-                | com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
+                 |
+                 com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
             throw new IOException(e);
         }
 
@@ -657,7 +666,16 @@ public class Package {
     public static Package parse(Element e) {
         Package p = new Package(e.getAttribute("name"));
         p.title = NWUtils.getSubTagContent(e, "title", "");
+
         p.url = NWUtils.getSubTagContent(e, "url", "");
+        String err;
+        if (!p.url.isEmpty()) {
+            err = NWUtils.validateURL(p.url, false);
+            if (err != null) {
+                throw new NumberFormatException(err);
+            }
+        }
+
         p.description = NWUtils.getSubTagContent(e, "description", "");
         p.license = NWUtils.getSubTagContent(e, "license", "");
         p.category = NWUtils.getSubTagContent(e, "category", "");
@@ -669,7 +687,11 @@ public class Package {
                     ch.getNodeName().equals("link")) {
                 Element link = (Element) ch;
                 String rel = link.getAttribute("rel");
-                String href = link.getAttribute("href");
+                String href = link.getAttribute("href").trim();
+                err = NWUtils.validateURL(href, true);
+                if (err != null) {
+                    throw new NumberFormatException(err);
+                }
                 if (rel.equals("changelog") &&
                         (p.changelog == null || p.changelog.isEmpty())) {
                     p.changelog = href;
@@ -692,6 +714,12 @@ public class Package {
 
         if (p.icon.isEmpty()) {
             p.icon = NWUtils.getSubTagContent(e, "icon", "");
+            if (!p.icon.isEmpty()) {
+                err = NWUtils.validateURL(p.icon, true);
+                if (err != null) {
+                    throw new NumberFormatException(err);
+                }
+            }
         }
 
         return p;
@@ -754,11 +782,11 @@ public class Package {
      * Creates a new version of this package using the newest available version
      * as a template and saves it.
      *
-     * @param found match
+     * @param found   match
      * @param version new version number
      * @param maxSize maximum size of the file or 0 for "unlimited". If the file
-     * is bigger than the specified size, the download will be cancelled and an
-     * IOException will be thrown
+     *                is bigger than the specified size, the download will be cancelled and an
+     *                IOException will be thrown
      * @return created package version or null if the creation is not possible
      */
     public PackageVersion createDetectedVersion(Matcher found,
@@ -782,16 +810,21 @@ public class Package {
             Map<String, String> map = new HashMap<>();
             map.put("${match}", found.group());
             map.put("${version}", version.toString());
-            if (found.groupCount() > 0)
+            if (found.groupCount() > 0) {
                 map.put("${g1}", found.group(1));
-            if (found.groupCount() > 1)
+            }
+            if (found.groupCount() > 1) {
                 map.put("${g2}", found.group(2));
-            if (found.groupCount() > 2)
+            }
+            if (found.groupCount() > 2) {
                 map.put("${g3}", found.group(3));
-            if (found.groupCount() > 3)
+            }
+            if (found.groupCount() > 3) {
                 map.put("${g4}", found.group(4));
-            if (found.groupCount() > 4)
+            }
+            if (found.groupCount() > 4) {
                 map.put("${g5}", found.group(5));
+            }
             map.put("${v0}", Integer.toString(version.getPart(0)));
             map.put("${v1}", Integer.toString(version.getPart(1)));
             map.put("${v2}", Integer.toString(version.getPart(2)));

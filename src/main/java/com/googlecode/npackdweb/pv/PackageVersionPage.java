@@ -1013,6 +1013,40 @@ public class PackageVersionPage extends MyPage {
             }
         }
 
+        // TODO: validate tags
+        
+        if (r == null) {
+            for (int i = 0; i < importantFilePaths.size(); i++) {
+                r = NWUtils.validateRelativePath(importantFilePaths.get(i));
+                if (r != null) {
+                    break;
+                }
+
+                if (importantFileTitles.get(i).trim().isEmpty()) {
+                    r = "Empty important file title";
+                    break;
+                }
+            }
+        }
+
+        if (r == null) {
+            for (int i = 0; i < cmdFilePaths.size(); i++) {
+                r = NWUtils.validateRelativePath(cmdFilePaths.get(i));
+                if (r != null) {
+                    break;
+                }
+            }
+        }
+
+        if (r == null) {
+            for (int i = 0; i < filePaths.size(); i++) {
+                r = NWUtils.validateRelativePath(filePaths.get(i));
+                if (r != null) {
+                    break;
+                }
+            }
+        }
+
         return r;
     }
 
