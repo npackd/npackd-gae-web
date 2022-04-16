@@ -1013,41 +1013,6 @@ public class PackageVersionPage extends MyPage {
             }
         }
 
-        if (r == null) {
-            String detect = params.get("detect");
-            if (detect == null) {
-                detect = "";
-            }
-            List<String> lines = NWUtils.splitLines(detect);
-            for (String line : lines) {
-                line = line.trim();
-                if (!line.isEmpty()) {
-                    String[] parts = NWUtils.partition(line, " ");
-
-                    // if there are many spaces between the package name and
-                    // the version
-                    parts[1] = parts[1].trim();
-
-                    if (parts[1].isEmpty()) {
-                        r = "Missing package version for detection";
-                    } else {
-                        r = Package.checkName(parts[0]);
-                        if (r == null) {
-                            try {
-                                Version.parse(parts[1]);
-                            } catch (NumberFormatException e) {
-                                r = "Invalid version number for detection: " +
-                                        e.getMessage();
-                            }
-                        }
-                    }
-                }
-                if (r != null) {
-                    break;
-                }
-            }
-        }
-
         return r;
     }
 
