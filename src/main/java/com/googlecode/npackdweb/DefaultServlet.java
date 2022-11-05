@@ -34,6 +34,7 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.npackdweb.wlib.SendRedirectAction;
 import com.googlecode.npackdweb.wlib.SendStatusAction;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -119,7 +120,7 @@ public class DefaultServlet extends HttpServlet {
                     if (currentUser == null) {
                         //NWUtils.LOG.info("Calling createLoginURL");
                         resp.sendRedirect(us.createLoginURL(req.
-                                        getRequestURI()));
+                                getRequestURI()));
                     } else {
                         ok = true;
                     }
@@ -130,8 +131,10 @@ public class DefaultServlet extends HttpServlet {
                     if (currentUser != null && us.isUserAdmin()) {
                         ok = true;
                     } else {
-                        String pw = NWUtils.dsCache.getSetting("AdminPassword", "");
-                        if (pw != null && !pw.trim().isEmpty() && pw.equals(req.getParameter("password"))) {
+                        String pw =
+                                NWUtils.dsCache.getSetting("AdminPassword", "");
+                        if (pw != null && !pw.trim().isEmpty() && pw.equals(
+                                req.getParameter("password"))) {
                             ok = true;
                         }
 
@@ -239,8 +242,8 @@ public class DefaultServlet extends HttpServlet {
 
         /* TODO map-reduce is not available anymore
         registerAction(new ProcessPackageVersionsAction());
-        registerAction(new ProcessPackagesAction());
          */
+        registerAction(new ProcessPackagesAction());
         registerAction(new UpdateSafeBrowsingInfoAction());
         registerAction(new DeleteInactiveUsersAction());
 
