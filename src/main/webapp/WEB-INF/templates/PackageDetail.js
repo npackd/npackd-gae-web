@@ -59,6 +59,24 @@ function deleteOnClick() {
     }
 }
 
+function requestAccessOnClick() {
+    while (true) {
+        var msg = prompt("Please enter a free text explanation why you need access to this package",
+                        "");
+        if (msg === null)
+            break;
+
+        if (msg.trim() === "")
+            alert("Please enter a non-empty explanation!");
+        else {
+            var id = $('#name').val();
+            window.location.href='/request-permissions?package=' + id +
+                    "&message=" + encodeURIComponent(msg);
+            break;
+        }
+    }
+}
+
 function initEvents() {
     $('#name-link').click(function(event) {
         window.open("https://repology.org/projects/?search=" + 

@@ -11,6 +11,7 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.servlet.http.HttpServletRequest;
+
 import org.markdown4j.Markdown4jProcessor;
 
 /**
@@ -186,7 +188,8 @@ public class PackageDetailPage extends MyPage {
         }
 
         if (mode == FormMode.EDIT || mode == FormMode.CREATE) {
-            w.start("div", "class", "btn-group", "style", "margin-bottom: 12px");
+            w.start("div", "class", "btn-group", "style",
+                    "margin-bottom: 12px");
             w.e("input", "class", "btn btn-default", "type", "submit", "value",
                     "Save");
         }
@@ -208,12 +211,11 @@ public class PackageDetailPage extends MyPage {
                     this.isDetectionPossible());
             Package p = NWUtils.dsCache.getPackage(id, false);
             if (p != null) {
-                NWUtils.jsButton(
+                NWUtils.jsButton_(
                         w,
                         "Request access",
-                        "/request-permissions?package=" + id,
-                        "Request write access to this package",
-                        !p.isCurrentUserPermittedToModify());
+                        "requestAccessOnClick()",
+                        "Request write access to this package");
             }
             NWUtils.jsButton(w, "Next package", "/package/next?name=" + id,
                     "Shows the next package ordered by title");
@@ -272,7 +274,7 @@ public class PackageDetailPage extends MyPage {
         Collections.sort(pvs, new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
-                Version va  = Version.parse(a.version);
+                Version va = Version.parse(a.version);
                 Version vb = Version.parse(b.version);
                 return -va.compare(vb);
             }
@@ -282,7 +284,8 @@ public class PackageDetailPage extends MyPage {
             if (i != 0) {
                 w.t(" | ");
             }
-            w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version, pv.version);
+            w.e("a", "href", "/p/" + pv.package_ + "/" + pv.version,
+                    pv.version);
         }
         if ((mode == FormMode.EDIT || mode == FormMode.CREATE) &&
                 error == null && id != null && !id.isEmpty() && pvs.size() == 0) {
@@ -347,9 +350,9 @@ public class PackageDetailPage extends MyPage {
                     "name",
                     "screenshots", "cols", "80", "title",
                     "List of screen shot URLs. " +
-                    "Each URL must be on a separate line. " +
-                    "Only https: and http: protocols are allowed. " +
-                    "Only PNG images are allowed.", screenshots);
+                            "Each URL must be on a separate line. " +
+                            "Only https: and http: protocols are allowed. " +
+                            "Only PNG images are allowed.", screenshots);
         }
         endRow(w);
 
@@ -383,8 +386,8 @@ public class PackageDetailPage extends MyPage {
                     "name",
                     "description", "cols", "80", "title",
                     "Possibly long description of the package. " +
-                    "Try to not repeat the package name here and " +
-                    "keep it simple and informative.", description);
+                            "Try to not repeat the package name here and " +
+                            "keep it simple and informative.", description);
         } else {
             Markdown4jProcessor mp = new Markdown4jProcessor();
             try {
@@ -405,7 +408,8 @@ public class PackageDetailPage extends MyPage {
             w.e("option", "value", "");
             for (License lic : this.getLicenses()) {
                 w.e("option", "value", lic.name, "selected",
-                        lic.name.equals(license) ? "selected" : null, lic.title);
+                        lic.name.equals(license) ? "selected" : null,
+                        lic.title);
             }
             w.end("select");
         } else {
@@ -478,10 +482,10 @@ public class PackageDetailPage extends MyPage {
                     "tags", "id", "tags", "autocomplete", "off", "value",
                     NWUtils.join(", ", tags), "size", "80", "title",
                     "Comma separated list of tags/categories associated with " +
-                    "this package version. " +
-                    "Sub-categories can be defined using slashes as in Video/Encoders. " +
+                            "this package version. " +
+                            "Sub-categories can be defined using slashes as in Video/Encoders. " +
 
-                    "Please note that only the first category and sub-category will be used in Npackd."
+                            "Please note that only the first category and sub-category will be used in Npackd."
             );
             w.end("input");
         } else {
@@ -532,8 +536,8 @@ public class PackageDetailPage extends MyPage {
                     "title",
                     "Regular expression to match the newest version number. This regular expression should contain a match group for the version number. A single letter at the end of the version number is allowed (2.0.6b will be interpreted as 2.0.6.2). Minus characters and underscores will be interpreted as dots.\n" +
 
-                    "This regular expression will be applied to all lines in the file one-by-one until a match is found.\n" +
-                    "Example: <h1>the newest version is ([\\d\\.]+)</h1>");
+                            "This regular expression will be applied to all lines in the file one-by-one until a match is found.\n" +
+                            "Example: <h1>the newest version is ([\\d\\.]+)</h1>");
             w.start("datalist", "id", "discovery-res");
             w.e("option", "value", "The current version is ([\\d\\.]+)");
             w.e("option", "value", ">v([\\d\\.]+)<");
@@ -557,12 +561,12 @@ public class PackageDetailPage extends MyPage {
                     "80",
                     "title",
                     "pattern for the download URL for the newly discovered " +
-                    "package. Use ${match} for the matched string as-is, " +
-                    "${version} for the whole version " +
-                    "number (please note that it will be normalized). " +
-                    "Use ${v0}, ${v1}, etc. to access one " +
-                    "number from the version. Use ${g1}, ${g2}, etc. to " +
-                    "access regular expression capturing groups.");
+                            "package. Use ${match} for the matched string as-is, " +
+                            "${version} for the whole version " +
+                            "number (please note that it will be normalized). " +
+                            "Use ${v0}, ${v1}, etc. to access one " +
+                            "number from the version. Use ${g1}, ${g2}, etc. to " +
+                            "access regular expression capturing groups.");
             w.start("datalist", "id", "discovery-url");
             w.e("option", "value",
                     "http://www.example.com/downloads/example-${version}.zip");
@@ -670,7 +674,7 @@ public class PackageDetailPage extends MyPage {
                 } catch (PatternSyntaxException e) {
                     msg =
                             "Cannot parse the regular expression: " +
-                            e.getMessage();
+                                    e.getMessage();
                 }
             } else {
                 msg = "No discovery regular expression defined";

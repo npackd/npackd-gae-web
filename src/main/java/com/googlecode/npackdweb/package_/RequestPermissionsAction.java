@@ -8,6 +8,7 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
+
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,12 +40,13 @@ public class RequestPermissionsAction extends Action {
         } else {
             UserService us = UserServiceFactory.getUserService();
 
+            String message = req.getParameter("message");
             NWUtils.sendMailToAdmin("User " + us.getCurrentUser().getEmail() +
                     " requests access to modify the package " + NWUtils.WEB_SITE +
-                    "/p/" + package_);
+                    "/p/" + package_ + " with the following explanation: " + message);
             return new MessagePage(
                     "Your request was sent to the admins. We will contact you via " +
-                    us.getCurrentUser().getEmail());
+                            us.getCurrentUser().getEmail());
         }
     }
 }
