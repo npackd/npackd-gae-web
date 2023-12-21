@@ -1,6 +1,7 @@
 package com.googlecode.npackdweb.wlib;
 
 import com.googlecode.npackdweb.NWUtils;
+
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
  */
 public class HTMLWriter {
 
-    private StringBuilder b;
+    private final StringBuilder b;
 
     /**
      * -
@@ -120,9 +121,8 @@ public class HTMLWriter {
      * Starts a tag.
      *
      * @param tag name of the tag. Example: "textarea"
-     * @param attrs names and values for the attributes.
-     * An attribute is not created
-     * if either the name or the value is null.
+     * @param attrs names and values for the attributes. An attribute is not
+     * created if either the name or the value is null.
      * @return this
      */
     public HTMLWriter start(final String tag, String... attrs) {

@@ -3,10 +3,11 @@ package com.googlecode.npackdweb.api;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.wlib.Page;
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * ZIP for a repository.
@@ -18,7 +19,7 @@ public class RepZIPPage extends Page {
 
     /**
      * @param tag only package versions with this tag will be exported.
-     * @param create true = create the file, false = redirect to a Github
+     * @param create true = create the file, false = redirect to a GitHub
      * release asset
      */
     public RepZIPPage(String tag, boolean create) {
@@ -32,7 +33,7 @@ public class RepZIPPage extends Page {
         if (!create) {
             resp.sendRedirect(
                     "https://npackd.github.io/npackd/repository/" +
-                    tag + ".zip");
+                            tag + ".zip");
         } else {
             final GcsFileMetadata md;
             try {

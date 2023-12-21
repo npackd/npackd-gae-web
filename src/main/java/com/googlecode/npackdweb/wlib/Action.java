@@ -1,10 +1,10 @@
 package com.googlecode.npackdweb.wlib;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * An action.
@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class Action {
 
     private ActionSecurityType securityType = ActionSecurityType.ADMINISTRATOR;
-    private String urlRegEx;
-    private Pattern pattern;
+    private final String urlRegEx;
+    private final Pattern pattern;
 
     /**
      * @param urlRegEx regular expression for URLs. Example: "^/def$"
@@ -48,7 +48,7 @@ public abstract class Action {
      * @throws IOException internal error
      */
     public abstract Page perform(HttpServletRequest req,
-            HttpServletResponse resp) throws IOException;
+                                 HttpServletResponse resp) throws IOException;
 
     /**
      * @return permission to call this action

@@ -5,9 +5,10 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Date;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * A license.
@@ -58,7 +59,7 @@ public class LicensePage extends MyPage {
     public String createContent(HttpServletRequest request) throws IOException {
         boolean editable;
         boolean exists = false;
-        if (this.id == null || this.id.trim().length() == 0) {
+        if (this.id == null || this.id.trim().isEmpty()) {
             editable = true;
         } else {
             editable = NWUtils.isAdminLoggedIn();
@@ -180,12 +181,12 @@ public class LicensePage extends MyPage {
         HTMLWriter w = new HTMLWriter();
         w.e("img", "src", "/App.png");
 
-        if (this.id != null && this.id.trim().length() > 0) {
+        if (this.id != null && !this.id.trim().isEmpty()) {
             w.t(" " + title);
 
             w.unencoded(
                     " <div class='g-plusone' data-size='medium' data-annotation='inline' data-width='300' data-href='" +
-                    NWUtils.WEB_SITE + "/p/" + id + "'></div>");
+                            NWUtils.WEB_SITE + "/p/" + id + "'></div>");
         } else {
             w.t(" New license");
         }
@@ -204,7 +205,7 @@ public class LicensePage extends MyPage {
         title = req.getParameter("title");
         url = req.getParameter("url");
 
-        if (this.id == null || this.id.trim().length() == 0) {
+        if (this.id == null || this.id.trim().isEmpty()) {
             this.modifiedAt = NWUtils.newDate();
         } else {
             License p = NWUtils.dsCache.getLicense(id, false);
@@ -227,7 +228,7 @@ public class LicensePage extends MyPage {
         String msg = Package.checkName(this.id);
 
         if (msg == null) {
-            if (this.id == null || this.id.trim().length() == 0) {
+            if (this.id == null || this.id.trim().isEmpty()) {
                 License r = NWUtils.dsCache.getLicense(this.id, false);
                 if (r != null) {
                     msg = "A license with this ID already exists";

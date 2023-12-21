@@ -1,15 +1,16 @@
 package com.googlecode.npackdweb;
 
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * Shows a ReCaptcha page for an email address.
  */
 public class ReCaptchaPage extends MyPage {
 
-    private int id;
+    private final int id;
 
     /**
      * -

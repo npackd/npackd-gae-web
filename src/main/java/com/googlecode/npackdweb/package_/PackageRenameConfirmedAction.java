@@ -10,10 +10,11 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import java.io.IOException;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Rename a package.
@@ -33,11 +34,7 @@ public class PackageRenameConfirmedAction extends Action {
         String name = req.getParameter("name").trim();
         String newName = req.getParameter("new-name").trim();
 
-        String err = null;
-
-        if (err == null) {
-            err = Package.checkName(name);
-        }
+        String err = Package.checkName(name);
 
         if (err == null) {
             err = Package.checkName(newName);
@@ -78,7 +75,7 @@ public class PackageRenameConfirmedAction extends Action {
 
             NWUtils.dsCache.savePackage(null, copy, true);
 
-            // die Versionen abspeichern
+            // store the versions
             List<PackageVersion> pvs = NWUtils.dsCache.
                     getPackageVersions(p.name);
             for (PackageVersion pv : pvs) {
@@ -92,11 +89,13 @@ public class PackageRenameConfirmedAction extends Action {
             UserService us = UserServiceFactory.getUserService();
             User u = us.getCurrentUser();
 
-            if (!NWUtils.isEmailEqual(u.getEmail(), p.lastModifiedBy.getEmail())) {
+            if (!NWUtils.isEmailEqual(u.getEmail(),
+                    p.lastModifiedBy.getEmail())) {
                 NWUtils.sendMailTo(
                         "The package \"" + name + "\" was renamed to \"" +
-                        newName +
-                        "\" by \"" + u.getEmail(), p.lastModifiedBy.getEmail());
+                                newName +
+                                "\" by \"" + u.getEmail(),
+                        p.lastModifiedBy.getEmail());
             }
 
             resp.sendRedirect("/p/" + copy.name);

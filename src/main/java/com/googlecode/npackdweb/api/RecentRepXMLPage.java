@@ -8,22 +8,23 @@ import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Page;
+import org.w3c.dom.Document;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.w3c.dom.Document;
 
 public class RecentRepXMLPage extends Page {
 
     private final String package_;
     private final boolean extra;
-    private String user;
-    private String tag;
+    private final String user;
+    private final String tag;
 
     /**
      * @param user email address or null
@@ -46,8 +47,8 @@ public class RecentRepXMLPage extends Page {
 
         final String key =
                 this.getClass().getName() + "@" + NWUtils.dsCache.
-                getDataVersion() +
-                "@" + user + "@" + tag + "@" + package_;
+                        getDataVersion() +
+                        "@" + user + "@" + tag + "@" + package_;
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
         syncCache.setErrorHandler(ErrorHandlers
                 .getConsistentLogAndContinue(Level.INFO));
@@ -58,36 +59,14 @@ public class RecentRepXMLPage extends Page {
                 DatastoreService datastore = DatastoreServiceFactory.
                         getDatastoreService();
 
-                com.google.appengine.api.datastore.Query query =
-                        new com.google.appengine.api.datastore.Query(
-                                "PackageVersion");
-                if (user != null) {
-                    query.setFilter(
-                            new com.google.appengine.api.datastore.Query.FilterPredicate(
-                                    "lastModifiedBy",
-                                    com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
-                                    new User(user, user.substring(user
-                                            .indexOf('@')))));
-                }
-                if (tag != null) {
-                    query.setFilter(
-                            new com.google.appengine.api.datastore.Query.FilterPredicate(
-                                    "tags",
-                                    com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
-                                    tag));
-                }
-                if (package_ != null) {
-                    query.setFilter(
-                            new com.google.appengine.api.datastore.Query.FilterPredicate(
-                                    "package_",
-                                    com.google.appengine.api.datastore.Query.FilterOperator.EQUAL,
-                                    package_));
-                }
+                final Query query = getQuery();
 
                 // we assume there are not so many package versions in one
                 // package
-                if (package_ == null)
-                    query.addSort("lastModifiedAt", Query.SortDirection.DESCENDING);
+                if (package_ == null) {
+                    query.addSort("lastModifiedAt",
+                            Query.SortDirection.DESCENDING);
+                }
 
                 PreparedQuery pq = datastore.prepare(query);
 
@@ -126,5 +105,34 @@ public class RecentRepXMLPage extends Page {
         ServletOutputStream ros = resp.getOutputStream();
         ros.write(value);
         ros.close();
+    }
+
+    private Query getQuery() {
+        Query query =
+                new Query(
+                        "PackageVersion");
+        if (user != null) {
+            query.setFilter(
+                    new Query.FilterPredicate(
+                            "lastModifiedBy",
+                            Query.FilterOperator.EQUAL,
+                            new User(user, user.substring(user
+                                    .indexOf('@')))));
+        }
+        if (tag != null) {
+            query.setFilter(
+                    new Query.FilterPredicate(
+                            "tags",
+                            Query.FilterOperator.EQUAL,
+                            tag));
+        }
+        if (package_ != null) {
+            query.setFilter(
+                    new Query.FilterPredicate(
+                            "package_",
+                            Query.FilterOperator.EQUAL,
+                            package_));
+        }
+        return query;
     }
 }

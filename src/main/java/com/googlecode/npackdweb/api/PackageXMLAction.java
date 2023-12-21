@@ -3,7 +3,6 @@ package com.googlecode.npackdweb.api;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
@@ -14,7 +13,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
 import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -65,7 +63,6 @@ public class PackageXMLAction extends Action {
             if (r == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Package " +
                         name + " not found");
-                return null;
             } else {
                 if ("application/xml".equals(req.getContentType())) {
                     try {
@@ -84,7 +81,8 @@ public class PackageXMLAction extends Action {
                             final Node item = nl.item(0);
                             if (item.getNodeType() == Node.ELEMENT_NODE &&
                                     item.getNodeName().equals("tag")) {
-                                String tag = NWUtils.getTagContent_((Element) item);
+                                String tag =
+                                        NWUtils.getTagContent_((Element) item);
                                 if (!r.hasTag(tag)) {
                                     r.addTag(tag);
                                     changed = true;
@@ -96,18 +94,20 @@ public class PackageXMLAction extends Action {
                             NWUtils.dsCache.savePackage(old, r, true);
                         }
                     } catch (SAXParseException e) {
-                        throw new IOException("XML parsing error at " + e.getLineNumber() +
-                                ":" + e.getColumnNumber() + ": " + e.getMessage(), e);
+                        throw new IOException(
+                                "XML parsing error at " + e.getLineNumber() +
+                                        ":" + e.getColumnNumber() + ": " + e.getMessage(),
+                                e);
                     } catch (Exception e) {
                         throw new IOException(e);
                     }
-                    return null;
                 } else {
-                    resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                    resp.sendError(
+                            HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                             "Unsupported content type: " + req.getContentType());
-                    return null;
                 }
             }
+            return null;
         }
 
         return null;

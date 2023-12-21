@@ -1,15 +1,15 @@
 package com.googlecode.npackdweb.wlib;
 
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Always returns 404
  */
 public class SendStatusAction extends Action {
 
-    private int status;
+    private final int status;
 
     /**
      * @param urlRegEx regular expression for URLs. Example: "^/def$"

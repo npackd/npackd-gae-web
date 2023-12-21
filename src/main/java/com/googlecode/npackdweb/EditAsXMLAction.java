@@ -6,11 +6,12 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Edit a package, a package version or a complete repository as XML.
@@ -45,7 +46,7 @@ public class EditAsXMLAction extends Action {
             case "version": {
                 PackageVersion r = NWUtils.dsCache.getPackageVersion(id);
                 Element e = r.toXML(d);
-                if (r.tags.size() > 0) {
+                if (!r.tags.isEmpty()) {
                     tag = r.tags.get(0);
                 }
                 root.appendChild(e);
@@ -74,7 +75,7 @@ public class EditAsXMLAction extends Action {
                     PackageVersion r = NWUtils.dsCache.getPackageVersion(
                             package_ + "@" + version);
                     Element e = r.toXML(d);
-                    if (r.tags.size() > 0) {
+                    if (!r.tags.isEmpty()) {
                         tag = r.tags.get(0);
                     }
                     root.appendChild(e);

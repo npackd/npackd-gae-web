@@ -3,15 +3,16 @@ package com.googlecode.npackdweb.pv;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import java.io.IOException;
-import java.net.URL;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Uploads the binary to archive.org.
@@ -31,15 +32,16 @@ public class PackageVersionArchiveAction extends Action {
             throws IOException {
         String package_ = req.getParameter("package");
         String err = Package.checkName(package_);
-        if (err != null)
+        if (err != null) {
             throw new IOException(err);
-        
+        }
+
         String version = req.getParameter("version");
-        
+
         // NumberFormatException in case of an error
-        Version v = Version.parse(version); 
+        Version v = Version.parse(version);
         v.normalize();
-        
+
         PackageVersion p = NWUtils.dsCache.getPackageVersion(
                 package_ + "@" + version);
         PackageVersion oldp = p.copy();
@@ -50,14 +52,14 @@ public class PackageVersionArchiveAction extends Action {
             if (pos >= 0) {
                 f = f.substring(pos + 1);
             }
-            if (f.length() == 0) {
+            if (f.isEmpty()) {
                 throw new IOException("Empty file name");
             }
-            
+
             if (!f.contains(version)) {
-                String fileExt = "";
+                String fileExt;
                 String fileName;
-                
+
                 pos = f.lastIndexOf('.');
 
                 // String fileName;
@@ -68,8 +70,8 @@ public class PackageVersionArchiveAction extends Action {
                     fileName = f;
                     fileExt = "";
                 }
-                
-                f = fileName + '-' + v.toString() + fileExt;
+
+                f = fileName + '-' + v + fileExt;
 
                 /*
                  * if (fileName.length() > 0) ret.package_ = fileName;

@@ -104,8 +104,8 @@ public class DeleteInactiveUsersAction extends Action {
                             data.name,
                             p.name});
 
-            p.permissions.remove(data.name);
-            if (p.permissions.size() == 0) {
+            p.permissions.remove(NWUtils.email2user(data.name));
+            if (p.permissions.isEmpty()) {
                 p.permissions.add(NWUtils.email2user(NWUtils.THE_EMAIL));
             }
             NWUtils.dsCache.savePackage(old, p, true);

@@ -5,6 +5,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,7 +68,8 @@ public class Editor implements Cloneable {
         this.starredPackages = NWUtils.getStringList(p, "starredPackages");
         this.id = (Long) p.getProperty("id");
         this.lastLogin = (Date) p.getProperty("lastLogin");
-        this.warnedAboutAccountDeletionDate = (Date) p.getProperty("warnedAboutAccountDeletionDate");
+        this.warnedAboutAccountDeletionDate =
+                (Date) p.getProperty("warnedAboutAccountDeletionDate");
         if (this.warnedAboutAccountDeletionDate == null) {
             Object v = p.getProperty("warnedAboutAccountDeletion");
             if (v != null) {
@@ -109,7 +111,7 @@ public class Editor implements Cloneable {
         e.setIndexedProperty("createdAt", this.createdAt);
         e.setIndexedProperty("createdBy", this.createdBy);
         e.setIndexedProperty("starredPackages", this.starredPackages);
-        e.setIndexedProperty("id", new Long(this.id));
+        e.setIndexedProperty("id", this.id);
         e.setIndexedProperty("lastLogin", this.lastLogin);
         e.setIndexedProperty("warnedAboutAccountDeletionDate",
                 this.warnedAboutAccountDeletionDate);

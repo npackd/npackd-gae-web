@@ -4,9 +4,10 @@ import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * List of package versions that were not yet reviewed.
@@ -15,7 +16,7 @@ public class PackageVersionListPage extends MyPage {
     private static final int PAGE_SIZE = 20;
 
     private final int offset;
-    private String tag;
+    private final String tag;
 
     /**
      * -
@@ -40,7 +41,8 @@ public class PackageVersionListPage extends MyPage {
         b.t(msg);
         b.start("ul");
         List<PackageVersion> pvs =
-                NWUtils.dsCache.findPackageVersions(tag, null, PAGE_SIZE + 1, offset);
+                NWUtils.dsCache.findPackageVersions(tag, null, PAGE_SIZE + 1,
+                        offset);
         for (int i = 0; i < Math.min(pvs.size(), PAGE_SIZE); i++) {
             PackageVersion pv = pvs.get(i);
 
@@ -71,27 +73,29 @@ public class PackageVersionListPage extends MyPage {
         if (cur >= PAGE_SIZE) {
             w.start("li");
             String url = "/pv?start=" + (cur - PAGE_SIZE);
-            if (tag != null)
-                url += "&tag=" +NWUtils.encode(tag);
+            if (tag != null) {
+                url += "&tag=" + NWUtils.encode(tag);
+            }
             w.e("a", "href", url,
-                    "\u2190 Previous page");
+                    "← Previous page");
             w.end("li");
         } else {
             w.start("li", "class", "disabled");
-            w.e("a", "href", "#", "\u2190 Previous page");
+            w.e("a", "href", "#", "← Previous page");
             w.end("li");
         }
 
         if (hasNextPage) {
             w.start("li");
             String url = "/pv?start=" + (cur + PAGE_SIZE);
-            if (tag != null)
+            if (tag != null) {
                 url += "&tag=" + NWUtils.encode(tag);
-            w.e("a", "href", url, "Next page \u2192");
+            }
+            w.e("a", "href", url, "Next page →");
             w.end("li");
         } else {
-            w.start("li", "class", hasNextPage ? null : "disabled");
-            w.e("a", "href", "#", "Next page \u2192");
+            w.start("li", "class", "disabled");
+            w.e("a", "href", "#", "Next page →");
             w.end("li");
         }
 

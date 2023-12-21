@@ -3,64 +3,32 @@ package com.googlecode.npackdweb;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
-import com.google.appengine.api.urlfetch.HTTPHeader;
-import com.google.appengine.api.urlfetch.HTTPMethod;
-import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.appengine.api.urlfetch.*;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
+import com.google.appengine.tools.cloudstorage.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.googlecode.npackdweb.db.DatastoreCache;
 import com.googlecode.npackdweb.db.Editor;
-import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.*;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOError;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -77,18 +45,21 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Comment;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utilities
@@ -106,9 +77,8 @@ public class NWUtils {
             new HashSet<>();
 
     static {
-        for (int i = 0; i < INVALID_WINDOWS_FILE_NAMES.length; i++) {
-            INVALID_WINDOW_FILE_NAMES_SET.add(INVALID_WINDOWS_FILE_NAMES[i]);
-        }
+        Collections.addAll(INVALID_WINDOW_FILE_NAMES_SET,
+                INVALID_WINDOWS_FILE_NAMES);
     }
 
     /**
@@ -224,7 +194,7 @@ public class NWUtils {
      * Formats a template.
      *
      * @param template content of the template
-     * @param values   keys and values for the template
+     * @param values keys and values for the template
      * @return formatted text
      */
     public static String tmplString(String template,
@@ -240,7 +210,7 @@ public class NWUtils {
      * Formats a template
      *
      * @param templateName name of the template file
-     * @param values       values for the template
+     * @param values values for the template
      * @return formatted text
      * @throws IOException if the template cannot be read
      */
@@ -260,21 +230,7 @@ public class NWUtils {
     /**
      * Formats a template
      *
-     * @param templateName name of the template file
-     * @param key          key for the template
-     * @param value        value for the template
-     * @return formatted text
-     * @throws IOException if the template cannot be read
-     */
-    public static String tmpl(String templateName, String key, String value)
-            throws IOException {
-        return tmpl(templateName, newMap(key, value));
-    }
-
-    /**
-     * Formats a template
-     *
-     * @param templateName  name of the template file under WEB-INF/templates
+     * @param templateName name of the template file under WEB-INF/templates
      * @param keysAndValues key1, value1, key2, value2, ...
      * @return formatted text
      * @throws IOException if the template cannot be read
@@ -291,8 +247,8 @@ public class NWUtils {
     /**
      * Formats a template
      *
-     * @param page          the object will be stored using the name "page"
-     * @param templateName  name of the template file
+     * @param page the object will be stored using the name "page"
+     * @param templateName name of the template file
      * @param keysAndValues key1, value1, key2, value2, ...
      * @return formatted text
      * @throws IOException if the template cannot be read
@@ -310,9 +266,9 @@ public class NWUtils {
     /**
      * Writes an HTML response
      *
-     * @param resp         response
+     * @param resp response
      * @param templateName name of the template
-     * @param root         root object
+     * @param root root object
      * @throws IOException if the template cannot be read
      */
     public static void serve(HttpServletResponse resp, String templateName,
@@ -336,24 +292,11 @@ public class NWUtils {
     }
 
     /**
-     * Creates a new Map with only one value
-     *
-     * @param key   key
-     * @param value value
-     * @return map with the specified value
-     */
-    public static Map<String, Object> newMap(String key, String value) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(key, value);
-        return map;
-    }
-
-    /**
      * Creates a new Map with 2 values
      *
-     * @param key    key
-     * @param value  value
-     * @param key2   second key
+     * @param key key
+     * @param value value
+     * @param key2 second key
      * @param value2 second value
      * @return map with the specified values
      */
@@ -368,9 +311,9 @@ public class NWUtils {
     /**
      * Returns the content of a sub-tag.
      *
-     * @param tag    an XML tag
+     * @param tag an XML tag
      * @param subtag name of the sub-tag
-     * @param def    this value is used if the sub-tag is missing
+     * @param def this value is used if the sub-tag is missing
      * @return the content of the sub-tag
      */
     public static String
@@ -402,8 +345,8 @@ public class NWUtils {
     /**
      * Adds a sub-tag with the specified text.
      *
-     * @param parent  parent tag
-     * @param subtag  sub-tag
+     * @param parent parent tag
+     * @param subtag sub-tag
      * @param content content of the sub-tag
      */
     public static void e(Element parent, String subtag, String content) {
@@ -417,11 +360,11 @@ public class NWUtils {
     /**
      * Adds a sub-tag with the specified text and an attribute.
      *
-     * @param parent    parent tag
-     * @param subtag    sub-tag
-     * @param attr      attribute name
+     * @param parent parent tag
+     * @param subtag sub-tag
+     * @param attr attribute name
      * @param attrValue attribute value
-     * @param content   content of the sub-tag or null
+     * @param content content of the sub-tag or null
      */
     public static void e(Element parent, String subtag, String attr,
                          String attrValue, String content) {
@@ -438,13 +381,13 @@ public class NWUtils {
     /**
      * Adds a sub-tag with the specified text and an attribute.
      *
-     * @param parent     parent tag
-     * @param subtag     sub-tag
-     * @param attr       attribute name
-     * @param attrValue  attribute value
-     * @param attr2      second attribute name
+     * @param parent parent tag
+     * @param subtag sub-tag
+     * @param attr attribute name
+     * @param attrValue attribute value
+     * @param attr2 second attribute name
      * @param attrValue2 second attribute value
-     * @param content    content of the sub-tag or null
+     * @param content content of the sub-tag or null
      */
     public static void e(Element parent, String subtag, String attr,
                          String attrValue, String attr2, String attrValue2,
@@ -462,9 +405,6 @@ public class NWUtils {
 
     /**
      * Adds text to the specified tag.
-     *
-     * @param tag
-     * @param txt
      */
     public static void t(Element tag, String txt) {
         Text t = tag.getOwnerDocument().createTextNode(txt);
@@ -474,7 +414,7 @@ public class NWUtils {
     /**
      * Joins the strings with the specified delimiter.
      *
-     * @param del  delimiter
+     * @param del delimiter
      * @param txts strings
      * @return joined text
      */
@@ -492,7 +432,7 @@ public class NWUtils {
     /**
      * Splits the text on the specified separator
      *
-     * @param txt       a text
+     * @param txt a text
      * @param separator separator character
      * @return parts
      */
@@ -574,7 +514,6 @@ public class NWUtils {
      *
      * @param xml XML
      * @return string
-     * @throws IOException
      */
     public static String toString(Document xml) throws IOException {
         try {
@@ -598,9 +537,9 @@ public class NWUtils {
     /**
      * Creates an &lt;input type="button"&gt; that changes window.location.href
      *
-     * @param w     HTML output
-     * @param txt   button title
-     * @param url   new URL
+     * @param w HTML output
+     * @param txt button title
+     * @param url new URL
      * @param title tooltip
      */
     public static void jsButton(HTMLWriter w, String txt, String url,
@@ -613,8 +552,8 @@ public class NWUtils {
     /**
      * Creates a text field for URL input.
      *
-     * @param w     HTML output
-     * @param name  input name
+     * @param w HTML output
+     * @param name input name
      * @param value value of the input field
      * @param title title
      */
@@ -634,10 +573,10 @@ public class NWUtils {
     /**
      * Creates an &lt;input type="button"&gt; that changes window.location.href
      *
-     * @param w       HTML output
-     * @param txt     button title
+     * @param w HTML output
+     * @param txt button title
      * @param onClick JavaScript for "onclick"
-     * @param title   tooltip
+     * @param title tooltip
      */
     public static void jsButton_(HTMLWriter w, String txt, String onClick,
                                  String title) {
@@ -648,10 +587,10 @@ public class NWUtils {
     /**
      * Creates an &lt;input type="button"&gt; that changes window.location.href
      *
-     * @param w       HTML output
-     * @param txt     button title
-     * @param url     new URL
-     * @param title   tooltip
+     * @param w HTML output
+     * @param txt button title
+     * @param url new URL
+     * @param title tooltip
      * @param enabled true = the button is enabled
      */
     public static void jsButton(HTMLWriter w, String txt, String url,
@@ -672,7 +611,7 @@ public class NWUtils {
     /**
      * Serializes XML
      *
-     * @param d   XML document
+     * @param d XML document
      * @param gos output
      * @throws java.io.IOException any error
      */
@@ -712,8 +651,7 @@ public class NWUtils {
      */
     public static Index getIndex() {
         IndexSpec spec = IndexSpec.newBuilder().setName("Packages").build();
-        Index index = SearchServiceFactory.getSearchService().getIndex(spec);
-        return index;
+        return SearchServiceFactory.getSearchService().getIndex(spec);
     }
 
     /**
@@ -765,7 +703,7 @@ public class NWUtils {
     }
 
     private static boolean isUnsafe(char ch) {
-        if (ch > 128 || ch < 0) {
+        if (ch > 128) {
             return true;
         }
         return " %$&+,/:;=?@<>#%".indexOf(ch) >= 0;
@@ -774,9 +712,9 @@ public class NWUtils {
     /**
      * Creates a "select" tag.
      *
-     * @param id     Id of the element
-     * @param name   name of the element
-     * @param value  selected value or null
+     * @param id Id of the element
+     * @param name name of the element
+     * @param value selected value or null
      * @param titles titles
      * @param values values
      * @return HTML
@@ -799,9 +737,9 @@ public class NWUtils {
     /**
      * Validates an URL. Only http: and https: are allowed as protocol.
      *
-     * @param url_      the entered text
+     * @param url_ the entered text
      * @param copyright true = check that servers like "softpedia.com" are not
-     *                  used
+     * used
      * @return error message or null
      */
     public static String validateURL(String url_, boolean copyright) {
@@ -955,10 +893,10 @@ public class NWUtils {
     public static String validateRelativePath(String path) {
         String result = null;
 
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             result = "Empty path";
         }
-        
+
         if (result == null) {
             final char[] INVALID_CHARS = {'<', '>', ':', '"', '|', '?', '*'};
             for (int i = 0; i < INVALID_CHARS.length; i++) {
@@ -1005,7 +943,7 @@ public class NWUtils {
         version = version.replace('_', '.');
 
         // process version numbers like 2.0.6b
-        if (version.length() > 0) {
+        if (!version.isEmpty()) {
             char c =
                     Character.toLowerCase(version.charAt(version.length() - 1));
             if (c >= 'a' && c <= 'z') {
@@ -1024,7 +962,7 @@ public class NWUtils {
      * Sends an email to the administrator.
      *
      * @param body body of the email
-     * @param to   receiver email address
+     * @param to receiver email address
      */
     public static void sendMailTo(String body, String to) {
         Properties props = new Properties();
@@ -1052,21 +990,6 @@ public class NWUtils {
      */
     public static void sendMailToAdmin(String string) {
         sendMailTo(string, "admins");
-    }
-
-    /**
-     * Changes the size of a list.
-     *
-     * @param list a list
-     * @param m    the desired size. New "null" values will be added, if necessary.
-     */
-    public static void resize(List<String> list, int m) {
-        while (list.size() > m) {
-            list.remove(list.size() - 1);
-        }
-        while (list.size() < m) {
-            list.add(null);
-        }
     }
 
     /**
@@ -1165,9 +1088,7 @@ public class NWUtils {
         MessageDigest crypt;
         try {
             crypt = MessageDigest.getInstance("SHA-256");
-            crypt.update(value.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException ex) {
-            throw new IOError(ex);
+            crypt.update(value.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException ex) {
             throw new IOError(ex);
         }
@@ -1178,13 +1099,13 @@ public class NWUtils {
     /**
      * Downloads a file
      *
-     * @param url       http: or https: URL
+     * @param url http: or https: URL
      * @param algorithm SHA-1 or SHA-256
-     * @param maxSize   maximum size of the file or 0 for "unlimited". If the file
-     *                  is bigger than the specified size, the download will be cancelled and an
-     *                  IOException will be thrown
+     * @param maxSize maximum size of the file or 0 for "unlimited". If the file
+     * is bigger than the specified size, the download will be cancelled and an
+     * IOException will be thrown
      * @return info about the downloaded file
-     * @throws IOException              file cannot be downloaded
+     * @throws IOException file cannot be downloaded
      * @throws NoSuchAlgorithmException if SHA1 cannot be computed
      */
     public static Info download(String url, String algorithm, long maxSize)
@@ -1251,12 +1172,12 @@ public class NWUtils {
     }
 
     /**
-     * Downloads a file. This methods ignores protocol switches http <->
-     * https. HTTPURLConnection cannot handle this by default. URLFetchService
-     * only can download 32 MiB
+     * Downloads a file. This method ignores protocol switches http <-> https.
+     * HTTPURLConnection cannot handle this by default. URLFetchService only can
+     * download 32 MiB
      *
      * @param url URL
-     * @return the data
+     * @param os the data will be stored here.
      * @throws IOException failure
      */
     private static void upload(URL url, OutputStream os)
@@ -1309,10 +1230,10 @@ public class NWUtils {
     /**
      * Upload a file to archive.org. See https://archive.org/help/abouts3.txt
      *
-     * @param url        http: or https: URL
+     * @param url http: or https: URL
      * @param archiveURL URL on s3.us.archive.org
-     * @param accessKey  access key for s3.us.archive.org
-     * @param password   password on archive.org
+     * @param accessKey access key for s3.us.archive.org
+     * @param password password on archive.org
      * @throws IOException file cannot be downloaded
      */
     public static void archive(String url, String archiveURL, String accessKey,
@@ -1343,7 +1264,7 @@ public class NWUtils {
     /**
      * Changes an email address so it cannot be easily parsed.
      *
-     * @param email  an email address or null
+     * @param email an email address or null
      * @param domain server domain
      * @return HTML. abc dot def at bla dot com
      */
@@ -1402,7 +1323,7 @@ public class NWUtils {
             try {
                 Reader reader =
                         new BufferedReader(new InputStreamReader(stream,
-                                "UTF-8"));
+                                StandardCharsets.UTF_8));
                 char[] buffer = new char[8192];
                 int read;
                 while ((read = reader.read(buffer, 0, buffer.length)) > 0) {
@@ -1425,9 +1346,9 @@ public class NWUtils {
      * If-Modified-Since and similar HTTP headers and sends 304 if the file was
      * not changed.
      *
-     * @param md          GCS file meta data
-     * @param request     HTTP request
-     * @param resp        HTTP response
+     * @param md GCS file meta data
+     * @param request HTTP request
+     * @param resp HTTP response
      * @param contentType MIME type of the response
      * @throws IOException error reading or sending the file
      */
@@ -1487,14 +1408,13 @@ public class NWUtils {
      * @return create user object
      */
     public static User email2user(String email) {
-        User u = new User(email, email.substring(email.indexOf('@')));
-        return u;
+        return new User(email, email.substring(email.indexOf('@')));
     }
 
     /**
      * Creates a &lt;script&gt; tag
      *
-     * @param w   output
+     * @param w output
      * @param src value of the "src" attribute
      * @return the same writer
      */
@@ -1505,10 +1425,10 @@ public class NWUtils {
     /**
      * Creates a star for a package
      *
-     * @param w        output
+     * @param w output
      * @param package_ full package name
-     * @param filled   true = filled star
-     * @param starred  the amount of people who starred the package
+     * @param filled true = filled star
+     * @param starred the amount of people who starred the package
      * @return the same writer
      */
     public static HTMLWriter star(HTMLWriter w, final String package_,
@@ -1527,11 +1447,11 @@ public class NWUtils {
         if (filled) {
             w.e("span", "class", "star glyphicon glyphicon-star", "style",
                     "cursor: pointer; color:#337ab7", "data-package", package_,
-                    "data-starred", n, "data-filled", Boolean.toString(filled));
+                    "data-starred", n, "data-filled", "true");
         } else {
             w.e("span", "class", "star glyphicon glyphicon-star-empty", "style",
                     "cursor: pointer", "data-package", package_,
-                    "data-starred", n, "data-filled", Boolean.toString(filled));
+                    "data-starred", n, "data-filled", "false");
         }
         w.e("small", txt);
         w.end("span");
@@ -1543,14 +1463,14 @@ public class NWUtils {
      * Checks URLs using the Google Safe Browsing Lookup API
      *
      * @param urls this URLs will be checked. At most 500 URLs can be processed
-     *             at once.
+     * at once.
      * @return threat types or empty strings if everything is OK.
      * THREAT_TYPE_UNSPECIFIED Unknown. MALWARE Malware threat type.
      * SOCIAL_ENGINEERING Social engineering threat type. UNWANTED_SOFTWARE
      * Unwanted software threat type. POTENTIALLY_HARMFUL_APPLICATION
      * Potentially harmful application threat type.
      * @throws java.io.IOException there was a communication problem, the server
-     *                             is unavailable, over quota or something different.
+     * is unavailable, over quota or something different.
      */
     public static String[] checkURLs(String[] urls) throws
             IOException {
@@ -1589,14 +1509,12 @@ public class NWUtils {
             HTTPRequest ht = new HTTPRequest(u, HTTPMethod.POST);
             LOG.info(request.toString());
             ht.setHeader(new HTTPHeader("Content-Type", "application/json"));
-            ht.setPayload(request.toString().getBytes("UTF-8"));
+            ht.setPayload(request.toString().getBytes(StandardCharsets.UTF_8));
             HTTPResponse r = s.fetch(ht);
             int rc = r.getResponseCode();
-            /*LOG.info("Google Safe Browsing API response code:" +
-             rc);*/
             if (rc == 200) {
                 JSONObject json = new JSONObject(new String(r.getContent(),
-                        Charset.forName("UTF-8")));
+                        StandardCharsets.UTF_8));
                 //LOG.info(json.toString());
                 JSONArray matches = json.optJSONArray("matches");
                 if (matches != null) {
@@ -1615,11 +1533,10 @@ public class NWUtils {
             } else {
                 throw new IOException(
                         "Error " + rc + " from the Google Safe Browsing API " +
-                                new String(r.getContent(), "UTF-8"));
+                                new String(r.getContent(),
+                                        StandardCharsets.UTF_8));
             }
-        } catch (MalformedURLException ex) {
-            throw new IOException(ex);
-        } catch (JSONException ex) {
+        } catch (MalformedURLException | JSONException ex) {
             throw new IOException(ex);
         }
 
@@ -1629,7 +1546,7 @@ public class NWUtils {
     /**
      * Splits a string in two parts on the delimiter.
      *
-     * @param s   the string
+     * @param s the string
      * @param del delimiter
      * @return [first string, second string] or [s, ""] if the delimiter was not
      * found
@@ -1651,7 +1568,7 @@ public class NWUtils {
     /**
      * Retrieve a string from a Datastore entity.
      *
-     * @param e            an entity
+     * @param e an entity
      * @param propertyName name of the property
      * @return property value or null
      */
@@ -1670,7 +1587,7 @@ public class NWUtils {
     /**
      * Retrieve a long from a Datastore entity.
      *
-     * @param e            an entity
+     * @param e an entity
      * @param propertyName name of the property
      * @return property value or 0
      */
@@ -1689,7 +1606,7 @@ public class NWUtils {
     /**
      * Retrieve a string list from a Datastore entity.
      *
-     * @param e            an entity
+     * @param e an entity
      * @param propertyName name of the property
      * @return property value != null
      */
@@ -1706,7 +1623,7 @@ public class NWUtils {
     /**
      * Retrieve a user list from a Datastore entity.
      *
-     * @param e            an entity
+     * @param e an entity
      * @param propertyName name of the property
      * @return property value != null
      */

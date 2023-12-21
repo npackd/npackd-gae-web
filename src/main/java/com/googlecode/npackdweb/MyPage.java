@@ -4,12 +4,13 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * A page with a frame.
@@ -33,7 +34,7 @@ public abstract class MyPage extends Page {
 
     @Override
     public final void create(HttpServletRequest request,
-            HttpServletResponse resp) throws IOException {
+                             HttpServletResponse resp) throws IOException {
         //NWUtils.LOG.info("Before create");
 
         resp.setContentType("text/html; charset=UTF-8");
@@ -68,7 +69,7 @@ public abstract class MyPage extends Page {
     /**
      * @return HTML inserted in the &lt;head&gt; tag.
      */
-    public String createHead() throws IOException {
+    public String createHead() {
         return "";
     }
 
@@ -164,10 +165,8 @@ public abstract class MyPage extends Page {
      *
      * @param request HTTP request
      * @return HTML
-     * @throws IOException
      */
-    private static String getLoginHeader(HttpServletRequest request)
-            throws IOException {
+    private static String getLoginHeader(HttpServletRequest request) {
         UserService userService = UserServiceFactory.getUserService();
 
         String thisURL = request.getRequestURI();
@@ -178,7 +177,8 @@ public abstract class MyPage extends Page {
         if (request.getUserPrincipal() != null) {
             res.t("Hello, " + userService.getCurrentUser().getNickname() +
                     "!  You can ");
-            res.e("a", "href", userService.createLogoutURL(thisURL), "sign out");
+            res.e("a", "href", userService.createLogoutURL(thisURL),
+                    "sign out");
             res.t(".");
         } else {
             //NWUtils.LOG.info("Calling createLoginURL");

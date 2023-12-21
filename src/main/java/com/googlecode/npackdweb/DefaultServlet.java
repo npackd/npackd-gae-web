@@ -10,45 +10,26 @@ import com.googlecode.npackdweb.license.LicenseAction;
 import com.googlecode.npackdweb.license.LicenseDeleteAction;
 import com.googlecode.npackdweb.license.LicenseSaveAction;
 import com.googlecode.npackdweb.license.LicensesAction;
-import com.googlecode.npackdweb.package_.PackageDeleteConfirmedAction;
-import com.googlecode.npackdweb.package_.PackageDetailAction;
-import com.googlecode.npackdweb.package_.PackageNewAction;
-import com.googlecode.npackdweb.package_.PackageNextAction;
-import com.googlecode.npackdweb.package_.PackageRenameConfirmedAction;
-import com.googlecode.npackdweb.package_.PackageSaveAction;
-import com.googlecode.npackdweb.package_.PackagesAction;
-import com.googlecode.npackdweb.package_.RequestPermissionsAction;
-import com.googlecode.npackdweb.pv.CopyPackageVersionConfirmedAction;
-import com.googlecode.npackdweb.pv.DetectPackageVersionAction;
-import com.googlecode.npackdweb.pv.PackageVersionArchiveAction;
-import com.googlecode.npackdweb.pv.PackageVersionComputeSHA1Action;
-import com.googlecode.npackdweb.pv.PackageVersionComputeSHA256Action;
-import com.googlecode.npackdweb.pv.PackageVersionDeleteConfirmedAction;
-import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
-import com.googlecode.npackdweb.pv.PackageVersionListAction;
-import com.googlecode.npackdweb.pv.PackageVersionMarkReviewedAction;
-import com.googlecode.npackdweb.pv.PackageVersionNewAction;
-import com.googlecode.npackdweb.pv.PackageVersionRecognizeAction;
-import com.googlecode.npackdweb.pv.PackageVersionSaveAction;
+import com.googlecode.npackdweb.package_.*;
+import com.googlecode.npackdweb.pv.*;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.Page;
 import com.googlecode.npackdweb.wlib.SendRedirectAction;
 import com.googlecode.npackdweb.wlib.SendStatusAction;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Default servlet for HTML pages.
  */
-@SuppressWarnings("serial")
 public class DefaultServlet extends HttpServlet {
 
     /**
@@ -60,11 +41,11 @@ public class DefaultServlet extends HttpServlet {
                 .getAttribute("com.googlecode.npackdweb.DefaultServlet");
     }
 
-    private List<Action> actions = new ArrayList<>();
+    private final List<Action> actions = new ArrayList<>();
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+            throws IOException {
         doGet0(req, resp);
     }
 
@@ -271,7 +252,7 @@ public class DefaultServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+            throws IOException {
         doGet(req, resp);
     }
 

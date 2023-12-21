@@ -12,6 +12,7 @@ import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheService.SetPolicy;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+
 import java.util.ConcurrentModificationException;
 import java.util.Random;
 import java.util.logging.Level;
@@ -94,7 +95,7 @@ public class ShardedCounter {
     /**
      * The counter shard kind for this counter.
      */
-    private String kind;
+    private final String kind;
 
     /**
      * Memcache service object for Memcache access.
@@ -195,7 +196,8 @@ public class ShardedCounter {
      * @param initialValue the value to use if the entity does not exist
      */
     private void incrementPropertyTx(final Key key, final String prop,
-            final long increment, final long initialValue) {
+                                     final long increment,
+                                     final long initialValue) {
         Transaction tx = DS.beginTransaction();
         Entity thing;
         long value;

@@ -1,16 +1,17 @@
 package com.googlecode.npackdweb.pv;
 
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * A package version.
@@ -49,13 +50,12 @@ public class PackageVersionDetailAction extends Action {
             Version v = Version.parse(version);
             if (!v.toString().equals(version)) {
                 // trailing zeros or similar
-                resp.sendRedirect("/p/" + package_ + "/" + v.toString());
-                return null;
+                resp.sendRedirect("/p/" + package_ + "/" + v);
             } else {
                 // non-existent version
                 resp.sendRedirect("/p/" + package_);
-                return null;
             }
+            return null;
         }
 
         return new PackageVersionPage(r, false);

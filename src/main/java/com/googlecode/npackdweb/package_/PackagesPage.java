@@ -1,17 +1,7 @@
 package com.googlecode.npackdweb.package_;
 
-import com.google.appengine.api.search.FacetOptions;
+import com.google.appengine.api.search.*;
 import com.google.appengine.api.search.FacetOptions.Builder;
-import com.google.appengine.api.search.FacetRefinement;
-import com.google.appengine.api.search.FacetRequest;
-import com.google.appengine.api.search.FacetResult;
-import com.google.appengine.api.search.FacetResultValue;
-import com.google.appengine.api.search.Index;
-import com.google.appengine.api.search.QueryOptions;
-import com.google.appengine.api.search.Results;
-import com.google.appengine.api.search.ScoredDocument;
-import com.google.appengine.api.search.SortExpression;
-import com.google.appengine.api.search.SortOptions;
 import com.google.appengine.api.search.checkers.SearchApiLimits;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -23,22 +13,21 @@ import com.googlecode.npackdweb.db.Editor;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import org.markdown4j.Markdown4jProcessor;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
-import org.markdown4j.Markdown4jProcessor;
 
 /**
  * Packages.
  */
 public class PackagesPage extends MyPage {
     private static final int PAGE_SIZE = 20;
-    private List<Package> packages = new ArrayList<>();
+    private final List<Package> packages = new ArrayList<>();
     private String sort;
     private int start;
     private String query = "";
@@ -71,11 +60,11 @@ public class PackagesPage extends MyPage {
     /**
      * -
      *
-     * @param query      search query. Example: "title:Python"
-     * @param sort       "created", "title" or "stars", "relevance" sorting order
-     * @param start      initial offset
-     * @param category0  filter for the top-level category or null or ""
-     * @param category1  filter for the second level level or null or ""
+     * @param query search query. Example: "title:Python"
+     * @param sort "created", "title" or "stars", "relevance" sorting order
+     * @param start initial offset
+     * @param category0 filter for the top-level category or null or ""
+     * @param category1 filter for the second level or null or ""
      * @param repository filter for the repository or null or ""
      */
     public PackagesPage(String query, String sort, int start,
@@ -101,7 +90,7 @@ public class PackagesPage extends MyPage {
 
         Index index = NWUtils.getIndex();
         QueryOptions.Builder ob =
-                QueryOptions.newBuilder().setFieldsToReturn(new String[0]).
+                QueryOptions.newBuilder().setFieldsToReturn().
                         setLimit(PAGE_SIZE + 1).setOffset(
                                 start).setNumberFoundAccuracy(2000);
 
@@ -315,9 +304,9 @@ public class PackagesPage extends MyPage {
     /**
      * Creates HTML for special tags.
      *
-     * @param w              output
+     * @param w output
      * @param noUpdatesCheck see Package.noUpdatesCheck
-     * @param eol            true = "end-of-life" tag is present
+     * @param eol true = "end-of-life" tag is present
      */
     public static void createTags(HTMLWriter w,
                                   java.util.Date noUpdatesCheck, boolean eol) {
@@ -391,7 +380,7 @@ public class PackagesPage extends MyPage {
                 w.t(this.category0);
                 w.end("a");
             } else {
-                if (category0Values.size() > 0) {
+                if (!category0Values.isEmpty()) {
                     w.t(category0Values.get(0).getLabel());
                 } else {
                     w.t("-");
@@ -418,7 +407,7 @@ public class PackagesPage extends MyPage {
                 w.t(this.repository);
                 w.end("a");
             } else {
-                if (repositoryValues.size() > 0) {
+                if (!repositoryValues.isEmpty()) {
                     w.t(repositoryValues.get(0).getLabel());
                 } else {
                     w.t("-");
@@ -446,22 +435,22 @@ public class PackagesPage extends MyPage {
         if (cur >= PAGE_SIZE) {
             w.start("li");
             w.e("a", "href", "/p?start=" + (cur - PAGE_SIZE) + p,
-                    "\u2190 Previous page");
+                    "← Previous page");
             w.end("li");
         } else {
             w.start("li", "class", "disabled");
-            w.e("a", "href", "#", "\u2190 Previous page");
+            w.e("a", "href", "#", "← Previous page");
             w.end("li");
         }
 
         if (hasNextPage) {
             w.start("li");
             w.e("a", "href", "/p?start=" + (cur + PAGE_SIZE) + p,
-                    "Next page \u2192");
+                    "Next page →");
             w.end("li");
         } else {
-            w.start("li", "class", hasNextPage ? null : "disabled");
-            w.e("a", "href", "#", "Next page \u2192");
+            w.start("li", "class", "disabled");
+            w.e("a", "href", "#", "Next page →");
             w.end("li");
         }
 
@@ -495,8 +484,7 @@ public class PackagesPage extends MyPage {
     }
 
     @Override
-    public String createBodyBottom(HttpServletRequest request)
-            throws IOException {
+    public String createBodyBottom(HttpServletRequest request) {
         HTMLWriter w = new HTMLWriter();
         w.start("script");
         InputStream stream =

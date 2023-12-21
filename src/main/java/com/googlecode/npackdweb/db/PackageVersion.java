@@ -7,19 +7,13 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * A package version.
@@ -153,7 +147,7 @@ public class PackageVersion {
      * tags = "not-reviewed"
      *
      * @param package_ full internal package name
-     * @param version  version number
+     * @param version version number
      */
     public PackageVersion(String package_, String version) {
         this.name = package_ + "@" + version;
@@ -472,7 +466,7 @@ public class PackageVersion {
                     this.importantFilePaths.add(path);
 
                     final String title = che.getAttribute("title").trim();
-                    if (title.length() == 0) {
+                    if (title.isEmpty()) {
                         throw new NumberFormatException(
                                 "Empty important file title");
                     }
@@ -513,7 +507,7 @@ public class PackageVersion {
                     // environment variable
                     final String var = NWUtils.getSubTagContent(che,
                             "variable", "").trim();
-                    if (var.length() > 0) {
+                    if (!var.isEmpty()) {
                         err = NWUtils.validateEnvVarName(var);
                         if (err != null) {
                             throw new NumberFormatException(err);
@@ -564,12 +558,13 @@ public class PackageVersion {
             }
         }
 
-        if (!parsedSHA256.isEmpty())
+        if (!parsedSHA256.isEmpty()) {
             this.sha1 = parsedSHA256;
-        else if (!parsedSHA1.isEmpty())
+        } else if (!parsedSHA1.isEmpty()) {
             this.sha1 = parsedSHA1;
-        else if (!parsedSHA1_old.isEmpty())
+        } else if (!parsedSHA1_old.isEmpty()) {
             this.sha1 = parsedSHA1_old;
+        }
     }
 
 
@@ -599,7 +594,7 @@ public class PackageVersion {
     /**
      * Changes the content of the specified &lt;file&gt;
      *
-     * @param index   index of the file
+     * @param index index of the file
      * @param content file content
      */
     public void setFileContents(int index, String content) {
@@ -609,7 +604,7 @@ public class PackageVersion {
     /**
      * Adds a new &lt;file&gt;
      *
-     * @param path    file path
+     * @param path file path
      * @param content file content
      */
     public void addFile(String path, String content) {
@@ -640,7 +635,7 @@ public class PackageVersion {
     }
 
     /**
-     * @param checkSum  true = also check SHA-1 or SHA-256
+     * @param checkSum true = also check SHA-1 or SHA-256
      * @param algorithm SHA-256 or SHA-1
      * @return info about the download or null if the download failed
      * @throws java.io.IOException error during the download
@@ -699,7 +694,7 @@ public class PackageVersion {
      *
      * @param package_ depends on this package
      * @param versions versions range like "[9, 10)"
-     * @param envVar   name of the environment variable or ""
+     * @param envVar name of the environment variable or ""
      */
     public void addDependency(String package_, String versions, String envVar) {
         this.dependencyPackages.add(package_);
@@ -748,7 +743,7 @@ public class PackageVersion {
     }
 
     /**
-     * Returns a human readable description for this object
+     * Returns a human-readable description for this object
      *
      * @return "a.b.c 27.1.3"
      */
@@ -763,6 +758,6 @@ public class PackageVersion {
      * @return true if this package has the specified tag
      */
     public boolean hasTag(String tag) {
-        return this.tags != null && this.tags.indexOf(tag) >= 0;
+        return this.tags != null && this.tags.contains(tag);
     }
 }

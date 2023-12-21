@@ -37,7 +37,7 @@ public class UpdateSafeBrowsingInfoAction extends Action {
                 NWUtils.dsCache.getAllEntities("PackageVersion");
 
         List<PackageVersion> list = new ArrayList<>();
-        for (Entity e: all) {
+        for (Entity e : all) {
             list.add(new PackageVersion(e));
             if (list.size() == 100) {
                 processBatch(list);
@@ -45,16 +45,17 @@ public class UpdateSafeBrowsingInfoAction extends Action {
             }
         }
 
-        if (list.size() != 0)
+        if (!list.isEmpty()) {
             processBatch(list);
+        }
 
         return new MessagePage("OK");
     }
 
     private void processBatch(List<PackageVersion> list) throws IOException {
         NWUtils.LOG.log(Level.INFO, "Checking from {0} {1}", new Object[]{
-            list.get(0).getPackage(),
-            list.get(0).getVersion()});
+                list.get(0).getPackage(),
+                list.get(0).getVersion()});
 
         List<PackageVersion> toSave = new ArrayList<>();
         String[] urls = new String[list.size()];
@@ -98,16 +99,16 @@ public class UpdateSafeBrowsingInfoAction extends Action {
             if (!oldStatus.equals(status)) {
                 NWUtils.sendMailToAdmin(
                         "Google Safe Browsing API: got " + v +
-                        " for " +
-                        data.getPackage() + " " + data.getVersion() +
-                        " (" +
-                        PackageVersionDetailAction.getURL(data) +
-                        ")");
+                                " for " +
+                                data.getPackage() + " " + data.getVersion() +
+                                " (" +
+                                PackageVersionDetailAction.getURL(data) +
+                                ")");
                 toSave.add(data);
             }
         }
 
-        if (toSave.size() > 0) {
+        if (!toSave.isEmpty()) {
             List<Entity> toSave_ = new ArrayList<>();
             for (PackageVersion pv : toSave) {
                 toSave_.add(pv.createEntity());

@@ -4,9 +4,10 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * List of repositories.
@@ -18,7 +19,7 @@ public class RepPage extends MyPage {
         HTMLWriter b = new HTMLWriter();
 
         List<Repository> reps = NWUtils.dsCache.findAllRepositories();
-        if (reps.size() > 0) {
+        if (!reps.isEmpty()) {
             b.
                     t("These repositories are re-created daily, the packages were reviewed and are safe to use:");
             b.start("ul");

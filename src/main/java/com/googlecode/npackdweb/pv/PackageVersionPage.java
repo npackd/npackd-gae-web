@@ -5,21 +5,17 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Dependency;
-import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.npackdweb.db.Version;
+import com.googlecode.npackdweb.db.*;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import org.markdown4j.Markdown4jProcessor;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-import javax.servlet.http.HttpServletRequest;
-
-import org.markdown4j.Markdown4jProcessor;
 
 /**
  * Packages.
@@ -84,9 +80,9 @@ public class PackageVersionPage extends MyPage {
     }
 
     /**
-     * @param pv   a package version
+     * @param pv a package version
      * @param new_ true = a new package version will be created, false = an an
-     *             existing package version will be edited
+     * existing package version will be edited
      */
     public PackageVersionPage(PackageVersion pv, boolean new_) {
         this();
@@ -184,7 +180,7 @@ public class PackageVersionPage extends MyPage {
     }
 
     @Override
-    public String createHead() throws IOException {
+    public String createHead() {
         if (!new_) {
             return "<link rel='canonical' href='" + NWUtils.WEB_SITE + "/p/" +
                     package_.name + "/" + version +
@@ -316,7 +312,7 @@ public class PackageVersionPage extends MyPage {
         w.e("meta", "itemprop", "operatingSystem", "content",
                 "Microsoft Windows");
         w.e("meta", "itemprop", "applicationCategory", "content",
-                p.tags.size() > 0 ? NWUtils.join(", ", p.tags) :
+                !p.tags.isEmpty() ? NWUtils.join(", ", p.tags) :
                         "Uncategorized");
         w.end("td");
         w.end("tr");
@@ -385,7 +381,7 @@ public class PackageVersionPage extends MyPage {
         w.start("tr");
         w.e("td", "Change log:");
         w.start("td");
-        if (p.changelog != null && p.changelog.trim().length() > 0) {
+        if (p.changelog != null && !p.changelog.trim().isEmpty()) {
             w.e("a", "itemprop", "releaseNotes", "id", "changelog", "href",
                     p.changelog, p.changelog);
         } else {
@@ -927,12 +923,12 @@ public class PackageVersionPage extends MyPage {
     @Override
     public String validate() {
         String r = null;
-        if (packageName.trim().length() == 0) {
+        if (packageName.trim().isEmpty()) {
             r = "Empty package name";
         }
 
         if (r == null) {
-            if (version.trim().length() == 0) {
+            if (version.trim().isEmpty()) {
                 r = "Empty version number";
             }
         }
@@ -950,7 +946,7 @@ public class PackageVersionPage extends MyPage {
                 Version v = Version.parse(version);
                 v.normalize();
                 PackageVersion p = NWUtils.dsCache.getPackageVersion(
-                        packageName.trim() + "@" + v.toString());
+                        packageName.trim() + "@" + v);
                 if (p != null) {
                     r = "Package version " + v + " already exists";
                 }
@@ -1014,7 +1010,7 @@ public class PackageVersionPage extends MyPage {
         }
 
         // TODO: validate tags
-        
+
         if (r == null) {
             for (int i = 0; i < importantFilePaths.size(); i++) {
                 r = NWUtils.validateRelativePath(importantFilePaths.get(i));

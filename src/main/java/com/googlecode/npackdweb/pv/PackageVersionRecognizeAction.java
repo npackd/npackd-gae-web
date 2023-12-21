@@ -1,11 +1,6 @@
 package com.googlecode.npackdweb.pv;
 
-import com.google.appengine.api.urlfetch.HTTPHeader;
-import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.ResponseTooLargeException;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.appengine.api.urlfetch.*;
 import com.google.common.primitives.Bytes;
 import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
@@ -14,6 +9,9 @@ import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -23,18 +21,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Recognize the binary type and assign the scripts accordingly.
  */
 public class PackageVersionRecognizeAction extends Action {
 
-    private static enum BinaryType {
+    private enum BinaryType {
 
         NSIS, SEVENZIP, ZIP, INNOSETUP, MSI, OTHER_EXE, UNKNOWN
-    };
+    }
 
     /**
      * -
@@ -95,7 +91,7 @@ public class PackageVersionRecognizeAction extends Action {
         BinaryType t = BinaryType.UNKNOWN;
 
         String fileExt = "";
-        if (file.length() > 0) {
+        if (!file.isEmpty()) {
             p = file.lastIndexOf('.');
 
             // String fileName;
@@ -134,10 +130,8 @@ public class PackageVersionRecognizeAction extends Action {
                     "-" + (startPosition + segment - 1)));
             r = s.fetch(ht);
             if (r.getResponseCode() == 416) {
-                if (startPosition == 0) {
-                    throw new IOException(
-                            "Empty response with HTTP error code 416");
-                }
+                throw new IOException(
+                        "Empty response with HTTP error code 416");
             }
 
             content = r.getContent();
@@ -154,9 +148,7 @@ public class PackageVersionRecognizeAction extends Action {
                 pv.sha1 = NWUtils.byteArrayToHexString(crypt.digest());
             }
 
-        } catch (IOException e) {
-            NWUtils.LOG.log(Level.WARNING, e.getMessage(), e);
-        } catch (ResponseTooLargeException e) {
+        } catch (IOException | ResponseTooLargeException e) {
             NWUtils.LOG.log(Level.WARNING, e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
             throw new InternalError(e.getMessage());
@@ -180,7 +172,8 @@ public class PackageVersionRecognizeAction extends Action {
                 // NSIS is the most often used installer builder
                 if (contentLowerCase != null) {
                     if (Bytes.
-                            indexOf(contentLowerCase, "nsis.sf.net".getBytes()) >=
+                            indexOf(contentLowerCase,
+                                    "nsis.sf.net".getBytes()) >=
                             0 ||
                             Bytes.indexOf(contentLowerCase,
                                     "nullsoft.nsis".getBytes()) >= 0) {
@@ -247,13 +240,13 @@ public class PackageVersionRecognizeAction extends Action {
                 if (content != null && completeDownload) {
                     try {
                         String d = getCommonZIPDir(content);
-                        if (d.length() != 0) {
+                        if (!d.isEmpty()) {
                             pv.addFile(
                                     ".Npackd\\Install.bat",
                                     "for /f \"delims=\" %%x in ('dir /b " +
-                                    d +
-                                    "*') do set name=%%x\r\n" +
-                                    "\"%clu%\\clu\" unwrap-dir -p \"%name%\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+                                            d +
+                                            "*') do set name=%%x\r\n" +
+                                            "\"%clu%\\clu\" unwrap-dir -p \"%name%\"> .Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
                             pv.addDependency(
                                     "com.googlecode.windows-package-manager.CLU",
                                     "[1.25, 2)", "clu");
@@ -287,8 +280,8 @@ public class PackageVersionRecognizeAction extends Action {
                         "\"%npackd_package_binary%\" && del /f /q \"%npackd_package_binary%\"\r\n");
                 pv.addFile(".Npackd\\Uninstall.bat",
                         "\"%ncl%\\ncl.exe\" remove-scp --title " +
-                        "\"/%npackd_package_name% %npackd_package_version%/i\"> " +
-                        ".Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
+                                "\"/%npackd_package_name% %npackd_package_version%/i\"> " +
+                                ".Npackd\\Output.txt && type .Npackd\\Output.txt\r\n");
 
                 pv.addDependency(
                         "com.googlecode.windows-package-manager.NpackdCL",
@@ -317,7 +310,7 @@ public class PackageVersionRecognizeAction extends Action {
             String n = e.getName();
             if (commonPrefix == null) {
                 commonPrefix = n;
-            } else if (commonPrefix.length() == 0) {
+            } else if (commonPrefix.isEmpty()) {
                 break;
             } else if (n.indexOf(commonPrefix) == 0) {
                 // nothing
@@ -326,7 +319,7 @@ public class PackageVersionRecognizeAction extends Action {
                 char[] n_ = n.toCharArray();
                 int count = 0;
                 for (int i = 0; i < Math.min(commonPrefix_.length, n_.length);
-                        i++) {
+                     i++) {
                     if (commonPrefix_[i] == n_[i]) {
                         count++;
                     } else {

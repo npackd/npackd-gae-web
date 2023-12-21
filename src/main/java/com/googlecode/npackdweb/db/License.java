@@ -3,9 +3,10 @@ package com.googlecode.npackdweb.db;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.googlecode.npackdweb.NWUtils;
-import java.util.Date;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.util.Date;
 
 /**
  * A license definition.
@@ -39,9 +40,7 @@ public class License {
         this.title = NWUtils.getString(e, "title");
         this.url = NWUtils.getString(e, "url");
 
-        if (this.lastModifiedAt == null) {
-            this.lastModifiedAt = NWUtils.newDate();
-        }
+        this.lastModifiedAt = NWUtils.newDate();
     }
 
     com.google.appengine.api.datastore.Entity createEntity() {

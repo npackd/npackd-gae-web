@@ -5,24 +5,16 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.FormMode;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.Editor;
-import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.npackdweb.db.Version;
+import com.googlecode.npackdweb.db.*;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+import org.markdown4j.Markdown4jProcessor;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.servlet.http.HttpServletRequest;
-
-import org.markdown4j.Markdown4jProcessor;
 
 /**
  * A package.
@@ -149,7 +141,7 @@ public class PackageDetailPage extends MyPage {
     }
 
     @Override
-    public String createHead() throws IOException {
+    public String createHead() {
         if (this.mode != FormMode.CREATE) {
             return "<link rel='canonical' href='" + NWUtils.WEB_SITE + "/p/" +
                     id +
@@ -271,7 +263,7 @@ public class PackageDetailPage extends MyPage {
         startRow(w, "Versions", false);
         w.start("p", "class", "form-control-static");
         List<PackageVersion> pvs = this.getVersions();
-        Collections.sort(pvs, new Comparator<PackageVersion>() {
+        pvs.sort(new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
                 Version va = Version.parse(a.version);
@@ -288,7 +280,7 @@ public class PackageDetailPage extends MyPage {
                     pv.version);
         }
         if ((mode == FormMode.EDIT || mode == FormMode.CREATE) &&
-                error == null && id != null && !id.isEmpty() && pvs.size() == 0) {
+                error == null && id != null && !id.isEmpty() && pvs.isEmpty()) {
             info =
                     "Click on \"New version\" to create a new version of this package";
         } else {
@@ -570,15 +562,6 @@ public class PackageDetailPage extends MyPage {
             w.start("datalist", "id", "discovery-url");
             w.e("option", "value",
                     "http://www.example.com/downloads/example-${version}.zip");
-            /*
-             w.e("option", "value", "${{version2Parts}}");
-             w.e("option", "value", "${{version3Parts}}");
-             w.e("option", "value", "${{version2PartsWithoutDots}}");
-             w.e("option", "value", "${{actualVersion}}");
-             w.e("option", "value", "${{actualVersionWithoutDots}}");
-             w.e("option", "value", "${{actualVersionWithUnderscores}}");
-             w.e("option", "value", "${{match}}");
-             */
             w.end("datalist");
             w.end("input");
             endRow(w);
@@ -658,13 +641,11 @@ public class PackageDetailPage extends MyPage {
     }
 
     private boolean isDetectionPossible() {
-        String msg = null;
-        if (msg == null) {
-            if (!this.discoveryURL.trim().isEmpty()) {
-                msg = NWUtils.validateURL(this.discoveryURL, false);
-            } else {
-                msg = "No discovery URL defined";
-            }
+        String msg;
+        if (!this.discoveryURL.trim().isEmpty()) {
+            msg = NWUtils.validateURL(this.discoveryURL, false);
+        } else {
+            msg = "No discovery URL defined";
         }
 
         if (msg == null) {
@@ -700,8 +681,8 @@ public class PackageDetailPage extends MyPage {
         if (mode != FormMode.CREATE) {
             w.t(" " + title);
 
-            PackagesPage.createTags(w, noUpdatesCheck, this.tags.indexOf(
-                    "end-of-life") >= 0);
+            PackagesPage.createTags(w, noUpdatesCheck,
+                    this.tags.contains("end-of-life"));
 
             w.t(" ");
             NWUtils.star(w, this.id, starFilled, starred);
@@ -718,10 +699,7 @@ public class PackageDetailPage extends MyPage {
     public List<PackageVersion> getVersions() {
         ArrayList<PackageVersion> versions = new ArrayList<>();
         if (!id.isEmpty()) {
-            for (PackageVersion pv : NWUtils.dsCache.getPackageVersions(id)) {
-                versions.add(pv);
-            }
-
+            versions.addAll(NWUtils.dsCache.getPackageVersions(id));
         }
         return versions;
     }
@@ -938,7 +916,7 @@ public class PackageDetailPage extends MyPage {
 
         if (msg == null) {
             if (NWUtils.isAdminLoggedIn()) {
-                if (permissions == null || permissions.trim().length() == 0) {
+                if (permissions == null || permissions.trim().isEmpty()) {
                     if (mode != FormMode.CREATE) {
                         msg = "The list of permissions cannot be empty";
                     }
@@ -946,7 +924,7 @@ public class PackageDetailPage extends MyPage {
                     List<String> ps = NWUtils.splitLines(permissions.trim());
                     for (String s : ps) {
                         s = s.trim();
-                        if (s.length() != 0) {
+                        if (!s.isEmpty()) {
                             msg = NWUtils.validateEmail(s);
                             if (msg != null) {
                                 msg = "Error in permissions: " + msg;

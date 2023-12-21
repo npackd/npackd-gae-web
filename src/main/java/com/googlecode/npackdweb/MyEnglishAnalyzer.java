@@ -1,17 +1,6 @@
 package com.googlecode.npackdweb;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.regex.Pattern;
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.LowerCaseFilter;
-import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.StopwordAnalyzerBase;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.core.FlattenGraphFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.en.PorterStemFilter;
@@ -20,6 +9,13 @@ import org.apache.lucene.analysis.pattern.PatternReplaceCharFilter;
 import org.apache.lucene.analysis.synonym.SynonymGraphFilter;
 import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.util.CharsRef;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 /**
  * Like EnglishAnalyzer, but also split words, e.g. "ImageGlass" to "Image" and
@@ -88,12 +84,13 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
 
         TokenStream result = new WordDelimiterGraphFilter(source,
                 WordDelimiterGraphFilter.GENERATE_WORD_PARTS |
-                WordDelimiterGraphFilter.GENERATE_NUMBER_PARTS |
-                WordDelimiterGraphFilter.SPLIT_ON_CASE_CHANGE |
-                WordDelimiterGraphFilter.SPLIT_ON_NUMERICS |
-                WordDelimiterGraphFilter.STEM_ENGLISH_POSSESSIVE,
+                        WordDelimiterGraphFilter.GENERATE_NUMBER_PARTS |
+                        WordDelimiterGraphFilter.SPLIT_ON_CASE_CHANGE |
+                        WordDelimiterGraphFilter.SPLIT_ON_NUMERICS |
+                        WordDelimiterGraphFilter.STEM_ENGLISH_POSSESSIVE,
                 PROTECTED_WORDS_SET);
-        result = new FlattenGraphFilter(result); // required on index analyzers after graph filters
+        result = new FlattenGraphFilter(
+                result); // required on index analyzers after graph filters
 
         result = new SynonymGraphFilter(result, synonyms, true);
 
@@ -108,7 +105,7 @@ public class MyEnglishAnalyzer extends StopwordAnalyzerBase {
     protected Reader initReader(String fieldName, Reader reader) {
         // remove version numbers
         return new PatternReplaceCharFilter(Pattern.
-                compile("\\d+([\\._\\-\\+]\\d+){1,5}"),
+                compile("\\d+([._\\-+]\\d+){1,5}"),
                 "",
                 reader);
     }

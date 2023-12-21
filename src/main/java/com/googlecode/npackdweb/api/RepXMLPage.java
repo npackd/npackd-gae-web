@@ -11,20 +11,14 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Page;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * XML for a repository.
@@ -50,7 +44,7 @@ public class RepXMLPage extends Page {
         if (!create) {
             resp.sendRedirect(
                     "https://npackd.github.io/npackd/repository/" +
-                    tag + ".xml");
+                            tag + ".xml");
         } else {
             final GcsFileMetadata md;
             try {
@@ -69,7 +63,7 @@ public class RepXMLPage extends Page {
      * @return XML for the whole repository definition
      */
     public static Document
-            toXML(String tag, boolean onlyReviewed) {
+    toXML(String tag, boolean onlyReviewed) {
         List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(tag,
                 null, 0, 0);
 
@@ -91,7 +85,7 @@ public class RepXMLPage extends Page {
      * @return XML for the whole repository definition
      */
     public static Document
-            toXMLByPackageTag(String tag, boolean onlyReviewed) {
+    toXMLByPackageTag(String tag, boolean onlyReviewed) {
         List<Package> ps = NWUtils.dsCache.findPackages(tag,
                 null, null, 0);
         Set<String> packageNames = new HashSet<>(ps.size());
@@ -126,7 +120,7 @@ public class RepXMLPage extends Page {
     public static Document toXML(List<PackageVersion> pvs,
                                  boolean onlyReviewed, String tag,
                                  boolean extra) {
-        Collections.sort(pvs, new Comparator<PackageVersion>() {
+        pvs.sort(new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
                 int r = a.package_.compareToIgnoreCase(b.package_);
@@ -159,7 +153,7 @@ public class RepXMLPage extends Page {
             ps.add(new Package(e));
         }
 
-        Collections.sort(ps, new Comparator<Package>() {
+        ps.sort(new Comparator<Package>() {
             @Override
             public int compare(Package a, Package b) {
                 return a.name.compareToIgnoreCase(b.name);
@@ -182,7 +176,7 @@ public class RepXMLPage extends Page {
             licenses.add(new License(e));
         }
 
-        Collections.sort(licenses, new Comparator<License>() {
+        licenses.sort(new Comparator<License>() {
             @Override
             public int compare(License a, License b) {
                 return a.name.compareToIgnoreCase(b.name);
@@ -213,8 +207,8 @@ public class RepXMLPage extends Page {
             if (p.hasTag("same-url")) {
                 p.description =
                         "WARNING: this package always installs the newest " +
-                        "version of the software.\n" +
-                        p.description;
+                                "version of the software.\n" +
+                                p.description;
             }
             Element package_ = p.toXML(d, extra);
 

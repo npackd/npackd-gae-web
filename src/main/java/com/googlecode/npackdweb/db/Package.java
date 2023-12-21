@@ -11,29 +11,23 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * A package.
@@ -97,7 +91,7 @@ public class Package {
      * internal name of the package like com.example.Test. This is the ID of the
      * entity
      */
-    public String name = "";
+    public String name;
 
     public String title = "";
     public String url = "";
@@ -274,7 +268,7 @@ public class Package {
             this.tags = new ArrayList<>();
         }
         if (this.category == null) {
-            if (tags.size() > 0) {
+            if (!tags.isEmpty()) {
                 this.category = this.tags.get(0);
                 this.tags.remove(0);
             } else {
@@ -284,7 +278,7 @@ public class Package {
         if (permissions == null) {
             this.permissions = new ArrayList<>();
         }
-        if (permissions.size() == 0) {
+        if (permissions.isEmpty()) {
             this.permissions.add(this.createdBy);
         }
         if (this.screenshots == null) {
@@ -321,7 +315,7 @@ public class Package {
         e.setIndexedProperty("permissions", this.permissions);
         e.setIndexedProperty("screenshots", this.screenshots);
         e.setIndexedProperty("noUpdatesCheck", this.noUpdatesCheck);
-        e.setIndexedProperty("starred", new Long(this.starred));
+        e.setIndexedProperty("starred", (long) this.starred);
         e.setIndexedProperty("issues", this.issues);
 
         return e;
@@ -393,7 +387,7 @@ public class Package {
     /**
      * &lt;package&gt;
      *
-     * @param d     XML document
+     * @param d XML document
      * @param extra export extra non-standard information
      * @return &lt;package&gt;
      */
@@ -520,7 +514,7 @@ public class Package {
         String category0 = null, category1 = null;
         if (!category.isEmpty()) {
             List<String> parts = NWUtils.split(category, '/');
-            if (parts.size() > 0) {
+            if (!parts.isEmpty()) {
                 category0 = parts.get(0);
             }
             if (parts.size() > 1) {
@@ -532,8 +526,7 @@ public class Package {
         b.addFacet(Facet.withAtom("category1", category1 != null ? category1 :
                 "Uncategorized"));
 
-        com.google.appengine.api.search.Document d = b.build();
-        return d;
+        return b.build();
     }
 
     /**
@@ -543,7 +536,7 @@ public class Package {
      * @return error message or null
      */
     public static String checkName(String n) {
-        if (n.length() == 0) {
+        if (n.isEmpty()) {
             return "Empty package name";
         }
 
@@ -608,15 +601,13 @@ public class Package {
      * @throws IOException if something goes wrong
      */
     public Matcher findNewestVersion() throws IOException {
-        if (discoveryPage == null || discoveryPage.trim().length() == 0) {
+        if (discoveryPage == null || discoveryPage.trim().isEmpty()) {
             throw new IOException("No discovery page is defined");
         }
 
-        if (discoveryRE == null || discoveryRE.trim().length() == 0) {
+        if (discoveryRE == null || discoveryRE.trim().isEmpty()) {
             throw new IOException("No discovery regular expression is defined");
         }
-
-        String version = null;
 
         List<String> lines = new ArrayList<>();
 
@@ -630,7 +621,7 @@ public class Package {
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(
                             new ByteArrayInputStream(r.getContent()),
-                            "UTF-8"));
+                            StandardCharsets.UTF_8));
             String line;
             Pattern vp = Pattern.compile(discoveryRE);
             while ((line = br.readLine()) != null) {
@@ -644,11 +635,9 @@ public class Package {
                     return vm;
                 }
             }
-        } catch (MalformedURLException e) {
-            throw new IOException(e);
         } catch (IOException
                  |
-                 com.google.appengine.api.urlfetch.ResponseTooLargeException e) {
+                 ResponseTooLargeException e) {
             throw new IOException(e);
         }
 
@@ -764,7 +753,7 @@ public class Package {
      * @return true if this package has the specified tag
      */
     public boolean hasTag(String tag) {
-        return this.tags != null && this.tags.indexOf(tag) >= 0;
+        return this.tags != null && this.tags.contains(tag);
     }
 
     /**
@@ -782,11 +771,11 @@ public class Package {
      * Creates a new version of this package using the newest available version
      * as a template and saves it.
      *
-     * @param found   match
+     * @param found match
      * @param version new version number
      * @param maxSize maximum size of the file or 0 for "unlimited". If the file
-     *                is bigger than the specified size, the download will be cancelled and an
-     *                IOException will be thrown
+     * is bigger than the specified size, the download will be cancelled and an
+     * IOException will be thrown
      * @return created package version or null if the creation is not possible
      */
     public PackageVersion createDetectedVersion(Matcher found,
@@ -795,7 +784,7 @@ public class Package {
 
         PackageVersion copy;
         PackageVersion pv = null;
-        if (versions.size() > 0) {
+        if (!versions.isEmpty()) {
             pv = versions.get(versions.size() - 1);
             copy = pv.copy();
             copy.name = copy.package_ + "@" + version.toString();
@@ -806,7 +795,7 @@ public class Package {
         }
 
         if (!hasTag("same-url") &&
-                this.discoveryURLPattern.trim().length() > 0) {
+                !this.discoveryURLPattern.trim().isEmpty()) {
             Map<String, String> map = new HashMap<>();
             map.put("${match}", found.group());
             map.put("${version}", version.toString());

@@ -1,22 +1,20 @@
 package com.googlecode.npackdweb;
 
+import com.googlecode.npackdweb.wlib.HTMLWriter;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import com.googlecode.npackdweb.wlib.HTMLWriter;
 
 /**
  * Shows a message
  */
 public class MessagePage extends MyPage {
-    private List<String> msg = new ArrayList<>();
+    private final List<String> msg = new ArrayList<>();
 
     /**
-     * @param msg
-     *            message to be shown
+     * @param msg message to be shown
      */
     public MessagePage(String msg) {
         this.msg.add(msg);

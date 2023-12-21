@@ -7,7 +7,7 @@ package com.googlecode.npackdweb.db;
  */
 public class Version {
 
-    private int parts[] = new int[]{1};
+    private int[] parts = new int[]{1};
 
     /**
      * "1"

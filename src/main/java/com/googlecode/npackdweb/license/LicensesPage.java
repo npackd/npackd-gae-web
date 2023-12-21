@@ -1,17 +1,14 @@
 package com.googlecode.npackdweb.license;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.*;
 import com.googlecode.npackdweb.MyPage;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Licenses.
@@ -19,9 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 public class LicensesPage extends MyPage {
     private static final int PAGE_SIZE = 20;
     private List<License> licenses;
-    private int start;
+    private final int start;
     private long found;
-    private String content;
+    private final String content;
 
     /**
      * -
@@ -93,22 +90,22 @@ public class LicensesPage extends MyPage {
         if (cur >= PAGE_SIZE) {
             w.start("li");
             w.e("a", "href", "/l?start=" + (cur - PAGE_SIZE),
-                    "\u2190 Previous page");
+                    "← Previous page");
             w.end("li");
         } else {
             w.start("li", "class", "disabled");
-            w.e("a", "href", "#", "\u2190 Previous page");
+            w.e("a", "href", "#", "← Previous page");
             w.end("li");
         }
 
         if (hasNextPage) {
             w.start("li");
             w.e("a", "href", "/l?start=" + (cur + PAGE_SIZE),
-                    "Next page \u2192");
+                    "Next page →");
             w.end("li");
         } else {
-            w.start("li", "class", hasNextPage ? null : "disabled");
-            w.e("a", "href", "#", "Next page \u2192");
+            w.start("li", "class", "disabled");
+            w.e("a", "href", "#", "Next page →");
             w.end("li");
         }
 

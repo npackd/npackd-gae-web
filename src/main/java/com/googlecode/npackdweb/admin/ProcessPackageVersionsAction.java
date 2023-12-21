@@ -4,38 +4,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Dependency;
 import com.googlecode.npackdweb.db.PackageVersion;
+
 import java.util.List;
-
-/**
- * This action processes all package versions.
- *
- public class ProcessPackageVersionsAction extends Action {
-
- /**
- * -
- *
- * public ProcessPackageVersionsAction() {
- super("^/clean-dependencies$", ActionSecurityType.ADMINISTRATOR);
- }
-
- @Override
- public Page perform(HttpServletRequest req, HttpServletResponse resp)
- throws IOException {
- MapReduceSettings settings =
- new MapReduceSettings.Builder().setWorkerQueueName("default")
- .setBucketName("npackd").build();
-
- MapSpecification<Entity, Void, Void> ms =
- new MapSpecification.Builder<>(new DatastoreInput(
- "PackageVersion", 50),
- new ProcessPackageVersionsMapper(),
- new NoOutput<Void, Void>()).build();
- String jobId = MapJob.start(ms, settings);
-
- return new MessagePage("Job ID: " + jobId);
- }
- }
- */
 
 public class ProcessPackageVersionsAction {
     public void map(Entity value) {
@@ -52,7 +22,7 @@ public class ProcessPackageVersionsAction {
         PackageVersion oldpv = pv.copy();
         boolean save = false;
 
-        for (String s: new String[]{"test-failed", "stable", "stable64"}) {
+        for (String s : new String[]{"test-failed", "stable", "stable64"}) {
             if (pv.hasTag(s)) {
                 pv.tags.remove(s);
                 save = true;
@@ -73,7 +43,8 @@ public class ProcessPackageVersionsAction {
         final String PREFIX = "http://downloads.sourceforge.net/";
 
         if (pv.url.startsWith(PREFIX)) {
-            pv.url = pv.url.replace(PREFIX, "https://ayera.dl.sourceforge.net/");
+            pv.url =
+                    pv.url.replace(PREFIX, "https://ayera.dl.sourceforge.net/");
             save = true;
         }
 
@@ -95,7 +66,7 @@ public class ProcessPackageVersionsAction {
             if (!parts2[1].isEmpty()) {
                 pv.url =
                         "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/" +
-                        parts2[1] + "/" + parts[1];
+                                parts2[1] + "/" + parts[1];
                 save = true;
             }
         }
@@ -133,7 +104,7 @@ public class ProcessPackageVersionsAction {
         for (int i = 0; i < pv.getFileCount(); i++) {
             String s = pv.getFileContents(i);
             List<String> lines = NWUtils.splitLines(s);
-            for (int j = 0; j < lines.size() - 1;) {
+            for (int j = 0; j < lines.size() - 1; ) {
                 String line = lines.get(j);
                 String line2 = lines.get(j + 1);
                 String[] npackdCLParams = getNpackdCLParams(line, line2);
@@ -145,8 +116,9 @@ public class ProcessPackageVersionsAction {
                         int index = pv.findDependency(d);
                         if (index >= 0 &&
                                 (pv.dependencyEnvVars.get(index).isEmpty() ||
-                                pv.dependencyEnvVars
-                                        .get(index).equals(npackdCLParams[2]))) {
+                                        pv.dependencyEnvVars
+                                                .get(index)
+                                                .equals(npackdCLParams[2]))) {
                             lines.remove(j);
                             lines.remove(j);
                             pv.dependencyEnvVars.set(index, npackdCLParams[2]);

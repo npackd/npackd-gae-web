@@ -1,16 +1,7 @@
 package com.googlecode.npackdweb.db;
 
-import com.google.appengine.api.datastore.Cursor;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
@@ -20,12 +11,8 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.pv.PackageVersionDetailAction;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
@@ -60,7 +47,7 @@ public class DatastoreCache {
      * @param kind e.g. "PackageVersion"
      * @return all entities
      */
-    public static Iterable<Entity> getAllEntities(String kind){
+    public static Iterable<Entity> getAllEntities(String kind) {
         com.google.appengine.api.datastore.Query query =
                 new com.google.appengine.api.datastore.Query(kind);
 
@@ -75,12 +62,12 @@ public class DatastoreCache {
      * Saves a package. The package can be new or an already existing one. The
      * total number of packages and the index will be automatically updated.
      *
-     * @param old old version of the package object or null
+     * @param ignoredOld old version of the package object or null
      * @param p package
      * @param changeLastModifiedAt change the last modification time
      */
-    public void savePackage(Package old,
-            Package p, boolean changeLastModifiedAt) {
+    public void savePackage(Package ignoredOld,
+                            Package p, boolean changeLastModifiedAt) {
         if (changeLastModifiedAt) {
             p.lastModifiedAt = NWUtils.newDate();
             p.lastModifiedBy =
@@ -174,7 +161,8 @@ public class DatastoreCache {
         query.setKeysOnly();
 
         PreparedQuery pq = datastore.prepare(query);
-        final List<Entity> list = pq.asList(FetchOptions.Builder.withDefaults());
+        final List<Entity> list =
+                pq.asList(FetchOptions.Builder.withDefaults());
         ArrayList<com.google.appengine.api.datastore.Key> keys =
                 new ArrayList<>();
         for (Entity e : list) {
@@ -256,8 +244,9 @@ public class DatastoreCache {
                             isEqual(us.getCurrentUser(), old.lastModifiedBy)) {
                         NWUtils.sendMailTo(
                                 "The package version " + p.getTitle() +
-                                " (" + PackageVersionDetailAction.getURL(p) +
-                                ") was marked as reviewed",
+                                        " (" + PackageVersionDetailAction.getURL(
+                                        p) +
+                                        ") was marked as reviewed",
                                 old.lastModifiedBy.getEmail());
                     }
                 }
@@ -298,7 +287,7 @@ public class DatastoreCache {
      */
     public Editor findEditor(User u) {
         final String email = u.getEmail();
-        Editor ret = null;
+        Editor ret;
 
         lock.lock();
         try {
@@ -337,9 +326,9 @@ public class DatastoreCache {
      * @param star true = star, false = unstar
      */
     public void starPackage(Package p,
-            Editor e, boolean star) {
+                            Editor e, boolean star) {
         if (star) {
-            if (e.starredPackages.indexOf(p.name) < 0) {
+            if (!e.starredPackages.contains(p.name)) {
                 Package oldp = p.copy();
                 p.starred++;
                 savePackage(oldp, p, false);
@@ -347,7 +336,7 @@ public class DatastoreCache {
                 saveEditor(e);
             }
         } else {
-            if (e != null && e.starredPackages.indexOf(p.name) >= 0) {
+            if (e != null && e.starredPackages.contains(p.name)) {
                 Package oldp = p.copy();
                 p.starred--;
                 if (p.starred < 0) {
@@ -494,7 +483,7 @@ public class DatastoreCache {
                 fo.startCursor(cursor);
             }
             QueryResultList<Entity> list = pq.asQueryResultList(fo);
-            if (list.size() == 0) {
+            if (list.isEmpty()) {
                 break;
             }
             cursor = list.getCursor();
@@ -535,9 +524,7 @@ public class DatastoreCache {
         } else {
             PreparedQuery pq = datastore.prepare(query);
             final FetchOptions fo = FetchOptions.Builder.withOffset(offset);
-            if (limit > 0) {
-                fo.limit(limit);
-            }
+            fo.limit(limit);
             list = pq.asList(fo);
         }
 
@@ -584,9 +571,7 @@ public class DatastoreCache {
         } else {
             PreparedQuery pq = datastore.prepare(query);
             final FetchOptions fo = FetchOptions.Builder.withDefaults();
-            if (limit > 0) {
-                fo.limit(limit);
-            }
+            fo.limit(limit);
             list = pq.asList(fo);
         }
 
@@ -604,10 +589,10 @@ public class DatastoreCache {
      */
     public List<PackageVersion> getSortedVersions(String package_) {
         List<PackageVersion> versions = getPackageVersions(package_);
-        Collections.sort(versions, new Comparator<PackageVersion>() {
+        versions.sort(new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
-                Version va  = Version.parse(a.version);
+                Version va = Version.parse(a.version);
                 Version vb = Version.parse(b.version);
                 return va.compare(vb);
             }
@@ -679,7 +664,7 @@ public class DatastoreCache {
     public List<Package> getPackages(List<String> ids, boolean useCache) {
         List<Package> packages = new ArrayList<>();
 
-        if (ids.size() > 0) {
+        if (!ids.isEmpty()) {
             if (useCache) {
                 lock.lock();
                 try {
@@ -696,7 +681,7 @@ public class DatastoreCache {
                 }
             }
 
-            if (packages.size() == 0) {
+            if (packages.isEmpty()) {
                 DatastoreService datastore = DatastoreServiceFactory.
                         getDatastoreService();
 
@@ -881,7 +866,8 @@ public class DatastoreCache {
                 new com.google.appengine.api.datastore.Query("Package");
         query.setFilter(
                 new com.google.appengine.api.datastore.Query.FilterPredicate(
-                        "title", FilterOperator.GREATER_THAN_OR_EQUAL, p.title));
+                        "title", FilterOperator.GREATER_THAN_OR_EQUAL,
+                        p.title));
         query.addSort("title");
 
         PreparedQuery pq = datastore.prepare(query);
@@ -923,7 +909,7 @@ public class DatastoreCache {
         final List<Entity> editors =
                 pq.asList(FetchOptions.Builder.withDefaults());
 
-        if (editors.size() > 0) {
+        if (!editors.isEmpty()) {
             return new Editor(editors.get(0));
         } else {
             return null;

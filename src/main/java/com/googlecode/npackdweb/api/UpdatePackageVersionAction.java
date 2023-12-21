@@ -6,9 +6,10 @@ import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Changes a package version.
@@ -42,7 +43,7 @@ public class UpdatePackageVersionAction extends Action {
         v.normalize();
 
         PackageVersion r = NWUtils.dsCache.getPackageVersion(
-                package_ + "@" + v.toString());
+                package_ + "@" + v);
         if (r == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -55,7 +56,7 @@ public class UpdatePackageVersionAction extends Action {
             return null;
         }
 
-        if (req.getMethod() == "DELETE") {
+        if (req.getMethod().equals("DELETE")) {
             NWUtils.dsCache.deletePackageVersion(r);
             return null;
         }
@@ -88,7 +89,7 @@ public class UpdatePackageVersionAction extends Action {
         }
         String[] tags = req.getParameterValues("tag");
         if (tags != null) {
-            for (String tag: tags) {
+            for (String tag : tags) {
                 r.addTag(tag);
             }
         }

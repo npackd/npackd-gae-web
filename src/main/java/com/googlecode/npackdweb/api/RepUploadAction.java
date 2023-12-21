@@ -5,24 +5,9 @@ import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -31,6 +16,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Upload a repository.
@@ -101,7 +96,8 @@ public class RepUploadAction extends Action {
             String rep = req.getParameter("repository");
             overwrite = req.getParameter("overwrite") != null;
             try {
-                f = process(new ByteArrayInputStream(rep.getBytes("UTF-8")));
+                f = process(new ByteArrayInputStream(rep.getBytes(
+                        StandardCharsets.UTF_8)));
             } catch (IOException e) {
                 messages.add("Error reading the data: " + e.getMessage());
             }
@@ -130,7 +126,7 @@ public class RepUploadAction extends Action {
             Stats stats = new Stats();
 
             // process licenses first. Only admins can change the license.
-            if (f.lics.size() > 0) {
+            if (!f.lics.isEmpty()) {
                 if (isAdmin) {
                     for (License lic : f.lics) {
                         License existing = NWUtils.dsCache.getLicense(lic.name,
@@ -240,7 +236,7 @@ public class RepUploadAction extends Action {
     }
 
     private Found process(InputStream stream) throws IOException {
-        Found f = null;
+        Found f;
         try {
             DocumentBuilder db =
                     javax.xml.parsers.DocumentBuilderFactory.newInstance()

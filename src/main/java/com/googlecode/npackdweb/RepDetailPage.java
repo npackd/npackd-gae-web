@@ -1,15 +1,16 @@
 package com.googlecode.npackdweb;
 
 import com.googlecode.npackdweb.db.Repository;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * Repository details.
  */
 public class RepDetailPage extends MyPage {
 
-    private Repository r;
+    private final Repository r;
 
     /**
      * @param r a repository

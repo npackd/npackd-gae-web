@@ -1,8 +1,5 @@
 package com.googlecode.npackdweb.api;
 
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.npackdweb.MessagePage;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
@@ -14,9 +11,6 @@ import com.googlecode.npackdweb.wlib.Page;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Create a copy of a package version.
@@ -46,7 +40,8 @@ public class CopyPackageVersionAction extends Action {
         // version
         Version from = Version.parse(req.getParameter("from"));
         from.normalize();
-        PackageVersion pv = NWUtils.dsCache.getPackageVersion(package_ + "@" + from.toString());
+        PackageVersion pv = NWUtils.dsCache.getPackageVersion(
+                package_ + "@" + from);
         if (pv == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
@@ -66,7 +61,7 @@ public class CopyPackageVersionAction extends Action {
 
         // create a copy
         copy = pv.copy();
-        copy.name = copy.package_ + "@" + to.toString();
+        copy.name = copy.package_ + "@" + to;
         copy.version = to.toString();
         copy.createdAt = NWUtils.newDate();
         copy.createdBy = NWUtils.email2user(NWUtils.THE_EMAIL);
