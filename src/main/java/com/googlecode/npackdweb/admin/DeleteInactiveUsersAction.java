@@ -35,7 +35,7 @@ public class DeleteInactiveUsersAction extends Action {
             throws IOException {
         final Iterable<Entity> all =
                 NWUtils.dsCache.getAllEntities("Editor");
-        for (Entity e: all){
+        for (Entity e : all) {
             map(e);
         }
 
@@ -48,8 +48,9 @@ public class DeleteInactiveUsersAction extends Action {
         NWUtils.LOG.log(Level.INFO, "delete-inactive-users for {0}", data.name);
 
         Date v = data.lastLogin;
-        if (v == null)
+        if (v == null) {
             v = data.lastModifiedAt;
+        }
         long days = ChronoUnit.DAYS.between(
                 LocalDate.from(v.toInstant()
                         .atZone(ZoneId.systemDefault())
@@ -64,9 +65,10 @@ public class DeleteInactiveUsersAction extends Action {
         if (days > MAX_DAYS) {
             if (data.warnedAboutAccountDeletionDate != null) {
                 long sinceWarning = ChronoUnit.DAYS.between(
-                        LocalDate.from(data.warnedAboutAccountDeletionDate.toInstant()
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()),
+                        LocalDate.from(
+                                data.warnedAboutAccountDeletionDate.toInstant()
+                                        .atZone(ZoneId.systemDefault())
+                                        .toLocalDate()),
                         LocalDate.now(ZoneId.systemDefault())
                 );
                 if (sinceWarning > 30) {
@@ -79,7 +81,6 @@ public class DeleteInactiveUsersAction extends Action {
                         "\n\n" +
                         "--Admin";
                 NWUtils.sendMailTo(txt, data.name);
-                NWUtils.sendMailToAdmin(txt);
                 data.warnedAboutAccountDeletionDate = new Date();
                 NWUtils.dsCache.saveEditor(data);
             }
@@ -95,24 +96,26 @@ public class DeleteInactiveUsersAction extends Action {
     private void deleteEditor(Editor data) {
         final List<Package> packages =
                 NWUtils.dsCache.findPackages(null, null, data.name, 11);
-        for (Package p: packages) {
+        for (Package p : packages) {
             Package old = p.copy();
 
             NWUtils.LOG.log(Level.INFO, "deleting permission for {0} from {1}",
-                    new Object[] {
-                    data.name,
-                    p.name});
+                    new Object[]{
+                            data.name,
+                            p.name});
 
             p.permissions.remove(data.name);
-            if (p.permissions.size() == 0)
+            if (p.permissions.size() == 0) {
                 p.permissions.add(NWUtils.email2user(NWUtils.THE_EMAIL));
+            }
             NWUtils.dsCache.savePackage(old, p, true);
         }
 
-        for (String packageName: data.starredPackages) {
+        for (String packageName : data.starredPackages) {
             Package p = NWUtils.dsCache.getPackage(packageName, true);
-            if (p != null)
+            if (p != null) {
                 NWUtils.dsCache.starPackage(p, data, false);
+            }
         }
 
         if (packages.size() < 11) {
@@ -123,7 +126,6 @@ public class DeleteInactiveUsersAction extends Action {
                     "\n\n" +
                     "--Admin";
             NWUtils.sendMailTo(txt, data.name);
-            NWUtils.sendMailToAdmin(txt);
         }
     }
 }
