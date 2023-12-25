@@ -1,0 +1,21 @@
+indexes:
+  - kind: PackageVersion
+    properties:
+      - direction: asc
+        name: lastModifiedBy
+      - direction: desc
+        name: lastModifiedAt
+  - kind: PackageVersion
+    properties:
+      - direction: asc
+        name: tags
+      - direction: desc
+        name: lastModifiedAt
+  - kind: PackageVersion
+    properties:
+      - direction: asc
+        name: lastModifiedBy
+      - direction: asc
+        name: tags
+      - direction: desc
+        name: lastModifiedAt

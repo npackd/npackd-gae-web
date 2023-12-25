@@ -1,0 +1,7 @@
+queue:
+- name: resave
+  mode: push
+  rate: 60/h
+- name: default
+  mode: push
+  rate: 60/h
