@@ -7,7 +7,7 @@
     <instance-class>F2</instance-class>
     -->
 
-    <runtime>java21</runtime>
+    <runtime>java17</runtime>
 
     <!--
     Allows App Engine to send multiple requests to one instance in parallel:
@@ -22,13 +22,13 @@
     <!-- Configure java.util.logging -->
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-        <property name="appengine.use.EE8" value="true"/>
+        <property name="appengine.use.EE7" value="true"/>
     </system-properties>
 
     <static-files>
         <include path="/**" expiration="4d 5h"/>
     </static-files>
-    
+
     <app-engine-apis>true</app-engine-apis>
     <!--
         HTTP Sessions are disabled by default. To enable HTTP sessions specify:
