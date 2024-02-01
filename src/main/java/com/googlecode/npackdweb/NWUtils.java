@@ -108,7 +108,7 @@ public class NWUtils {
                                     GcsFileMetadata md = gcsService.
                                             getMetadata(f);
                                     if (md == null) {
-                                        ExportRepsAction.export(gcsService, tag,
+                                        ExportRepAction.export(gcsService, tag,
                                                 false);
                                         md = gcsService.getMetadata(f);
                                     }

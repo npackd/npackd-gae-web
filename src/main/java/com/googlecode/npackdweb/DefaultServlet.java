@@ -199,21 +199,25 @@ public class DefaultServlet extends HttpServlet {
         registerAction(new PackageVersionMarkReviewedAction());
         registerAction(new PackageVersionArchiveAction());
 
-        /* license */
+        // licenses
         registerAction(new LicensesAction());
         registerAction(new LicenseAction());
         registerAction(new LicenseDeleteAction());
         registerAction(new LicenseSaveAction());
 
+        // package versions
         registerAction(new PackageVersionListAction());
 
         registerAction(new HomeAction());
         registerAction(new StarsAction());
         registerAction(new SendStatusAction("^/robots\\.txt$", 404));
-        // TODO: map-reduce is not available anymore registerAction(new CheckUpdatesAction());
+
+        // TODO: what's this???
         registerAction(new SendStatusAction("^/cron/tick$", 200));
         registerAction(new ExportRepsAction());
-        // registerAction(new StoreDataAction());
+        registerAction(new ExportRepAction());
+
+        // repositories
         registerAction(new AddRepositoryAction());
         registerAction(new AddRepositoryConfirmedAction());
         registerAction(new InfoAction());

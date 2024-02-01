@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Always returns 404
+ * Always returns the specified HTTP status code.
  */
 public class SendStatusAction extends Action {
 
