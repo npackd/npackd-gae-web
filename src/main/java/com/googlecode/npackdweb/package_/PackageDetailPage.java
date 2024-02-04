@@ -642,14 +642,14 @@ public class PackageDetailPage extends MyPage {
 
     private boolean isDetectionPossible() {
         String msg;
-        if (!this.discoveryURL.trim().isEmpty()) {
+        if (!this.discoveryURL.isEmpty()) {
             msg = NWUtils.validateURL(this.discoveryURL, false);
         } else {
             msg = "No discovery URL defined";
         }
 
         if (msg == null) {
-            if (!this.discoveryRE.trim().isEmpty()) {
+            if (!this.discoveryRE.isEmpty()) {
                 try {
                     Pattern.compile(this.discoveryRE);
                 } catch (PatternSyntaxException e) {
@@ -730,9 +730,9 @@ public class PackageDetailPage extends MyPage {
         changelog = req.getParameter("changelog");
         icon = req.getParameter("icon");
         comment = req.getParameter("comment");
-        discoveryURL = req.getParameter("discoveryPage");
-        discoveryRE = req.getParameter("discoveryRE");
-        discoveryURLPattern = req.getParameter("discoveryURLPattern");
+        discoveryURL = getTrimmedParam("discoveryPage");
+        discoveryRE = getTrimmedParam("discoveryRE");
+        discoveryURLPattern = getTrimmedParam("discoveryURLPattern");
         license = req.getParameter("license");
         category = req.getParameter("category");
         tags = NWUtils.split(req.getParameter("tags"), ',');
@@ -781,9 +781,9 @@ public class PackageDetailPage extends MyPage {
         p.changelog = changelog.trim();
         p.license = license.trim();
         p.comment = comment.trim();
-        p.discoveryPage = discoveryURL.trim();
-        p.discoveryRE = discoveryRE.trim();
-        p.discoveryURLPattern = discoveryURLPattern.trim();
+        p.discoveryPage = discoveryURL;
+        p.discoveryRE = discoveryRE;
+        p.discoveryURLPattern = discoveryURLPattern;
         p.category = category.trim();
         p.tags = new ArrayList<>();
         p.tags.addAll(this.tags);
@@ -894,8 +894,9 @@ public class PackageDetailPage extends MyPage {
             }
         }
 
+        // discoveryURL
         if (msg == null) {
-            if (!this.discoveryURL.trim().isEmpty()) {
+            if (!this.discoveryURL.isEmpty()) {
                 msg = NWUtils.validateURL(this.discoveryURL, false);
                 if (msg != null) {
                     msg = "Error in discovery page (URL): " + msg;
@@ -903,14 +904,39 @@ public class PackageDetailPage extends MyPage {
             }
         }
 
+        // discoveryRE
         if (msg == null) {
-            if (!this.discoveryRE.trim().isEmpty()) {
+            if (!this.discoveryRE.isEmpty()) {
                 try {
-                    Pattern.compile(this.discoveryRE);
+                    Pattern p = Pattern.compile(this.discoveryRE);
+                    if (this.discoveryURL.isEmpty()) {
+                        msg =
+                                "A discovery page cannot be empty if a discovery regular expression is defined";
+                    }
                 } catch (PatternSyntaxException e) {
                     msg = "Cannot parse the regular expression: " +
                             e.getMessage();
                 }
+            } else if (!this.discoveryURL.isEmpty()) {
+                msg =
+                        "The discovery regular expression cannot be empty if a discovery page is defined";
+            }
+        }
+
+        // discoveryURLPattern
+        if (msg == null) {
+            if (this.discoveryURLPattern.isEmpty()) {
+                if (!this.discoveryURL.isEmpty() && !this.tags.contains(
+                        "same-url")) {
+                    msg =
+                            "Either a discovery package download URL pattern or the tag 'same-url' should be defined if a discovery page is defined";
+                }
+            } else if (this.discoveryURL.isEmpty()) {
+                msg =
+                        "A discovery page cannot be empty if a discovery package download URL pattern is defined";
+            } else if (!this.discoveryURLPattern.contains("${")) {
+                msg =
+                        "A discovery package download URL pattern should contain at least one variable reference";
             }
         }
 
