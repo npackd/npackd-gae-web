@@ -1581,6 +1581,9 @@ public class NWUtils {
         } else {
             result = (String) obj;
         }
+        if (result != null) {
+            result = result.intern();
+        }
         return result;
     }
 
@@ -1616,6 +1619,9 @@ public class NWUtils {
         List<String> obj = (List<String>) e.getProperty(propertyName);
         if (obj == null) {
             obj = new ArrayList<>();
+        }
+        for (int i = 0; i < obj.size(); i++) {
+            obj.set(i, obj.get(i).intern());
         }
         return obj;
     }
