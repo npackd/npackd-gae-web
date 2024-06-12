@@ -61,19 +61,22 @@ public class ExportRepAction extends Action {
         }
 
         GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
+        GcsFilename fileNameExtra =
+                new GcsFilename("npackd", tag + "_extra.xml");
         GcsFilename fileNameZIP = new GcsFilename("npackd", tag + ".zip");
 
         if (r.blobFile == null || recreate ||
                 gcsService.getMetadata(fileName) == null ||
+                gcsService.getMetadata(fileNameExtra) == null ||
                 gcsService.getMetadata(fileNameZIP) == null) {
             Document d;
 
+            // XML
             if (tag.equals("unstable")) {
-                d = RepXMLPage.toXML(tag, true);
+                d = RepXMLPage.toXML(tag, true, false);
             } else {
-                d = RepXMLPage.toXMLByPackageTag(tag, true);
+                d = RepXMLPage.toXMLByPackageTag(tag, true, false);
             }
-
             GcsOutputChannel outputChannel =
                     gcsService.createOrReplace(fileName,
                             GcsFileOptions.getDefaultInstance());
@@ -81,6 +84,7 @@ public class ExportRepAction extends Action {
             NWUtils.serializeXML(d, oout);
             oout.close();
 
+            // ZIP
             GcsOutputChannel outputChannelZIP =
                     gcsService.createOrReplace(fileNameZIP,
                             GcsFileOptions.getDefaultInstance());
@@ -92,6 +96,19 @@ public class ExportRepAction extends Action {
             NWUtils.serializeXML(d, zos);
             zos.closeEntry();
             zos.close();
+
+            // XML with extra data
+            if (tag.equals("unstable")) {
+                d = RepXMLPage.toXML(tag, true, true);
+            } else {
+                d = RepXMLPage.toXMLByPackageTag(tag, true, true);
+            }
+            outputChannel =
+                    gcsService.createOrReplace(fileNameExtra,
+                            GcsFileOptions.getDefaultInstance());
+            oout = Channels.newOutputStream(outputChannel);
+            NWUtils.serializeXML(d, oout);
+            oout.close();
 
             r.blobFile =
                     "/gs/" + fileName.getBucketName() + "/" +

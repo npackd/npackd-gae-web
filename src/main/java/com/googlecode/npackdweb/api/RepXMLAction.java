@@ -5,9 +5,10 @@ import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.Page;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Creates XML for a whole repository definition.
@@ -26,6 +27,7 @@ public class RepXMLAction extends Action {
             throws IOException {
         String tag = req.getParameter("tag");
         boolean create = "true".equals(req.getParameter("create"));
+        boolean extra = "true".equals(req.getParameter("extra"));
 
         if (tag != null && !tag.isEmpty()) {
             Repository r = NWUtils.dsCache.findRepository(tag, true);
@@ -34,7 +36,7 @@ public class RepXMLAction extends Action {
                         tag + " not found");
                 return null;
             } else {
-                return new RepXMLPage(tag, create);
+                return new RepXMLPage(tag, create, extra);
             }
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,

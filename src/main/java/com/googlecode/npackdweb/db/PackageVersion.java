@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -361,9 +362,10 @@ public class PackageVersion {
      * Creates &lt;version&gt;
      *
      * @param d XML document
+     * @param extra export extra non-standard information
      * @return &lt;version&gt;
      */
-    public Element toXML(Document d) {
+    public Element toXML(Document d, boolean extra) {
         PackageVersion pv = this;
 
         Element v = d.createElement("version");
@@ -418,6 +420,25 @@ public class PackageVersion {
             NWUtils.e(detectFile, "path", pv.detectFilePaths.get(i));
             NWUtils.e(detectFile, "sha1", pv.detectFileSHA1s.get(i));
         }
+
+        if (extra) {
+            for (String tag : tags) {
+                NWUtils.e(v, "_tag", tag);
+            }
+        }
+
+        NWUtils.e(v, "_last-modified-at", DateTimeFormatter.ISO_INSTANT.format(
+                lastModifiedAt.toInstant()));
+        NWUtils.e(v, "_last-modified-by", lastModifiedBy.getEmail());
+        NWUtils.e(v, "_created-at", DateTimeFormatter.ISO_INSTANT.format(
+                createdAt.toInstant()));
+        NWUtils.e(v, "_created-by", createdBy.getEmail());
+        NWUtils.e(v, "_install-succeeded", Integer.toString(installSucceeded));
+        NWUtils.e(v, "_install-failed", Integer.toString(installFailed));
+        NWUtils.e(v, "_uninstall-succeeded",
+                Integer.toString(uninstallSucceeded));
+        NWUtils.e(v, "_uninstall-failed", Integer.toString(uninstallFailed));
+
         return v;
     }
 

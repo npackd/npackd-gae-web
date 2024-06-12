@@ -27,15 +27,18 @@ public class RepXMLPage extends Page {
 
     private final String tag;
     private final boolean create;
+    private final boolean extra;
 
     /**
      * @param tag only package versions with this tag will be exported.
      * @param create true = create the file, false = redirect to a Github
      * release asset
+     * @param extra true = export non-standard fields
      */
-    public RepXMLPage(String tag, boolean create) {
+    public RepXMLPage(String tag, boolean create, boolean extra) {
         this.tag = tag;
         this.create = create;
+        this.extra = extra;
     }
 
     @Override
@@ -48,7 +51,8 @@ public class RepXMLPage extends Page {
         } else {
             final GcsFileMetadata md;
             try {
-                md = NWUtils.getMetadata(tag + ".xml");
+                md = NWUtils.getMetadata(
+                        tag + (this.extra ? "_extra" : "") + ".xml");
                 NWUtils.serveFileFromGCS(md, request, resp,
                         "application/xml");
             } catch (ExecutionException ex) {
@@ -60,10 +64,11 @@ public class RepXMLPage extends Page {
     /**
      * @param tag package versions tag or null for "everything"
      * @param onlyReviewed true = only export reviewed package versions
+     * @param extra true = export non-standard fields
      * @return XML for the whole repository definition
      */
     public static Document
-    toXML(String tag, boolean onlyReviewed) {
+    toXML(String tag, boolean onlyReviewed, boolean extra) {
         List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(tag,
                 null, 0, 0);
 
@@ -76,16 +81,17 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(pvs, onlyReviewed, tag, false);
+        return toXML(pvs, onlyReviewed, tag, extra);
     }
 
     /**
      * @param tag package tag or null for "everything"
      * @param onlyReviewed true = only export reviewed package versions
+     * @param extra true = export non-standard fields
      * @return XML for the whole repository definition
      */
     public static Document
-    toXMLByPackageTag(String tag, boolean onlyReviewed) {
+    toXMLByPackageTag(String tag, boolean onlyReviewed, boolean extra) {
         List<Package> ps = NWUtils.dsCache.findPackages(tag,
                 null, null, 0);
         Set<String> packageNames = new HashSet<>(ps.size());
@@ -107,7 +113,7 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(pvs, onlyReviewed, tag, false);
+        return toXML(pvs, onlyReviewed, tag, extra);
     }
 
     /**
@@ -223,7 +229,7 @@ public class RepXMLPage extends Page {
             }
 
             if (!pv.tags.contains("not-reviewed") || !onlyReviewed) {
-                Element version = pv.toXML(d);
+                Element version = pv.toXML(d, extra);
 
                 root.appendChild(version);
             }

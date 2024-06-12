@@ -45,7 +45,7 @@ public class EditAsXMLAction extends Action {
         switch (type) {
             case "version": {
                 PackageVersion r = NWUtils.dsCache.getPackageVersion(id);
-                Element e = r.toXML(d);
+                Element e = r.toXML(d, false);
                 if (!r.tags.isEmpty()) {
                     tag = r.tags.get(0);
                 }
@@ -74,7 +74,7 @@ public class EditAsXMLAction extends Action {
                 } else {
                     PackageVersion r = NWUtils.dsCache.getPackageVersion(
                             package_ + "@" + version);
-                    Element e = r.toXML(d);
+                    Element e = r.toXML(d, false);
                     if (!r.tags.isEmpty()) {
                         tag = r.tags.get(0);
                     }
