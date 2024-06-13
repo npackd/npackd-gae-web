@@ -7,7 +7,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import org.w3c.dom.Document;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -365,81 +365,70 @@ public class PackageVersion {
      * @param extra export extra non-standard information
      * @return &lt;version&gt;
      */
-    public Element toXML(Document d, boolean extra) {
+    public void toXML(HTMLWriter d, boolean extra) {
         PackageVersion pv = this;
 
-        Element v = d.createElement("version");
-        v.setAttribute("name", pv.version);
-        v.setAttribute("package", pv.package_);
-        if (pv.oneFile) {
-            v.setAttribute("type", "one-file");
-        }
+        d.start("version", "name", pv.version, "package", pv.package_,
+                "type", pv.oneFile ? "one-file" : null);
         for (int i = 0; i < pv.importantFilePaths.size(); i++) {
-            Element importantFile = d.createElement("important-file");
-            v.appendChild(importantFile);
-            importantFile.setAttribute("path", pv.importantFilePaths.get(i));
-            importantFile.setAttribute("title", pv.importantFileTitles.get(i));
+            d.start("important-file", "path", pv.importantFilePaths.get(i),
+                    "title", pv.importantFileTitles.get(i));
+            d.end("important-file");
         }
         for (int i = 0; i < pv.cmdFilePaths.size(); i++) {
-            Element cmdFile = d.createElement("cmd-file");
-            v.appendChild(cmdFile);
-            cmdFile.setAttribute("path", pv.cmdFilePaths.get(i));
+            d.e("cmd-file", "path", pv.cmdFilePaths.get(i));
         }
         for (int i = 0; i < pv.filePaths.size(); i++) {
-            Element file = d.createElement("file");
-            v.appendChild(file);
-            file.setAttribute("path", pv.filePaths.get(i));
-            NWUtils.t(file, pv.getFileContents(i));
+            d.e("file", "path", pv.filePaths.get(i), pv.getFileContents(i));
         }
         if (!pv.url.isEmpty()) {
-            NWUtils.e(v, "url", pv.url);
+            d.e("url", pv.url);
         }
 
         String sha1 = pv.sha1.trim();
         if (!sha1.isEmpty()) {
             if (sha1.length() == 40) {
-                NWUtils.e(v, "sha1", sha1);
+                d.e("sha1", sha1);
             } else if (sha1.length() == 64) {
-                NWUtils.e(v, "hash-sum", "type", "SHA-256", sha1);
+                d.e("hash-sum", "type", "SHA-256", sha1);
             }
         }
 
         for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-            Element dependency = d.createElement("dependency");
-            v.appendChild(dependency);
-            dependency.setAttribute("package", pv.dependencyPackages.get(i));
-            dependency.setAttribute("versions",
+            d.start("dependency", "package", pv.dependencyPackages.get(i),
+                    "versions",
                     pv.dependencyVersionRanges.get(i));
             if (!pv.dependencyEnvVars.get(i).isEmpty()) {
-                NWUtils.e(dependency, "variable", pv.dependencyEnvVars.get(i));
+                d.e("variable", pv.dependencyEnvVars.get(i));
             }
+            d.end("dependency");
         }
         for (int i = 0; i < pv.detectFilePaths.size(); i++) {
-            Element detectFile = d.createElement("detect-file");
-            v.appendChild(detectFile);
-            NWUtils.e(detectFile, "path", pv.detectFilePaths.get(i));
-            NWUtils.e(detectFile, "sha1", pv.detectFileSHA1s.get(i));
+            d.start("detect-file");
+            d.e("path", pv.detectFilePaths.get(i));
+            d.e("sha1", pv.detectFileSHA1s.get(i));
+            d.end("detect-file");
         }
 
         if (extra) {
             for (String tag : tags) {
-                NWUtils.e(v, "_tag", tag);
+                d.e("_tag", tag);
             }
         }
 
-        NWUtils.e(v, "_last-modified-at", DateTimeFormatter.ISO_INSTANT.format(
+        d.e("_last-modified-at", DateTimeFormatter.ISO_INSTANT.format(
                 lastModifiedAt.toInstant()));
-        NWUtils.e(v, "_last-modified-by", lastModifiedBy.getEmail());
-        NWUtils.e(v, "_created-at", DateTimeFormatter.ISO_INSTANT.format(
+        d.e("_last-modified-by", lastModifiedBy.getEmail());
+        d.e("_created-at", DateTimeFormatter.ISO_INSTANT.format(
                 createdAt.toInstant()));
-        NWUtils.e(v, "_created-by", createdBy.getEmail());
-        NWUtils.e(v, "_install-succeeded", Integer.toString(installSucceeded));
-        NWUtils.e(v, "_install-failed", Integer.toString(installFailed));
-        NWUtils.e(v, "_uninstall-succeeded",
+        d.e("_created-by", createdBy.getEmail());
+        d.e("_install-succeeded", Integer.toString(installSucceeded));
+        d.e("_install-failed", Integer.toString(installFailed));
+        d.e("_uninstall-succeeded",
                 Integer.toString(uninstallSucceeded));
-        NWUtils.e(v, "_uninstall-failed", Integer.toString(uninstallFailed));
+        d.e("_uninstall-failed", Integer.toString(uninstallFailed));
 
-        return v;
+        d.end("version");
     }
 
     /**

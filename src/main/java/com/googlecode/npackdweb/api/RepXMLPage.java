@@ -10,9 +10,8 @@ import com.googlecode.npackdweb.db.License;
 import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.db.Version;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,8 +66,8 @@ public class RepXMLPage extends Page {
      * @param extra true = export non-standard fields
      * @return XML for the whole repository definition
      */
-    public static Document
-    toXML(String tag, boolean onlyReviewed, boolean extra) {
+    public static HTMLWriter
+    toXML2(String tag, boolean onlyReviewed, boolean extra) {
         List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(tag,
                 null, 0, 0);
 
@@ -81,7 +80,7 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(pvs, onlyReviewed, tag, extra);
+        return toXML2(pvs, onlyReviewed, tag, extra);
     }
 
     /**
@@ -90,8 +89,8 @@ public class RepXMLPage extends Page {
      * @param extra true = export non-standard fields
      * @return XML for the whole repository definition
      */
-    public static Document
-    toXMLByPackageTag(String tag, boolean onlyReviewed, boolean extra) {
+    public static HTMLWriter
+    toXMLByPackageTag2(String tag, boolean onlyReviewed, boolean extra) {
         List<Package> ps = NWUtils.dsCache.findPackages(tag,
                 null, null, 0);
         Set<String> packageNames = new HashSet<>(ps.size());
@@ -113,7 +112,7 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML(pvs, onlyReviewed, tag, extra);
+        return toXML2(pvs, onlyReviewed, tag, extra);
     }
 
     /**
@@ -123,9 +122,9 @@ public class RepXMLPage extends Page {
      * @param extra true = export non-standard fields
      * @return XML for the specified package versions
      */
-    public static Document toXML(List<PackageVersion> pvs,
-                                 boolean onlyReviewed, String tag,
-                                 boolean extra) {
+    public static HTMLWriter toXML2(List<PackageVersion> pvs,
+                                    boolean onlyReviewed, String tag,
+                                    boolean extra) {
         pvs.sort(new Comparator<PackageVersion>() {
             @Override
             public int compare(PackageVersion a, PackageVersion b) {
@@ -189,13 +188,10 @@ public class RepXMLPage extends Page {
             }
         });
 
-        Document d = NWUtils.newXMLRepository(true);
-        Element root = d.getDocumentElement();
+        HTMLWriter d = NWUtils.newXMLRepository(true);
 
         for (License l : licenses) {
-            Element license = l.toXML(d);
-
-            root.appendChild(license);
+            l.toXML(d);
         }
 
         for (Package p : ps) {
@@ -216,24 +212,22 @@ public class RepXMLPage extends Page {
                                 "version of the software.\n" +
                                 p.description;
             }
-            Element package_ = p.toXML(d, extra);
-
-            root.appendChild(package_);
+            p.toXML(d, extra);
         }
 
         String lastPackage = "";
         for (PackageVersion pv : pvs) {
             if (!pv.package_.equals(lastPackage)) {
                 lastPackage = pv.package_;
-                NWUtils.t(root, "\n\n    ");
+                d.t("\n\n    ");
             }
 
             if (!pv.tags.contains("not-reviewed") || !onlyReviewed) {
-                Element version = pv.toXML(d, extra);
-
-                root.appendChild(version);
+                pv.toXML(d, extra);
             }
         }
+
+        d.end("root");
 
         return d;
     }

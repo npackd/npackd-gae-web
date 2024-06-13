@@ -1,7 +1,6 @@
 package com.googlecode.npackdweb;
 
 import com.googlecode.npackdweb.wlib.HTMLWriter;
-import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -10,14 +9,14 @@ import java.io.IOException;
  * Shows XML for a repository.
  */
 public class EditAsXMLPage extends MyPage {
-    private final Document xml;
+    private final String xml;
     private final String tag;
 
     /**
      * @param xml XML for a repository
      * @param tag tag that should be assigned to all package versions
      */
-    public EditAsXMLPage(Document xml, String tag) {
+    public EditAsXMLPage(String xml, String tag) {
         this.xml = xml;
         this.tag = tag;
     }
@@ -32,7 +31,7 @@ public class EditAsXMLPage extends MyPage {
         w.start("td");
         w.e("textarea", "class", "form-control", "rows", "20", "cols", "120",
                 "name", "repository", "wrap", "off", "style", "width: 100%",
-                NWUtils.toString(this.xml));
+                this.xml);
         w.end("td");
         w.end("tr");
 

@@ -137,7 +137,10 @@ public class NWUtils {
      */
     public static DatastoreCache dsCache = new DatastoreCache();
 
-    private static final String GPL_LICENSE =
+    /**
+     * GPL
+     */
+    public static final String GPL_LICENSE =
             "\n    This file is part of Npackd.\n" +
                     "    \n" +
                     "    Npackd is free software: you can redistribute it and/or modify\n" +
@@ -494,18 +497,19 @@ public class NWUtils {
      * @param gpl true = add GPL license
      * @return empty repository
      */
-    public static Document newXMLRepository(boolean gpl) {
-        Document d = NWUtils.newXML();
+    public static HTMLWriter newXMLRepository(boolean gpl) {
+        HTMLWriter d = new HTMLWriter();
+        d.setPretty(true);
+        d.documentStart();
 
-        Element root = d.createElement("root");
-        d.appendChild(root);
         if (gpl) {
-            Comment comment = d.createComment(GPL_LICENSE);
-            // root.getParentNode().insertBefore(root, comment);
-            root.appendChild(comment);
+            d.comment(GPL_LICENSE);
         }
 
-        NWUtils.e(root, "spec-version", "3.5");
+        d.start("root");
+
+        d.e("spec-version", "3.5");
+
         return d;
     }
 

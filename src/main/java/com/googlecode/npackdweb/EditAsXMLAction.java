@@ -5,9 +5,8 @@ import com.googlecode.npackdweb.db.Package;
 import com.googlecode.npackdweb.db.PackageVersion;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,31 +36,27 @@ public class EditAsXMLAction extends Action {
             type = "old";
         }
 
-        Document d = NWUtils.newXMLRepository(false);
+        HTMLWriter d = NWUtils.newXMLRepository(false);
 
-        Element root = d.getDocumentElement();
         String tag = "";
 
         switch (type) {
             case "version": {
                 PackageVersion r = NWUtils.dsCache.getPackageVersion(id);
-                Element e = r.toXML(d, false);
+                r.toXML(d, false);
                 if (!r.tags.isEmpty()) {
                     tag = r.tags.get(0);
                 }
-                root.appendChild(e);
                 break;
             }
             case "package": {
                 Package r = NWUtils.dsCache.getPackage(id, false);
-                Element e = r.toXML(d, false);
-                root.appendChild(e);
+                r.toXML(d, false);
                 break;
             }
             case "license": {
                 License r = NWUtils.dsCache.getLicense(id, false);
-                Element e = r.toXML(d);
-                root.appendChild(e);
+                r.toXML(d);
                 break;
             }
             default: {
@@ -69,20 +64,20 @@ public class EditAsXMLAction extends Action {
                     // nothing. Editing an empty repository.
                 } else if (version == null) {
                     Package r = NWUtils.dsCache.getPackage(package_, false);
-                    Element e = r.toXML(d, false);
-                    root.appendChild(e);
+                    r.toXML(d, false);
                 } else {
                     PackageVersion r = NWUtils.dsCache.getPackageVersion(
                             package_ + "@" + version);
-                    Element e = r.toXML(d, false);
+                    r.toXML(d, false);
                     if (!r.tags.isEmpty()) {
                         tag = r.tags.get(0);
                     }
-                    root.appendChild(e);
                 }
             }
         }
 
-        return new EditAsXMLPage(d, tag);
+        d.end("root");
+
+        return new EditAsXMLPage(d.getContent().toString(), tag);
     }
 }

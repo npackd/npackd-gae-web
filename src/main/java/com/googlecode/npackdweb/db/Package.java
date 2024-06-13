@@ -11,7 +11,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.npackdweb.NWUtils;
-import org.w3c.dom.Document;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -391,65 +391,65 @@ public class Package {
      * @param extra export extra non-standard information
      * @return &lt;package&gt;
      */
-    public Element toXML(Document d, boolean extra) {
-        Element package_ = d.createElement("package");
-        package_.setAttribute("name", name);
+    public void toXML(HTMLWriter d, boolean extra) {
+        d.start("package", "name", name);
         if (!title.isEmpty()) {
-            NWUtils.e(package_, "title", title);
+            d.e("title", title);
         }
         if (!url.isEmpty()) {
-            NWUtils.e(package_, "url", url);
+            d.e("url", url);
         }
         if (!description.isEmpty()) {
-            NWUtils.e(package_, "description", description);
+            d.e("description", description);
         }
         if (!icon.isEmpty()) {
-            NWUtils.e(package_, "icon", icon);
+            d.e("icon", icon);
         }
         if (!license.isEmpty()) {
-            NWUtils.e(package_, "license", license);
+            d.e("license", license);
         }
         if (!category.isEmpty()) {
-            NWUtils.e(package_, "category", category);
+            d.e("category", category);
         }
+
         for (String tag : tags) {
             // some tag names are actually categories and contain "/"
             if (checkName(tag) == null) {
-                NWUtils.e(package_, "tag", tag);
+                d.e("tag", tag);
             }
         }
         if (this.starred > 0) {
-            NWUtils.e(package_, "stars", Integer.toString(this.starred));
+            d.e("stars", Integer.toString(this.starred));
         }
         if (changelog != null && !changelog.trim().isEmpty()) {
-            NWUtils.e(package_, "link", "rel", "changelog", "href",
-                    changelog, "");
+            d.e("link", "rel", "changelog", "href",
+                    changelog);
         }
         for (String s : screenshots) {
-            NWUtils.e(package_, "link", "rel", "screenshot", "href", s, "");
+            d.e("link", "rel", "screenshot", "href", s, "");
         }
         if (issues != null && !issues.trim().isEmpty()) {
-            NWUtils.e(package_, "link", "rel", "issues", "href",
-                    issues, "");
+            d.e("link", "rel", "issues", "href",
+                    issues);
         }
 
         if (extra) {
             if (!comment.isEmpty()) {
-                NWUtils.e(package_, "_comment", comment);
+                d.e("_comment", comment);
             }
             if (!discoveryPage.isEmpty()) {
-                NWUtils.e(package_, "_discovery-page", discoveryPage);
+                d.e("_discovery-page", discoveryPage);
             }
             if (!discoveryRE.isEmpty()) {
-                NWUtils.e(package_, "_discovery-re", discoveryRE);
+                d.e("_discovery-re", discoveryRE);
             }
             if (!discoveryURLPattern.isEmpty()) {
-                NWUtils.e(package_, "_discovery-url-pattern",
+                d.e("_discovery-url-pattern",
                         discoveryURLPattern);
             }
         }
 
-        return package_;
+        d.end("package");
     }
 
     /**

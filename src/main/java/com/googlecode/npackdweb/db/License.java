@@ -3,8 +3,7 @@ package com.googlecode.npackdweb.db;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.googlecode.npackdweb.NWUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 
 import java.util.Date;
 
@@ -75,21 +74,20 @@ public class License {
     public Key createKey() {
         return KeyFactory.createKey("License", name);
     }
-
+    
     /**
      * @param d XML document
      * @return XML representation of this license
      */
-    public Element toXML(Document d) {
-        Element license = d.createElement("license");
-        license.setAttribute("name", name);
+    public void toXML(HTMLWriter d) {
+        d.start("license", "name", name);
         if (!title.isEmpty()) {
-            NWUtils.e(license, "title", title);
+            d.e("title", title);
         }
         if (!url.isEmpty()) {
-            NWUtils.e(license, "url", url);
+            d.e("url", url);
         }
-        return license;
+        d.end("license");
     }
 
     /**

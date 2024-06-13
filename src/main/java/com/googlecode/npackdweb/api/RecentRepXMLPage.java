@@ -7,14 +7,14 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.users.User;
 import com.googlecode.npackdweb.NWUtils;
 import com.googlecode.npackdweb.db.PackageVersion;
+import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
-import org.w3c.dom.Document;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -88,11 +88,10 @@ public class RecentRepXMLPage extends Page {
                     res.add(new PackageVersion(e));
                 }
 
-                Document d = RepXMLPage.toXML(res, false, null, extra);
+                HTMLWriter d = RepXMLPage.toXML2(res, false, null, extra);
+                value = d.getContent().toString()
+                        .getBytes(StandardCharsets.UTF_8);
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                NWUtils.serializeXML(d, baos);
-                value = baos.toByteArray();
                 syncCache.put(key, value); // populate cache
             } catch (Exception e) {
                 throw new IOException(e);

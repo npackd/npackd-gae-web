@@ -1,13 +1,23 @@
 package com.googlecode.npackdweb.wlib;
 
-import com.googlecode.npackdweb.NWUtils;
-
-import java.util.List;
-
 /**
  * Fluent interface for HTML creation.
  */
 public class HTMLWriter {
+    private static final char[] EOL = {'\r', '\n'};
+
+    /**
+     * 0 - es wurde noch nichts ausgegeben 1 - in <root> 2 - in <root><node>
+     * ...
+     */
+    private int level;
+
+    /**
+     * [readwrite] true = formatierte Ausgabe
+     */
+    private boolean pretty;
+
+    private boolean text_since_start_tag;
 
     private final StringBuilder b;
 
@@ -16,6 +26,26 @@ public class HTMLWriter {
      */
     public HTMLWriter() {
         this.b = new StringBuilder();
+    }
+
+    /**
+     * Schreibt &lt;?xml version=&quot;1.0&quot;?&gt;
+     *
+     * @return HTML
+     */
+    public StringBuilder documentStart() {
+        b.append("<?xml version=\"1.0\"?>");
+        if (this.isPretty()) {
+            b.append(EOL);
+        }
+        return b;
+    }
+
+    private void indent() {
+        if (this.level > 0) {
+            b.append(EOL);
+            b.repeat(" ", this.level);
+        }
     }
 
     /**
@@ -32,6 +62,10 @@ public class HTMLWriter {
      * @return this
      */
     public HTMLWriter e(final String tag) {
+        if (this.isPretty() && this.level > 0) {
+            indent();
+        }
+
         b.append('<').append(tag).append("/>");
         return this;
     }
@@ -48,6 +82,11 @@ public class HTMLWriter {
      */
     public HTMLWriter e(final String tag, String... attrsAndContent) {
         assert attrsAndContent.length % 2 == 0;
+
+        if (this.isPretty() && this.level > 0) {
+            indent();
+        }
+
         b.append('<').append(tag);
         for (int i = 0; i + 1 < attrsAndContent.length; i += 2) {
             String name = attrsAndContent[i];
@@ -72,48 +111,32 @@ public class HTMLWriter {
     }
 
     /**
-     * Creates a tag.
-     *
-     * @param tagAndAttrs name of the tag and attributes separated by spaces.
-     * Example: "textarea wrap=off"
-     * @param content text content for the tag. null is treated as an empty
-     * string
-     * @return this
-     */
-    public HTMLWriter ew(final String tagAndAttrs, String content) {
-        List<String> p = NWUtils.split(tagAndAttrs, ' ');
-
-        String tag = p.get(0);
-        b.append('<').append(tag);
-        for (int i = 1; i < p.size(); i++) {
-            String nameAndValue = p.get(i);
-            int pos = nameAndValue.indexOf('=');
-
-            b.append(' ');
-            b.append(nameAndValue, 0, pos);
-            b.append("=\"");
-            encodeHTML(b, nameAndValue.substring(pos + 1));
-            b.append('"');
-        }
-        b.append('>');
-        if (content != null) {
-            encodeHTML(b, content);
-        }
-        b.append("</");
-        b.append(tag);
-        b.append('>');
-
-        return this;
-    }
-
-    /**
      * Writes an end tag.
      *
      * @param tag name of the tag
      * @return this
      */
     public HTMLWriter end(String tag) {
+        if (this.isPretty()) {
+            b.append(EOL);
+            b.repeat(" ", (this.level - 1));
+        }
+
         b.append("</").append(tag).append('>');
+
+        level--;
+        
+        return this;
+    }
+
+    /**
+     * XML comment
+     *
+     * @param txt content
+     * @return this
+     */
+    public HTMLWriter comment(final String txt) {
+        b.append("<!--").append(txt).append("-->");
         return this;
     }
 
@@ -126,6 +149,10 @@ public class HTMLWriter {
      * @return this
      */
     public HTMLWriter start(final String tag, String... attrs) {
+        if (this.isPretty() && this.level > 0) {
+            indent();
+        }
+
         b.append('<').append(tag);
         for (int i = 0; i < attrs.length; i += 2) {
             String name = attrs[i];
@@ -140,6 +167,8 @@ public class HTMLWriter {
         }
         b.append('>');
 
+        level++;
+
         return this;
     }
 
@@ -150,7 +179,13 @@ public class HTMLWriter {
      * @return this
      */
     public HTMLWriter start(final String tag) {
+        if (this.isPretty() && this.level > 0) {
+            indent();
+        }
+
         b.append('<').append(tag).append('>');
+
+        level++;
 
         return this;
     }
@@ -210,5 +245,19 @@ public class HTMLWriter {
      */
     public void unencoded(String html) {
         this.b.append(html);
+    }
+
+    /**
+     * @return true = formatierte Ausgabe
+     */
+    public boolean isPretty() {
+        return pretty;
+    }
+
+    /**
+     * @param pretty true = formatierte Ausgabe
+     */
+    public void setPretty(boolean pretty) {
+        this.pretty = pretty;
     }
 }
