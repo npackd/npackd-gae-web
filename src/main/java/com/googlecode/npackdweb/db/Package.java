@@ -422,15 +422,15 @@ public class Package {
             d.e("stars", Integer.toString(this.starred));
         }
         if (changelog != null && !changelog.trim().isEmpty()) {
-            d.e("link", "rel", "changelog", "href",
-                    changelog);
+            d.e("link", "href",
+                    changelog, "rel", "changelog");
         }
         for (String s : screenshots) {
-            d.e("link", "rel", "screenshot", "href", s, "");
+            d.e("link", "href", s, "rel", "screenshot");
         }
         if (issues != null && !issues.trim().isEmpty()) {
-            d.e("link", "rel", "issues", "href",
-                    issues);
+            d.e("link", "href",
+                    issues, "rel", "issues");
         }
 
         if (extra) {

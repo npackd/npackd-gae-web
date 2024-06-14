@@ -16,6 +16,7 @@ import com.googlecode.npackdweb.wlib.Page;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -25,16 +26,16 @@ import java.util.concurrent.ExecutionException;
 public class RepXMLPage extends Page {
 
     private final String tag;
-    private final boolean create;
+    private final String create;
     private final boolean extra;
 
     /**
      * @param tag only package versions with this tag will be exported.
-     * @param create true = create the file, false = redirect to a Github
-     * release asset
+     * @param create "true" = create the file, "now" = re-create file release
+     * asset, other values = redirect to a Github,
      * @param extra true = export non-standard fields
      */
-    public RepXMLPage(String tag, boolean create, boolean extra) {
+    public RepXMLPage(String tag, String create, boolean extra) {
         this.tag = tag;
         this.create = create;
         this.extra = extra;
@@ -43,11 +44,7 @@ public class RepXMLPage extends Page {
     @Override
     public void create(HttpServletRequest request, HttpServletResponse resp)
             throws IOException {
-        if (!create) {
-            resp.sendRedirect(
-                    "https://npackd.github.io/npackd/repository/" +
-                            tag + ".xml");
-        } else {
+        if ("true".equals(this.create)) {
             final GcsFileMetadata md;
             try {
                 md = NWUtils.getMetadata(
@@ -57,6 +54,15 @@ public class RepXMLPage extends Page {
             } catch (ExecutionException ex) {
                 throw new IOException(ex.getMessage());
             }
+        } else if ("now".equals(create) && NWUtils.isAdminLoggedIn()) {
+            HTMLWriter d = toXMLByPackageTag2(this.tag, true, this.extra);
+            resp.setContentType("application/xml");
+            resp.getOutputStream().write(d.getContent().toString().getBytes(
+                    StandardCharsets.UTF_8));
+        } else {
+            resp.sendRedirect(
+                    "https://npackd.github.io/npackd/repository/" +
+                            tag + ".xml");
         }
     }
 
@@ -219,7 +225,7 @@ public class RepXMLPage extends Page {
         for (PackageVersion pv : pvs) {
             if (!pv.package_.equals(lastPackage)) {
                 lastPackage = pv.package_;
-                d.t("\n\n    ");
+                d.t("\n");
             }
 
             if (!pv.tags.contains("not-reviewed") || !onlyReviewed) {

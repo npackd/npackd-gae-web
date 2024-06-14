@@ -1,5 +1,7 @@
 package com.googlecode.npackdweb.wlib;
 
+import java.util.Arrays;
+
 /**
  * Fluent interface for HTML creation.
  */
@@ -44,7 +46,9 @@ public class HTMLWriter {
     private void indent() {
         if (this.level > 0) {
             b.append(EOL);
-            b.repeat(" ", this.level);
+            char[] spaces = new char[this.level];
+            Arrays.fill(spaces, ' ');
+            b.append(spaces);
         }
     }
 
@@ -95,17 +99,19 @@ public class HTMLWriter {
                 b.append(' ');
                 b.append(name);
                 b.append("=\"");
-                encodeHTML(b, value);
+                encodeHTML(b, value, true);
                 b.append('"');
             }
         }
-        b.append('>');
         if (attrsAndContent.length % 2 != 0) {
-            encodeHTML(b, attrsAndContent[attrsAndContent.length - 1]);
+            b.append('>');
+            encodeHTML(b, attrsAndContent[attrsAndContent.length - 1], false);
+            b.append("</");
+            b.append(tag);
+            b.append('>');
+        } else {
+            b.append("/>");
         }
-        b.append("</");
-        b.append(tag);
-        b.append('>');
 
         return this;
     }
@@ -119,13 +125,15 @@ public class HTMLWriter {
     public HTMLWriter end(String tag) {
         if (this.isPretty()) {
             b.append(EOL);
-            b.repeat(" ", (this.level - 1));
+            char[] spaces = new char[this.level - 1];
+            Arrays.fill(spaces, ' ');
+            b.append(spaces);
         }
 
         b.append("</").append(tag).append('>');
 
         level--;
-        
+
         return this;
     }
 
@@ -161,7 +169,7 @@ public class HTMLWriter {
                 b.append(' ');
                 b.append(name);
                 b.append("=\"");
-                encodeHTML(b, value);
+                encodeHTML(b, value, true);
                 b.append('"');
             }
         }
@@ -196,13 +204,17 @@ public class HTMLWriter {
      * @param sb output
      * @param v text or null
      */
-    private static void encodeHTML(StringBuilder sb, String v) {
+    private static void encodeHTML(StringBuilder sb, String v, boolean attr) {
         if (v != null) {
             for (int i = 0; i < v.length(); i++) {
                 char c = v.charAt(i);
                 switch (c) {
                     case '"':
-                        sb.append("&quot;");
+                        if (attr) {
+                            sb.append("&quot;");
+                        } else {
+                            sb.append('"');
+                        }
                         break;
                     case '>':
                         sb.append("&gt;");
@@ -212,6 +224,9 @@ public class HTMLWriter {
                         break;
                     case '&':
                         sb.append("&amp;");
+                        break;
+                    case '\r':
+                        sb.append("&#13;");
                         break;
                     default:
                         sb.append(c);
@@ -233,7 +248,7 @@ public class HTMLWriter {
      */
     public HTMLWriter t(String txt) {
         if (txt != null) {
-            encodeHTML(b, txt);
+            encodeHTML(b, txt, false);
         }
         return this;
     }

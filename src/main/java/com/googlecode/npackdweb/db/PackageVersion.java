@@ -371,9 +371,8 @@ public class PackageVersion {
         d.start("version", "name", pv.version, "package", pv.package_,
                 "type", pv.oneFile ? "one-file" : null);
         for (int i = 0; i < pv.importantFilePaths.size(); i++) {
-            d.start("important-file", "path", pv.importantFilePaths.get(i),
+            d.e("important-file", "path", pv.importantFilePaths.get(i),
                     "title", pv.importantFileTitles.get(i));
-            d.end("important-file");
         }
         for (int i = 0; i < pv.cmdFilePaths.size(); i++) {
             d.e("cmd-file", "path", pv.cmdFilePaths.get(i));
@@ -395,13 +394,17 @@ public class PackageVersion {
         }
 
         for (int i = 0; i < pv.dependencyPackages.size(); i++) {
-            d.start("dependency", "package", pv.dependencyPackages.get(i),
-                    "versions",
-                    pv.dependencyVersionRanges.get(i));
             if (!pv.dependencyEnvVars.get(i).isEmpty()) {
+                d.start("dependency", "package", pv.dependencyPackages.get(i),
+                        "versions",
+                        pv.dependencyVersionRanges.get(i));
                 d.e("variable", pv.dependencyEnvVars.get(i));
+                d.end("dependency");
+            } else {
+                d.e("dependency", "package", pv.dependencyPackages.get(i),
+                        "versions",
+                        pv.dependencyVersionRanges.get(i));
             }
-            d.end("dependency");
         }
         for (int i = 0; i < pv.detectFilePaths.size(); i++) {
             d.start("detect-file");

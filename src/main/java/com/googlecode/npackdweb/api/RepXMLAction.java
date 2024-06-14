@@ -26,7 +26,6 @@ public class RepXMLAction extends Action {
     public Page perform(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         String tag = req.getParameter("tag");
-        boolean create = "true".equals(req.getParameter("create"));
         boolean extra = "true".equals(req.getParameter("extra"));
 
         if (tag != null && !tag.isEmpty()) {
@@ -36,7 +35,7 @@ public class RepXMLAction extends Action {
                         tag + " not found");
                 return null;
             } else {
-                return new RepXMLPage(tag, create, extra);
+                return new RepXMLPage(tag, req.getParameter("create"), extra);
             }
         } else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST,
