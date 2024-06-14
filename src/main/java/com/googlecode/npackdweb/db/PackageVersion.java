@@ -417,19 +417,19 @@ public class PackageVersion {
             for (String tag : tags) {
                 d.e("_tag", tag);
             }
-        }
 
-        d.e("_last-modified-at", DateTimeFormatter.ISO_INSTANT.format(
-                lastModifiedAt.toInstant()));
-        d.e("_last-modified-by", lastModifiedBy.getEmail());
-        d.e("_created-at", DateTimeFormatter.ISO_INSTANT.format(
-                createdAt.toInstant()));
-        d.e("_created-by", createdBy.getEmail());
-        d.e("_install-succeeded", Integer.toString(installSucceeded));
-        d.e("_install-failed", Integer.toString(installFailed));
-        d.e("_uninstall-succeeded",
-                Integer.toString(uninstallSucceeded));
-        d.e("_uninstall-failed", Integer.toString(uninstallFailed));
+            d.e("_last-modified-at", DateTimeFormatter.ISO_INSTANT.format(
+                    lastModifiedAt.toInstant()));
+            d.e("_last-modified-by", lastModifiedBy.getEmail());
+            d.e("_created-at", DateTimeFormatter.ISO_INSTANT.format(
+                    createdAt.toInstant()));
+            d.e("_created-by", createdBy.getEmail());
+            d.e("_install-succeeded", Integer.toString(installSucceeded));
+            d.e("_install-failed", Integer.toString(installFailed));
+            d.e("_uninstall-succeeded",
+                    Integer.toString(uninstallSucceeded));
+            d.e("_uninstall-failed", Integer.toString(uninstallFailed));
+        }
 
         d.end("version");
     }
