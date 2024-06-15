@@ -93,8 +93,6 @@ public class PackageVersion {
     public List<String> dependencyPackages = new ArrayList<>();
     public List<String> dependencyVersionRanges = new ArrayList<>();
     public List<String> dependencyEnvVars = new ArrayList<>();
-    public List<String> detectFilePaths = new ArrayList<>();
-    public List<String> detectFileSHA1s = new ArrayList<>();
 
     public List<String> tags;
 
@@ -197,8 +195,6 @@ public class PackageVersion {
                 "dependencyVersionRanges");
         this.dependencyEnvVars = NWUtils.getStringList(e,
                 "dependencyEnvVars");
-        this.detectFilePaths = NWUtils.getStringList(e, "detectFilePaths");
-        this.detectFileSHA1s = NWUtils.getStringList(e, "detectFileSHA1s");
         this.tags = NWUtils.getStringList(e, "tags");
         this.lastModifiedAt = (Date) e.getProperty("lastModifiedAt");
         this.lastModifiedBy = (User) e.getProperty("lastModifiedBy");
@@ -284,8 +280,6 @@ public class PackageVersion {
         e.setIndexedProperty("dependencyVersionRanges",
                 this.dependencyVersionRanges);
         e.setIndexedProperty("dependencyEnvVars", this.dependencyEnvVars);
-        e.setIndexedProperty("detectFilePaths", this.detectFilePaths);
-        e.setIndexedProperty("detectFileSHA1s", this.detectFileSHA1s);
         e.setIndexedProperty("tags", this.tags);
         e.setIndexedProperty("lastModifiedAt", this.lastModifiedAt);
         e.setIndexedProperty("lastModifiedBy", this.lastModifiedBy);
@@ -348,8 +342,6 @@ public class PackageVersion {
         c.dependencyPackages.addAll(this.dependencyPackages);
         c.dependencyVersionRanges.addAll(this.dependencyVersionRanges);
         c.dependencyEnvVars.addAll(this.dependencyEnvVars);
-        c.detectFilePaths.addAll(this.detectFilePaths);
-        c.detectFileSHA1s.addAll(this.detectFileSHA1s);
         c.tags.clear();
         c.tags.addAll(this.tags);
         c.lastModifiedBy = this.lastModifiedBy;
@@ -405,12 +397,6 @@ public class PackageVersion {
                         "versions",
                         pv.dependencyVersionRanges.get(i));
             }
-        }
-        for (int i = 0; i < pv.detectFilePaths.size(); i++) {
-            d.start("detect-file");
-            d.e("path", pv.detectFilePaths.get(i));
-            d.e("sha1", pv.detectFileSHA1s.get(i));
-            d.end("detect-file");
         }
 
         if (extra) {

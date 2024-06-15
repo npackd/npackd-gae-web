@@ -7,7 +7,6 @@ import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
-import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,11 +55,6 @@ public class ExportRepAction extends Action {
                                     String tag, boolean recreate)
             throws IOException {
         Repository r = NWUtils.dsCache.findRepository(tag, true);
-        if (r == null) {
-            r = new Repository();
-            r.name = tag;
-            NWUtils.dsCache.saveRepository(r);
-        }
 
         GcsFilename fileName = new GcsFilename("npackd", tag + ".xml");
         GcsFilename fileNameExtra =
