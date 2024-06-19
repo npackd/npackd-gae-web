@@ -5,7 +5,6 @@ import com.googlecode.npackdweb.api.RepXMLPage;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
 import com.googlecode.npackdweb.wlib.ActionSecurityType;
-import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
-import java.nio.charset.StandardCharsets;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -65,20 +63,19 @@ public class ExportRepAction extends Action {
                 gcsService.getMetadata(fileName) == null ||
                 gcsService.getMetadata(fileNameExtra) == null ||
                 gcsService.getMetadata(fileNameZIP) == null) {
-            HTMLWriter d;
+            byte[] d;
 
             // XML
             if (tag.equals("unstable")) {
                 d = RepXMLPage.toXML2(tag, true, false);
             } else {
-                d = RepXMLPage.toXMLByPackageTag2(tag, true, false);
+                d = RepXMLPage.toXMLByPackageTag2(tag, false);
             }
             GcsOutputChannel outputChannel =
                     gcsService.createOrReplace(fileName,
                             GcsFileOptions.getDefaultInstance());
             OutputStream oout = Channels.newOutputStream(outputChannel);
-            oout.write(
-                    d.getContent().toString().getBytes(StandardCharsets.UTF_8));
+            oout.write(d);
             oout.close();
 
             // ZIP
@@ -90,8 +87,7 @@ public class ExportRepAction extends Action {
             zos.setLevel(Deflater.BEST_COMPRESSION);
             ZipEntry e = new ZipEntry("Rep.xml");
             zos.putNextEntry(e);
-            zos.write(
-                    d.getContent().toString().getBytes(StandardCharsets.UTF_8));
+            zos.write(d);
             zos.closeEntry();
             zos.close();
 
@@ -99,14 +95,13 @@ public class ExportRepAction extends Action {
             if (tag.equals("unstable")) {
                 d = RepXMLPage.toXML2(tag, true, true);
             } else {
-                d = RepXMLPage.toXMLByPackageTag2(tag, true, true);
+                d = RepXMLPage.toXMLByPackageTag2(tag, true);
             }
             outputChannel =
                     gcsService.createOrReplace(fileNameExtra,
                             GcsFileOptions.getDefaultInstance());
             oout = Channels.newOutputStream(outputChannel);
-            oout.write(
-                    d.getContent().toString().getBytes(StandardCharsets.UTF_8));
+            oout.write(d);
             oout.close();
 
             r.blobFile =

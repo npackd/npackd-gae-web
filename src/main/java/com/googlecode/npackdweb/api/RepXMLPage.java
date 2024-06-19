@@ -6,10 +6,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.googlecode.npackdweb.NWUtils;
-import com.googlecode.npackdweb.db.License;
+import com.googlecode.npackdweb.db.*;
 import com.googlecode.npackdweb.db.Package;
-import com.googlecode.npackdweb.db.PackageVersion;
-import com.googlecode.npackdweb.db.Version;
 import com.googlecode.npackdweb.wlib.HTMLWriter;
 import com.googlecode.npackdweb.wlib.Page;
 
@@ -32,7 +30,7 @@ public class RepXMLPage extends Page {
     /**
      * @param tag only package versions with this tag will be exported.
      * @param create "true" = create the file, "now" = re-create file release
-     * asset, other values = redirect to a Github,
+     * asset, other values = redirect to a GitHub,
      * @param extra true = export non-standard fields
      */
     public RepXMLPage(String tag, String create, boolean extra) {
@@ -55,10 +53,9 @@ public class RepXMLPage extends Page {
                 throw new IOException(ex.getMessage());
             }
         } else if ("now".equals(create) && NWUtils.isAdminLoggedIn()) {
-            HTMLWriter d = toXMLByPackageTag2(this.tag, true, this.extra);
+            byte[] d = toXMLByPackageTag2(this.tag, this.extra);
             resp.setContentType("application/xml");
-            resp.getOutputStream().write(d.getContent().toString().getBytes(
-                    StandardCharsets.UTF_8));
+            resp.getOutputStream().write(d);
         } else {
             resp.sendRedirect(
                     "https://npackd.github.io/npackd/repository/" +
@@ -72,7 +69,7 @@ public class RepXMLPage extends Page {
      * @param extra true = export non-standard fields
      * @return XML for the whole repository definition
      */
-    public static HTMLWriter
+    public static byte[]
     toXML2(String tag, boolean onlyReviewed, boolean extra) {
         List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(tag,
                 null, 0, 0);
@@ -86,50 +83,54 @@ public class RepXMLPage extends Page {
             }
         }
 
-        return toXML2(pvs, onlyReviewed, tag, extra);
+        String addDescription;
+        if ("stable".equals(tag)) {
+            addDescription = "\ni686";
+        } else if ("stable64".equals(tag)) {
+            addDescription = "\nx86_64";
+        } else {
+            addDescription = "";
+        }
+
+        return toXML2(pvs, onlyReviewed, addDescription,
+                extra).getContent().
+                toString().getBytes(StandardCharsets.UTF_8);
     }
 
     /**
      * @param tag package tag or null for "everything"
-     * @param onlyReviewed true = only export reviewed package versions
      * @param extra true = export non-standard fields
      * @return XML for the whole repository definition
      */
-    public static HTMLWriter
-    toXMLByPackageTag2(String tag, boolean onlyReviewed, boolean extra) {
+    public static byte[]
+    toXMLByPackageTag2(String tag, boolean extra) {
         List<Package> ps = NWUtils.dsCache.findPackages(tag,
                 null, null, 0);
-        Set<String> packageNames = new HashSet<>(ps.size());
-        for (Package p : ps) {
-            packageNames.add(p.name);
+
+        String addDescription;
+        if ("stable".equals(tag)) {
+            addDescription = "\ni686";
+        } else if ("stable64".equals(tag)) {
+            addDescription = "\nx86_64";
+        } else {
+            addDescription = "";
         }
 
-        List<PackageVersion> pvs = NWUtils.dsCache.findPackageVersions(null,
-                null, 0, 0);
-
-        // remove untested package versions
-        Iterator<PackageVersion> it = pvs.iterator();
-        while (it.hasNext()) {
-            PackageVersion pv = it.next();
-            if (pv.tags.contains("untested") || pv.tags.contains("unstable") ||
-                    !packageNames.contains(
-                            pv.package_)) {
-                it.remove();
-            }
-        }
-
-        return toXML2(pvs, onlyReviewed, tag, extra);
+        return toXML3(ps, addDescription,
+                extra).getContent().
+                toString().getBytes(StandardCharsets.UTF_8);
     }
 
     /**
      * @param pvs package versions
      * @param onlyReviewed true = only export reviewed package versions
-     * @param tag package versions tag or null for "everything"
+     * @param addDescription additional text added to the end of package
+     * descriptions for each package
      * @param extra true = export non-standard fields
      * @return XML for the specified package versions
      */
     public static HTMLWriter toXML2(List<PackageVersion> pvs,
-                                    boolean onlyReviewed, String tag,
+                                    boolean onlyReviewed, String addDescription,
                                     boolean extra) {
         pvs.sort(new Comparator<PackageVersion>() {
             @Override
@@ -201,11 +202,7 @@ public class RepXMLPage extends Page {
         }
 
         for (Package p : ps) {
-            if ("stable".equals(tag)) {
-                p.description += "\ni686";
-            } else if ("stable64".equals(tag)) {
-                p.description += "\nx86_64";
-            }
+            p.description += addDescription;
 
             if (p.hasTag("end-of-life")) {
                 p.description = "WARNING: " +
@@ -231,6 +228,104 @@ public class RepXMLPage extends Page {
             if (!pv.tags.contains("not-reviewed") || !onlyReviewed) {
                 pv.toXML(d, extra);
             }
+        }
+
+        d.end("root");
+
+        return d;
+    }
+
+    /**
+     * @param ps packages
+     * @param addDescription additional text added to the end of package
+     * descriptions for each package
+     * @param extra true = export non-standard fields
+     * @return XML for the specified package versions
+     */
+    public static HTMLWriter toXML3(List<Package> ps,
+                                    String addDescription,
+                                    boolean extra) {
+        ps.sort(new Comparator<Package>() {
+            @Override
+            public int compare(Package a, Package b) {
+                return a.name.compareToIgnoreCase(b.name);
+            }
+        });
+
+        HTMLWriter d = NWUtils.newXMLRepository(true);
+
+        // Licenses
+        Set<String> lns = new HashSet<>();
+        for (Package p : ps) {
+            if (!p.license.isEmpty()) {
+                lns.add(p.license);
+            }
+        }
+        List<com.google.appengine.api.datastore.Key> lkeys = new ArrayList<>();
+        for (String s : lns) {
+            lkeys.add(KeyFactory.createKey("License", s));
+        }
+        DatastoreService datastore = DatastoreServiceFactory.
+                getDatastoreService();
+        Map<com.google.appengine.api.datastore.Key, Entity> ls = datastore.get(
+                lkeys);
+        List<License> licenses = new ArrayList<>();
+        for (Entity e : ls.values()) {
+            licenses.add(new License(e));
+        }
+        licenses.sort(new Comparator<License>() {
+            @Override
+            public int compare(License a, License b) {
+                return a.name.compareToIgnoreCase(b.name);
+            }
+        });
+        for (License l : licenses) {
+            l.toXML(d);
+        }
+
+        // packages
+        for (Package p : ps) {
+            p.description += addDescription;
+
+            if (p.hasTag("end-of-life")) {
+                p.description = "WARNING: " +
+                        "there will be no new versions of this package.\n" +
+                        p.description;
+            }
+            if (p.hasTag("same-url")) {
+                p.description =
+                        "WARNING: this package always installs the newest " +
+                                "version of the software.\n" +
+                                p.description;
+            }
+            p.toXML(d, extra);
+        }
+
+        // package versions
+        for (Package p : ps) {
+            final List<PackageVersion> pvs =
+                    NWUtils.dsCache.getPackageVersions(p.name);
+            pvs.sort(new Comparator<PackageVersion>() {
+                @Override
+                public int compare(PackageVersion a, PackageVersion b) {
+                    int r = a.package_.compareToIgnoreCase(b.package_);
+                    if (r == 0) {
+                        Version av = Version.parse(a.version);
+                        Version bv = Version.parse(b.version);
+                        r = av.compare(bv);
+                    }
+                    return r;
+                }
+            });
+
+            for (PackageVersion pv : pvs) {
+                if (!pv.tags.contains("not-reviewed") && !pv.tags.contains(
+                        "untested") && !pv.tags.contains(
+                        "unstable")) {
+                    pv.toXML(d, extra);
+                }
+            }
+            d.t("\n");
         }
 
         d.end("root");

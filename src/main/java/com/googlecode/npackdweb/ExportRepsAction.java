@@ -2,6 +2,7 @@ package com.googlecode.npackdweb;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.RetryOptions;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.googlecode.npackdweb.db.Repository;
 import com.googlecode.npackdweb.wlib.Action;
@@ -32,7 +33,9 @@ public class ExportRepsAction extends Action {
         for (Repository r : rs) {
             Queue queue = QueueFactory.getDefaultQueue();
             queue.add(TaskOptions.Builder.withUrl("/cron/export-rep")
-                    .param("tag", r.name));
+                    .param("tag", r.name)
+                    .retryOptions(RetryOptions.Builder.withDefaults()
+                            .taskRetryLimit(1)));
         }
         resp.setStatus(200);
         return null;

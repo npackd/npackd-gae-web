@@ -88,7 +88,7 @@ public class RecentRepXMLPage extends Page {
                     res.add(new PackageVersion(e));
                 }
 
-                HTMLWriter d = RepXMLPage.toXML2(res, false, null, extra);
+                HTMLWriter d = RepXMLPage.toXML2(res, false, "", extra);
                 value = d.getContent().toString()
                         .getBytes(StandardCharsets.UTF_8);
 
